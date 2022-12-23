@@ -56,3 +56,13 @@ domain-azure-resources: set-azure-account set-azure-template-tag set-azure-resou
 		--parameters "resourceGroupName=${RESOURCE_GROUP_NAME}" 'tags=${RG_TAGS}' \
 			"tfStorageAccountName=${STORAGE_ACCOUNT_NAME}" "tfStorageContainerName=tscdomains-tfstate" \
 			"keyVaultName=${KEYVAULT_NAME}" ${WHAT_IF}
+
+domains-infra-init: set-azure-account
+	terraform -chdir=custom_domains/infrastructure init -reconfigure \
+		-backend-config=workspace_variables/${DOMAINS_ID}_backend.tfvars
+
+domains-infra-plan: domains-infra-init
+	terraform -chdir=custom_domains/infrastructure plan -var-file workspace_variables/${DOMAINS_ID}.tfvars.json
+
+domains-infra-apply: domains-infra-init
+	terraform -chdir=custom_domains/infrastructure apply -var-file workspace_variables/${DOMAINS_ID}.tfvars.json
