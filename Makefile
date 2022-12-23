@@ -5,6 +5,9 @@ development:
 psp-poc:
 	$(eval include config/psp_poc.sh)
 
+prod-domain:
+	$(eval include config/prod-domain.sh)
+
 set-azure-account:
 	az account set -s ${AZ_SUBSCRIPTION}
 
@@ -46,3 +49,10 @@ arm-deployment: set-azure-account set-azure-template-tag set-azure-resource-grou
 deploy-azure-resources: check-auto-approve arm-deployment # make dev deploy-azure-resources AUTO_APPROVE=1
 
 validate-azure-resources: set-what-if arm-deployment # make dev validate-azure-resources
+
+domain-azure-resources: set-azure-account set-azure-template-tag set-azure-resource-group-tags# make domain domain-azure-resources AUTO_APPROVE=1
+	$(if $(AUTO_APPROVE), , $(error can only run with AUTO_APPROVE))
+	az deployment sub create -l "UK South" --template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/resourcedeploy.json" \
+		--parameters "resourceGroupName=${RESOURCE_GROUP_NAME}" 'tags=${RG_TAGS}' \
+			"tfStorageAccountName=${STORAGE_ACCOUNT_NAME}" "tfStorageContainerName=tscdomains-tfstate" \
+			"keyVaultName=${KEYVAULT_NAME}" ${WHAT_IF}
