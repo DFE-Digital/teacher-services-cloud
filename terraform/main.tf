@@ -27,6 +27,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "tra-node-pool" {
   kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
   node_count            = 1
   vm_size               = "Standard_D2_v2"
+  tags = {
+    "Product" : "Refer Serious Misconduct"
+  }
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "bat-node-pool" {
@@ -34,4 +37,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "bat-node-pool" {
   kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
   node_count            = 1
   vm_size               = "Standard_D2_v2"
+  tags = {
+    "Product" : "Find postgraduate teacher training"
+  }
 }
