@@ -21,3 +21,17 @@ resource "azurerm_kubernetes_cluster" "main" {
 
   lifecycle { ignore_changes = [tags] }
 }
+
+resource "azurerm_kubernetes_cluster_node_pool" "tra-node-pool" {
+  name                  = "tra"
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
+  node_count            = 1
+  vm_size               = "Standard_D2_v2"
+}
+
+resource "azurerm_kubernetes_cluster_node_pool" "bat-node-pool" {
+  name                  = "bat"
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
+  node_count            = 1
+  vm_size               = "Standard_D2_v2"
+}
