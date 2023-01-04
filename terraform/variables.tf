@@ -6,6 +6,20 @@ variable "resource_group_name" {}
 # Set in config json file
 variable "cip_tenant" { type = bool }
 variable "namespaces" {}
+variable "node_pools" {
+    type = map(object({
+        pool_name = string
+        node_count = number
+        vm_size = string
+    }))
+
+    validation {
+        condition = alltrue([for p in var.node_pools : length(p.pool_name) < 13])
+        error_message = "The pool_name must be 12 characters or less."
+    }
+
+    //TO DO: establish naming convention for node pools
+}
 
 locals {
     cluster_name = (

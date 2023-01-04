@@ -22,22 +22,14 @@ resource "azurerm_kubernetes_cluster" "main" {
   lifecycle { ignore_changes = [tags] }
 }
 
-resource "azurerm_kubernetes_cluster_node_pool" "tra-node-pool" {
-  name                  = "tra"
-  kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
-  node_count            = 1
-  vm_size               = "Standard_D2_v2"
-  tags = {
-    "Product" : "Refer Serious Misconduct"
-  }
-}
+resource "azurerm_kubernetes_cluster_node_pool" "app-node-pools" {
+  for_each = var.node_pools
 
-resource "azurerm_kubernetes_cluster_node_pool" "bat-node-pool" {
-  name                  = "bat"
+  name                  = each.value.pool_name
   kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
-  node_count            = 1
-  vm_size               = "Standard_D2_v2"
+  node_count            = each.value.node_count
+  vm_size               = each.value.vm_size
   tags = {
-    "Product" : "Find postgraduate teacher training"
+    "Product" : each.key
   }
 }
