@@ -9,6 +9,7 @@ variable "namespaces" {}
 variable "node_pools" {
     type = map(object({
         pool_name = string
+        product_name = string //this needs to be a separate property to prevent destruction when changing node_pool tags
         node_count = number
         vm_size = string
     }))

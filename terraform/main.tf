@@ -30,6 +30,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "app-node-pools" {
   node_count            = each.value.node_count
   vm_size               = each.value.vm_size
   tags = {
-    "Product" : each.key
+    "Product" : each.value.product_name
   }
 }
