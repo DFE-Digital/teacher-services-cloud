@@ -2,6 +2,8 @@
 variable "environment" {}
 variable "resource_prefix" {}
 variable "resource_group_name" {}
+variable "cluster_dns_resource_group_name" { default = null }
+variable "cluster_dns_zone" { default = null }
 
 # Set in config json file
 variable "cip_tenant" { type = bool }
