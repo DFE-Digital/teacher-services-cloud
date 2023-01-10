@@ -1,6 +1,12 @@
+ci:
+	$(eval AUTO_APPROVE=-auto-approve)
+
 development:
 	$(if ${ENVIRONMENT}, , $(error Missing ENVIRONMENT name))
 	$(eval include cluster/config/development.sh)
+
+platform-test:
+	$(eval include cluster/config/platform-test.sh)
 
 psp-poc:
 	$(eval include cluster/config/psp_poc.sh)
@@ -25,7 +31,7 @@ terraform-plan: terraform-init
 	terraform -chdir=cluster/terraform plan -var-file config/${CONFIG}.tfvars.json ${TF_VARS}
 
 terraform-apply: terraform-init
-	terraform -chdir=cluster/terraform apply -var-file config/${CONFIG}.tfvars.json ${TF_VARS}
+	terraform -chdir=cluster/terraform apply -var-file config/${CONFIG}.tfvars.json ${TF_VARS} ${AUTO_APPROVE}
 
 terraform-destroy: terraform-init
 	terraform -chdir=cluster/terraform destroy -var-file config/${CONFIG}.tfvars.json ${TF_VARS}
@@ -45,7 +51,7 @@ set-azure-resource-group-tags: ##Tags that will be added to resource group on it
 arm-deployment: set-azure-account set-azure-template-tag set-azure-resource-group-tags
 	az deployment sub create --name "resourcedeploy-tsc-$(shell date +%Y%m%d%H%M%S)" \
 		-l "UK South" --template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/resourcedeploy.json" \
-		--parameters "resourceGroupName=${RESOURCE_GROUP_NAME}" "tags=${RG_TAGS}" \
+		--parameters "resourceGroupName=${RESOURCE_GROUP_NAME}" 'tags=${RG_TAGS}' \
 			"tfStorageAccountName=${STORAGE_ACCOUNT_NAME}" "tfStorageContainerName=tsc-tfstate" \
 			"keyVaultName=${KEYVAULT_NAME}" ${WHAT_IF}
 
