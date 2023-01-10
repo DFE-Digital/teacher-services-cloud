@@ -1,0 +1,28 @@
+name: Deploy Cluster
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+    types:
+      - labeled
+      - synchronize
+      - reopened
+      - opened
+      - converted_to_draft
+  workflow_dispatch:
+
+jobs:
+  validate-terraform:
+    name: Validate Terraform
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: ./.github/actions/validate-terraform
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        terraform_root_folder: cluster/terraform
