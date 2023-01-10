@@ -4,3 +4,11 @@ variable "hosted_zone" {
 
 variable "tags" {
 }
+
+variable "delegation_name" {
+  default = null
+}
+
+variable "delegation_ns" {
+  default = null
+}
