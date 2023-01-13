@@ -18,4 +18,9 @@ resource "helm_release" "ingress-nginx" {
     value = "/healthz"
     type  = "string"
   }
+
+  set {
+    name  = "controller.extraArgs.default-ssl-certificate"
+    value = "default/cert-secret"
+  }
 }
