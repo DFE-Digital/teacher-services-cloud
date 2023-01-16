@@ -40,6 +40,19 @@ e.g.
 make development terraform-plan ENVIRONMENT=cluster1
 ```
 
+Test
+
+```
+make test terraform-{plan/apply} ENVIRONMENT=cluster{n}
+```
+
+where n = 1-6
+
+e.g.
+```
+make test terraform-plan ENVIRONMENT=cluster1
+```
+
 ### DNS records
 
 We use a wildcard DNS record for the default domain of any application deployed to the cluster.
