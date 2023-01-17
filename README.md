@@ -70,11 +70,20 @@ and then loaded into the cluster using terraform on cluster build.
 Initial set up requires manual steps in the cluster Azure KV.
 
 - create KV certificate CA
-    - The CA API key was created in our digicert service account, and is kept in a prod KV secret.
+    - The CA API key was created in our digicert service account, and is kept in a secret in the prod TSC Domains KeyVault.
 - generate cert within KV certificate
 
 For a more detailed explanation see,
 https://technical-guidance.education.gov.uk/infrastructure/security/ssl-certificates/#automatic-via-key-vault
+
+Use the defaults from the above documentation, the following properties are specific to our environment:
+- Certificate Name: <local.environment>-teacherservices-cloud
+- Subject CN: *.<local.environment>.teacherservices.cloud
+- DNS Names: 0
+
+<local.environment> refers to the value defined in [variables.tf](cluster/terraform/variables.tf)
+
+Once the certificate is created you will need to logon to Digicert as per the above docs.  The credentials to do this can be found in the prod TSC Domains KeyVault.
 
 On cluster build, terraform will load the cert into a kubernetes secret,
 and this will be set as the default-ssl-certificate in the nginx ingress.
