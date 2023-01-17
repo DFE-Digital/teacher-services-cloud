@@ -18,16 +18,17 @@ variable "namespaces" {}
 
 locals {
   azure_credentials = try(jsondecode(var.azure_sp_credentials_json), null)
+  environment       = var.environment == "" ? var.config : "${var.environment}-${var.config}"
   cluster_name = (
     var.cip_tenant ?
-    "${var.resource_prefix}-tsc-${var.environment}-aks" :
-    "${var.resource_prefix}aks-tsc-${var.environment}"
+    "${var.resource_prefix}-tsc-${local.environment}-aks" :
+    "${var.resource_prefix}aks-tsc-${local.environment}"
   )
   node_resource_group_name = (
     var.cip_tenant ?
-    "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-rg" :
-    "${var.resource_prefix}rg-tsc-aks-nodes-${var.environment}"
+    "${var.resource_prefix}-tsc-aks-nodes-${local.environment}-rg" :
+    "${var.resource_prefix}rg-tsc-aks-nodes-${local.environment}"
   )
-  dns_prefix          = "${var.resource_prefix}-tsc-${var.environment}"
-  cluster_cert_secret = "${var.environment}-${var.config}-teacherservices-cloud"
+  dns_prefix          = "${var.resource_prefix}-tsc-${local.environment}"
+  cluster_cert_secret = "${local.environment}-teacherservices-cloud"
 }
