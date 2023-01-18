@@ -10,7 +10,10 @@ variable "cluster_dns_resource_group_name" { default = null }
 variable "cluster_dns_zone" { default = null }
 variable "cluster_kv" {}
 variable "config" {}
-
+variable "ingress_cert_name" {
+  type    = string
+  default = null
+}
 
 # Set in config json file
 variable "cip_tenant" { type = bool }
@@ -18,17 +21,23 @@ variable "namespaces" {}
 
 locals {
   azure_credentials = try(jsondecode(var.azure_sp_credentials_json), null)
-  environment       = var.environment == "" ? var.config : "${var.environment}-${var.config}"
   cluster_name = (
     var.cip_tenant ?
-    "${var.resource_prefix}-tsc-${local.environment}-aks" :
-    "${var.resource_prefix}aks-tsc-${local.environment}"
+    "${var.resource_prefix}-tsc-${var.environment}-aks" :
+    "${var.resource_prefix}aks-tsc-${var.environment}"
   )
   node_resource_group_name = (
     var.cip_tenant ?
-    "${var.resource_prefix}-tsc-aks-nodes-${local.environment}-rg" :
-    "${var.resource_prefix}rg-tsc-aks-nodes-${local.environment}"
+    "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-rg" :
+    "${var.resource_prefix}rg-tsc-aks-nodes-${var.environment}"
   )
-  dns_prefix          = "${var.resource_prefix}-tsc-${local.environment}"
-  cluster_cert_secret = "${local.environment}-teacherservices-cloud"
+  dns_prefix = "${var.resource_prefix}-tsc-${var.environment}"
+  default_ingress_cert_name = (var.environment == var.config ?
+    "${var.environment}-teacherservices-cloud" :             # For non dev environments, config is the same as environment
+    "${var.environment}-${var.config}-teacherservices-cloud" # Development environments have unique names but share the same config
+  )
+  cluster_cert_secret = (var.ingress_cert_name != null ?
+    var.ingress_cert_name : # Override certificate name if required for this environment
+    local.default_ingress_cert_name
+  )
 }
