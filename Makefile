@@ -5,6 +5,9 @@ development:
 	$(if ${ENVIRONMENT}, , $(error Missing ENVIRONMENT name))
 	$(eval include cluster/config/development.sh)
 
+test:
+    $(eval include cluster/config/test.sh)
+
 platform-test:
 	$(eval include cluster/config/platform-test.sh)
 

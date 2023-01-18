@@ -1,6 +1,6 @@
-ENVIRONMENT=platform-test
-CONFIG=platform-test
-CONFIG_SHORT=pt
+ENVIRONMENT=test
+CONFIG=test
+CONFIG_SHORT=ts
 AZ_SUBSCRIPTION=s189-teacher-services-cloud-test
 RESOURCE_PREFIX=s189t01
 ENV_TAG=Test
