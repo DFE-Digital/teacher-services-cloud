@@ -1,0 +1,45 @@
+name: Validate Terraform
+
+inputs:
+  github_token:
+    description: The GitHub access token
+    required: true
+  terraform_root_folder:
+    description: The folder that contains the terraform to be validated
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+  - run: |
+      TERRAFORM_VERSION=$(awk '/{/{f=/^terraform/;next}f' terraform.tf | grep -o [0-9\.]*)
+
+      if [ -z "$TERRAFORM_VERSION" ]; then
+        echo "::error ::Failed to extract terraform_version from terraform.tf"
+        exit 1
+      fi
+
+      echo "terraform_version=$TERRAFORM_VERSION" >> $GITHUB_ENV
+    shell: bash
+    working-directory: ${{ inputs.terraform_root_folder }}
+
+  - uses: hashicorp/setup-terraform@v2
+    with:
+      terraform_version: ${{ env.terraform_version }}
+
+  - run: terraform fmt -check -diff
+    shell: bash
+    working-directory: ${{ inputs.terraform_root_folder }}
+
+  - run: |
+      terraform init -backend=false
+      terraform validate -no-color
+    shell: bash
+    working-directory: ${{ inputs.terraform_root_folder }}
+
+  - uses: reviewdog/action-tflint@v1.17
+    with:
+      github_token: ${{ inputs.github_token }}
+      tflint_rulesets: azurerm
+      working_directory: ${{ inputs.terraform_root_folder }}

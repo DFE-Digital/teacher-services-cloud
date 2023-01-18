@@ -1,0 +1,73 @@
+name: Deploy Environment
+
+inputs:
+  azure_credentials:
+    description: Credentials with Contributor & KeyVault access to Azure subscription
+    required: true
+  environment_name:
+    description: Name of the environment in Make file
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+  - run: |
+      TERRAFORM_VERSION=$(awk '/{/{f=/^terraform/;next}f' terraform/terraform.tf | grep -o [0-9\.]*)
+      . config/${{ inputs.environment_name }}.sh
+
+      if [ -z "$RESOURCE_GROUP_NAME" ]; then
+        echo "::error ::RESOURCE_GROUP_NAME not defined in config shell script"
+        exit 1
+      fi
+
+      if [ -z "$STORAGE_ACCOUNT_NAME" ]; then
+        echo "::error ::STORAGE_ACCOUNT_NAME not defined in config shell script"
+        exit 1
+      fi
+
+      if [ -z "$TERRAFORM_VERSION" ]; then
+        echo "::error ::Failed to extract TERRAFORM_VERSION from terraform.tf"
+        exit 1
+      fi
+
+      echo "resource_group_name=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
+      echo "storage_account_name=$STORAGE_ACCOUNT_NAME" >> $GITHUB_ENV
+      echo "terraform_version=$TERRAFORM_VERSION" >> $GITHUB_ENV
+    shell: bash
+    working-directory: cluster
+
+  - uses: Azure/login@v1
+    with:
+      creds: ${{ inputs.azure_credentials }}
+
+  - id: deploy-arm-resources
+    run: |
+      make ci ${{ inputs.environment_name }} deploy-azure-resources
+    shell: bash
+
+  - run: |
+      TFSTATE_CONTAINER_ACCESS_KEY="$(az storage account keys list -g ${{ env.resource_group_name }} -n ${{ env.storage_account_name }} | jq -r '.[0].value')"
+      echo "::add-mask::$TFSTATE_CONTAINER_ACCESS_KEY"
+      echo "TFSTATE_CONTAINER_ACCESS_KEY=$TFSTATE_CONTAINER_ACCESS_KEY" >> $GITHUB_ENV
+    shell: bash
+
+  - uses: hashicorp/setup-terraform@v2
+    with:
+      terraform_version: ${{ env.terraform_version }}
+      terraform_wrapper: false
+
+  - id: terraform
+    run: |
+      make ci ${{ inputs.environment_name }} terraform-apply
+      cd cluster/terraform
+      TFOUTPUTS=$(terraform output --json)
+      OUTPUTS=($(jq -r <<< "$TFOUTPUTS" | jq -r 'keys | @sh' | tr -d \'))
+      for o in "${OUTPUTS[@]}"
+      do
+        echo ${o}=$(jq -r .${o}.value <<< "$TFOUTPUTS") >> $GITHUB_ENV
+      done
+    env:
+      ARM_ACCESS_KEY: ${{ env.TFSTATE_CONTAINER_ACCESS_KEY }}
+      TF_VAR_azure_sp_credentials_json: ${{ inputs.azure_credentials }}
+    shell: bash
