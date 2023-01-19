@@ -24,7 +24,7 @@ set-azure-account:
 	az account set -s ${AZ_SUBSCRIPTION}
 
 terraform-init: set-azure-account
-	terraform -chdir=cluster/terraform init -reconfigure \
+	terraform -chdir=cluster/terraform init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=${ENVIRONMENT}.tfstate
@@ -71,7 +71,7 @@ domain-azure-resources: set-azure-account set-azure-template-tag set-azure-resou
 			"keyVaultName=${KEYVAULT_NAME}" ${WHAT_IF}
 
 domains-infra-init: set-azure-account
-	terraform -chdir=custom_domains/terraform/infrastructure init -reconfigure \
+	terraform -chdir=custom_domains/terraform/infrastructure init -reconfigure -upgrade \
 		-backend-config=workspace_variables/${DOMAINS_ID}_backend.tfvars
 
 domains-infra-plan: domains-infra-init
