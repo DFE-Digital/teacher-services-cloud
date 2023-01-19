@@ -29,6 +29,7 @@ jobs:
 
   deploy:
     name: Deploy Cluster
+    if: github.ref == 'refs/heads/main'
     concurrency: deploy_${{ matrix.environment }}
     environment:
       name: ${{ matrix.environment }}
