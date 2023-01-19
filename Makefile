@@ -11,6 +11,9 @@ test:
 platform-test:
 	$(eval include cluster/config/platform-test.sh)
 
+production:
+	 $(eval include cluster/config/production.sh)
+
 psp-poc:
 	$(eval include cluster/config/psp_poc.sh)
 

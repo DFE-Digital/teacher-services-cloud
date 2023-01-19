@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: [platform-test, test]
+        environment: [platform-test, test, production]
     steps:
     - uses: actions/checkout@v3
 
