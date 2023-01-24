@@ -37,8 +37,8 @@ locals {
   )
   dns_prefix = "${var.resource_prefix}-tsc-${var.environment}"
   default_ingress_cert_name = (var.environment == var.config ?
-    "${var.environment}-teacherservices-cloud" :             # For non dev environments, config is the same as environment
-    "${var.environment}-${var.config}-teacherservices-cloud" # Development environments have unique names but share the same config
+    "${var.environment}-teacherservices-cloud" :                    # For non dev environments, config is the same as environment
+    "cluster${var.environment}-${var.config}-teacherservices-cloud" # Development environments have unique names but share the same config
   )
   cluster_cert_secret = (var.ingress_cert_name != null ?
     var.ingress_cert_name : # Override certificate name if required for this environment
