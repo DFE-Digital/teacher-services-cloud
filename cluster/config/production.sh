@@ -1,4 +1,4 @@
-ENVIRONMENT=prod
+ENVIRONMENT=production
 CONFIG=production
 CONFIG_SHORT=pd
 AZ_SUBSCRIPTION=s189-teacher-services-cloud-production
