@@ -50,14 +50,25 @@ locals {
   subnets = {
     postgres-snet = {
       cidr_range = "10.2.0.0/18",
-      delegations = {
-        postgres-delegation = {
+      delegation = {
+        name = "postgres-delegation"
+        service-delegation = {
           name = "Microsoft.DBforPostgreSQL/flexibleServers",
           actions = [
             "Microsoft.Network/virtualNetworks/subnets/join/action"
           ]
         }
       }
+    },
+    redis-snet = {
+      cidr_range = "10.2.64.0/18",
+      delegation = {}
     }
   }
+  custom_dns_zone_name_suffixes = [
+    "internal.postgres.database.azure.com"
+  ]
+  privatelink_dns_zone_names = [
+    "privatelink.redis.cache.windows.net"
+  ]
 }
