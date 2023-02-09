@@ -27,7 +27,7 @@ Makefile
 
 ### Cluster Build
 
-Development
+#### Development environments: cluster1, cluster2...
 
 ```
 make development terraform-{plan/apply} ENVIRONMENT=cluster{n}
@@ -40,17 +40,24 @@ e.g.
 make development terraform-plan ENVIRONMENT=cluster1
 ```
 
-Test
+#### Permanent environments: platform-test, test, production
 
 ```
-make test terraform-{plan/apply} ENVIRONMENT=cluster{n}
+make <environment> terraform-{plan/apply}
 ```
-
-where n = 1-6
 
 e.g.
 ```
-make test terraform-plan ENVIRONMENT=cluster1
+make test terraform-plan
+```
+
+### kubectl
+- Follow the [kubectl documentation](https://kubernetes.io/docs/tasks/tools/#kubectl) to install it
+- Configure the credentials using the `get-cluster-credentials` make command. Example:
+
+```
+make platform-test get-cluster-credentials
+make development get-cluster-credentials ENVIRONMENT=cluster1
 ```
 
 ### DNS records
