@@ -3,6 +3,7 @@ variable "azure_sp_credentials_json" {
   default = null
   type    = string
 }
+variable "azure_tags" { type = string }
 variable "environment" {}
 variable "resource_prefix" {}
 variable "resource_group_name" {}
@@ -25,7 +26,8 @@ variable "namespaces" {}
 variable "node_pools" {}
 
 locals {
-  azure_credentials = try(jsondecode(var.azure_sp_credentials_json), null)
+  azure_credentials                    = try(jsondecode(var.azure_sp_credentials_json), null)
+  backing_services_resource_group_name = "${var.resource_prefix}-tsc-${var.environment}-bs-rg"
   cluster_name = (
     var.cip_tenant ?
     "${var.resource_prefix}-tsc-${var.environment}-aks" :
@@ -45,4 +47,18 @@ locals {
     var.ingress_cert_name : # Override certificate name if required for this environment
     local.default_ingress_cert_name
   )
+  vnet_name = "${var.resource_prefix}-tsc-${var.environment}-vnet"
+  subnets = {
+    postgres-snet = {
+      cidr_range = "10.2.0.0/18",
+      delegations = {
+        postgres-delegation = {
+          name = "Microsoft.DBforPostgreSQL/flexibleServers",
+          actions = [
+            "Microsoft.Network/virtualNetworks/subnets/join/action"
+          ]
+        }
+      }
+    }
+  }
 }

@@ -6,10 +6,13 @@ development:
 	$(eval include cluster/config/development.sh)
 
 test:
-    $(eval include cluster/config/test.sh)
+	$(eval include cluster/config/test.sh)
 
 platform-test:
 	$(eval include cluster/config/platform-test.sh)
+
+production:
+	 $(eval include cluster/config/production.sh)
 
 psp-poc:
 	$(eval include cluster/config/psp_poc.sh)
@@ -23,12 +26,12 @@ dev-domain:
 set-azure-account:
 	az account set -s ${AZ_SUBSCRIPTION}
 
-terraform-init: set-azure-account
+terraform-init: set-azure-account set-azure-resource-group-tags
 	terraform -chdir=cluster/terraform init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=${ENVIRONMENT}.tfstate
-	$(eval TF_VARS=-var environment=${ENVIRONMENT} -var resource_group_name=${RESOURCE_GROUP_NAME} -var resource_prefix=${RESOURCE_PREFIX} -var config=${CONFIG})
+	$(eval TF_VARS=-var environment=${ENVIRONMENT} -var resource_group_name=${RESOURCE_GROUP_NAME} -var resource_prefix=${RESOURCE_PREFIX} -var config=${CONFIG} -var azure_tags='${RG_TAGS}')
 
 terraform-plan: terraform-init
 	terraform -chdir=cluster/terraform plan -var-file config/${CONFIG}.tfvars.json ${TF_VARS}
@@ -65,7 +68,7 @@ validate-azure-resources: set-what-if arm-deployment # make dev validate-azure-r
 domain-azure-resources: set-azure-account set-azure-template-tag set-azure-resource-group-tags # make domain domain-azure-resources AUTO_APPROVE=1
 	$(if $(AUTO_APPROVE), , $(error can only run with AUTO_APPROVE))
 	az deployment sub create --name "resourcedeploy-tscdomains-$(shell date +%Y%m%d%H%M%S)" \
-	    -l "UK South" --template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/resourcedeploy.json" \
+		-l "UK South" --template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/resourcedeploy.json" \
 		--parameters "resourceGroupName=${RESOURCE_GROUP_NAME}" 'tags=${RG_TAGS}' \
 			"tfStorageAccountName=${STORAGE_ACCOUNT_NAME}" "tfStorageContainerName=tscdomains-tfstate" \
 			"keyVaultName=${KEYVAULT_NAME}" ${WHAT_IF}
@@ -79,3 +82,6 @@ domains-infra-plan: domains-infra-init
 
 domains-infra-apply: domains-infra-init
 	terraform -chdir=custom_domains/terraform/infrastructure apply -var-file workspace_variables/${DOMAINS_ID}.tfvars.json
+
+get-cluster-credentials: set-azure-account ## make <config> get-cluster-credentials [ENVIRONMENT=<clusterX>]
+	az aks get-credentials --overwrite-existing -g ${RESOURCE_GROUP_NAME} -n ${RESOURCE_PREFIX}-tsc-${ENVIRONMENT}-aks

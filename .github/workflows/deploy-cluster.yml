@@ -36,8 +36,9 @@ jobs:
     needs: [validate-terraform]
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 1
       matrix:
-        environment: [platform-test, test]
+        environment: [platform-test, test, production]
     steps:
     - uses: actions/checkout@v3
 
