@@ -23,6 +23,8 @@ variable "ingress_cert_name" {
 # Set in config json file
 variable "cip_tenant" { type = bool }
 variable "namespaces" {}
+variable "default_node_pool" { type = map(any) }
+variable "node_pools" { type = map(any) }
 
 locals {
   azure_credentials                    = try(jsondecode(var.azure_sp_credentials_json), null)
@@ -71,4 +73,5 @@ locals {
   privatelink_dns_zone_names = [
     "privatelink.redis.cache.windows.net"
   ]
+  uk_south_availability_zones = ["1", "2", "3"]
 }

@@ -49,9 +49,10 @@ resource "azurerm_kubernetes_cluster" "main" {
 
   default_node_pool {
     name           = "default"
-    node_count     = 1
+    node_count     = var.default_node_pool.node_count
     vm_size        = "Standard_D2_v2"
     vnet_subnet_id = azurerm_subnet.aks-subnet.id
+    zones          = local.uk_south_availability_zones
   }
 
   identity {
@@ -59,6 +60,19 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   lifecycle { ignore_changes = [tags] }
+}
+
+resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
+  for_each = var.node_pools
+
+  name                  = each.key
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
+  vm_size               = "Standard_D2_v2"
+  enable_auto_scaling   = true
+  min_count             = each.value.min_count
+  max_count             = each.value.max_count
+  vnet_subnet_id        = azurerm_subnet.aks-subnet.id
+  zones                 = local.uk_south_availability_zones
 }
 
 resource "azurerm_private_dns_zone" "backing-services-privatelink-dns-zones" {
