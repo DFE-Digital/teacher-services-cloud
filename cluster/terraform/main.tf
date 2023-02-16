@@ -28,13 +28,13 @@ resource "azurerm_subnet" "backing-service-subnets" {
   address_prefixes     = [each.value.cidr_range]
 
   dynamic "delegation" {
-    for_each = each.value.delegations
+    for_each = lookup(each.value, "delegation", {}) != {} ? [1] : []
 
     content {
-      name = delegation.key
+      name = lookup(each.value.delegation, "name", null)
       service_delegation {
-        name    = delegation.value["name"]
-        actions = delegation.value["actions"]
+        name    = lookup(each.value.delegation.service-delegation, "name", null)
+        actions = lookup(each.value.delegation.service-delegation, "actions", null)
       }
     }
   }
@@ -61,20 +61,40 @@ resource "azurerm_kubernetes_cluster" "main" {
   lifecycle { ignore_changes = [tags] }
 }
 
-resource "azurerm_private_dns_zone" "backing-services-dns-zones" {
-  for_each = local.subnets
+resource "azurerm_private_dns_zone" "backing-services-privatelink-dns-zones" {
+  for_each = toset(local.privatelink_dns_zone_names)
 
-  name                = var.environment == var.config ? "${var.config}.internal.postgres.database.azure.com" : "${var.environment}.${var.config}.internal.postgres.database.azure.com"
-  resource_group_name = data.azurerm_resource_group.cluster.name
+  name                = each.value
+  resource_group_name = azurerm_resource_group.backing_services_group.name
 
   lifecycle { ignore_changes = [tags] }
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "dns-vnet-links" {
-  for_each = resource.azurerm_private_dns_zone.backing-services-dns-zones
+  for_each = resource.azurerm_private_dns_zone.backing-services-privatelink-dns-zones
 
   name                  = each.value.name
-  resource_group_name   = data.azurerm_resource_group.cluster.name
+  resource_group_name   = azurerm_resource_group.backing_services_group.name
+  private_dns_zone_name = each.value.name
+  virtual_network_id    = azurerm_virtual_network.vnet.id
+
+  lifecycle { ignore_changes = [tags] }
+}
+
+resource "azurerm_private_dns_zone" "backing-services-custom-dns-zones" {
+  for_each = toset(local.custom_dns_zone_name_suffixes)
+
+  name                = var.environment == var.config ? "${var.config}.${each.value}" : "${var.environment}.${var.config}.${each.value}"
+  resource_group_name = azurerm_resource_group.backing_services_group.name
+
+  lifecycle { ignore_changes = [tags] }
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "custom-dns-vnet-links" {
+  for_each = resource.azurerm_private_dns_zone.backing-services-custom-dns-zones
+
+  name                  = each.value.name
+  resource_group_name   = azurerm_resource_group.backing_services_group.name
   private_dns_zone_name = each.value.name
   virtual_network_id    = azurerm_virtual_network.vnet.id
 
