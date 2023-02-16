@@ -60,4 +60,10 @@ locals {
       }
     }
   }
+  node_pools = {
+    applications = {
+      vm_size    = "Standard_D2_v2",
+      node_count = "1"
+    }
+  }
 }
