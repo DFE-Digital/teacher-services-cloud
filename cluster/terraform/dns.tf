@@ -4,7 +4,7 @@ data "kubernetes_service" "default" {
   }
 
   depends_on = [
-    helm_release.ingress-nginx
+    module.kubernetes-config
   ]
 
 }
