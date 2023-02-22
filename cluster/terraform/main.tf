@@ -21,15 +21,12 @@ data "azurerm_kubernetes_cluster" "main" {
 }
 
 module "kubernetes-config" {
-  depends_on                      = [module.aks-cluster] # Refresh cluster state before reading
-  source                          = "./kubernetes-config"
-  environment                     = var.environment
-  resource_prefix                 = var.resource_prefix
-  resource_group_name             = var.resource_group_name
-  cluster_dns_resource_group_name = var.cluster_dns_resource_group_name
-  cluster_dns_zone                = var.cluster_dns_zone
-  cluster_kv                      = var.cluster_kv
-  config                          = var.config
-  ingress_cert_name               = var.ingress_cert_name
-  namespaces                      = var.namespaces
+  depends_on          = [module.aks-cluster] # Refresh cluster state before reading
+  source              = "./kubernetes-config"
+  environment         = var.environment
+  resource_group_name = var.resource_group_name
+  cluster_kv          = var.cluster_kv
+  config              = var.config
+  ingress_cert_name   = var.ingress_cert_name
+  namespaces          = var.namespaces
 }

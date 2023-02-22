@@ -17,5 +17,5 @@ resource "azurerm_dns_a_record" "cluster_a_record" {
   zone_name           = var.cluster_dns_zone
   resource_group_name = var.cluster_dns_resource_group_name
   ttl                 = 300
-  records             = toset([data.kubernetes_service.default.status.0.load_balancer.0.ingress[0].ip])
+  records             = toset([data.kubernetes_service.default.status[0].load_balancer[0].ingress[0].ip])
 }

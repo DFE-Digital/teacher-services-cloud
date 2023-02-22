@@ -3,12 +3,15 @@ variable "hosted_zone" {
 }
 
 variable "tags" {
+  type = map(string)
 }
 
 variable "delegation_name" {
+  type = string
   default = null
 }
 
 variable "delegation_ns" {
+  type = list(string)
   default = null
 }

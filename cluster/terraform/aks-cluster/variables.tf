@@ -1,7 +1,7 @@
-variable "environment" {}
-variable "resource_group_name" {}
-variable "resource_prefix" {}
-variable "config" {}
+variable "environment" { type = string }
+variable "resource_group_name" { type = string }
+variable "resource_prefix" { type = string }
+variable "config" { type = string }
 variable "azure_tags" { type = string }
 
 variable "cip_tenant" { type = bool }
