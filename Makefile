@@ -14,9 +14,6 @@ platform-test:
 production:
 	 $(eval include cluster/config/production.sh)
 
-psp-poc:
-	$(eval include cluster/config/psp_poc.sh)
-
 prod-domain:
 	$(eval include custom_domains/config/prod-domain.sh)
 
