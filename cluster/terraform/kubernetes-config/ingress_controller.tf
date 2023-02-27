@@ -14,4 +14,9 @@ resource "helm_release" "ingress-nginx" {
     name  = "controller.extraArgs.default-ssl-certificate"
     value = "default/cert-secret"
   }
+
+  set {
+    name  = "controller.config.proxy-buffer-size"
+    value = "8k"
+  }
 }
