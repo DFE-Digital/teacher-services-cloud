@@ -169,7 +169,7 @@ open_tunnels() {
 
 run_psql() {
    if [ "$Inputfile" = "" ]; then
-      psql -d "$DB_URL" --no-password $OTHERARGS
+      psql -d "$DB_URL" --no-password "${OTHERARGS}"
    elif [ "$CompressedInput" = "" ]; then
       psql -d "$DB_URL" --no-password <"$Inputfile"
    else
