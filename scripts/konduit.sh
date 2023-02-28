@@ -182,7 +182,7 @@ run_pgdump() {
       echo "ERROR: Must supply arguments for pg_dump"
       exit
    fi
-   pg_dump -d "$DB_URL" --no-password $OTHERARGS
+   pg_dump -d "$DB_URL" --no-password "${OTHERARGS}"
 }
 
 cleanup() {
