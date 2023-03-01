@@ -19,4 +19,9 @@ resource "helm_release" "ingress-nginx" {
     name  = "controller.config.proxy-buffer-size"
     value = "8k"
   }
+
+  set {
+    name  = "controller.replicaCount"
+    value = 20
+  }
 }
