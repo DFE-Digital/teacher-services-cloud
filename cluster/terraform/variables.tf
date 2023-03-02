@@ -31,6 +31,13 @@ variable "namespaces" { type = list(string) }
 variable "default_node_pool" { type = map(any) }
 variable "node_pools" { type = map(any) }
 
+# StatusCake variables
+variable "statuscake_alerts" {
+  type    = map(any)
+  default = {}
+}
+
 locals {
   azure_credentials = try(jsondecode(var.azure_sp_credentials_json), null)
+  api_token         = data.azurerm_key_vault_secret.statuscake_secret.value
 }

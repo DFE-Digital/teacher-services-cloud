@@ -13,6 +13,10 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "2.18.1"
     }
+    statuscake = {
+      source  = "StatusCakeDev/statuscake"
+      version = "2.0.4"
+    }
   }
   backend "azurerm" {
     container_name = "tsc-tfstate"
@@ -43,4 +47,8 @@ provider "helm" {
     client_certificate     = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].client_certificate)
     cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].cluster_ca_certificate)
   }
+}
+
+provider "statuscake" {
+  api_token = local.api_token
 }
