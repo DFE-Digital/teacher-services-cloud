@@ -145,6 +145,3 @@ Reference:
 - [Terraform: don’t use kubernetes provider with your cluster resource!](https://itnext.io/terraform-dont-use-kubernetes-provider-with-your-cluster-resource-d8ec5319d14a)
 - [Stacking with managed Kubernetes cluster resources](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs#stacking-with-managed-kubernetes-cluster-resources)
 - [terraform-provider-kubernetes](https://github.com/hashicorp/terraform-provider-kubernetes/tree/main/_examples/aks#replacing-the-aks-cluster-and-re-creating-the-kubernetes--helm-resources)
-
-## Links
-- [Retrieving Log Analytics Data with KQL for AKS Clusters](documentation/aks-logs.md)
