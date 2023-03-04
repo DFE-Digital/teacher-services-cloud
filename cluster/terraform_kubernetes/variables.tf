@@ -8,7 +8,7 @@ variable "azure_sp_credentials_json" {
 variable "environment" { type = string }
 variable "resource_group_name" { type = string }
 variable "resource_prefix" { type = string }
-variable "azure_tags" { type = string }
+variable "config" { type = string }
 
 # Set in config json file
 variable "cluster_dns_resource_group_name" {
@@ -20,24 +20,37 @@ variable "cluster_dns_zone" {
   default     = null
   type        = string
 }
+
 variable "cluster_kv" { type = string }
-variable "config" { type = string }
+
+variable "cip_tenant" { type = bool }
+
 variable "ingress_cert_name" {
   type    = string
   default = null
 }
-variable "cip_tenant" { type = bool }
 variable "namespaces" { type = list(string) }
-variable "default_node_pool" { type = map(any) }
-variable "node_pools" { type = map(any) }
 
-# StatusCake variables
 variable "statuscake_alerts" {
   type    = map(any)
   default = {}
 }
 
 locals {
+  cluster_name = (
+    var.cip_tenant ?
+    "${var.resource_prefix}-tsc-${var.environment}-aks" :
+    "${var.resource_prefix}aks-tsc-${var.environment}"
+  )
+  default_ingress_cert_name = (var.environment == var.config ?
+    "${var.environment}-teacherservices-cloud" :             # For non dev environments, config is the same as environment
+    "${var.environment}-${var.config}-teacherservices-cloud" # Development environments have unique names but share the same config
+  )
+  cluster_cert_secret = (var.ingress_cert_name != null ?
+    var.ingress_cert_name : # Override certificate name if required for this environment
+    local.default_ingress_cert_name
+  )
+  api_token = data.azurerm_key_vault_secret.statuscake_secret.value
+
   azure_credentials = try(jsondecode(var.azure_sp_credentials_json), null)
-  api_token         = data.azurerm_key_vault_secret.statuscake_secret.value
 }

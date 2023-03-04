@@ -3,10 +3,10 @@ data "kubernetes_service" "default" {
     name = "ingress-nginx-controller"
   }
 
+  # Wait for the ingress controller to be fully configured
   depends_on = [
-    module.kubernetes-config
+    helm_release.ingress-nginx
   ]
-
 }
 
 resource "azurerm_dns_a_record" "cluster_a_record" {
