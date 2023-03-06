@@ -23,21 +23,42 @@ dev-domain:
 set-azure-account:
 	az account set -s ${AZ_SUBSCRIPTION}
 
-terraform-init: set-azure-account set-azure-resource-group-tags
-	terraform -chdir=cluster/terraform init -reconfigure -upgrade \
+terraform-aks-cluster-init: set-azure-account set-azure-resource-group-tags
+	terraform -chdir=cluster/terraform_aks_cluster init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=${ENVIRONMENT}.tfstate
-	$(eval TF_VARS=-var environment=${ENVIRONMENT} -var resource_group_name=${RESOURCE_GROUP_NAME} -var resource_prefix=${RESOURCE_PREFIX} -var config=${CONFIG} -var azure_tags='${RG_TAGS}')
+	$(eval TF_VARS_AKS_CLUSTER=-var environment=${ENVIRONMENT} -var resource_group_name=${RESOURCE_GROUP_NAME} -var resource_prefix=${RESOURCE_PREFIX} -var config=${CONFIG} -var azure_tags='${RG_TAGS}')
 
-terraform-plan: terraform-init
-	terraform -chdir=cluster/terraform plan -var-file config/${CONFIG}.tfvars.json ${TF_VARS}
+terraform-aks-cluster-plan: terraform-aks-cluster-init
+	terraform -chdir=cluster/terraform_aks_cluster plan -var-file config/${CONFIG}.tfvars.json ${TF_VARS_AKS_CLUSTER}
 
-terraform-apply: terraform-init
-	terraform -chdir=cluster/terraform apply -var-file config/${CONFIG}.tfvars.json ${TF_VARS} ${AUTO_APPROVE}
+terraform-aks-cluster-apply: terraform-aks-cluster-init
+	terraform -chdir=cluster/terraform_aks_cluster apply -var-file config/${CONFIG}.tfvars.json ${TF_VARS_AKS_CLUSTER} ${AUTO_APPROVE}
 
-terraform-destroy: terraform-init
-	terraform -chdir=cluster/terraform destroy -var-file config/${CONFIG}.tfvars.json ${TF_VARS}
+terraform-aks-cluster-destroy: terraform-aks-cluster-init
+	terraform -chdir=cluster/terraform_aks_cluster destroy -var-file config/${CONFIG}.tfvars.json ${TF_VARS_AKS_CLUSTER} ${AUTO_APPROVE}
+
+terraform-kubernetes-init: set-azure-account set-azure-resource-group-tags
+	terraform -chdir=cluster/terraform_kubernetes init -reconfigure -upgrade \
+		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
+		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
+		-backend-config=key=${ENVIRONMENT}_kubernetes.tfstate
+	$(eval TF_VARS_KUBERNETES=-var environment=${ENVIRONMENT} -var resource_group_name=${RESOURCE_GROUP_NAME} -var resource_prefix=${RESOURCE_PREFIX} -var config=${CONFIG})
+
+terraform-kubernetes-plan: terraform-kubernetes-init
+	terraform -chdir=cluster/terraform_kubernetes plan -var-file config/${CONFIG}.tfvars.json ${TF_VARS_KUBERNETES}
+
+terraform-kubernetes-apply: terraform-kubernetes-init
+	terraform -chdir=cluster/terraform_kubernetes apply -var-file config/${CONFIG}.tfvars.json ${TF_VARS_KUBERNETES} ${AUTO_APPROVE}
+
+terraform-kubernetes-destroy: terraform-kubernetes-init
+	terraform -chdir=cluster/terraform_kubernetes destroy -var-file config/${CONFIG}.tfvars.json ${TF_VARS_KUBERNETES} ${AUTO_APPROVE}
+
+terraform-init: terraform-aks-cluster-init terraform-kubernetes-init
+terraform-plan: terraform-init terraform-aks-cluster-plan terraform-kubernetes-plan
+terraform-apply: terraform-init terraform-aks-cluster-apply terraform-kubernetes-apply
+terraform-destroy: terraform-init terraform-kubernetes-destroy terraform-aks-cluster-destroy
 
 set-what-if:
 	$(eval WHAT_IF=--what-if)

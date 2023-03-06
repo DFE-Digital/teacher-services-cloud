@@ -1,14 +1,24 @@
+# Set via TF_VAR environment variable in the workflow
+variable "azure_sp_credentials_json" {
+  default = null
+  type    = string
+}
+
+# Set in config shell variables and used by Makefile
 variable "environment" { type = string }
 variable "resource_group_name" { type = string }
 variable "resource_prefix" { type = string }
-variable "config" { type = string }
 variable "azure_tags" { type = string }
+variable "config" { type = string }
 
+# Set in config json file
 variable "cip_tenant" { type = bool }
 variable "default_node_pool" { type = map(any) }
 variable "node_pools" { type = map(any) }
 
 locals {
+  azure_credentials = try(jsondecode(var.azure_sp_credentials_json), null)
+
   backing_services_resource_group_name = "${var.resource_prefix}-tsc-${var.environment}-bs-rg"
   cluster_name = (
     var.cip_tenant ?

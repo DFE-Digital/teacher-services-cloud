@@ -7,11 +7,11 @@ variable "tags" {
 }
 
 variable "delegation_name" {
-  type = string
+  type    = string
   default = null
 }
 
 variable "delegation_ns" {
-  type = list(string)
+  type    = list(string)
   default = null
 }
