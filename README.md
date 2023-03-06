@@ -8,14 +8,14 @@ A repo for building Teacher Sevices cloud infrastructure
 - cluster
     - config
         *.sh config files for each cluster environment
-    - terraform
-        *.tf files for cluster build
+    - terraform_aks_cluster
+        *.tf files for low level cluster set-up
         - config
             *_backend.tfvars and *.tfvars.json config files for each cluster environment
-        - aks-cluster
-            *.tf files for low level cluster set-up
-        - kubernetes-configuration
-            *.tf files for high-level configuration using the kubernetes and helm providers only
+    - terraform_kubernetes
+        *.tf files for high-level configuration using the kubernetes and helm providers only
+        - config
+            *_backend.tfvars and *.tfvars.json config files for each cluster environment
 - custom_domains
     - config
         *.sh config files for each cluster DNS zone
@@ -125,23 +125,3 @@ If the development zone NS records are changed for any reason, then these variab
 and the prod zone updated.
 
 The teacherservices.cloud domain is created in route53 and owned by infra-ops. So if the production zone NS records are changed for any reason, then contact infra-ops to update the domain.
-
-## Recreate a cluster
-Recreating a cluster via terraform may fail as the kubernetes and helm provider can't connect to the cluster anymore. Typical errors:
-
-```
-Error: Kubernetes cluster unreachable: invalid configuration: no configuration has been provided, try setting KUBERNETES_MASTER environment variable
-```
-```
-Error: Get "http://localhost/api/v1/namespaces/staging": dial tcp [::1]:80: connect: connection refused
-```
-
-Workaround:
-- Run `terraform-init` via make
-- Run `terraform -chdir=cluster/terraform state rm module.kubernetes-config`
-- Run `terraform-apply` via make
-
-Reference:
-- [Terraform: don’t use kubernetes provider with your cluster resource!](https://itnext.io/terraform-dont-use-kubernetes-provider-with-your-cluster-resource-d8ec5319d14a)
-- [Stacking with managed Kubernetes cluster resources](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs#stacking-with-managed-kubernetes-cluster-resources)
-- [terraform-provider-kubernetes](https://github.com/hashicorp/terraform-provider-kubernetes/tree/main/_examples/aks#replacing-the-aks-cluster-and-re-creating-the-kubernetes--helm-resources)
