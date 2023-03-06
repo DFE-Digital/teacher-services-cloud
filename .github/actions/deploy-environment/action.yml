@@ -13,7 +13,7 @@ runs:
 
   steps:
   - run: |
-      TERRAFORM_VERSION=$(awk '/{/{f=/^terraform/;next}f' terraform/terraform.tf | grep -o [0-9\.]*)
+      TERRAFORM_VERSION=$(awk '/{/{f=/^terraform/;next}f' terraform_aks_cluster/terraform.tf | grep -o [0-9\.]*)
       . config/${{ inputs.environment_name }}.sh
 
       if [ -z "$RESOURCE_GROUP_NAME" ]; then
@@ -60,7 +60,7 @@ runs:
   - id: terraform
     run: |
       make ci ${{ inputs.environment_name }} terraform-apply
-      cd cluster/terraform
+      cd cluster/terraform_aks_cluster
       TFOUTPUTS=$(terraform output --json)
       OUTPUTS=($(jq -r <<< "$TFOUTPUTS" | jq -r 'keys | @sh' | tr -d \'))
       for o in "${OUTPUTS[@]}"

@@ -92,7 +92,7 @@ Use the defaults from the above documentation, the following properties are spec
 - Subject CN: *.<local.environment>.teacherservices.cloud
 - DNS Names: 0
 
-<local.environment> refers to the value defined in [variables.tf](cluster/terraform/variables.tf)
+<local.environment> refers to the value defined in [variables.tf](cluster/terraform_kubernetes/variables.tf)
 
 Once the certificate is created you will need to logon to Digicert as per the above docs.  The credentials to do this can be found in the prod TSC Domains KeyVault.
 
