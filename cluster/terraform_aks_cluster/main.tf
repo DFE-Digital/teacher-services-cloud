@@ -9,6 +9,10 @@ resource "azurerm_kubernetes_cluster" "main" {
   node_resource_group = local.node_resource_group_name
   dns_prefix          = local.dns_prefix
 
+  oms_agent {
+    log_analytics_workspace_id = azurerm_log_analytics_workspace.aks_system_logs.id
+  }
+
   default_node_pool {
     name           = "default"
     node_count     = var.default_node_pool.node_count
@@ -22,6 +26,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   lifecycle { ignore_changes = [tags] }
+
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {

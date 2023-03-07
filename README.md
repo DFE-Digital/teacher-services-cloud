@@ -125,3 +125,6 @@ If the development zone NS records are changed for any reason, then these variab
 and the prod zone updated.
 
 The teacherservices.cloud domain is created in route53 and owned by infra-ops. So if the production zone NS records are changed for any reason, then contact infra-ops to update the domain.
+
+## Links
+- [Retrieving Log Analytics Data with KQL for AKS Clusters](documentation/aks-logs.md)
