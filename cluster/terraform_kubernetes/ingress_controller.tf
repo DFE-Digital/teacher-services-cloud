@@ -14,6 +14,14 @@ resource "helm_release" "ingress-nginx" {
     value = "/healthz"
     type  = "string"
   }
+  # Route requests from the load balancer to the ingress pods on the same node instead of adding one more hop to the node with most pods.
+  # This preserves the client IP and removes a hop. It potentially creates a traffic imbalance but this should have no effect for us
+  # as we should have many well distributed ingress pods.
+  set {
+    name  = "controller.service.externalTrafficPolicy"
+    value = "Local"
+    type  = "string"
+  }
   set {
     name  = "controller.extraArgs.default-ssl-certificate"
     value = "default/cert-secret"
@@ -29,5 +37,16 @@ resource "helm_release" "ingress-nginx" {
   set {
     name  = "controller.nodeSelector.kubernetes\\.azure\\.com/agentpool"
     value = "applications"
+  }
+
+  # Send x-forwarded-for HTTP header to keep the client IP for the apps
+  # When used behind front door, it contains the front door backend IP as well
+  set {
+    name  = "controller.config.use-forwarded-headers"
+    value = "true"
+  }
+  set {
+    name  = "controller.config.compute-full-forwarded-for"
+    value = "true"
   }
 }
