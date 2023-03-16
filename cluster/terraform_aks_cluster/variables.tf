@@ -14,7 +14,7 @@ variable "config" { type = string }
 # Set in config json file
 variable "cip_tenant" { type = bool }
 variable "default_node_pool" { type = map(any) }
-variable "node_pools" { type = map(any) }
+variable "node_pools" { type = any }
 
 locals {
   azure_credentials = try(jsondecode(var.azure_sp_credentials_json), null)

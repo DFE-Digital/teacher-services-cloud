@@ -34,10 +34,11 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
 
   name                  = each.key
   kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
-  vm_size               = "Standard_D2_v2"
+  vm_size               = try(each.value.vm_size, "Standard_D2_v2")
   enable_auto_scaling   = true
   min_count             = each.value.min_count
   max_count             = each.value.max_count
   vnet_subnet_id        = azurerm_subnet.aks-subnet.id
   zones                 = local.uk_south_availability_zones
+  node_labels           = try(each.value.node_labels, {})
 }
