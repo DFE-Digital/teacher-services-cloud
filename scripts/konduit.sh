@@ -15,21 +15,25 @@ help() {
    echo
 
    echo "Syntax:"
-   echo "   konduit [-h|-i file-name] app-name -- command [args]"
+   echo "   konduit [-a|-c|-h|-i file-name|-r redis-var] app-name -- command [args]"
    echo "      Connect to the default database for app-name"
    echo
-   echo "or konduit [-h|-i file-name] -d db-name -k key-vault app-name -- command [args]"
+   echo "or konduit [-a|-c|-h|-i file-name|-r redis-var] -d db-name -k key-vault app-name -- command [args]"
    echo "      Connect to a specific database from app-name"
    echo "      Requires a secret containing the DB URL in the specified Azure KV,"
    echo "      with name {db-name}-database-url"
    echo
    echo "options:"
-   echo "   -d db-name        database name, required if connecting to a db other than the app default."
-   echo "   -i file-name      input file for a restore. Only valid for command psql."
-   echo "   -k key-vault      key vault that holds the Azure secret containing the DB URL."
-   echo "                     the secret {db-name}-database-url must exist in this vault,"
+   echo "   -a                Backend is an AKS service. Default is Azure backing service."
+   echo "   -c                Input file is compresses. Requires -i."
+   echo "   -d db-name        Database name, required if connecting to a db other than the app default."
+   echo "   -i file-name      Input file for a restore. Only valid for command psql."
+   echo "   -k key-vault      Key vault that holds the Azure secret containing the DB URL."
+   echo "                     The secret {db-name}-database-url must exist in this vault,"
    echo "                     and contain a full connection URL."
-   echo "   -h                print this help."
+   echo "   -r redis-var      Variable for redis cache [defaults to REDIS_URL if not set]"
+   echo "                     Only valid for command redis-cli"
+   echo "   -h                Print this help."
    echo
    echo "parameters:"
    echo "   app-name     app name to connect to."
@@ -62,12 +66,27 @@ init_setup() {
       exit
    fi
 
+   # Settings dependant on AKS or Azure backing service
+   if [ "${AKS}" = "" ]; then
+      # redis backing service requires TLS set for redis-cli
+      TLS="--tls"
+      REDIS_PORT=6380
+   else
+      # redis aks service does not use TLS
+      TLS=""
+      REDIS_PORT=6379
+   fi
+
+   # Set default Redis var if not set
+   if [ "${Redis}" = "" ]; then
+      Redis="REDIS_URL"
+   fi
+
    # Get the deployment namespace
    NAMESPACE=$(kubectl get deployments -A | grep "${INSTANCE}" | awk '{print $1}')
 
    # Set service ports
    DB_PORT=5432
-   REDIS_PORT=6379
 }
 
 check_instance() {
@@ -112,6 +131,7 @@ set_db_psql() {
    #     postgres://ADMIN_USER:ADMIN_PASSWORD@someapp-postgres-review-99999:5432/someapp-postgres-review-99999
    #
    if [ "${DBName}" = "" ]; then
+      # If an input file is given, check it exists and is readable
       K8_URL=$(echo 'echo $DATABASE_URL' | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
       DB_URL=$(echo "${K8_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g")
       DB_NAME=$(echo "${K8_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
@@ -132,21 +152,31 @@ set_db_redis() {
    # Get DB settings
    # Either from the app REDIS_URL or the AZURE KV secret
    #
-   # REDIS_URL format (K8_URL/KV_URL)
+   # REDIS_URL (queue) or REDIS_CACHE_URL (cache) format (K8_URL/KV_URL)
    # for backing service
-   #     tbc
+   #     rediss://:somepassword=@s9999t99-att-env-redis-service.redis.cache.windows.net:6380/0
+   #
    # for k8 pod
    #     redis://someapp-redis-review-99999:6379/0
    #
    # Not tested from an azure backing service
 
    if [ "${DBName}" = "" ]; then
-      K8_URL=$(echo 'echo $REDIS_URL' | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
-      DB_URL=$(echo "$K8_URL" | sed "s/\/\/[^~]*/\/\/127.0.0.1:${LOCAL_PORT}\//g")
-      DB_NAME=$(echo "$K8_URL" | awk -F"/" '{print $3}' | awk -F":" '{print $1}')
+      K8_URL=$(echo "echo \$${Redis}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
+      if [ "${AKS}" = "" ]; then
+         DB_URL=$(echo "${K8_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g" | sed "s/rediss:\/\//rediss:\/\/default/g")
+         DB_NAME=$(echo "${K8_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
+      else
+         DB_URL=$(echo "$K8_URL" | sed "s/\/\/[^~]*/\/\/127.0.0.1:${LOCAL_PORT}\//g")
+         DB_NAME=$(echo "$K8_URL" | awk -F"/" '{print $3}' | awk -F":" '{print $1}')
+      fi
    else
       KV_URL=$(az keyvault secret show --name "${DBName}"-database-url --vault-name "${KV}" | jq -r .value)
-      DB_URL=$(echo "${KV_URL}" | sed "s/\/\/[^~]*/\/\/127.0.0.1:${LOCAL_PORT}\//g")
+      if [ "${AKS}" = "" ]; then
+         DB_URL=$(echo "${KV_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g" | sed "s/rediss:\/\//rediss:\/\/default/g")
+      else
+         DB_URL=$(echo "${KV_URL}" | sed "s/\/\/[^~]*/\/\/127.0.0.1:${LOCAL_PORT}\//g")
+      fi
       DB_NAME="${DBName}"
    fi
 
@@ -182,7 +212,7 @@ run_pgdump() {
       echo "ERROR: Must supply arguments for pg_dump"
       exit
    fi
-   pg_dump -d "$DB_URL" --no-password "${OTHERARGS}"
+   pg_dump -d "$DB_URL" --no-password ${OTHERARGS}
 }
 
 cleanup() {
@@ -193,8 +223,11 @@ cleanup() {
 }
 
 # Get the options
-while getopts "hcd:i:k:" option; do
+while getopts "ahcd:i:k:r:" option; do
    case $option in
+   a)
+      AKS="True"
+      ;;
    c)
       CompressedInput="True"
       ;;
@@ -206,6 +239,9 @@ while getopts "hcd:i:k:" option; do
       ;;
    i)
       Inputfile=$OPTARG
+      ;;
+   r)
+      Redis=$OPTARG
       ;;
    h)
       help
@@ -243,7 +279,7 @@ pg_dump)
    ;;
 redis-cli)
    set_db_redis
-   CMD="redis-cli -u $DB_URL"
+   CMD="redis-cli -u $DB_URL $TLS ${OTHERARGS}"
    ;;
 esac
 open_tunnels >/dev/null 2>&1
