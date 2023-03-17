@@ -35,7 +35,7 @@ resource "helm_release" "ingress-nginx" {
     value = 20
   }
   set {
-    name  = "controller.nodeSelector.kubernetes\\.azure\\.com/agentpool"
+    name  = "controller.nodeSelector.teacherservices\\.cloud/node_pool"
     value = "applications"
   }
 
