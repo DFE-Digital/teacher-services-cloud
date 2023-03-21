@@ -55,8 +55,11 @@ terraform-kubernetes-apply: terraform-kubernetes-init
 terraform-kubernetes-destroy: terraform-kubernetes-init
 	terraform -chdir=cluster/terraform_kubernetes destroy -var-file config/${CONFIG}.tfvars.json ${TF_VARS_KUBERNETES} ${AUTO_APPROVE}
 
+check-cluster-exists:
+	terraform -chdir=cluster/terraform_aks_cluster output -json | jq -e '.cluster_id' > /dev/null
+
 terraform-init: terraform-aks-cluster-init terraform-kubernetes-init
-terraform-plan: terraform-init terraform-aks-cluster-plan terraform-kubernetes-plan
+terraform-plan: terraform-init terraform-aks-cluster-plan check-cluster-exists terraform-kubernetes-plan
 terraform-apply: terraform-init terraform-aks-cluster-apply terraform-kubernetes-apply
 terraform-destroy: terraform-init terraform-kubernetes-destroy terraform-aks-cluster-destroy
 
