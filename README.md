@@ -127,4 +127,6 @@ and the prod zone updated.
 The teacherservices.cloud domain is created in route53 and owned by infra-ops. So if the production zone NS records are changed for any reason, then contact infra-ops to update the domain.
 
 ## Links
+- [AKS upgrade](documentation/aks-upgrade.md)
+- [Node pool migration](documentation/node-pool-migration.md)
 - [Retrieving Log Analytics Data with KQL for AKS Clusters](documentation/aks-logs.md)
