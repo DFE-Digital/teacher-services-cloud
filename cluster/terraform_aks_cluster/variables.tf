@@ -15,6 +15,7 @@ variable "config" { type = string }
 variable "cip_tenant" { type = bool }
 variable "default_node_pool" { type = map(any) }
 variable "node_pools" { type = any }
+variable "kubernetes_version" { type = string }
 
 locals {
   azure_credentials = try(jsondecode(var.azure_sp_credentials_json), null)
