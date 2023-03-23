@@ -25,6 +25,18 @@ resource "azurerm_kubernetes_cluster" "main" {
     type = "SystemAssigned"
   }
 
+
+  role_based_access_control_enabled = var.role_based_access_control_enabled
+
+  dynamic "azure_active_directory_role_based_access_control" {
+    for_each = var.role_based_access_control_enabled ? [1] : []
+    content {
+       azure_rbac_enabled = var.azure_rbac_enabled
+       managed            = var.managed
+    }
+  }
+
+  local_account_disabled = var.local_account_disabled
   lifecycle { ignore_changes = [tags] }
 
 }

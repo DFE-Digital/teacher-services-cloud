@@ -15,6 +15,26 @@ variable "config" { type = string }
 variable "cip_tenant" { type = bool }
 variable "default_node_pool" { type = map(any) }
 variable "node_pools" { type = any }
+variable "azure_rbac_enabled" { 
+   description = "Variable to determine if Azure AD RBAC authentication is enabled"
+   type = bool
+   default = false
+}
+variable "managed" {
+   description = "Variable to determine if Azure Active Directory integration is managed"
+   type = bool
+   default = true
+}
+variable "role_based_access_control_enabled" {
+   description = "Variable to determine if role based access control is enabled"
+   type = bool
+   default = false
+}
+variable "local_account_disabled" {
+   description = "Optional variable to determine if local accounts are enabled"
+   type = bool
+   default = false
+}
 
 locals {
   azure_credentials = try(jsondecode(var.azure_sp_credentials_json), null)
