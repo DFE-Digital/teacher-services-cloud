@@ -15,10 +15,10 @@ help() {
    echo
 
    echo "Syntax:"
-   echo "   konduit [-a|-c|-h|-i file-name|-r redis-var] app-name -- command [args]"
+   echo "   konduit [-a|-c|-h|-i file-name|-r redis-var|-t timeout] app-name -- command [args]"
    echo "      Connect to the default database for app-name"
    echo
-   echo "or konduit [-a|-c|-h|-i file-name|-r redis-var] -d db-name -k key-vault app-name -- command [args]"
+   echo "or konduit [-a|-c|-h|-i file-name|-r redis-var|-t timeout] -d db-name -k key-vault app-name -- command [args]"
    echo "      Connect to a specific database from app-name"
    echo "      Requires a secret containing the DB URL in the specified Azure KV,"
    echo "      with name {db-name}-database-url"
@@ -33,6 +33,7 @@ help() {
    echo "                     and contain a full connection URL."
    echo "   -r redis-var      Variable for redis cache [defaults to REDIS_URL if not set]"
    echo "                     Only valid for command redis-cli"
+   echo "   -t timeout        Timeout in seconds. Default is 28800 but 3600 for psql/pg_dump commands."
    echo "   -h                Print this help."
    echo
    echo "parameters:"
@@ -51,13 +52,21 @@ init_setup() {
       exit
    fi
 
-   TMOUT=28800 # 8 hour timeout default for nc tunnel
-   if [ "${RUNCMD}" = "psql" ] && [ "${Inputfile}" != "" ]; then
-      # Default timeout for restore set to 1 hour. Increase if required.
-      TMOUT=3600
-   elif [ "${RUNCMD}" = "pg_dump" ]; then
-      # Default timeout for backup set to 1 hour. Increase if required.
-      TMOUT=3600
+   if [ "${Timeout}" = "" ]; then
+      # Default timeout for psql/pg_dump set to 8 hours. Increase if required.
+      # This is to allow for long running queries or backups.
+      # The timeout is reset for each command run.
+      # The timeout can be overridden with the -t option.
+      TMOUT=28800 # 8 hour timeout default for nc tunnel
+      if [ "${RUNCMD}" = "psql" ] && [ "${Inputfile}" != "" ]; then
+         # Default timeout for restore set to 1 hour. Increase if required.
+         TMOUT=3600
+      elif [ "${RUNCMD}" = "pg_dump" ]; then
+         # Default timeout for backup set to 1 hour. Increase if required.
+         TMOUT=3600
+      fi
+   else
+     TMOUT="${Timeout}"
    fi
 
    # If an input file is given, check it exists and is readable
@@ -223,7 +232,7 @@ cleanup() {
 }
 
 # Get the options
-while getopts "ahcd:i:k:r:" option; do
+while getopts "ahcd:i:k:r:t:" option; do
    case $option in
    a)
       AKS="True"
@@ -242,6 +251,9 @@ while getopts "ahcd:i:k:r:" option; do
       ;;
    r)
       Redis=$OPTARG
+      ;;
+   t)
+      Timeout=$OPTARG
       ;;
    h)
       help
