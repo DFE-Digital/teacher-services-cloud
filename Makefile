@@ -1,28 +1,29 @@
 ci:
 	$(eval AUTO_APPROVE=-auto-approve)
+	$(eval CI=true)
 
 development:
 	$(if ${ENVIRONMENT}, , $(error Missing ENVIRONMENT name))
 	$(eval include cluster/config/development.sh)
 
 test:
-	$(if ${CONFIRM_TEST}, , $(error Missing CONFIRM_TEST=yes))
+	$(if $(or ${CI}, ${CONFIRM_TEST}), , $(error Missing CONFIRM_TEST=yes))
 	$(eval include cluster/config/test.sh)
 
 platform-test:
-	$(if ${CONFIRM_PLATFORM_TEST}, , $(error Missing CONFIRM_PLATFORM_TEST=yes))
+	$(if $(or ${CI}, ${CONFIRM_PLATFORM_TEST}), , $(error Missing CONFIRM_PLATFORM_TEST=yes))
 	$(eval include cluster/config/platform-test.sh)
 
 production:
-	$(if ${CONFIRM_PRODUCTION}, , $(error Missing CONFIRM_PRODUCTION=yes))
+	$(if $(or ${CI}, ${CONFIRM_PRODUCTION}), , $(error Missing CONFIRM_PRODUCTION=yes))
 	$(eval include cluster/config/production.sh)
 
 prod-domain:
-	$(if ${CONFIRM_PROD_DOMAIN}, , $(error Missing CONFIRM_PROD_DOMAIN=yes))
+	$(if $(or ${CI}, ${CONFIRM_PROD_DOMAIN}), , $(error Missing CONFIRM_PROD_DOMAIN=yes))
 	$(eval include custom_domains/config/prod-domain.sh)
 
 dev-domain:
-	$(if ${CONFIRM_DEV_DOMAIN}, , $(error Missing CONFIRM_DEV_DOMAIN=yes))
+	$(if $(or ${CI}, ${CONFIRM_DEV_DOMAIN}), , $(error Missing CONFIRM_DEV_DOMAIN=yes))
 	$(eval include custom_domains/config/dev-domain.sh)
 
 set-azure-account:
@@ -87,12 +88,11 @@ arm-deployment: set-azure-account set-azure-template-tag set-azure-resource-grou
 			"tfStorageAccountName=${STORAGE_ACCOUNT_NAME}" "tfStorageContainerName=tsc-tfstate" \
 			"keyVaultName=${KEYVAULT_NAME}" ${WHAT_IF}
 
-deploy-azure-resources: check-auto-approve arm-deployment # make dev deploy-azure-resources AUTO_APPROVE=1
+deploy-azure-resources: check-auto-approve arm-deployment # make dev deploy-azure-resources
 
 validate-azure-resources: set-what-if arm-deployment # make dev validate-azure-resources
 
-domain-azure-resources: set-azure-account set-azure-template-tag set-azure-resource-group-tags # make domain domain-azure-resources AUTO_APPROVE=1
-	$(if $(AUTO_APPROVE), , $(error can only run with AUTO_APPROVE))
+domain-azure-resources: set-azure-account set-azure-template-tag set-azure-resource-group-tags # make domain domain-azure-resources
 	az deployment sub create --name "resourcedeploy-tscdomains-$(shell date +%Y%m%d%H%M%S)" \
 		-l "UK South" --template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/resourcedeploy.json" \
 		--parameters "resourceGroupName=${RESOURCE_GROUP_NAME}" 'tags=${RG_TAGS}' \
