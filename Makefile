@@ -6,18 +6,23 @@ development:
 	$(eval include cluster/config/development.sh)
 
 test:
+	$(if ${CONFIRM_TEST}, , $(error Missing CONFIRM_TEST=yes))
 	$(eval include cluster/config/test.sh)
 
 platform-test:
+	$(if ${CONFIRM_PLATFORM_TEST}, , $(error Missing CONFIRM_PLATFORM_TEST=yes))
 	$(eval include cluster/config/platform-test.sh)
 
 production:
-	 $(eval include cluster/config/production.sh)
+	$(if ${CONFIRM_PRODUCTION}, , $(error Missing CONFIRM_PRODUCTION=yes))
+	$(eval include cluster/config/production.sh)
 
 prod-domain:
+	$(if ${CONFIRM_PROD_DOMAIN}, , $(error Missing CONFIRM_PROD_DOMAIN=yes))
 	$(eval include custom_domains/config/prod-domain.sh)
 
 dev-domain:
+	$(if ${CONFIRM_DEV_DOMAIN}, , $(error Missing CONFIRM_DEV_DOMAIN=yes))
 	$(eval include custom_domains/config/dev-domain.sh)
 
 set-azure-account:
