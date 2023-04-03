@@ -47,12 +47,12 @@ make development terraform-plan ENVIRONMENT=cluster1
 #### Permanent environments: platform-test, test, production
 
 ```
-make <environment> terraform-{plan/apply}
+make <environment> terraform-{plan/apply} CONFIRM...
 ```
 
 e.g.
 ```
-make test terraform-plan
+make test terraform-plan CONFIRM_TEST=yes
 ```
 
 ### kubectl
