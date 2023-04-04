@@ -45,3 +45,44 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
   zones                 = local.uk_south_availability_zones
   node_labels           = try(each.value.node_labels, {})
 }
+
+resource "azurerm_kubernetes_cluster" "clone" {
+  count = var.clone_cluster ? 1 : 0
+
+  name                = local.clone_cluster_name
+  location            = azurerm_kubernetes_cluster.main.location
+  resource_group_name = azurerm_kubernetes_cluster.main.resource_group_name
+  node_resource_group = local.clone_node_resource_group_name
+  dns_prefix          = "${azurerm_kubernetes_cluster.main.dns_prefix}-clone"
+  kubernetes_version  = azurerm_kubernetes_cluster.main.kubernetes_version
+
+  default_node_pool {
+    name                 = azurerm_kubernetes_cluster.main.default_node_pool[0].name
+    node_count           = azurerm_kubernetes_cluster.main.default_node_pool[0].node_count
+    vm_size              = azurerm_kubernetes_cluster.main.default_node_pool[0].vm_size
+    vnet_subnet_id       = azurerm_subnet.aks-subnet-clone[0].id
+    zones                = azurerm_kubernetes_cluster.main.default_node_pool[0].zones
+    orchestrator_version = azurerm_kubernetes_cluster.main.default_node_pool[0].orchestrator_version
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  lifecycle { ignore_changes = [tags] }
+}
+
+resource "azurerm_kubernetes_cluster_node_pool" "node_pools_clone" {
+  for_each = var.clone_cluster ? var.node_pools : {}
+
+  name                  = "${each.key}clone"
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.clone[0].id
+  vm_size               = try(each.value.vm_size, "Standard_D2_v2")
+  enable_auto_scaling   = true
+  min_count             = each.value.min_count
+  max_count             = each.value.max_count
+  orchestrator_version  = each.value.orchestrator_version
+  vnet_subnet_id        = azurerm_subnet.aks-subnet-clone[0].id
+  zones                 = local.uk_south_availability_zones
+  node_labels           = try(each.value.node_labels, {})
+}
