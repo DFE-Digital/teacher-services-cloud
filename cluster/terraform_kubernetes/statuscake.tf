@@ -9,7 +9,7 @@ data "azurerm_key_vault_secret" "statuscake_secret" {
 }
 
 resource "statuscake_uptime_check" "alert" {
-  for_each = var.statuscake_alerts
+  for_each = var.clone_cluster ? {} : var.statuscake_alerts
 
   name           = each.value.website_name
   check_interval = each.value.check_rate

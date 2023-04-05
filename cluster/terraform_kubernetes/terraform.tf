@@ -38,11 +38,26 @@ data "azurerm_kubernetes_cluster" "main" {
   resource_group_name = var.resource_group_name
 }
 
+data "azurerm_kubernetes_cluster" "clone" {
+  count = var.clone_cluster ? 1 : 0
+
+  name                = local.clone_cluster_name
+  resource_group_name = var.resource_group_name
+}
+
 provider "kubernetes" {
   host                   = data.azurerm_kubernetes_cluster.main.kube_config[0].host
   client_certificate     = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].client_certificate)
   client_key             = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].client_key)
   cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].cluster_ca_certificate)
+}
+
+provider "kubernetes" {
+  alias                  = "clone"
+  host                   = try(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].host, null)
+  client_certificate     = try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].client_certificate), null)
+  client_key             = try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].client_key), null)
+  cluster_ca_certificate = try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].cluster_ca_certificate), null)
 }
 
 provider "helm" {
@@ -51,6 +66,16 @@ provider "helm" {
     client_key             = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].client_key)
     client_certificate     = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].client_certificate)
     cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].cluster_ca_certificate)
+  }
+}
+
+provider "helm" {
+  alias = "clone"
+  kubernetes {
+    host                   = try(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].host, null)
+    client_key             = try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].client_key), null)
+    client_certificate     = try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].client_certificate), null)
+    cluster_ca_certificate = try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].cluster_ca_certificate), null)
   }
 }
 
