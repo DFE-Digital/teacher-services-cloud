@@ -130,3 +130,4 @@ The teacherservices.cloud domain is created in route53 and owned by infra-ops. S
 - [AKS upgrade](documentation/aks-upgrade.md)
 - [Node pool migration](documentation/node-pool-migration.md)
 - [Retrieving Log Analytics Data with KQL for AKS Clusters](documentation/aks-logs.md)
+- [Rebuild AKS cluster with zero downtime](documentation/rebuild-cluster.md)
