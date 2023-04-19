@@ -9,17 +9,20 @@ data "azurerm_key_vault_certificate_data" "cert" {
 }
 
 locals {
-  # The cert from the KV contains the full chain and is in the wrong order
-  # So we need to extract the primary cert which is the last in the list
+  # The cert from the KV contains the full chain and is in the wrong order: Root CA -> Intermediate CA -> End-user certificate
+  # We use terraform string manipulation to make the order compliant with the TLS RFC: End-user certificate -> Intermediate CA -> Root CA
   # See https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/tls.md
 
-  full_cert             = data.azurerm_key_vault_certificate_data.cert.pem
-  cert_one_line         = replace(local.full_cert, "\n", "")
-  primary_cert_one_line = regexall("-----BEGIN CERTIFICATE-----[^-]*-----END CERTIFICATE-----", local.cert_one_line)[2]
-
-  primary_cert = replace(
+  original_cert_chain           = data.azurerm_key_vault_certificate_data.cert.pem
+  original_cert_chain_one_line  = replace(local.original_cert_chain, "\n", "")
+  certificate_list              = regexall("-----BEGIN CERTIFICATE-----[^-]*-----END CERTIFICATE-----", local.original_cert_chain_one_line)
+  root_ca_cert_one_line         = local.certificate_list[0]
+  intermediate_ca_cert_one_line = local.certificate_list[1]
+  end_user_cert_one_line        = local.certificate_list[2]
+  reversed_chain_one_line       = "${local.end_user_cert_one_line}${local.intermediate_ca_cert_one_line}${local.root_ca_cert_one_line}"
+  reversed_full_cert = replace(
     replace(
-      local.primary_cert_one_line,
+      local.reversed_chain_one_line,
       "CERTIFICATE-----", "CERTIFICATE-----\n"
     ),
     "-----END", "\n-----END"
@@ -33,7 +36,7 @@ resource "kubernetes_secret_v1" "kube_cert_secret" {
   }
 
   data = {
-    "tls.crt" = local.primary_cert
+    "tls.crt" = local.reversed_full_cert
     "tls.key" = data.azurerm_key_vault_certificate_data.cert.key
   }
 
