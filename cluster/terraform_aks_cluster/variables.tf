@@ -16,6 +16,10 @@ variable "cip_tenant" { type = bool }
 variable "default_node_pool" { type = map(any) }
 variable "node_pools" { type = any }
 variable "kubernetes_version" { type = string }
+variable "clone_cluster" {
+  type    = bool
+  default = false
+}
 
 locals {
   azure_credentials = try(jsondecode(var.azure_sp_credentials_json), null)
@@ -26,13 +30,15 @@ locals {
     "${var.resource_prefix}-tsc-${var.environment}-aks" :
     "${var.resource_prefix}aks-tsc-${var.environment}"
   )
+  clone_cluster_name = "${var.resource_prefix}-tsc-${var.environment}-clone-aks"
   node_resource_group_name = (
     var.cip_tenant ?
     "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-rg" :
     "${var.resource_prefix}rg-tsc-aks-nodes-${var.environment}"
   )
-  dns_prefix = "${var.resource_prefix}-tsc-${var.environment}"
-  vnet_name  = "${var.resource_prefix}-tsc-${var.environment}-vnet"
+  clone_node_resource_group_name = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-clone-rg"
+  dns_prefix                     = "${var.resource_prefix}-tsc-${var.environment}"
+  vnet_name                      = "${var.resource_prefix}-tsc-${var.environment}-vnet"
   subnets = {
     postgres-snet = {
       cidr_range = "10.2.0.0/18",

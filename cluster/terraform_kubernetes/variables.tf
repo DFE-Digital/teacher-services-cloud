@@ -36,12 +36,18 @@ variable "statuscake_alerts" {
   default = {}
 }
 
+variable "clone_cluster" {
+  type    = bool
+  default = false
+}
+
 locals {
   cluster_name = (
     var.cip_tenant ?
     "${var.resource_prefix}-tsc-${var.environment}-aks" :
     "${var.resource_prefix}aks-tsc-${var.environment}"
   )
+  clone_cluster_name = "${var.resource_prefix}-tsc-${var.environment}-clone-aks"
   default_ingress_cert_name = (var.environment == var.config ?
     "${var.environment}-teacherservices-cloud" :             # For non dev environments, config is the same as environment
     "${var.environment}-${var.config}-teacherservices-cloud" # Development environments have unique names but share the same config

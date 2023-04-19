@@ -10,7 +10,6 @@ data "kubernetes_service" "default" {
 }
 
 resource "azurerm_dns_a_record" "cluster_a_record" {
-
   count = var.cluster_dns_zone != null ? 1 : 0
 
   name                = "*.${var.environment}"

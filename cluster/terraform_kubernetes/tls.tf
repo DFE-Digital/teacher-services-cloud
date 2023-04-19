@@ -39,3 +39,16 @@ resource "kubernetes_secret_v1" "kube_cert_secret" {
 
   type = "kubernetes.io/tls"
 }
+
+resource "kubernetes_secret_v1" "kube_cert_secret_clone" {
+  count    = var.clone_cluster ? 1 : 0
+  provider = kubernetes.clone
+
+  metadata {
+    name      = kubernetes_secret_v1.kube_cert_secret.metadata[0].name
+    namespace = kubernetes_secret_v1.kube_cert_secret.metadata[0].namespace
+  }
+
+  data = kubernetes_secret_v1.kube_cert_secret.data
+  type = kubernetes_secret_v1.kube_cert_secret.type
+}

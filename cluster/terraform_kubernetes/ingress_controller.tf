@@ -25,18 +25,22 @@ resource "helm_release" "ingress-nginx" {
   set {
     name  = "controller.extraArgs.default-ssl-certificate"
     value = "default/cert-secret"
+    type  = "string"
   }
   set {
     name  = "controller.config.proxy-buffer-size"
     value = "8k"
+    type  = "string"
   }
   set {
     name  = "controller.replicaCount"
     value = 20
+    type  = "auto"
   }
   set {
     name  = "controller.nodeSelector.teacherservices\\.cloud/node_pool"
     value = "applications"
+    type  = "string"
   }
 
   # Send x-forwarded-for HTTP header to keep the client IP for the apps
@@ -44,9 +48,32 @@ resource "helm_release" "ingress-nginx" {
   set {
     name  = "controller.config.use-forwarded-headers"
     value = "true"
+    type  = "string"
   }
   set {
     name  = "controller.config.compute-full-forwarded-for"
     value = "true"
+    type  = "string"
   }
+}
+
+resource "helm_release" "ingress-nginx-clone" {
+  count    = var.clone_cluster ? 1 : 0
+  provider = helm.clone
+
+  name       = helm_release.ingress-nginx.name
+  repository = helm_release.ingress-nginx.repository
+  chart      = helm_release.ingress-nginx.chart
+  version    = helm_release.ingress-nginx.version
+
+  dynamic "set" {
+    for_each = helm_release.ingress-nginx.set
+
+    content {
+      name  = set.value["name"]
+      value = set.value["value"]
+      type  = set.value["type"]
+    }
+  }
+
 }

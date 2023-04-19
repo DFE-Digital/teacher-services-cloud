@@ -26,6 +26,9 @@ dev-domain:
 	$(if $(or ${CI}, ${CONFIRM_DEV_DOMAIN}), , $(error Missing CONFIRM_DEV_DOMAIN=yes))
 	$(eval include custom_domains/config/dev-domain.sh)
 
+clone:
+	$(eval CLONE_STRING=-clone)
+
 set-azure-account:
 	az account set -s ${AZ_SUBSCRIPTION}
 
@@ -110,7 +113,7 @@ domains-infra-apply: domains-infra-init
 	terraform -chdir=custom_domains/terraform/infrastructure apply -var-file workspace_variables/${DOMAINS_ID}.tfvars.json
 
 get-cluster-credentials: set-azure-account ## make <config> get-cluster-credentials [ENVIRONMENT=<clusterX>]
-	az aks get-credentials --overwrite-existing -g ${RESOURCE_GROUP_NAME} -n ${RESOURCE_PREFIX}-tsc-${ENVIRONMENT}-aks
+	az aks get-credentials --overwrite-existing -g ${RESOURCE_GROUP_NAME} -n ${RESOURCE_PREFIX}-tsc-${ENVIRONMENT}${CLONE_STRING}-aks
 
 disable-cluster-node-autoscaler: set-azure-account
 	$(if $(NODE_POOL), , $(error Please specify a node pool))
@@ -128,3 +131,10 @@ drain-node-pool: get-cluster-nodes
 
 uncordon-node-pool: get-cluster-nodes
 	kubectl uncordon ${NODES}
+
+export-aks-resources: get-cluster-credentials
+	mkdir -p ${ENVIRONMENT}-export
+	cd ${ENVIRONMENT}-export && ../scripts/export_aks_resources.sh
+
+import-aks-resources: get-cluster-credentials
+	cd ${ENVIRONMENT}-export && ../scripts/import_aks_resources.sh
