@@ -27,6 +27,12 @@ resource "helm_release" "ingress-nginx" {
     value = "default/cert-secret"
     type  = "string"
   }
+  # Disable HTTP port 80 on the Azure load balancer
+  set {
+    name  = "controller.service.enableHttp"
+    value = "false"
+    type  = "auto"
+  }
   set {
     name  = "controller.config.proxy-buffer-size"
     value = "8k"
