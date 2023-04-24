@@ -49,7 +49,7 @@ init_setup() {
       echo "Error: invalid command ${RUNCMD}"
       echo "Only valid options are psql, pg_dump or redis-cli"
       help
-      exit
+      exit 1
    fi
 
    if [ "${Timeout}" = "" ]; then
@@ -72,7 +72,7 @@ init_setup() {
    # If an input file is given, check it exists and is readable
    if [ "${Inputfile}" != "" ] && [ ! -r "${Inputfile}" ]; then
       echo "Error: invalid input file"
-      exit
+      exit 1
    fi
 
    # Settings dependant on AKS or Azure backing service
@@ -101,13 +101,14 @@ init_setup() {
 check_instance() {
    if [ "$INSTANCE" = "" ]; then
       echo "Error: Must provide instance name as parameter e.g. apply-qa, apply-review-1234"
-      exit
+      exit 1
    fi
    # make sure it's LC
    INSTANCE=$(echo "${INSTANCE}" | tr '[:upper:]' '[:lower:]')
    # Lets check the container exists and we can connect to it first
    if ! kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- echo; then
-      exit
+      echo "Error: Container does not exist or connection cannot be established"
+      exit 1
    fi
 }
 
@@ -152,7 +153,7 @@ set_db_psql() {
 
    if [ "${KV_URL}" = "" ] && [ "${K8_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_NAME}" = "" ]; then
       echo "Error: invalid DB settings"
-      exit
+      exit 1
    fi
 }
 
@@ -191,7 +192,7 @@ set_db_redis() {
 
    if [ "${KV_URL}" = "" ] && [ "${K8_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_NAME}" = "" ]; then
       echo "Error: invalid DB settings"
-      exit
+      exit 1
    fi
 }
 
@@ -219,7 +220,7 @@ run_psql() {
 run_pgdump() {
    if [ "${OTHERARGS}" = "" ]; then
       echo "ERROR: Must supply arguments for pg_dump"
-      exit
+      exit 1
    fi
    pg_dump -d "$DB_URL" --no-password ${OTHERARGS}
 }
@@ -261,7 +262,7 @@ while getopts "ahcd:i:k:r:t:" option; do
       ;;
    \?)
       echo "Error: Invalid option"
-      exit
+      exit 1
       ;;
    esac
 done
