@@ -59,3 +59,34 @@ jobs:
       with:
         azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
         environment_name: ${{ matrix.environment }}
+
+  update-domains:
+    name: Update DNS domains
+    if: github.ref == 'refs/heads/main'
+    concurrency: update_domains_${{ matrix.environment }}
+    environment:
+      name: ${{ matrix.environment }}
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        environment: [dev-domain, prod-domain]
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.3.1
+        terraform_wrapper: false
+
+    - name: Update DNS in ${{ matrix.environment }}
+      run: |
+        make ci ${{ matrix.environment }} domains-infra-apply
+      shell: bash
+      env:
+        TF_VAR_azure_sp_credentials_json: ${{ secrets.AZURE_CREDENTIALS }}
+        ARM_CLIENT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS).clientId }}
+        ARM_CLIENT_SECRET : ${{ fromJSON(secrets.AZURE_CREDENTIALS).clientSecret }}
+        ARM_SUBSCRIPTION_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS).subscriptionId }}
+        ARM_TENANT_ID: ${{ fromJSON(secrets.AZURE_CREDENTIALS).tenantId }}
