@@ -1,6 +1,7 @@
 ci:
 	$(eval AUTO_APPROVE=-auto-approve)
 	$(eval CI=true)
+	$(eval SKIP_AZURE_LOGIN=true)
 
 development:
 	$(if ${ENVIRONMENT}, , $(error Missing ENVIRONMENT name))
@@ -30,7 +31,7 @@ clone:
 	$(eval CLONE_STRING=-clone)
 
 set-azure-account:
-	az account set -s ${AZ_SUBSCRIPTION}
+	[ "${SKIP_AZURE_LOGIN}" != "true" ] && az account set -s ${AZ_SUBSCRIPTION} || true
 
 terraform-aks-cluster-init: set-azure-account set-azure-resource-group-tags
 	terraform -chdir=cluster/terraform_aks_cluster init -reconfigure -upgrade \
