@@ -41,6 +41,12 @@ variable "clone_cluster" {
   default = false
 }
 
+variable "welcome_app_hostnames" {
+  description = "Full hostname to enable the welcome app on this domain"
+  type        = list(any)
+  default     = []
+}
+
 locals {
   cluster_name = (
     var.cip_tenant ?
@@ -58,5 +64,7 @@ locals {
   )
   api_token = data.azurerm_key_vault_secret.statuscake_secret.value
 
-  azure_credentials = try(jsondecode(var.azure_sp_credentials_json), null)
+  azure_credentials     = try(jsondecode(var.azure_sp_credentials_json), null)
+  welcome_app_name      = "welcome-app"
+  welcome_app_namespace = "infra"
 }
