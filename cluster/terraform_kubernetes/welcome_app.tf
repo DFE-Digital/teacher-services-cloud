@@ -71,7 +71,7 @@ resource "kubernetes_ingress_v1" "welcome_app" {
 
   wait_for_load_balancer = true
   metadata {
-    name      = local.welcome_app_name
+    name      = "${local.welcome_app_name}-${each.value}"
     namespace = local.welcome_app_namespace
   }
   spec {
