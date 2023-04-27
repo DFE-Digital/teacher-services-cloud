@@ -111,7 +111,7 @@ domains-infra-plan: domains-infra-init
 	terraform -chdir=custom_domains/terraform/infrastructure plan -var-file workspace_variables/${DOMAINS_ID}.tfvars.json
 
 domains-infra-apply: domains-infra-init
-	terraform -chdir=custom_domains/terraform/infrastructure apply -var-file workspace_variables/${DOMAINS_ID}.tfvars.json
+	terraform -chdir=custom_domains/terraform/infrastructure apply -var-file workspace_variables/${DOMAINS_ID}.tfvars.json ${AUTO_APPROVE}
 
 get-cluster-credentials: set-azure-account ## make <config> get-cluster-credentials [ENVIRONMENT=<clusterX>]
 	az aks get-credentials --overwrite-existing -g ${RESOURCE_GROUP_NAME} -n ${RESOURCE_PREFIX}-tsc-${ENVIRONMENT}${CLONE_STRING}-aks
