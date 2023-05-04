@@ -5,14 +5,15 @@ inputs:
     description: Credentials with Contributor & KeyVault access to Azure subscription
     required: true
   environment_name:
-    description: Name of the environment in Make file
+    description: Name of the environment in Makefile
     required: true
 
 runs:
   using: composite
 
   steps:
-  - run: |
+  - name: Set environment variables
+    run: |
       TERRAFORM_VERSION=$(awk '/{/{f=/^terraform/;next}f' terraform_aks_cluster/terraform.tf | grep -o [0-9\.]*)
       . config/${{ inputs.environment_name }}.sh
 
@@ -34,6 +35,26 @@ runs:
       echo "resource_group_name=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
       echo "storage_account_name=$STORAGE_ACCOUNT_NAME" >> $GITHUB_ENV
       echo "terraform_version=$TERRAFORM_VERSION" >> $GITHUB_ENV
+
+      case ${{ inputs.environment_name }} in
+        platform-test)
+          APP_DOMAIN=platform-test.teacherservices.cloud
+          ;;
+        test)
+          APP_DOMAIN=test.teacherservices.cloud
+          FRONT_DOOR_TEST=https://staging.apply-for-teacher-training.service.gov.uk/check
+          DATABASE_TEST=https://staging.apply-for-teacher-training.service.gov.uk/integrations/monitoring/all
+          ;;
+        production)
+          APP_DOMAIN=teacherservices.cloud
+          FRONT_DOOR_TEST=https://www.apply-for-teacher-training.service.gov.uk/check
+          DATABASE_TEST=https://www.apply-for-teacher-training.service.gov.uk/integrations/monitoring/all
+          ;;
+      esac
+      echo "APP_DOMAIN=$APP_DOMAIN" >> $GITHUB_ENV
+      echo "FRONT_DOOR_TEST=$FRONT_DOOR_TEST" >> $GITHUB_ENV
+      echo "DATABASE_TEST=$DATABASE_TEST" >> $GITHUB_ENV
+
     shell: bash
     working-directory: cluster
 
@@ -71,3 +92,33 @@ runs:
       ARM_ACCESS_KEY: ${{ env.TFSTATE_CONTAINER_ACCESS_KEY }}
       TF_VAR_azure_sp_credentials_json: ${{ inputs.azure_credentials }}
     shell: bash
+
+  - name: Install kubectl
+    uses: azure/setup-kubectl@v3
+    with:
+      version: "v1.26.1" # default is latest stable
+
+  - name: Smoke tests
+    shell: bash
+    run: |
+      echo Check ingress...
+      curl -sS --fail "https://aaa.${APP_DOMAIN}/healthz" > /dev/null
+
+      echo Check welcome app...
+      curl -sS --fail "https://www.${APP_DOMAIN}/" > /dev/null
+
+      if [[ -n "$FRONT_DOOR_TEST" ]]; then
+        echo Check Apply app via front door...
+        curl -sS --fail "$FRONT_DOOR_TEST" > /dev/null
+      fi
+
+      if [[ -n "$DATABASE_TEST" ]]; then
+        echo Check Apply database via healthcheck page...
+        curl -sS --fail "$DATABASE_TEST" > /dev/null
+      fi
+
+      echo Get cluster credentials...
+      make ci ${{ inputs.environment_name }} get-cluster-credentials
+
+      echo Get namespaces...
+      kubectl get namespaces | grep -q infra
