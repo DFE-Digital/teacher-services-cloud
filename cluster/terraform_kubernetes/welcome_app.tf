@@ -6,7 +6,7 @@ resource "kubernetes_deployment" "welcome_app" {
     namespace = local.welcome_app_namespace
   }
   spec {
-    replicas = 1
+    replicas = 2
     selector {
       match_labels = {
         app = local.welcome_app_name
