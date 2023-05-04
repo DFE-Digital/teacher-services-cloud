@@ -94,6 +94,14 @@ az aks nodepool get-upgrades --resource-group <ResourceGroup> --cluster-name <Cl
     - Change kubernetes version, plan and apply
     - Change default node pool orchestrator version, plan and apply
     - Change application node pool orchestrator version, plan and apply
-1. Follow the same manual process to upgrade the platform_test cluster, raise PR, wait 24h
-1. Follow the same manual process to upgrade the test cluster, raise PR, wait 24h
-1. Follow the same manual process to upgrade the production cluster, raise PR
+1. Follow the same manual process to upgrade the platform_test cluster
+    - Test with the welcome app: https://www.platform-test.teacherservices.cloud/
+    - Raise PR
+    - Wait 24h
+1. Follow the same manual process to upgrade the test cluster
+    - Test with the welcome app: https://www.test.teacherservices.cloud/
+    - Raise PR
+    - Wait 24h
+1. Follow the same manual process to upgrade the production cluster
+    - Test with the welcome app: https://www.teacherservices.cloud/
+    - Raise PR
