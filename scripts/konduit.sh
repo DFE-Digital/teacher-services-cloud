@@ -92,7 +92,7 @@ init_setup() {
    fi
 
    # Get the deployment namespace
-   NAMESPACE=$(kubectl get deployments -A | grep "${INSTANCE}" | awk '{print $1}')
+   NAMESPACE=$(kubectl get deployments -A | grep "${INSTANCE} " | awk '{print $1}')
 
    # Set service ports
    DB_PORT=5432
