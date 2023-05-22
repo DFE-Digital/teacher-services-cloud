@@ -67,6 +67,10 @@ resource "helm_release" "ingress-nginx" {
     value = "true"
     type  = "string"
   }
+  set {
+    name  = "controller.service.loadBalancerIP"
+    value = azurerm_public_ip.public-ip.ip_address
+  }
 }
 
 resource "helm_release" "ingress-nginx-clone" {
@@ -87,5 +91,15 @@ resource "helm_release" "ingress-nginx-clone" {
       type  = set.value["type"]
     }
   }
+}
+resource "azurerm_public_ip" "public-ip" {
+  name                = "ingres-controller-pip"
+  location            = data.azurerm_resource_group.resource-grooup.location
+  resource_group_name = data.azurerm_resource_group.resource-grooup.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
 
+}
+data "azurerm_resource_group" "resource-grooup" {
+  name = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-rg"
 }
