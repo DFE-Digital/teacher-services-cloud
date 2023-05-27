@@ -87,19 +87,19 @@ jobs:
 
         $ARM_CLIENT_ID = ( $AZURE_CREDENTIALS_JSON | ConvertFrom-Json ).clientId
         Write-Output "::add-mask::$ARM_CLIENT_ID"
-        Write-Output "ARM_CLIENT_ID=$ARM_CLIENT_ID" >> $GITHUB_ENV
+        "ARM_CLIENT_ID=$ARM_CLIENT_ID" >> $env:GITHUB_ENV
 
         $ARM_CLIENT_SECRET =  ( $AZURE_CREDENTIALS_JSON | ConvertFrom-Json ).clientSecret
         Write-Output "::add-mask::$ARM_CLIENT_SECRET"
-        Write-Output "ARM_CLIENT_SECRET=$ARM_CLIENT_SECRET" >> $GITHUB_ENV
+        "ARM_CLIENT_SECRET=$ARM_CLIENT_SECRET" >> $env:GITHUB_ENV
 
         $ARM_SUBSCRIPTION_ID =  ( $AZURE_CREDENTIALS_JSON | ConvertFrom-Json ).subscriptionId
         Write-Output "::add-mask::$ARM_SUBSCRIPTION_ID"
-        Write-Output "ARM_SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_ID" >> $GITHUB_ENV
+        "ARM_SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_ID" >> $env:GITHUB_ENV
 
         $ARM_TENANT_ID =  ( $AZURE_CREDENTIALS_JSON | ConvertFrom-Json ).tenantId
         Write-Output "::add-mask::$ARM_TENANT_ID"
-        Write-Output "ARM_TENANT_ID=$ARM_TENANT_ID" >> $GITHUB_ENV
+        "ARM_TENANT_ID=$ARM_TENANT_ID" >> $env:GITHUB_ENV
 
     - name: Update DNS in ${{ matrix.environment }}
       run: |
