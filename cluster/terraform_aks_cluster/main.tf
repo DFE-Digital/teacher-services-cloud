@@ -36,6 +36,19 @@ resource "azurerm_kubernetes_cluster" "main" {
     }
   }
 
+  # role_based_access_control_enabled = var.rbac_enabled
+
+  dynamic "azure_active_directory_role_based_access_control" {
+    for_each = var.rbac_enabled ? [1] : []
+    content {
+       azure_rbac_enabled = true
+       managed            = true
+       admin_group_object_ids = ["5e2b27e5-82a6-40ac-aecf-7fb363c22005"]
+    }
+  }
+
+  local_account_disabled = var.rbac_enabled ? false : true
+
   lifecycle { ignore_changes = [tags] }
 }
 

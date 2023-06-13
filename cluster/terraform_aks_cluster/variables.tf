@@ -20,6 +20,10 @@ variable "clone_cluster" {
   type    = bool
   default = false
 }
+variable "rbac_enabled" {
+  type    = bool
+  default = false
+}
 
 locals {
   azure_credentials = try(jsondecode(var.azure_sp_credentials_json), null)
