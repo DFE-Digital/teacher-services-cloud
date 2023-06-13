@@ -27,8 +27,16 @@ resource "azurerm_kubernetes_cluster" "main" {
     type = "SystemAssigned"
   }
 
-  lifecycle { ignore_changes = [tags] }
+  network_profile {
+    network_plugin    = "kubenet"
+    load_balancer_sku = "standard"
 
+    load_balancer_profile {
+      outbound_ip_address_ids = [azurerm_public_ip.egress-public-ip.id]
+    }
+  }
+
+  lifecycle { ignore_changes = [tags] }
 }
 
 resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
@@ -85,4 +93,14 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools_clone" {
   vnet_subnet_id        = azurerm_subnet.aks-subnet-clone[0].id
   zones                 = local.uk_south_availability_zones
   node_labels           = try(each.value.node_labels, {})
+}
+
+resource "azurerm_public_ip" "egress-public-ip" {
+  name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-egress-pip"
+  location            = data.azurerm_resource_group.cluster.location
+  resource_group_name = local.node_resource_group_name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+
+  lifecycle { ignore_changes = [tags] }
 }
