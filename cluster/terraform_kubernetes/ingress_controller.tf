@@ -67,6 +67,11 @@ resource "helm_release" "ingress-nginx" {
     value = "true"
     type  = "string"
   }
+  # Use static Public IP for load balancer ingress
+  set {
+    name  = "controller.service.loadBalancerIP"
+    value = azurerm_public_ip.ingress-public-ip.ip_address
+  }
 }
 
 resource "helm_release" "ingress-nginx-clone" {
@@ -79,7 +84,8 @@ resource "helm_release" "ingress-nginx-clone" {
   version    = helm_release.ingress-nginx.version
 
   dynamic "set" {
-    for_each = helm_release.ingress-nginx.set
+    # Exclude loadBalancerIP set to force clone to use dynamic Public IP for load balancer ingress
+    for_each = [for s in helm_release.ingress-nginx.set : s if s.name != "controller.service.loadBalancerIP"]
 
     content {
       name  = set.value["name"]
@@ -87,5 +93,18 @@ resource "helm_release" "ingress-nginx-clone" {
       type  = set.value["type"]
     }
   }
+}
 
+resource "azurerm_public_ip" "ingress-public-ip" {
+  name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-ingress-pip"
+  location            = data.azurerm_resource_group.nodes_resource_group.location
+  resource_group_name = data.azurerm_resource_group.nodes_resource_group.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+
+  lifecycle { ignore_changes = [tags] }
+}
+
+data "azurerm_resource_group" "nodes_resource_group" {
+  name = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-rg"
 }
