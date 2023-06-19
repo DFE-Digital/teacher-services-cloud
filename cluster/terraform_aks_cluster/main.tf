@@ -96,9 +96,9 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools_clone" {
 }
 
 resource "azurerm_public_ip" "egress-public-ip" {
-  name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-egress-pip"
+  name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-egress-pip" # Change name
   location            = data.azurerm_resource_group.cluster.location
-  resource_group_name = local.node_resource_group_name
+  resource_group_name = data.azurerm_resource_group.cluster.name # Cluster RG
   allocation_method   = "Static"
   sku                 = "Standard"
 
