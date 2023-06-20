@@ -15,7 +15,7 @@ help() {
    echo
 
    echo "Syntax:"
-   echo "   konduit [-a|-c|-h|-i file-name|-r redis-var|-t timeout] app-name -- command [args]"
+   echo "   konduit [-a|-c|-h|-i file-name|-p postgres-var|-r redis-var|-t timeout] app-name -- command [args]"
    echo "      Connect to the default database for app-name"
    echo
    echo "or konduit [-a|-c|-h|-i file-name|-r redis-var|-t timeout] -d db-name -k key-vault app-name -- command [args]"
@@ -31,6 +31,8 @@ help() {
    echo "   -k key-vault      Key vault that holds the Azure secret containing the DB URL."
    echo "                     The secret {db-name}-database-url must exist in this vault,"
    echo "                     and contain a full connection URL."
+   echo "   -p postgres-var   Variable for postgres [defaults to DATABASE_URL if not set]"
+   echo "                     Only valid for commands psql or pg_dump"
    echo "   -r redis-var      Variable for redis cache [defaults to REDIS_URL if not set]"
    echo "                     Only valid for command redis-cli"
    echo "   -t timeout        Timeout in seconds. Default is 28800 but 3600 for psql/pg_dump commands."
@@ -91,6 +93,11 @@ init_setup() {
       Redis="REDIS_URL"
    fi
 
+   # Set default Postgres var if not set
+   if [ "${Postgres}" = "" ]; then
+      Postgres="DATABASE_URL"
+   fi
+
    # Get the deployment namespace
    NAMESPACE=$(kubectl get deployments -A | grep "${INSTANCE} " | awk '{print $1}')
 
@@ -142,7 +149,7 @@ set_db_psql() {
    #
    if [ "${DBName}" = "" ]; then
       # If an input file is given, check it exists and is readable
-      K8_URL=$(echo 'echo $DATABASE_URL' | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
+      K8_URL=$(echo "echo \$${Postgres}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
       DB_URL=$(echo "${K8_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g")
       DB_NAME=$(echo "${K8_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
    else
@@ -233,7 +240,7 @@ cleanup() {
 }
 
 # Get the options
-while getopts "ahcd:i:k:r:t:" option; do
+while getopts "ahcd:i:k:r:p:t:" option; do
    case $option in
    a)
       AKS="True"
@@ -249,6 +256,9 @@ while getopts "ahcd:i:k:r:t:" option; do
       ;;
    i)
       Inputfile=$OPTARG
+      ;;
+   p)
+      Postgres=$OPTARG
       ;;
    r)
       Redis=$OPTARG
