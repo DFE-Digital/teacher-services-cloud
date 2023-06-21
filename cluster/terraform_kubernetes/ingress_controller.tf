@@ -97,14 +97,14 @@ resource "helm_release" "ingress-nginx-clone" {
 
 resource "azurerm_public_ip" "ingress-public-ip" {
   name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-ingress-pip"
-  location            = data.azurerm_resource_group.nodes_resource_group.location
-  resource_group_name = data.azurerm_resource_group.nodes_resource_group.name
+  location            = data.azurerm_resource_group.resource_group.location
+  resource_group_name = data.azurerm_resource_group.resource_group.name
   allocation_method   = "Static"
   sku                 = "Standard"
 
   lifecycle { ignore_changes = [tags] }
 }
 
-data "azurerm_resource_group" "nodes_resource_group" {
-  name = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-rg"
+data "azurerm_resource_group" "resource_group" {
+  name = var.resource_group_name
 }
