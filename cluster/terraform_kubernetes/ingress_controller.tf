@@ -14,6 +14,13 @@ resource "helm_release" "ingress-nginx" {
     value = "/healthz"
     type  = "string"
   }
+  # Resource group of the ingress public IP
+  # The cluster managed identity must have Network Contributor role on the resource group
+  set {
+    name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-resource-group"
+    value = azurerm_public_ip.ingress-public-ip.resource_group_name
+    type  = "string"
+  }
   # Route requests from the load balancer to the ingress pods on the same node instead of adding one more hop to the node with most pods.
   # This preserves the client IP and removes a hop. It potentially creates a traffic imbalance but this should have no effect for us
   # as we should have many well distributed ingress pods.
