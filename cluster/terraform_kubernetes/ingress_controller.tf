@@ -21,6 +21,12 @@ resource "helm_release" "ingress-nginx" {
     value = azurerm_public_ip.ingress-public-ip.resource_group_name
     type  = "string"
   }
+  # Ingress IP
+  set {
+    name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-ipv4"
+    value = azurerm_public_ip.ingress-public-ip.ip_address
+    type  = "string"
+  }
   # Route requests from the load balancer to the ingress pods on the same node instead of adding one more hop to the node with most pods.
   # This preserves the client IP and removes a hop. It potentially creates a traffic imbalance but this should have no effect for us
   # as we should have many well distributed ingress pods.
@@ -73,11 +79,6 @@ resource "helm_release" "ingress-nginx" {
     name  = "controller.config.compute-full-forwarded-for"
     value = "true"
     type  = "string"
-  }
-  # Use static Public IP for load balancer ingress
-  set {
-    name  = "controller.service.loadBalancerIP"
-    value = azurerm_public_ip.ingress-public-ip.ip_address
   }
 }
 
