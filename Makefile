@@ -99,6 +99,13 @@ arm-deployment: set-azure-account
 			"tfStorageAccountName=${STORAGE_ACCOUNT_NAME}" "tfStorageContainerName=tsc-tfstate" \
 			"keyVaultName=${KEYVAULT_NAME}" ${WHAT_IF}
 
+	az deployment group create \
+		--name "resource-group-tsc-$(shell date +%Y%m%d%H%M%S)" \
+		--resource-group "${RESOURCE_GROUP_NAME}" \
+		--template-file cluster/arm_aks_cluster/resource_group.json \
+		--parameters "managedIdentityName=${MANAGE_IDENTITY_NAME}" \
+		${WHAT_IF}
+
 deploy-azure-resources: check-auto-approve arm-deployment # make dev deploy-azure-resources
 
 validate-azure-resources: set-what-if arm-deployment # make dev validate-azure-resources
