@@ -47,6 +47,7 @@ terraform-aks-cluster-init: set-azure-account
 	$(eval export TF_VAR_resource_prefix=${RESOURCE_PREFIX})
 	$(eval export TF_VAR_config=${CONFIG})
 	$(eval export TF_VAR_azure_tags=${RG_TAGS})
+	$(eval export TF_VAR_managed_identity_name=${MANAGE_IDENTITY_NAME})
 
 terraform-aks-cluster-plan: terraform-aks-cluster-init
 	terraform -chdir=cluster/terraform_aks_cluster plan -var-file config/${CONFIG}.tfvars.json

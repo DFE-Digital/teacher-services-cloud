@@ -2,6 +2,11 @@ data "azurerm_resource_group" "cluster" {
   name = var.resource_group_name
 }
 
+data "azurerm_user_assigned_identity" "aks_control_plane" {
+  name                = var.managed_identity_name
+  resource_group_name = data.azurerm_resource_group.cluster.name
+}
+
 resource "azurerm_kubernetes_cluster" "main" {
   name                = local.cluster_name
   location            = data.azurerm_resource_group.cluster.location
@@ -24,7 +29,8 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [data.azurerm_user_assigned_identity.aks_control_plane.id]
   }
 
   network_profile {
