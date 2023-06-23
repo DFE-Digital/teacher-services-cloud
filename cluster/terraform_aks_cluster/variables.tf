@@ -10,6 +10,10 @@ variable "resource_group_name" { type = string }
 variable "resource_prefix" { type = string }
 variable "azure_tags" { type = string }
 variable "config" { type = string }
+variable "managed_identity_name" {
+  type        = string
+  description = "Name of the managed identiy assumed by the cluster for its control plane"
+}
 
 # Set in config json file
 variable "cip_tenant" { type = bool }

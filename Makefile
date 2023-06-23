@@ -1,3 +1,6 @@
+RG_TAGS={"Product" : "Teacher services cloud"}
+ARM_TEMPLATE_TAG=1.1.0
+
 ci:
 	$(eval AUTO_APPROVE=-auto-approve)
 	$(eval CI=true)
@@ -33,37 +36,47 @@ clone:
 set-azure-account:
 	[ "${SKIP_AZURE_LOGIN}" != "true" ] && az account set -s ${AZ_SUBSCRIPTION} || true
 
-terraform-aks-cluster-init: set-azure-account set-azure-resource-group-tags
+terraform-aks-cluster-init: set-azure-account
 	terraform -chdir=cluster/terraform_aks_cluster init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=${ENVIRONMENT}.tfstate
-	$(eval TF_VARS_AKS_CLUSTER=-var environment=${ENVIRONMENT} -var resource_group_name=${RESOURCE_GROUP_NAME} -var resource_prefix=${RESOURCE_PREFIX} -var config=${CONFIG} -var azure_tags='${RG_TAGS}')
+
+	$(eval export TF_VAR_environment=${ENVIRONMENT})
+	$(eval export TF_VAR_resource_group_name=${RESOURCE_GROUP_NAME})
+	$(eval export TF_VAR_resource_prefix=${RESOURCE_PREFIX})
+	$(eval export TF_VAR_config=${CONFIG})
+	$(eval export TF_VAR_azure_tags=${RG_TAGS})
+	$(eval export TF_VAR_managed_identity_name=${MANAGE_IDENTITY_NAME})
 
 terraform-aks-cluster-plan: terraform-aks-cluster-init
-	terraform -chdir=cluster/terraform_aks_cluster plan -var-file config/${CONFIG}.tfvars.json ${TF_VARS_AKS_CLUSTER}
+	terraform -chdir=cluster/terraform_aks_cluster plan -var-file config/${CONFIG}.tfvars.json
 
 terraform-aks-cluster-apply: terraform-aks-cluster-init
-	terraform -chdir=cluster/terraform_aks_cluster apply -var-file config/${CONFIG}.tfvars.json ${TF_VARS_AKS_CLUSTER} ${AUTO_APPROVE}
+	terraform -chdir=cluster/terraform_aks_cluster apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
 terraform-aks-cluster-destroy: terraform-aks-cluster-init
-	terraform -chdir=cluster/terraform_aks_cluster destroy -var-file config/${CONFIG}.tfvars.json ${TF_VARS_AKS_CLUSTER} ${AUTO_APPROVE}
+	terraform -chdir=cluster/terraform_aks_cluster destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
-terraform-kubernetes-init: set-azure-account set-azure-resource-group-tags
+terraform-kubernetes-init: set-azure-account
 	terraform -chdir=cluster/terraform_kubernetes init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=${ENVIRONMENT}_kubernetes.tfstate
-	$(eval TF_VARS_KUBERNETES=-var environment=${ENVIRONMENT} -var resource_group_name=${RESOURCE_GROUP_NAME} -var resource_prefix=${RESOURCE_PREFIX} -var config=${CONFIG})
+
+	$(eval export TF_VAR_environment=${ENVIRONMENT})
+	$(eval export TF_VAR_resource_group_name=${RESOURCE_GROUP_NAME})
+	$(eval export TF_VAR_resource_prefix=${RESOURCE_PREFIX})
+	$(eval export TF_VAR_config=${CONFIG})
 
 terraform-kubernetes-plan: terraform-kubernetes-init
-	terraform -chdir=cluster/terraform_kubernetes plan -var-file config/${CONFIG}.tfvars.json ${TF_VARS_KUBERNETES}
+	terraform -chdir=cluster/terraform_kubernetes plan -var-file config/${CONFIG}.tfvars.json
 
 terraform-kubernetes-apply: terraform-kubernetes-init
-	terraform -chdir=cluster/terraform_kubernetes apply -var-file config/${CONFIG}.tfvars.json ${TF_VARS_KUBERNETES} ${AUTO_APPROVE}
+	terraform -chdir=cluster/terraform_kubernetes apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
 terraform-kubernetes-destroy: terraform-kubernetes-init
-	terraform -chdir=cluster/terraform_kubernetes destroy -var-file config/${CONFIG}.tfvars.json ${TF_VARS_KUBERNETES} ${AUTO_APPROVE}
+	terraform -chdir=cluster/terraform_kubernetes destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
 check-cluster-exists:
 	terraform -chdir=cluster/terraform_aks_cluster output -json | jq -e '.cluster_id' > /dev/null
@@ -79,24 +92,25 @@ set-what-if:
 check-auto-approve:
 	$(if $(AUTO_APPROVE), , $(error can only run with AUTO_APPROVE))
 
-set-azure-template-tag:
-	$(eval ARM_TEMPLATE_TAG=1.1.0)
-
-set-azure-resource-group-tags: ##Tags that will be added to resource group on its creation in ARM template
-	$(eval RG_TAGS=$(shell echo '{"Portfolio": "Early Years and Schools Group", "Parent Business":"Teacher Training and Qualifications", "Product" : "Teacher services cloud", "Service Line": "Teaching Workforce", "Service": "Teacher Training and Qualifications", "Service Offering": "Teacher services cloud", "Environment" : "$(ENV_TAG)"}' | jq . ))
-
-arm-deployment: set-azure-account set-azure-template-tag set-azure-resource-group-tags
+arm-deployment: set-azure-account
 	az deployment sub create --name "resourcedeploy-tsc-$(shell date +%Y%m%d%H%M%S)" \
 		-l "UK South" --template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/resourcedeploy.json" \
 		--parameters "resourceGroupName=${RESOURCE_GROUP_NAME}" 'tags=${RG_TAGS}' \
 			"tfStorageAccountName=${STORAGE_ACCOUNT_NAME}" "tfStorageContainerName=tsc-tfstate" \
 			"keyVaultName=${KEYVAULT_NAME}" ${WHAT_IF}
 
+	az deployment group create \
+		--name "resource-group-tsc-$(shell date +%Y%m%d%H%M%S)" \
+		--resource-group "${RESOURCE_GROUP_NAME}" \
+		--template-file cluster/arm_aks_cluster/resource_group.json \
+		--parameters "managedIdentityName=${MANAGE_IDENTITY_NAME}" \
+		${WHAT_IF}
+
 deploy-azure-resources: check-auto-approve arm-deployment # make dev deploy-azure-resources
 
 validate-azure-resources: set-what-if arm-deployment # make dev validate-azure-resources
 
-domain-azure-resources: set-azure-account set-azure-template-tag set-azure-resource-group-tags # make domain domain-azure-resources
+domain-azure-resources: set-azure-account # make domain domain-azure-resources
 	az deployment sub create --name "resourcedeploy-tscdomains-$(shell date +%Y%m%d%H%M%S)" \
 		-l "UK South" --template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/resourcedeploy.json" \
 		--parameters "resourceGroupName=${RESOURCE_GROUP_NAME}" 'tags=${RG_TAGS}' \
