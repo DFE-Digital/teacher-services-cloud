@@ -32,30 +32,30 @@ help() {
    echo "                     The secret {db-name}-database-url must exist in this vault,"
    echo "                     and contain a full connection URL."
    echo "   -p postgres-var   Variable for postgres [defaults to DATABASE_URL if not set]"
-   echo "                     Only valid for commands psql or pg_dump"
+   echo "                     Only valid for commands psql, pg_dump or pg_restore"
    echo "   -r redis-var      Variable for redis cache [defaults to REDIS_URL if not set]"
    echo "                     Only valid for command redis-cli"
-   echo "   -t timeout        Timeout in seconds. Default is 28800 but 3600 for psql/pg_dump commands."
+   echo "   -t timeout        Timeout in seconds. Default is 28800 but 3600 for psql, pg_dump or pg_restore commands."
    echo "   -h                Print this help."
    echo
    echo "parameters:"
    echo "   app-name     app name to connect to."
    echo "   command      command to run."
-   echo "                  valid commands are psql, pg_dump, redis-cli"
+   echo "                  valid commands are psql, pg_dump, pg_restore or redis-cli"
    echo "   args         args for the command"
 }
 
 init_setup() {
-   if [ "${RUNCMD}" != "psql" ] && [ "${RUNCMD}" != "pg_dump" ] && [ "${RUNCMD}" != "redis-cli" ]; then
+   if [ "${RUNCMD}" != "psql" ] && [ "${RUNCMD}" != "pg_dump" ] && [ "${RUNCMD}" != "pg_restore" ] && [ "${RUNCMD}" != "redis-cli" ]; then
       echo
       echo "Error: invalid command ${RUNCMD}"
-      echo "Only valid options are psql, pg_dump or redis-cli"
+      echo "Only valid options are psql, pg_dump, pg_restore or redis-cli"
       help
       exit 1
    fi
 
    if [ "${Timeout}" = "" ]; then
-      # Default timeout for psql/pg_dump set to 8 hours. Increase if required.
+      # Default timeout for psql/pg_dump/pg_restore set to 8 hours. Increase if required.
       # This is to allow for long running queries or backups.
       # The timeout is reset for each command run.
       # The timeout can be overridden with the -t option.
@@ -63,7 +63,7 @@ init_setup() {
       if [ "${RUNCMD}" = "psql" ] && [ "${Inputfile}" != "" ]; then
          # Default timeout for restore set to 1 hour. Increase if required.
          TMOUT=3600
-      elif [ "${RUNCMD}" = "pg_dump" ]; then
+      elif [ "${RUNCMD}" = "pg_dump" ] || [ "${RUNCMD}" = "pg_restore" ]; then
          # Default timeout for backup set to 1 hour. Increase if required.
          TMOUT=3600
       fi
@@ -232,6 +232,14 @@ run_pgdump() {
    pg_dump -d "$DB_URL" --no-password ${OTHERARGS}
 }
 
+run_pg_restore() {
+   if [ "${OTHERARGS}" = "" ]; then
+      echo "ERROR: Must supply arguments for pg_restore"
+      exit 1
+   fi
+   pg_restore -d "$DB_URL" --no-password ${OTHERARGS}
+}
+
 cleanup() {
    unset DB_URL DB_NAME K8_URL
    pkill -15 -f "kubectl port-forward.*${LOCAL_PORT}"
@@ -299,6 +307,10 @@ psql)
 pg_dump)
    set_db_psql
    CMD="run_pgdump"
+   ;;
+pg_restore)
+   set_db_psql
+   CMD="run_pg_restore"
    ;;
 redis-cli)
    set_db_redis
