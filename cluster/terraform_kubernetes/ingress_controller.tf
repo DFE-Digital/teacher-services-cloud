@@ -14,6 +14,19 @@ resource "helm_release" "ingress-nginx" {
     value = "/healthz"
     type  = "string"
   }
+  # Resource group of the ingress public IP
+  # The cluster managed identity must have Network Contributor role on the resource group
+  set {
+    name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-resource-group"
+    value = azurerm_public_ip.ingress-public-ip.resource_group_name
+    type  = "string"
+  }
+  # Ingress IP
+  set {
+    name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-ipv4"
+    value = azurerm_public_ip.ingress-public-ip.ip_address
+    type  = "string"
+  }
   # Route requests from the load balancer to the ingress pods on the same node instead of adding one more hop to the node with most pods.
   # This preserves the client IP and removes a hop. It potentially creates a traffic imbalance but this should have no effect for us
   # as we should have many well distributed ingress pods.
@@ -67,11 +80,6 @@ resource "helm_release" "ingress-nginx" {
     value = "true"
     type  = "string"
   }
-  # Use static Public IP for load balancer ingress
-  set {
-    name  = "controller.service.loadBalancerIP"
-    value = azurerm_public_ip.ingress-public-ip.ip_address
-  }
 }
 
 resource "helm_release" "ingress-nginx-clone" {
@@ -97,14 +105,14 @@ resource "helm_release" "ingress-nginx-clone" {
 
 resource "azurerm_public_ip" "ingress-public-ip" {
   name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-ingress-pip"
-  location            = data.azurerm_resource_group.nodes_resource_group.location
-  resource_group_name = data.azurerm_resource_group.nodes_resource_group.name
+  location            = data.azurerm_resource_group.resource_group.location
+  resource_group_name = data.azurerm_resource_group.resource_group.name
   allocation_method   = "Static"
   sku                 = "Standard"
 
   lifecycle { ignore_changes = [tags] }
 }
 
-data "azurerm_resource_group" "nodes_resource_group" {
-  name = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-rg"
+data "azurerm_resource_group" "resource_group" {
+  name = var.resource_group_name
 }

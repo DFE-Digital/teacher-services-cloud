@@ -55,6 +55,16 @@ e.g.
 make test terraform-plan CONFIRM_TEST=yes
 ```
 
+### Initial set-up
+When creating a brand new cluster with its own configuration, follow these steps:
+- Create the config files in:
+    - cluster/config
+    - cluster/terraform_aks_cluster/config
+    - cluster/terraform_kubernetes/config
+- Create the new config entry in the Makefile
+- Create low-level terraform resources: `make <config> validate-azure-resources` and `make <config> deploy-azure-resources`
+- Request the Cloud Engineering Team to assign role "Network Contributor" to the new managed identity on the new resource group
+
 ### kubectl
 - Follow the [kubectl documentation](https://kubernetes.io/docs/tasks/tools/#kubectl) to install it
 - Configure the credentials using the `get-cluster-credentials` make command. Example:
