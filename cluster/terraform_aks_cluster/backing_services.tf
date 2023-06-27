@@ -63,4 +63,6 @@ resource "azurerm_resource_group" "backing_services_group" {
   name     = local.backing_services_resource_group_name
   location = data.azurerm_resource_group.cluster.location
   tags     = jsondecode(var.azure_tags)
+
+  lifecycle { ignore_changes = [tags] }
 }
