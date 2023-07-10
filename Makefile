@@ -153,3 +153,7 @@ export-aks-resources: get-cluster-credentials
 
 import-aks-resources: get-cluster-credentials
 	cd ${ENVIRONMENT}-export && ../scripts/import_aks_resources.sh
+
+.PHONY: new_service
+new_service:
+	bash templates/new_service.sh
