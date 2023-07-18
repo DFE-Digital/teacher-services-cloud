@@ -2,7 +2,7 @@ resource "helm_release" "ingress-nginx" {
   name       = "ingress-nginx"
   repository = "https://kubernetes.github.io/ingress-nginx"
   chart      = "ingress-nginx"
-  version    = "4.4.0"
+  version    = var.ingress_nginx_version
 
   # The first part of the name with simple dots is the keys path in the values.yml file e.g. controller.service.annotations
   # The last part is the final key e.g. service\\.beta\\.kubernetes\\.io/azure-load-balancer-health-probe-request-path
