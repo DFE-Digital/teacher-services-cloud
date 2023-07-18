@@ -47,6 +47,12 @@ variable "welcome_app_hostnames" {
   default     = []
 }
 
+variable "ingress_nginx_version" {
+  description = "Version of the ingress-nginx helm chart to use"
+  type        = string
+  default     = "4.4.0"
+}
+
 locals {
   cluster_name = (
     var.cip_tenant ?
