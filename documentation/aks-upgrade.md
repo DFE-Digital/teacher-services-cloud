@@ -105,14 +105,3 @@ az aks nodepool get-upgrades --resource-group <ResourceGroup> --cluster-name <Cl
 1. Follow the same manual process to upgrade the production cluster
     - Test with the welcome app: https://www.teacherservices.cloud/
     - Raise PR
-## Monitoring upgrade
-1. Before the upgrade use the command below to monitor changes in container state
-        ```
-        kubectl get pods -n development -w
-        ```
-1. Start the upgrade and note the node creation and recycling lifecycle
-        ```
-        apply-redis-review-1234-5f6588767c-6jkpb 0/1 Pending 0 0s
-        apply-redis-review-1234-5f6588767c-6jkpb 0/1 ContainerCreating 0 0s
-        apply-review-1234-7cc95bb545-hrv8m 1/1 Running 0 55s
-        ```
