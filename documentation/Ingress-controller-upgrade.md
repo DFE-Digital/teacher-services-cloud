@@ -24,7 +24,7 @@
 ```
 make test terraform-apply CONFIRM_TEST=yes
 ```
-- At this point monitor your cluster as well as curl response and make sure it return `200` .
+- At this point monitor your cluster as well as curl response and make sure it return and cycle `200` .
 - You will also see the pod recreated through its life cucle below:
 
         ```
@@ -35,5 +35,5 @@ make test terraform-apply CONFIRM_TEST=yes
 
 
         ```
-- Follow the same process for other environemt production and raise a PR for each.
-- Please give atleast 24 hours notice to the application teams before upgrade.
+- Follow the same process for production and raise a PR for each environment.
+- Please give at least 24 hours notice to the application teams before upgrade.
