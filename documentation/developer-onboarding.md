@@ -28,7 +28,7 @@
 - `s189-teacher-services-cloud-development`: Developement subscription is where you can deploy your own dev cluster and apps test your changes before merging to main branch.
 
 **Test cluster**
-- The test clusters are hosted in the `s189-teacher-services-cloud-test` subscription.
+- The test cluster are hosted in the `s189-teacher-services-cloud-test` subscription.
 - The test cluster is used for testing and development which is in `s189-teacher-services-cloud-test` subscription
   1. `s189t01-tsc-test-aks` (test cluster) in `s189t01-tsc-ts-rg` (resource group)
 
