@@ -24,7 +24,7 @@
 ```
 make test terraform-apply CONFIRM_TEST=yes
 ```
-- At this point monitor your cluster as well as curl response and make sure it return and cycle `200` .
+- At this point monitor your cluster as well as curl response and make sure it returns and cycle `200` .
 - You will also see the pod recreated through its life cucle below:
 
         ```
