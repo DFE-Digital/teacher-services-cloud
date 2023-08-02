@@ -53,6 +53,24 @@ variable "ingress_nginx_version" {
   default     = "4.4.0"
 }
 
+variable "enable_lowpriority_app" {
+  type    = bool
+  default = false
+}
+
+variable "lowpriority_app_cpu" {
+  default = "1"
+}
+
+variable "lowpriority_app_mem" {
+  default = "1500Mi"
+}
+
+variable "lowpriority_app_replicas" {
+  default = 3
+}
+
+
 locals {
   cluster_name = (
     var.cip_tenant ?
@@ -70,7 +88,9 @@ locals {
   )
   api_token = data.azurerm_key_vault_secret.statuscake_secret.value
 
-  azure_credentials     = try(jsondecode(var.azure_sp_credentials_json), null)
-  welcome_app_name      = "welcome-app"
-  welcome_app_namespace = "infra"
+  azure_credentials         = try(jsondecode(var.azure_sp_credentials_json), null)
+  welcome_app_name          = "welcome-app"
+  welcome_app_namespace     = "infra"
+  lowpriority_app_name      = "lowpriority-app"
+  lowpriority_app_namespace = "infra"
 }
