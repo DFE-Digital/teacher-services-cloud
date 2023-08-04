@@ -40,6 +40,27 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         terraform_root_folder: custom_domains/terraform/infrastructure
 
+    - name: Validate templates/new_service/terraform/application
+      uses: ./.github/actions/validate-terraform
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        terraform_root_folder: templates/new_service/terraform/application
+        terrafile_environment: development
+
+    - name: Validate templates/new_service/terraform/domains/infrastructure
+      uses: ./.github/actions/validate-terraform
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        terraform_root_folder: templates/new_service/terraform/domains/infrastructure
+        terrafile_environment: zones
+
+    - name: Validate templates/new_service/terraform/domains/environment_domains
+      uses: ./.github/actions/validate-terraform
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        terraform_root_folder: templates/new_service/terraform/domains/environment_domains
+        terrafile_environment: development
+
   deploy:
     name: Deploy Cluster
     if: github.ref == 'refs/heads/main'
