@@ -1,3 +1,11 @@
 .terraform
 *-export
+
+# templates
 /new_service
+templates/new_service/terraform/domains/infrastructure/.terraform.lock.hcl
+templates/new_service/terraform/domains/infrastructure/vendor/
+templates/new_service/terraform/domains/environment_domains/.terraform.lock.hcl
+templates/new_service/terraform/domains/environment_domains/vendor/
+templates/new_service/terraform/application/.terraform.lock.hcl
+templates/new_service/terraform/application/vendor/
