@@ -43,20 +43,20 @@ Raise a [PIM request](https://technical-guidance.education.gov.uk/infrastructure
 
 Then login to Azure using `az login`.
 
-## Create terraform environment
+### Create terraform environment
 This creates the minimum Azure resources required to run terraform, ie storage account and keyvaults.
 
 - Validate: `make <environment config> validate-azure-resources`. Example: `make development validate-azure-resources`
 - Deploy: `make <environment config> deploy-azure-resources`. Example: `make development deploy-azure-resources`
 
-## Configure Statuscake credentials
+### Configure Statuscake credentials
 If Statuscake is not required at this stage, comment out resources in `terraform/application/statuscake.tf` and the provider in `terraform/application/terraform.tf`.
 
 If it is:
 - [Request](https://technical-guidance.education.gov.uk/infrastructure/monitoring/statuscake/#statuscake) a user account and an API key
 - Create a secret "STATUSCAKE-API-TOKEN" in the "inf" keyvault, with the API key as value
 
-## Deploy application
+### Deploy application
 Deploy the application, ingress, database...
 
 - Plan: `make <environment config> terraform-plan`. Example: `make development terraform-plan`
@@ -89,7 +89,7 @@ This configures the custom domain for a particular environment in the previously
 - Plan: `make <environment config> domains-plan`
 - Apply: `make <environment config> domains-apply`
 
-### Enable monitoring
+## Enable monitoring
 [Enable Statuscake](#configure-statuscake-credentials) if necessary.
 
 Fill in `enable_monitoring`, `external_url` and `statuscake_contact_groups` variables in the environment *tfvars.json* file. Example:
@@ -101,6 +101,35 @@ Fill in `enable_monitoring`, `external_url` and `statuscake_contact_groups` vari
 ```
 
 Then deploy the environment.
+
+## Deploy via Github actions
+When running the make commands for deployment, terraform uses the Azure credentials provided by `az login`.
+
+When running in a Github actions workflow, it uses a [service principal key](https://technical-guidance.education.gov.uk/infrastructure/hosting/azure-cip/#use-the-service-principal-in-external-systems). Follow the process in the documentation to create `AZURE_CREDENTIALS` per environment.
+
+- Use the `s189t01-tsc-contributor` service principal for non production environments to deploy to the test cluster
+- Use `s189p01-tsc-contributor` for production environments to deploy to the production cluster
+
+Example workflow:
+
+```yaml
+- name: Checkout code
+    uses: actions/checkout@v3
+
+- uses: hashicorp/setup-terraform@v1
+    with:
+    terraform_version: 1.5.1
+    terraform_wrapper: false
+
+- uses: DFE-Digital/github-actions/set-arm-environment-variables@master
+    with:
+    azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
+
+- name: Apply Terraform
+    run: make ci ${{ matrix.environment }} terraform-apply
+    env:
+        DOCKER_IMAGE_TAG: ${{ needs.build.outputs.docker-image-tag }}
+```
 
 ## FAQ
 
