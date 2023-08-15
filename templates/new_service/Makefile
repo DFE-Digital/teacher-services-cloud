@@ -1,5 +1,5 @@
 TERRAFILE_VERSION=0.8
-ARM_TEMPLATE_TAG=1.1.6
+ARM_TEMPLATE_TAG=1.1.10
 RG_TAGS={"Product" : "Teacher services cloud"}
 REGION=UK South
 SERVICE_NAME=#SERVICE_NAME#
@@ -21,6 +21,7 @@ composed-variables:
 	$(eval RESOURCE_GROUP_NAME=${AZURE_RESOURCE_PREFIX}-${SERVICE_SHORT}-${CONFIG_SHORT}-rg)
 	$(eval KEYVAULT_NAMES='("${AZURE_RESOURCE_PREFIX}-${SERVICE_SHORT}-${CONFIG_SHORT}-app-kv", "${AZURE_RESOURCE_PREFIX}-${SERVICE_SHORT}-${CONFIG_SHORT}-inf-kv")')
 	$(eval STORAGE_ACCOUNT_NAME=${AZURE_RESOURCE_PREFIX}${SERVICE_SHORT}tfstate${CONFIG_SHORT}sa)
+	$(eval LOG_ANALYTICS_WORKSPACE_NAME=${AZURE_RESOURCE_PREFIX}-${SERVICE_SHORT}-${CONFIG_SHORT}-log)
 
 ci:
 	$(eval AUTO_APPROVE=-auto-approve)
@@ -60,14 +61,16 @@ set-what-if:
 
 arm-deployment: composed-variables set-azure-account
 	$(if ${KEYVAULT_NAMES}, $(eval KV_ARG=keyVaultNames=${KEYVAULT_NAMES}),)
+	$(if ${ENABLE_KV_DIAGNOSTICS}, $(eval KV_DIAG_ARG=enableDiagnostics=${ENABLE_KV_DIAGNOSTICS} logAnalyticsWorkspaceName=${LOG_ANALYTICS_WORKSPACE_NAME}),)
 
 	az deployment sub create --name "resourcedeploy-tsc-$(shell date +%Y%m%d%H%M%S)" \
 		-l "${REGION}" --template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/resourcedeploy.json" \
 		--parameters "resourceGroupName=${RESOURCE_GROUP_NAME}" 'tags=${RG_TAGS}' \
-			"tfStorageAccountName=${STORAGE_ACCOUNT_NAME}" "tfStorageContainerName=terraform-state" \
-			${KV_ARG} \
-			"enableKVPurgeProtection=${KV_PURGE_PROTECTION}" \
-			${WHAT_IF}
+		"tfStorageAccountName=${STORAGE_ACCOUNT_NAME}" "tfStorageContainerName=terraform-state" \
+		${KV_ARG} \
+		${KV_DIAG_ARG} \
+		"enableKVPurgeProtection=${KV_PURGE_PROTECTION}" \
+		${WHAT_IF}
 
 deploy-arm-resources: arm-deployment
 
