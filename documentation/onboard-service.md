@@ -4,18 +4,24 @@
 Most services use the same code to deploy to AKS. It has been made into a template that will evolve over time to capture all the best practices from working in multiple services.
 It is used both to dramatically reduce the time required to onboard a new service, and be a point of reference to align standards across repositories.
 
+## Before you start
+Your application needs to be Dockerized and available at ghcr.io/dfe-digital/your-service-name.
+
+If you are getting started on a local machine and you have an Apple
+Silicon laptop, note that you will need to build your container with the
+`--platform=linux/amd64` flag.
+
 ### Generate code
-Run the `make new_service` command with the required environment variables. Example:
+Run the `templates/new_service.sh` script with the required environment variables. Example:
 
 ```
-make new_service SERVICE_NAME=calculate-teacher-pay SERVICE_SHORT=ctp DOCKER_REPOSITORY=ghcr.io/dfe-digital/teacher-pay-calculator NAMESPACE_PREFIX=srtl DNS_ZONE_NAME=calculate-teacher-pay.education.gov.uk
+SERVICE_NAME=calculate-teacher-pay SERVICE_SHORT=ctp DOCKER_REPOSITORY=ghcr.io/dfe-digital/teacher-pay-calculator NAMESPACE_PREFIX=srtl DNS_ZONE_NAME=calculate-teacher-pay.education.gov.uk bash templates/new_service.sh
 ```
 
 This can be built iteratively since the script will stop and show if a variable is missing. Example:
 
 ```
-% make new_service
-bash templates/new_service.sh
+% bash templates/new_service.sh
 templates/new_service.sh: line 26: SERVICE_NAME: unbound variable
 make: *** [new_service] Error 1
 ```
@@ -27,14 +33,26 @@ Make sure to copy all the files, including invisible files. Example:
 cp -r teacher-services-cloud/new_service/. teacher-pay-calculator
 ```
 
+Note that this will clobber your `.gitignore`, `.tool-versions` and
+`Makefile` (if you have one). Check `git diff` to make sure you're not
+losing information. If your repository already contains a Makefile,
+consider renaming the generated makefile to `tsc.mk` - once copied, you
+can run the following tasks using `make -f tsc.mk` instead of bare
+`make`.
+
 ### Tailor the code
 The code covers most common use cases, but it may be necessary to amend it. Examples:
-- By default the code deploys a postgres database, but the service may not need it
-- The only environment configurations are development and production. The service may need more or use different names.
-- The web application uses `/healthcheck` as health probe. It can be changed to another path or disabled by passing `null`.
+-   By default the code deploys a postgres database, but the service may
+    not need it
+-   The only environment configurations are development and production.
+    The service may need more or use different names.
+-   The web application uses `/healthcheck` as health probe. It can be
+    changed to another path or disabled by passing `null`. If you don't
+    have a healthcheck endpoint and don't configure or disable this,
+    deployments will fail. (See "FAQ" at the bottom of this document).
 
 ## Deploy new service
-In the service repository, runs the Makefile commands.
+In the service repository, run these commands.
 
 ### Login to Azure
 Raise a [PIM request](https://technical-guidance.education.gov.uk/infrastructure/hosting/azure-cip/#privileged-identity-management-pim-requests) to either:
@@ -50,7 +68,8 @@ This creates the minimum Azure resources required to run terraform, ie storage a
 - Deploy: `make <environment config> deploy-azure-resources`. Example: `make development deploy-azure-resources`
 
 ### Configure Statuscake credentials
-If Statuscake is not required at this stage, comment out resources in `terraform/application/statuscake.tf` and the provider in `terraform/application/terraform.tf`.
+If Statuscake is not required at this stage, delete `terraform/application/statuscake.tf` and comment out the
+provider in `terraform/application/terraform.tf`.
 
 If it is:
 - [Request](https://technical-guidance.education.gov.uk/infrastructure/monitoring/statuscake/#statuscake) a user account and an API key
@@ -133,7 +152,7 @@ Example workflow:
 
 ## FAQ
 
-### Why does my web application deployment times out?
+### Why does my web application deployment time out?
 It may be that the container fails to start. By default, Kubernetes probes the web container on the `/healthcheck` endpoint and expects a successful response with a 200 HTTP code. If the application doesn't have this endpoint or returns an error, it will keep trying until it times out.
 
 Solutions:
