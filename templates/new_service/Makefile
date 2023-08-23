@@ -60,7 +60,7 @@ set-what-if:
 	$(eval WHAT_IF=--what-if)
 
 arm-deployment: composed-variables set-azure-account
-	$(if ${KEYVAULT_NAMES}, $(eval KV_ARG=keyVaultNames=${KEYVAULT_NAMES}),)
+	$(if ${DISABLE_KEYVAULTS},, $(eval KV_ARG=keyVaultNames=${KEYVAULT_NAMES}))
 	$(if ${ENABLE_KV_DIAGNOSTICS}, $(eval KV_DIAG_ARG=enableDiagnostics=${ENABLE_KV_DIAGNOSTICS} logAnalyticsWorkspaceName=${LOG_ANALYTICS_WORKSPACE_NAME}),)
 
 	az deployment sub create --name "resourcedeploy-tsc-$(shell date +%Y%m%d%H%M%S)" \
