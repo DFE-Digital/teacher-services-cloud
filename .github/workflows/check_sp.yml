@@ -1,0 +1,52 @@
+name: Check Service Principal
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "35 6 * * *"
+
+jobs:
+  set-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      tests: ${{ steps.select-tests.outputs.tests }}
+    steps:
+      - name: Select Tests
+        id: select-tests
+        run: |
+          d="{'environment' :'dev-domain'  , 'principal': 's189d01-tsc-contributor'}"
+          t="{'environment' :'test'      , 'principal': 's189t01-tsc-contributor'}"
+          p="{'environment' :'production'   , 'principal': 's189p01-tsc-contributor'}"
+          tests="{ 'data':[ ${d} ,  ${t} ,  ${p} ]}"
+          echo "tests=${tests}" >> $GITHUB_OUTPUT
+
+  check_expires:
+    name: ${{matrix.data.environment}}/${{ matrix.data.principal }}
+    needs: set-matrix
+    continue-on-error: true
+    strategy:
+       matrix: ${{ fromJson(needs.set-matrix.outputs.tests) }}
+    environment:
+       name: ${{ matrix.data.environment }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check ${{ matrix.data.principal }}
+        uses: DFE-Digital/github-actions/CheckServicePrincipal@master
+        id: pwsh_check_expire
+        with:
+          AzureCredentials: ${{ secrets.AZURE_CREDENTIALS }}
+          ServicePrincipal: ${{ matrix.data.principal }}
+          ExpiresWithinDays: 30
+
+      - name: Slack Notification
+        if: fromJson(steps.pwsh_check_expire.outputs.json_data).data.Alert
+        uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_COLOR: ${{env.SLACK_ERROR}}
+          SLACK_TITLE: A Service Principal secret is expiring soon
+          SLACK_MESSAGE: |
+            The Service Principal *${{ fromJson(steps.pwsh_check_expire.outputs.json_data).data.Application }}*
+            secret *${{ fromJson(steps.pwsh_check_expire.outputs.json_data).data.Name }}* is due to expire in *${{fromJson(steps.pwsh_check_expire.outputs.json_data).data.ExpiresDays}}* days.
+            Please update the secret in *${{fromJson(steps.pwsh_check_expire.outputs.json_data).data.Environment}}*.
+            Details on how to do this can be found here: https://github.com/DFE-Digital/teacher-services-cloud/blob/main/documentation/slack-webhook-integration.md
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
