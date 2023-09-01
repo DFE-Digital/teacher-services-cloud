@@ -6,6 +6,9 @@ SERVICE_NAME=#SERVICE_NAME#
 SERVICE_SHORT=#SERVICE_SHORT#
 DOCKER_REPOSITORY=#DOCKER_REPOSITORY#
 
+help:
+	@grep -E '^[a-zA-Z\._\-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
 .PHONY: development
 development: test-cluster
 	$(eval include global_config/development.sh)
@@ -20,7 +23,7 @@ domains:
 composed-variables:
 	$(eval RESOURCE_GROUP_NAME=${AZURE_RESOURCE_PREFIX}-${SERVICE_SHORT}-${CONFIG_SHORT}-rg)
 	$(eval KEYVAULT_NAMES='("${AZURE_RESOURCE_PREFIX}-${SERVICE_SHORT}-${CONFIG_SHORT}-app-kv", "${AZURE_RESOURCE_PREFIX}-${SERVICE_SHORT}-${CONFIG_SHORT}-inf-kv")')
-	$(eval STORAGE_ACCOUNT_NAME=${AZURE_RESOURCE_PREFIX}${SERVICE_SHORT}tfstate${CONFIG_SHORT}sa)
+	$(eval STORAGE_ACCOUNT_NAME=${AZURE_RESOURCE_PREFIX}${SERVICE_SHORT}${CONFIG_SHORT}tfsa)
 	$(eval LOG_ANALYTICS_WORKSPACE_NAME=${AZURE_RESOURCE_PREFIX}-${SERVICE_SHORT}-${CONFIG_SHORT}-log)
 
 ci:
@@ -72,11 +75,11 @@ arm-deployment: composed-variables set-azure-account
 		"enableKVPurgeProtection=${KV_PURGE_PROTECTION}" \
 		${WHAT_IF}
 
-deploy-arm-resources: arm-deployment
+deploy-arm-resources: arm-deployment ## Validate ARM resource deployment. Usage: make domains validate-arm-resources
 
-validate-arm-resources: set-what-if arm-deployment
+validate-arm-resources: set-what-if arm-deployment ## Validate ARM resource deployment. Usage: make domains validate-arm-resources
 
-domains-infra-init: composed-variables domains set-azure-account
+domains-infra-init: bin/terrafile composed-variables domains set-azure-account
 	./bin/terrafile -p terraform/domains/infrastructure/vendor/modules -f terraform/domains/infrastructure/config/zones_Terrafile
 
 	terraform -chdir=terraform/domains/infrastructure init -reconfigure -upgrade \
@@ -84,13 +87,13 @@ domains-infra-init: composed-variables domains set-azure-account
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=domains_infrastructure.tfstate
 
-domains-infra-plan: domains domains-infra-init
+domains-infra-plan: domains domains-infra-init  ## Terraform plan for DNS infrastructure (zone and front door. Usage: make domains-infra-plan
 	terraform -chdir=terraform/domains/infrastructure plan -var-file config/zones.tfvars.json
 
-domains-infra-apply: domains domains-infra-init
+domains-infra-apply: domains domains-infra-init  ## Terraform apply for DNS infrastructure (zone and front door). Usage: make domains-infra-apply
 	terraform -chdir=terraform/domains/infrastructure apply -var-file config/zones.tfvars.json ${AUTO_APPROVE}
 
-domains-init: composed-variables domains set-azure-account
+domains-init: bin/terrafile composed-variables domains set-azure-account
 	./bin/terrafile -p terraform/domains/environment_domains/vendor/modules -f terraform/domains/environment_domains/config/${CONFIG}_Terrafile
 
 	terraform -chdir=terraform/domains/environment_domains init -upgrade -reconfigure \
@@ -98,10 +101,10 @@ domains-init: composed-variables domains set-azure-account
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=${ENVIRONMENT}.tfstate
 
-domains-plan: domains-init
+domains-plan: domains-init  ## Terraform plan for DNS environment domains. Usage: make development domains domains-plan
 	terraform -chdir=terraform/domains/environment_domains plan -var-file config/${CONFIG}.tfvars.json
 
-domains-apply: domains-init
+domains-apply: domains-init ## Terraform apply for DNS environment domains. Usage: make development domains domains-apply
 	terraform -chdir=terraform/domains/environment_domains apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
 test-cluster:
