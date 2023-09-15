@@ -46,8 +46,8 @@ Then login to Azure using `az login`.
 ### Create terraform environment
 This creates the minimum Azure resources required to run terraform, ie storage account and keyvaults.
 
-- Validate: `make <environment config> validate-azure-resources`. Example: `make development validate-azure-resources`
-- Deploy: `make <environment config> deploy-azure-resources`. Example: `make development deploy-azure-resources`
+- Validate: `make <environment config> validate-arm-resources`. Example: `make development validate-arm-resources`
+- Deploy: `make <environment config> deploy-arm-resources`. Example: `make development deploy-arm-resources`
 
 ### Configure Statuscake credentials
 If Statuscake is not required at this stage, comment out resources in `terraform/application/statuscake.tf` and the provider in `terraform/application/terraform.tf`.
@@ -68,8 +68,8 @@ The new application uses a default domain in `test.teacherservices.cloud` in tes
 The code deploys integrated DNS zone and Azure front door **in the production subscription**.
 
 ### Create terraform environment
-- Validate: `make domains validate-azure-resources`
-- Deploy: `make domains deploy-azure-resources`
+- Validate: `make domains validate-arm-resources`
+- Deploy: `make domains deploy-arm-resources`
 
 ### Deploy infrastructure
 This deploys one DNS zone and one front door which will be used subsequently by all the domains.
