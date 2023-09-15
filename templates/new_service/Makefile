@@ -79,7 +79,7 @@ deploy-arm-resources: arm-deployment ## Validate ARM resource deployment. Usage:
 
 validate-arm-resources: set-what-if arm-deployment ## Validate ARM resource deployment. Usage: make domains validate-arm-resources
 
-domains-infra-init: bin/terrafile composed-variables domains set-azure-account
+domains-infra-init: bin/terrafile domains composed-variables set-azure-account
 	./bin/terrafile -p terraform/domains/infrastructure/vendor/modules -f terraform/domains/infrastructure/config/zones_Terrafile
 
 	terraform -chdir=terraform/domains/infrastructure init -reconfigure -upgrade \
@@ -93,7 +93,7 @@ domains-infra-plan: domains domains-infra-init  ## Terraform plan for DNS infras
 domains-infra-apply: domains domains-infra-init  ## Terraform apply for DNS infrastructure (zone and front door). Usage: make domains-infra-apply
 	terraform -chdir=terraform/domains/infrastructure apply -var-file config/zones.tfvars.json ${AUTO_APPROVE}
 
-domains-init: bin/terrafile composed-variables domains set-azure-account
+domains-init: bin/terrafile domains composed-variables set-azure-account
 	./bin/terrafile -p terraform/domains/environment_domains/vendor/modules -f terraform/domains/environment_domains/config/${CONFIG}_Terrafile
 
 	terraform -chdir=terraform/domains/environment_domains init -upgrade -reconfigure \
