@@ -52,9 +52,12 @@ resource "helm_release" "ingress-nginx" {
     value = "8m"
     type  = "string"
   }
+  # Sets the size of the buffer used for reading the first part of the response received from the proxied server.
+  # Needs to be larger than the response header or nginx will return an error for the request
+  # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#proxy-buffer-size
   set {
     name  = "controller.config.proxy-buffer-size"
-    value = "8k"
+    value = "24k"
     type  = "string"
   }
   set {
