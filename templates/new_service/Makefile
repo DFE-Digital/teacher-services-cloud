@@ -117,3 +117,7 @@ production-cluster:
 
 get-cluster-credentials: set-azure-account
 	az aks get-credentials --overwrite-existing -g ${CLUSTER_RESOURCE_GROUP_NAME} -n ${CLUSTER_NAME}
+
+bin/konduit.sh:
+	curl -s https://raw.githubusercontent.com/DFE-Digital/teacher-services-cloud/main/scripts/konduit.sh -o bin/konduit.sh \
+		&& chmod +x bin/konduit.sh
