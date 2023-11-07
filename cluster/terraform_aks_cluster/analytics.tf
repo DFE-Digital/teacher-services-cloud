@@ -18,51 +18,21 @@ resource "azurerm_monitor_diagnostic_setting" "aks_system_logs" {
   # It's currently set to this as default and can be expanded upon
   enabled_log {
     category = "kube-apiserver"
-
-    retention_policy {
-      enabled = true
-      days    = 10
-    }
   }
   enabled_log {
     category = "kube-audit-admin"
-
-    retention_policy {
-      enabled = true
-      days    = 10
-    }
   }
   enabled_log {
     category = "kube-controller-manager"
-
-    retention_policy {
-      enabled = true
-      days    = 10
-    }
   }
   enabled_log {
     category = "kube-scheduler"
-
-    retention_policy {
-      enabled = true
-      days    = 10
-    }
   }
   enabled_log {
     category = "cluster-autoscaler"
-
-    retention_policy {
-      enabled = true
-      days    = 10
-    }
   }
   enabled_log {
     category = "cloud-controller-manager"
-
-    retention_policy {
-      enabled = true
-      days    = 10
-    }
   }
   metric {
     category = "AllMetrics"
