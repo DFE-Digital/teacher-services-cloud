@@ -28,4 +28,5 @@ module "redis-cache" {
   use_azure                 = var.deploy_azure_backing_services
   azure_enable_monitoring   = var.enable_monitoring
   azure_patch_schedule      = [{ "day_of_week" : "Sunday", "start_hour_utc" : 01 }]
+  server_version            = "6"
 }
