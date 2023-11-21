@@ -87,10 +87,10 @@ domains-infra-init: bin/terrafile domains composed-variables set-azure-account
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=domains_infrastructure.tfstate
 
-domains-infra-plan: domains domains-infra-init  ## Terraform plan for DNS infrastructure (zone and front door. Usage: make domains-infra-plan
+domains-infra-plan: domains domains-infra-init  ## Terraform plan for DNS infrastructure (DNS zone and front door). Usage: make domains-infra-plan
 	terraform -chdir=terraform/domains/infrastructure plan -var-file config/zones.tfvars.json
 
-domains-infra-apply: domains domains-infra-init  ## Terraform apply for DNS infrastructure (zone and front door). Usage: make domains-infra-apply
+domains-infra-apply: domains domains-infra-init  ## Terraform apply for DNS infrastructure (DNS zone and front door). Usage: make domains-infra-apply
 	terraform -chdir=terraform/domains/infrastructure apply -var-file config/zones.tfvars.json ${AUTO_APPROVE}
 
 domains-init: bin/terrafile domains composed-variables set-azure-account
@@ -101,10 +101,10 @@ domains-init: bin/terrafile domains composed-variables set-azure-account
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=${ENVIRONMENT}.tfstate
 
-domains-plan: domains-init  ## Terraform plan for DNS environment domains. Usage: make development domains domains-plan
+domains-plan: domains-init  ## Terraform plan for DNS environment domains. Usage: make development domains-plan
 	terraform -chdir=terraform/domains/environment_domains plan -var-file config/${CONFIG}.tfvars.json
 
-domains-apply: domains-init ## Terraform apply for DNS environment domains. Usage: make development domains domains-apply
+domains-apply: domains-init ## Terraform apply for DNS environment domains. Usage: make development domains-apply
 	terraform -chdir=terraform/domains/environment_domains apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
 test-cluster:
