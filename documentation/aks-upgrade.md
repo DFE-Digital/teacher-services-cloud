@@ -89,7 +89,7 @@ az aks nodepool get-upgrades --resource-group <ResourceGroup> --cluster-name <Cl
     - Continuously monitor it during the upgrade and check for downtime. Example:
 
         ```
-        while true; do date; curl -is https://apply-review-1234.cluster4.development.teacherservices.cloud/check | grep HTTP ; sleep 1 ; done
+        while true; do date; curl -is https://apply-review-1234.cluster5.development.teacherservices.cloud/check | grep HTTP ; sleep 1 ; done
         ```
     - Change kubernetes version, plan and apply
     - Change default node pool orchestrator version, plan and apply
