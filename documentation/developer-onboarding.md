@@ -1,103 +1,138 @@
 ## Developer onboarding
 
-**How to request access to s189?**
+Documentation for the Teacher services application developers
 
+## Software requirements
+- OS: Linux, MacOS or Windows with WSL
+- [azure cli](https://technical-guidance.education.gov.uk/infrastructure/dev-tools/#azure-cli)
+- [kubectl](https://kubernetes.io/docs/reference/kubectl/)
+- [terraform](https://technical-guidance.education.gov.uk/infrastructure/dev-tools/#installation)
+- [jq](https://stedolan.github.io/jq/)
 
-- There are 3 s189 subscriptions, one for each environment (dev, test and prod)
+## How to request access?
+- There is an assumption that you have been given a [CIP account](https://technical-guidance.education.gov.uk/infrastructure/hosting/azure-cip/#onboarding-users). For BYOD users, please make sure to request a digitalauth account.
+- You can then request access to the S189 subscriptions by contacting the Teacher Services Infrastructure team
+- This gives you access to the 3 s189 subscriptions:
+   - s189-teacher-services-cloud-development: infra team development work
+   - s189-teacher-services-cloud-test: contains the **test cluster**
+   - s189-teacher-services-cloud-production: contains the **production cluster**
 
-  `s189-teacher-services-cloud-development`
+## How to request and approve PIM?
+- Microsoft Entra Privileged Identity Management (PIM) allows gaining new user permissions in the s189 subscriptions. This is required to access the cluster and troubleshoot application or database. **We must be very cautious** as this gives access to all the other services deployed to s189 subscriptions.
+- Once added to the s189 subscription, you can PIM yourself to the *test* subscription. See the [technical guidance PIM section](https://technical-guidance.education.gov.uk/infrastructure/hosting/azure-cip/#privileged-identity-management-pim-requests).
+- You can request PIM to the *production* subscription, however this will need to be approved by members of the Managers group
+- As a manager, you should receive and email with the user request. You can also approve PIM requests by going to [Privileged Identity Management](https://portal.azure.com/?feature.msaljs=true#view/Microsoft_Azure_PIMCommon/CommonMenuBlade/~/quickStart) (PIM) in the Azure portal and selecting Approve request, Azure resources, select the user and approve the request.
 
-  `s189-teacher-services-cloud-test`
+## Which clusters can I use?
+The infra team maintains several AKS clusters. Two are usable by developers to deploy their services:
 
-  `s189-teacher-services-cloud-production`
+### Test cluster
+Used for all your non-production environments: review, development, qa, staging...
+- Name: `s189t01-tsc-test-aks`
+- Resource group: `s189t01-tsc-ts-rg`
+- Subscription: `s189-teacher-services-cloud-test`
 
-- There is an assumption that you have been given a cip account
-- You can then request access to the S189 subscription by contacting the Teacher Services Infrastructure team
+### Production cluster
+Used for all your production and production-like environments, especially if they contain production data: production, pre-production, production-data...
+- Name: `s189p01-tsc-production-aks`
+- Resource group: `s189p01-tsc-pd-rg`
+- Subscription: `s189-teacher-services-cloud-production`
 
-**How to request and approve PIM?**
-- Once added to the s189 subscription, you can PIM yourself to the test subscription
-- You can request PIM to production subscription however this will need to be approved.
-- You can approve PIM requests to production subscription by going to Privileged Identity Management (PIM) in Azure portal and selecting Approve request - Azure resources select the user and approve the request.
-- For detailed instruction on how to request and approve PIM please refer to [tech guidance](https://technical-guidance.education.gov.uk/infrastructure/hosting/azure-cip/#onboarding-users)
+## How to access the cluster?
+- If not present in your repository, set up the `get-cluster-credentials` make command from the template [Makefile](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/Makefile)
+- Raise a [PIM request](#how-to-request-and-approve-pim) for either the test or production subscription
+- Run `make <environment> get-cluster-credentials`
+- This configures the `kubectl` context so you can run commands against this cluster. Be careful as the context may last even after the PIM has expired.
 
+## What is a namespace?
+Namespaces are a way to logically partition and isolate resources within a Kubernetes cluster. Each namespace has its own set of isolated resources like pods, services, deployments etc.
+By default, a Kubernetes cluster will have a few initial namespaces created like "default", "kube-system", "kube-public" etc. We have created specific namespaces per area, such as "BAT" or "TRA".
+For instance, you will see:
 
-**What are the test and production clusters?**
+- *tra-development* and *tra-staging* on the test cluster
+- *tra-production* on the production cluster
 
-**Development cluster**
+*kubectl* commands run in a particular namespace using `-n <namespace>`.
 
-- `s189-teacher-services-cloud-development`: Developement subscription is where you can deploy your own dev cluster and apps test your changes before merging to main branch.
+## Basic commands
+First [get access](#how-to-access-the-cluster) to the desired cluster. Then you can run commands using kubectl against different kubernetes resources.
 
-**Test cluster**
-- The test cluster are hosted in the `s189-teacher-services-cloud-test` subscription.
-- The test cluster is used for testing and development which is in `s189-teacher-services-cloud-test` subscription
-  1. `s189t01-tsc-test-aks` (test cluster) in `s189t01-tsc-ts-rg` (resource group)
-
-**Production cluster**
-- The production cluster is used for production which is in `s189-teacher-services-cloud-production` subscription
-  1. `s189p01-tsc-production-aks` (prod cluster) in `s189p01-tsc-pd-rg` (resource group)
-sudo
-
-**How to get cluster credentials?**
-
-- You can get test cluster credentials by running `make test get-cluster-credentials CONFIRM_TEST=yes` this will set your cluster context as well.
-- For more information on how to get cluster credentials please refer to [new service template](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/Makefile#L112)
-
-**What is a namespace and how are they laid out on test and prod clusters**
-- Namespaces are a way to logically partition and isolate resources within a Kubernetes cluster. Each namespace has its own set of isolated resources like pods, services, deployments etc.
-- By default, a Kubernetes cluster will have a few initial namespaces created like "default", "kube-system", "kube-public" etc.
-- Namespaces provide a scope for names, so resources in different namespaces can have the same name but be differentiated by their namespace.
-- Namespaces are managed by the Kubernetes API server, and any namespaced resource has a namespace field as part of its object metadata.
-- Resources like nodes and persistentVolumes are cluster-scoped and not part of any namespace.
-- Namespaces provide authorization and access control scopes, so you can use things like RBAC roles and bindings scoped to a particular namespace.
-- Limit ranges and resource quotas can be defined per-namespace as well to restrict resource usage and control allocation.
-Each namespace has its own isolated view of the cluster state although they share a single physical cluster.
-
-**Basic commands: deployments, pods, top pods, describe, logs (app and ingress)**
-
-*You will need PIM to perform below actions in test and production*
-
- *`deployment`*: is a Kubernetes object that allows you to specify the desired state of your application. It allows you to deploy multiple pods and services and manage them as a single entity. It also allows you to do rolling updates and rollbacks.
+### Deployment
+Allows you to specify the desired state of your application. It allows you to deploy multiple pods and services and manage them as a single entity. It also allows you to do rolling updates and rollbacks.
 
 Examples kubectl deployment usage:
+- List deployments in a namespace: `kubectl -n <namespace> get deployments`
+- Get configuration and status: `kubectl -n <namespace> describe deployment <deployment-name>`
+- Scale deployment horizontally: `kubectl -n <namespace> scale deployment <deployment-name> --replicas=3`
 
-    kubectl get deployments -n <namespace>
-    kubectl get deployments --all-namespaces
-    kubectl describe deployment <deployment-name>
-    kubectl rollout status deployment <deployment-name>
-    kubectl rollout history deployment <deployment-name>
-    kubectl rollout undo deployment <deployment-name>
-    kubectl scale deployment <deployment-name> --replicas=3
+### Pod
+Each deployment runs 1 or more instances of the application to scale horizontally. Each one runs in a pod, which is ephemeral and can be deleted or recreated at any time. Deployments provide a way to keep pods running and provide a way to update them when needed.
 
+Examples kubectl pod usage:
+- List pods in a namespace: `kubectl -n <namespace> get pods`
+- Get pod configuration and status: `kubectl -n <namespace> describe pod <pod-name>`
+- Get pod logs: `kubectl -n <namespace> logs <pod-name>`
+- Get logs from the first pod in the deployment: `kubectl -n <namespace> logs deployment/<deployment-name>`
+- Stream logs from all pods in the deployment: `kubectl -n <namespace> logs -l app=<deployment-name> -f`
+- Display CPU and memory usage: `kubectl -n <namespace> top pods`
+- Execute a command inside a pod: `kubectl -n <namespace> exec <pod-name> -- <command>`
+- Execute a command inside the first pod in the deployment:
+   ```
+   kubectl -n <namespace> exec deployment/<deployment-name> -- <command>
+   ```
+- Open an interactive shell inside a pod: `kubectl -n <namespace> exec -ti <pod-name> -- sh`
 
- *`pods`*: are ephemeral and can be deleted or recreated at any time. Deployments provide a way to keep pods running and provide a way to update them when needed.
+### Ingress controller
+All HTTP requests enter the cluster via the ingress controller. Then it sends them to the relevant pods. We can observe the HTTP traffic to a particular deployment.
 
- Examples kubectl pod usage:
+- Deployment filter: `<namespace>-<deployment-name>-80` e.g. `bat-qa-register-qa-80`
+- Stream logs from all ingress controllers and filter on the deployment:
+   ```
+   kubectl logs -l app.kubernetes.io/name=ingress-nginx -f --max-log-requests 20 | grep <deployment-filter>
+   ```
 
-    kubectl get pode -n <namespace>
-    kubectl describe pod <pod-name> -n <namespace>
-    kubectl logs <pod-name> -n <namespace>
-    kubectl logs <pod-name> -n <namespace> -c <container-name>
-    kubectl get pod <pod-name> -n <namespace> -w
+## Application logs
+The standard output from all applications is captured in [Azure Log analytics](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-analytics-overview) and stored for 30 days. As opposed to `kubectl logs` which only show the most recent logs. There is one Log analytics workspace per cluster:
 
- *`top pods`*: `kubectl top pods` displays the CPU and memory usage of the pods in the current namespace. If you want to see the usage of pods in a specific namespace, you can use the -n flag.
+### Access
+- Navigate to the log analytics workspace:
+   - [test: s189t01-tsc-test-log](https://portal.azure.com/?feature.msaljs=true#@platform.education.gov.uk/resource/subscriptions/20da9d12-7ee1-42bb-b969-3fe9112964a7/resourceGroups/s189t01-tsc-ts-rg/providers/Microsoft.OperationalInsights/workspaces/s189t01-tsc-test-log/Overview)
+   - [production: s189p01-tsc-production-log](https://portal.azure.com/?feature.msaljs=true#@platform.education.gov.uk/resource/subscriptions/3c033a0c-7a1c-4653-93cb-0f2a9f57a391/resourceGroups/s189p01-tsc-pd-rg/providers/Microsoft.OperationalInsights/workspaces/s189p01-tsc-production-log/Overview)
+- Click on *Logs*
+- Select the time range, as small as possible
+- Application logs are in the ContainerInsights/ContainerLog table, and the standard output is in the LogEntry Column
 
- Examples kubectl top pod usage:
+### Example queries
 
-    kubectl top pods
-    kubectl top pods -n <namespace>
+All logs from all the services on the cluster:
+```
+ContainerLog
+```
 
- *`describe`*:  `kubectl describe` displays detailed information about a Kubernetes resource. It can be used to get information about pods, deployments, services, nodes, etc.
+Full text search for "Exception":
+```
+ContainerLog
+| where LogEntry contains "Exception"
+```
 
- Examples kubectl describe usage:
+Decode the LogEntry json to query it:
+```
+ContainerLog
+| extend log_entry = parse_json(LogEntry)
+| where log_entry.host contains "register"
+| where log_entry.environment == "production"
+```
 
-    kubectl describe pod <pod-name> -n <namespace>
-    kubectl describe deployment <deployment-name> -n <namespace>
-    kubectl describe service <service-name> -n <namespace>
-    kubectl describe node <node-name> -n <namespace>
+Only show the timestamp and LogEntry columns:
+```
+ContainerLog
+| extend log_entry = parse_json(LogEntry)
+| where log_entry.host contains "register"
+| project TimeGenerated, log_entry
+```
 
-*`logs`*: `kubectl logs` displays the logs of a pod. By default, it prints the logs of the first container in the pod. If you want to print the logs of a specific container, you can use the -c flag.
-
- Examples kubectl logs usage:
-
-    kubectl logs <pod-name> -n <namespace>
-    kubectl logs <pod-name> -n <namespace> -c <container-name>
+HTTP requests from the ingress controller, using the filter from [ingress controller logs](#ingress-controller):
+```
+ContainerLog
+| where LogEntry contains "cpd-production-cpd-ecf-production-web-80"
+```
