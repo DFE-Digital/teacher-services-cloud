@@ -110,3 +110,22 @@ resource "azurerm_public_ip" "egress-public-ip" {
 
   lifecycle { ignore_changes = [tags] }
 }
+
+# resource "null_resource" "delayed_uncordon" {
+#   # Trigger uncordon after node pool creation/updation
+
+#  for_each = azurerm_kubernetes_cluster_node_pool.node_pools
+
+#   triggers = {
+#     node_pool_id = each.value.id
+#   }
+
+#   provisioner "local-exec" {
+#     command = <<EOT
+#       echo "Waiting for 10 minutes before uncordoning..."
+#       sleep 120
+#       NODE_NAME=$(kubectl get nodes -o jsonpath='{.items[0].metadata.name}')
+#       kubectl uncordon $NODE_NAME
+#     EOT
+#   }
+# }

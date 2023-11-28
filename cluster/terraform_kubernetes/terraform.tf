@@ -1,17 +1,17 @@
 terraform {
-  required_version = "~> 1.3.1"
+  required_version = "~> 1.6.4"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "3.46.0"
+      version = "3.82.0"
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "2.9.0"
+      version = "2.12.0"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "2.18.1"
+      version = "2.24.0"
     }
     statuscake = {
       source  = "StatusCakeDev/statuscake"
