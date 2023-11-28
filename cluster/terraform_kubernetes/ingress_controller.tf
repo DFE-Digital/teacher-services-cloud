@@ -60,6 +60,18 @@ resource "helm_release" "ingress-nginx" {
     value = "24k"
     type  = "string"
   }
+  # This ConfigMap setting sets the time, in seconds, during which a keep-alive client connection will stay open on the server side
+  set {
+    name  = "controller.config.keep-alive"
+    value = "120"
+    type  = "auto"
+  }
+  # This ConfigMap setting defines a timeout for reading client request header, in seconds
+  set {
+    name  = "controller.config.client-header-timeout"
+    value = "120"
+    type  = "auto"
+  }
   set {
     name  = "controller.replicaCount"
     value = 20
