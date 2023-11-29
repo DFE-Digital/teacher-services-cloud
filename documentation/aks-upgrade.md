@@ -84,7 +84,7 @@ az aks nodepool get-upgrades --resource-group <ResourceGroup> --cluster-name <Cl
 ## Upgrade process
 
 1. Determine which is the next available version (see above)
-2. Test the whole process in a dev cluster:
+1. Test the whole process in a dev cluster:
     - Deploy Apply to the cluster using `dev_platform_review_aks`
     - Continuously monitor it during the upgrade and check for downtime. Example:
 
@@ -94,22 +94,25 @@ az aks nodepool get-upgrades --resource-group <ResourceGroup> --cluster-name <Cl
     - Change kubernetes version, plan and apply
     - Change default node pool orchestrator version, plan and apply
     - Change application node pool orchestrator version, plan and apply
-    - Run following command's in another terminal to see the Cluster upgrade progress.
+    - Run following commands in another terminal to see the cluster upgrade progress.
         -  kubectl get events --watch
         -  kubectl get nodes --watch
-3. Follow the same manual process to upgrade the platform_test cluster
+1. Follow the same manual process to upgrade the platform_test cluster
     - Test with the welcome app: https://www.platform-test.teacherservices.cloud/
     - Raise PR
     - Wait 24h
-4. Follow the same manual process to upgrade the test cluster
+1. Follow the same manual process to upgrade the test cluster
     - Test with the welcome app: https://www.test.teacherservices.cloud/
     - Raise PR
     - Wait 24h
-5. Follow the same manual process to upgrade the production cluster
+1. Follow the same manual process to upgrade the production cluster
     - Test with the welcome app: https://www.teacherservices.cloud/
     - Raise PR
 
 ## Troubleshooting
 
 1. If you see any failures , Login Azure portal and Go to AKS Cluster.
-2. Click on Activiy Log on left hand pannel , it list all events , check failure evets , it will give the failure reason.
+2. Click on Activiy Log on left hand pannel , it list all events , check failure events , it will give the failure reason.
+3. If the failure message contains like this "Eviction failed with Too many Requests error. This is often caused by a restrictive Pod Disruption Budget (PDB) policy"
+4. Delete the PDB policy and then run following azure cli to resume upgrade.
+       -  az aks nodepool upgrade --cluster-name cluster-name -g resource-group -n node-pool-name -k aks-version
