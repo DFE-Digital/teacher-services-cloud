@@ -131,6 +131,9 @@ Example workflow:
         DOCKER_IMAGE_TAG: ${{ needs.build.outputs.docker-image-tag }}
 ```
 
+## Get ready for production
+Follow the [production checklist](production-checklist.md) to make sure the service is ready for end users
+
 ## FAQ
 
 ### Why does my web application deployment times out?
