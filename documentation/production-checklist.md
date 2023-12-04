@@ -29,11 +29,16 @@ Simulate load from user traffic to determine the right number of instances and t
 
 If time is short or user traffic is expected to be low, make sure to monitor the application and database usage after launch, and everytime there is a new significant feature. And be ready to scale up.
 
+## Postgres backups to Azure storage
+Azure postgres provides an [automatic backup](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-backup-restore) with a 7 days retention period. It can be restored from a point in time to a new database server.
+
+In case there is a major  and the above doesn't work, we strongly suggest taking another daily backup every night and storing it in Azure storage. Set [azure_maintenance_window variable](https://github.com/DFE-Digital/terraform-modules/blob/83801213853ed1e4b4bdcb8d36773c8683ff010f/aks/postgres/variables.tf#L132) to true to create the storage. Then create a workflow such as [this example](https://github.com/DFE-Digital/early-careers-framework/blob/main/.github/actions/backup-and-upload-database/action.yml).
+
 ## Postgres and redis monitoring
 Set `azure_enable_monitoring` to true to enable logging, monitoring and alerting. It will alert the infrastructure team by email by default.
 
 ## Front door monitoring
-Set `azure_enable_monitoring` to true to enable logging on front door. It is very verbose and costly and should not be used by default. But it can be extremely useful for troubleshooting.
+Set `azure_enable_monitoring` to true in the domains/infrastructure module to enable logging on front door. It is  verbose and costly and should not be used by default. But it can be extremely useful for troubleshooting.
 
 ## Custom domain
 The default web application domain in production is `teacherservices.cloud`, and the application domain is `<application_name>.teacherservices.cloud`. It should not be used by end users. Rather we normally create a subdomain of either `education.gov.uk` or `service.gov.uk`. Here is the process:
