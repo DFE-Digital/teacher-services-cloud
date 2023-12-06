@@ -18,7 +18,7 @@
 
 - To start the upgrade open the file `test.tfvars.json` located at `cluster/terraform_kubernetes/config`
 - This is an oportunity to test changes in test cluster before rolling out to higher environment like prod
-- Set the value of the variable i.e. `"ingress_nginx_version": "4.7.1"`
+- Set the value of the variable i.e. `"ingress_nginx_version": "4.8.3"`
 - Run terraform apply
 
 ```
