@@ -1,9 +1,3 @@
-# Set via TF_VAR environment variable in the workflow
-variable "azure_sp_credentials_json" {
-  default = null
-  type    = string
-}
-
 # Set in config shell variables and used by Makefile
 variable "environment" { type = string }
 variable "resource_group_name" { type = string }
@@ -26,8 +20,6 @@ variable "clone_cluster" {
 }
 
 locals {
-  azure_credentials = try(jsondecode(var.azure_sp_credentials_json), null)
-
   backing_services_resource_group_name = "${var.resource_prefix}-tsc-${var.environment}-bs-rg"
   cluster_name = (
     var.cip_tenant ?
