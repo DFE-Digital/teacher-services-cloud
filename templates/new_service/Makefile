@@ -59,6 +59,9 @@ terraform-plan: terraform-init
 terraform-apply: terraform-init
 	terraform -chdir=terraform/application apply -var-file "config/${CONFIG}.tfvars.json" ${AUTO_APPROVE}
 
+terraform-destroy: terraform-init
+	terraform -chdir=terraform/application destroy -var-file "config/${CONFIG}.tfvars.json" ${AUTO_APPROVE}
+
 set-what-if:
 	$(eval WHAT_IF=--what-if)
 

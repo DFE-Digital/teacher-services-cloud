@@ -78,6 +78,11 @@ runs:
       terraform_version: ${{ env.terraform_version }}
       terraform_wrapper: false
 
+  - name: Set ARM environment variables
+    uses: DFE-Digital/github-actions/set-arm-environment-variables@master
+    with:
+      azure-credentials: ${{ inputs.AZURE_CREDENTIALS }}
+
   - id: terraform
     run: |
       make ci ${{ inputs.environment_name }} terraform-apply
@@ -88,9 +93,6 @@ runs:
       do
         echo ${o}=$(jq -r .${o}.value <<< "$TFOUTPUTS") >> $GITHUB_ENV
       done
-    env:
-      ARM_ACCESS_KEY: ${{ env.TFSTATE_CONTAINER_ACCESS_KEY }}
-      TF_VAR_azure_sp_credentials_json: ${{ inputs.azure_credentials }}
     shell: bash
 
   - name: Install kubectl

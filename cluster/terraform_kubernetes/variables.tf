@@ -1,9 +1,3 @@
-# Set via TF_VAR environment variable in the workflow
-variable "azure_sp_credentials_json" {
-  default = null
-  type    = string
-}
-
 # Set in config shell variables and used by Makefile
 variable "environment" { type = string }
 variable "resource_group_name" { type = string }
@@ -88,7 +82,6 @@ locals {
   )
   api_token = data.azurerm_key_vault_secret.statuscake_secret.value
 
-  azure_credentials         = try(jsondecode(var.azure_sp_credentials_json), null)
   welcome_app_name          = "welcome-app"
   welcome_app_namespace     = "infra"
   lowpriority_app_name      = "lowpriority-app"
