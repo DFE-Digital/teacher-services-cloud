@@ -58,6 +58,12 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
   vnet_subnet_id        = azurerm_subnet.aks-subnet.id
   zones                 = local.uk_south_availability_zones
   node_labels           = try(each.value.node_labels, {})
+
+  timeouts {
+    create = "180m"
+    update = "180m"
+    delete = "180m"
+  }
 }
 
 resource "azurerm_kubernetes_cluster" "clone" {
