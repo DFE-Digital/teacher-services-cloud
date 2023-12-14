@@ -15,6 +15,8 @@ resource "azurerm_kubernetes_cluster" "main" {
   dns_prefix          = local.dns_prefix
   kubernetes_version  = var.kubernetes_version
 
+  azure_policy_enabled = true
+
   oms_agent {
     log_analytics_workspace_id = azurerm_log_analytics_workspace.aks_system_logs.id
   }
