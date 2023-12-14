@@ -13,6 +13,12 @@ help:
 development: test-cluster
 	$(eval include global_config/development.sh)
 
+.PHONY: review
+review: test-cluster
+	$(if ${PR_NUMBER},,$(error Missing PR_NUMBER))
+	$(eval ENVIRONMENT=${PR_NUMBER})
+	$(eval include global_config/review.sh)
+
 production: production-cluster
 	$(if $(or ${SKIP_CONFIRM}, ${CONFIRM_PRODUCTION}), , $(error Missing CONFIRM_PRODUCTION=yes))
 	$(eval include global_config/production.sh)
