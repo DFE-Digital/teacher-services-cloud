@@ -1,4 +1,6 @@
 # Onboard a new service to AKS
+Before starting, it is important to capture the information required upfront using the  [Onboarding form](onboard-form-template.md) even if it is subject to change in the future
+
 
 ## Template
 Most services use the same code to deploy to AKS. It has been made into a template that will evolve over time to capture all the best practices from working in multiple services.
