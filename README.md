@@ -125,7 +125,7 @@ There are two DNS zones for cluster DNS.
 ### Zone Build
 
 ```
-make {dev/prod}-domain domain-infra-{plan/apply}
+make {dev/prod}-domain domains-infra-{plan/apply}
 ```
 
 There is also an NS record for delegation from teacherservices.cloud to development.teacherservices.cloud,

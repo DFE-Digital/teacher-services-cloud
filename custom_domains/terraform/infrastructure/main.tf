@@ -1,5 +1,5 @@
 module "domains_infrastructure" {
-  source      = "git::https://github.com/DFE-Digital/terraform-modules.git//domains/infrastructure?ref=0.5.0"
+  source      = "git::https://github.com/DFE-Digital/terraform-modules.git//domains/infrastructure?ref=testing"
   hosted_zone = var.hosted_zone
   tags        = var.tags
 }
@@ -15,6 +15,6 @@ resource "azurerm_dns_ns_record" "dev_ns_record" {
 }
 
 module "dns_records" {
-  source      = "git::https://github.com/DFE-Digital/terraform-modules.git//dns/records?ref=0.5.0"
+  source      = "git::https://github.com/DFE-Digital/terraform-modules.git//dns/records?ref=testing"
   hosted_zone = var.hosted_zone
 }
