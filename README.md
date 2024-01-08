@@ -90,9 +90,49 @@ and then loaded into the cluster using terraform on cluster build.
 
 Initial set up requires manual steps in the cluster Azure KV.
 
-- create KV certificate CA
-    - The CA API key was created in our digicert service account, and is kept in a secret in the prod TSC Domains KeyVault.
-- generate cert within KV certificate
+#### Add new top domain
+The following steps were required for allowing teacherservices.cloud top domain. They won't be required for new clusters under the same top domain
+
+##### Generate value for DNS record
+
+1. Login to GlobalSign with a Service Account
+1. Select Managed SSL -> Select Add Domain
+1. Enter ‘teacherservices.cloud’
+1. Add point of contact (a senior Civil Servant)
+1. Select DNS Verification (on next page)
+
+The feedback should look something like:
+
+>Thank you for submitting your application. Your order number is DSMS20003575933.
+Domain: teacherservices.cloud
+The DNS value for this domain is:
+XXXXXXXXXXX=XXXXXXXXXXXXXXXXXX
+
+##### Add generated value to DNS zone
+
+1. Go to DNS Zone in Azure and then select teacherservices.cloud
+1. Create or update a record named @, with type TXT, setting the value to to the value generated in Globalsign (or add as an additional value, if it had a value already)
+
+##### Verify Domain
+
+1. Select ‘Manage Domains’ in GlobalSign
+1. Search for teacherservices.cloud and select the green check mark
+1. Select verify domain
+1. You should receive a feedback [Your domain has been successfully verified.]
+
+##### Create Certificate in Azure
+
+Ensure CAA record (for teacherservices.cloud) allows GlobalSign, if not, add it following the pattern:
+
+```
+Flags = 0, Tag = issue, value =“globalsign.com”
+```
+
+See [terraform configuration](https://github.com/DFE-Digital/terraform-modules/blob/main/dns/zones/resources.tf) or [GlobalSign documentation](https://support.globalsign.com/ssl/general-ssl/how-add-dns-caa-record-dns-zone-file).
+
+1. Navigate to Key Vaults, select the applicable Key vault 
+1. Either create a new certificate or generate a new version of an existing certificate(the latter is preferred where possible) - Validity is typically left at 12 months
+1. Add caa record list and configuration as shown in https://github.com/DFE-Digital/terraform-modules/blob/main/dns/zones/resources.tf
 
 For a more detailed explanation see,
 https://technical-guidance.education.gov.uk/infrastructure/security/ssl-certificates/#automatic-via-key-vault
@@ -101,26 +141,25 @@ Use the defaults from the above documentation, the following properties are spec
 - Certificate Name: <local.environment>-teacherservices-cloud
 - Subject CN: *.<local.environment>.teacherservices.cloud
 - DNS Names: 0
+- Add the certificate name to the [terraform configuration](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config/test.tfvars.json#L20) with the [variable](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/variables.tf#L22)
 
 <local.environment> refers to the value defined in [variables.tf](cluster/terraform_kubernetes/variables.tf)
-
-Once the certificate is created you will need to logon to Digicert as per the above docs.  The credentials to do this can be found in the prod TSC Domains KeyVault.
 
 On cluster build, terraform will load the cert into a kubernetes secret,
 and this will be set as the default-ssl-certificate in the nginx ingress.
 
 Note that terraform requires the KV cert to be created in a specific format
 
-i.e. "${var.environment}-${var.config}-teacherservices-cloud"
+i.e. `${var.environment}-${var.config}-teacherservices-cloud`
 
 e.g. cluster99-development-teacherservices-cloud
 
 ## Cluster DNS zone configuration
 
-There are two DNS zones for cluster DNS.
+There are two DNS zones for cluster DNS:
 
-    - teacherservices.cloud (prod zone)
-    - development.teacherservices.cloud (dev zone)
+- teacherservices.cloud (prod zone)
+- development.teacherservices.cloud (dev zone)
 
 ### Zone Build
 
