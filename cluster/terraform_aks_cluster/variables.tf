@@ -18,6 +18,17 @@ variable "clone_cluster" {
   type    = bool
   default = false
 }
+variable "admin_group_id" {
+  description = "Object Id of the cluster admins Entra ID group"
+}
+variable "enable_azure_RBAC" {
+  default     = false
+  description = "Enable Azure AD RBAC on this cluster"
+}
+variable "enable_azure_RBAC_clone" {
+  default     = false
+  description = "Enable Azure AD RBAC on the clone cluster"
+}
 
 locals {
   backing_services_resource_group_name = "${var.resource_prefix}-tsc-${var.environment}-bs-rg"

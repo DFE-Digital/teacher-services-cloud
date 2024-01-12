@@ -15,6 +15,17 @@ resource "azurerm_kubernetes_cluster" "main" {
   dns_prefix          = local.dns_prefix
   kubernetes_version  = var.kubernetes_version
 
+  dynamic "azure_active_directory_role_based_access_control" {
+    for_each = var.enable_azure_RBAC ? [1] : []
+
+    content {
+      managed                = true
+      azure_rbac_enabled     = true
+      admin_group_object_ids = [var.admin_group_id]
+    }
+  }
+  local_account_disabled = var.enable_azure_RBAC
+
   oms_agent {
     log_analytics_workspace_id = azurerm_log_analytics_workspace.aks_system_logs.id
   }
@@ -75,6 +86,17 @@ resource "azurerm_kubernetes_cluster" "clone" {
   node_resource_group = local.clone_node_resource_group_name
   dns_prefix          = "${azurerm_kubernetes_cluster.main.dns_prefix}-clone"
   kubernetes_version  = azurerm_kubernetes_cluster.main.kubernetes_version
+
+  dynamic "azure_active_directory_role_based_access_control" {
+    for_each = var.enable_azure_RBAC_clone ? [1] : []
+
+    content {
+      managed                = true
+      azure_rbac_enabled     = true
+      admin_group_object_ids = [var.admin_group_id]
+    }
+  }
+  local_account_disabled = var.enable_azure_RBAC_clone
 
   default_node_pool {
     name                 = azurerm_kubernetes_cluster.main.default_node_pool[0].name
