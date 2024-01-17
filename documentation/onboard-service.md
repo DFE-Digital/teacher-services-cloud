@@ -9,11 +9,13 @@ flowchart TD;
     FillForm --> OnboardCall["Arrange a quick intro call via DfE Slack channel #teacher-services-infra <br> to get things explained and meet the team"];
     OnboardCall --> SetUpCall["We will help you request access, and set you up to self serve"];
     SetUpCall --> SetUpComplete["Secure access to platform complete"];
+    SetUpComplete --> ProdReady["Complete the steps in /documentation/production-checklist"]
     GetCoding --> SetUpComplete;
-    SetUpComplete --> Done["Start deploying"] ;
+    ProdReady --> Done["Start deploying"] ;
 ```
 
-Before starting, it is important to capture the information required upfront using the  [Onboarding form](onboard-form-template.md) even if it is subject to change in the future
+Before starting, it is important to capture the information required upfront using the  [Onboarding form](onboard-form-template.md) even if it is subject to change in the future. Also, its really important to
+check the [Production Checklist](production-checklist.md). Your code should then be ready to roll.
 
 
 ## Template
