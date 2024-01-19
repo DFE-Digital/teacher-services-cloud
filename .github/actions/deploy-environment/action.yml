@@ -78,8 +78,8 @@ runs:
       terraform_version: ${{ env.terraform_version }}
       terraform_wrapper: false
 
-  - name: Set ARM environment variables
-    uses: DFE-Digital/github-actions/set-arm-environment-variables@master
+  - name: Set ARM and kubelogin environment
+    uses: DFE-Digital/github-actions/set-kubelogin-environment@master
     with:
       azure-credentials: ${{ inputs.AZURE_CREDENTIALS }}
 
