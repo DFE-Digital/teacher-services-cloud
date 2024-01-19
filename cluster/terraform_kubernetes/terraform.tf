@@ -5,6 +5,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "3.82.0"
     }
+    environment = {
+      source  = "EppO/environment"
+      version = "1.3.5"
+    }
     helm = {
       source  = "hashicorp/helm"
       version = "2.12.0"
@@ -18,6 +22,7 @@ terraform {
       version = "2.0.4"
     }
   }
+
   backend "azurerm" {
     container_name = "tsc-tfstate"
   }
@@ -42,25 +47,52 @@ data "azurerm_kubernetes_cluster" "clone" {
 
 provider "kubernetes" {
   host                   = data.azurerm_kubernetes_cluster.main.kube_config[0].host
-  client_certificate     = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].client_certificate)
-  client_key             = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].client_key)
   cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].cluster_ca_certificate)
+  client_certificate     = local.rbac_enabled ? null : base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].client_certificate)
+  client_key             = local.rbac_enabled ? null : base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].client_key)
+
+  dynamic "exec" {
+    for_each = local.rbac_enabled ? [1] : []
+    content {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "kubelogin"
+      args        = local.kubelogin_args
+    }
+  }
 }
 
 provider "kubernetes" {
   alias                  = "clone"
   host                   = try(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].host, null)
-  client_certificate     = try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].client_certificate), null)
-  client_key             = try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].client_key), null)
   cluster_ca_certificate = try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].cluster_ca_certificate), null)
+  client_certificate     = local.rbac_enabled_clone ? null : try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].client_certificate), null)
+  client_key             = local.rbac_enabled_clone ? null : try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].client_key), null)
+
+  dynamic "exec" {
+    for_each = local.rbac_enabled_clone ? [1] : []
+    content {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "kubelogin"
+      args        = local.kubelogin_args
+    }
+  }
 }
 
 provider "helm" {
   kubernetes {
     host                   = data.azurerm_kubernetes_cluster.main.kube_config[0].host
-    client_key             = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].client_key)
-    client_certificate     = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].client_certificate)
     cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].cluster_ca_certificate)
+    client_certificate     = local.rbac_enabled ? null : base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].client_certificate)
+    client_key             = local.rbac_enabled ? null : base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].client_key)
+
+    dynamic "exec" {
+      for_each = local.rbac_enabled ? [1] : []
+      content {
+        api_version = "client.authentication.k8s.io/v1beta1"
+        command     = "kubelogin"
+        args        = local.kubelogin_args
+      }
+    }
   }
 }
 
@@ -68,9 +100,18 @@ provider "helm" {
   alias = "clone"
   kubernetes {
     host                   = try(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].host, null)
-    client_key             = try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].client_key), null)
-    client_certificate     = try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].client_certificate), null)
     cluster_ca_certificate = try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].cluster_ca_certificate), null)
+    client_certificate     = local.rbac_enabled_clone ? null : try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].client_certificate), null)
+    client_key             = local.rbac_enabled_clone ? null : try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].client_key), null)
+
+    dynamic "exec" {
+      for_each = local.rbac_enabled_clone ? [1] : []
+      content {
+        api_version = "client.authentication.k8s.io/v1beta1"
+        command     = "kubelogin"
+        args        = local.kubelogin_args
+      }
+    }
   }
 }
 
