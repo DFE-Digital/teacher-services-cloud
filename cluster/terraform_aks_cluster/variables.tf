@@ -61,3 +61,11 @@ locals {
   ]
   uk_south_availability_zones = ["1", "2", "3"]
 }
+
+variable "admin_group_id" {
+  description = "Object Id of the cluster admins Entra ID group"
+}
+variable "enable_RBAC" {
+  default = false
+  description = "Enable Azure AD RBAC on this cluster"
+}

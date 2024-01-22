@@ -76,6 +76,17 @@ resource "azurerm_kubernetes_cluster" "clone" {
   dns_prefix          = "${azurerm_kubernetes_cluster.main.dns_prefix}-clone"
   kubernetes_version  = azurerm_kubernetes_cluster.main.kubernetes_version
 
+dynamic "azure_active_directory_role_based_access_control" {
+    for_each = var.enable_RBAC ? [1] : []
+
+    content {
+      managed                = true
+      azure_rbac_enabled     = true
+      admin_group_object_ids = [var.admin_group_id]
+    }
+  }
+  local_account_disabled = var.enable_RBAC
+
   default_node_pool {
     name                 = azurerm_kubernetes_cluster.main.default_node_pool[0].name
     node_count           = azurerm_kubernetes_cluster.main.default_node_pool[0].node_count
