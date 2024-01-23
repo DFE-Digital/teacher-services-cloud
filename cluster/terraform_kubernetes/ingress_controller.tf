@@ -118,8 +118,12 @@ resource "helm_release" "ingress-nginx-clone" {
   version    = helm_release.ingress-nginx.version
 
   dynamic "set" {
-    # Exclude loadBalancerIP set to force clone to use dynamic Public IP for load balancer ingress
-    for_each = [for s in helm_release.ingress-nginx.set : s if s.name != "controller.service.loadBalancerIP"]
+    # Exclude the load balancer IP to force clone to use dynamic Public IP for load balancer ingress
+    for_each = [
+      for s in helm_release.ingress-nginx.set : s
+      if s.name != "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-ipv4"
+      && s.name != "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-resource-group"
+    ]
 
     content {
       name  = set.value["name"]
