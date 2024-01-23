@@ -95,6 +95,17 @@ resource "helm_release" "ingress-nginx" {
     value = "true"
     type  = "string"
   }
+  set {
+    name  = "controller.resources.limits.cpu"
+    value = "500m"
+    type  = "string"
+  }
+  set {
+    name  = "controller.resources.limits.memory"
+    value = "512Mi"
+    type  = "string"
+  }
+
 }
 
 resource "helm_release" "ingress-nginx-clone" {
