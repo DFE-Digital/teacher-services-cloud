@@ -6,7 +6,7 @@
 set -eu
 set -o pipefail
 
-NAMESPACE_BLACKLIST="default kube-node-lease kube-public kube-system"
+NAMESPACE_BLACKLIST="default kube-node-lease kube-public kube-system gatekeeper-system"
 
 echo "Fetching custom namespaces..."
 all_namespaces=$(kubectl get namespaces -o name)
