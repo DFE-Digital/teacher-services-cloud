@@ -10,7 +10,7 @@ Then we use scripts to export the resources from each namespace from one cluster
 - Install prerequisites:
     - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
     - [jq](https://stedolan.github.io/jq/)
-    - [kubectl-neat](https://github.com/itaysk/kubectl-neat)
+    - [kubectl krew](https://krew.sigs.k8s.io/docs/user-guide/setup/install/) and [kubectl-neat](https://github.com/itaysk/kubectl-neat)
 - Inform the dev teams to stop making changes. This process should be done outsdide of business hours.
 - Raise the required PIM requests
 - Determine the *applications domain* of this cluster. e.g.:
@@ -44,18 +44,18 @@ Since the applications domain points to the main cluster, you won't be able to t
 - Add the cloned cluster ingress IP for the applications domain (see [Preparation](#preparation)) to your [hosts file](https://en.wikipedia.org/wiki/Hosts_(file)) (see this simple [tutorial](https://www.nublue.co.uk/guides/edit-hosts-file/)). e.g.:
 
     ```
-    51.52.53.54 *.test.teacherservices.cloud
+    51.52.53.54 webapplication123.test.teacherservices.cloud
     ```
 - Validate webapps on the applications domain
 - Restore your hosts file
 
 ## Route traffic to the cloned cluster
-- Change the applications domain record in the DNS zone manually
+- Change the applications domain record (see [preparation](#preparation)) in the DNS zone manually
 - Wait at least 5 min for TTL to expire
 
 ## Rebuild the first cluster
 - Wait for traffic to stop on main cluster. You can now make changes on the main cluster without impacting users.
-- Delete the pod disruption budgets (check with `kubectl get pdb -A`)
+- Delete the non-system pod disruption budgets (check with `kubectl get pdb -A`)
 - Make the required code changes in terraform
 - Run terraform-plan to check the changes and make sure only the main cluter is updated. Most of the cloned configuration is referenced from the main cluster, so if the value changes on the main cluster, it would also impact the cloned cluster and force a rebuild, which would disrupt users. If it's the case, hardcode the original value temporarily for the cloned cluster. For instance, if you want to change the default node pool vm_size from "Standard_D2_v2", change the cloned cluster from:
 

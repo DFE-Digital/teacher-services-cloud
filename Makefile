@@ -129,6 +129,7 @@ domains-infra-apply: domains-infra-init
 
 get-cluster-credentials: set-azure-account ## make <config> get-cluster-credentials [ENVIRONMENT=<clusterX>]
 	az aks get-credentials --overwrite-existing -g ${RESOURCE_GROUP_NAME} -n ${RESOURCE_PREFIX}-tsc-${ENVIRONMENT}${CLONE_STRING}-aks
+	kubelogin convert-kubeconfig -l $(if ${GITHUB_ACTIONS},spn,azurecli)
 
 disable-cluster-node-autoscaler: set-azure-account
 	$(if $(NODE_POOL), , $(error Please specify a node pool))
