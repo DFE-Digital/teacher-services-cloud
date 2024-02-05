@@ -65,3 +65,6 @@ Components with versions:
 Azure applies patches and minor updates to postgres and redis. Since this may cause a minor disruption, use the `azure_maintenance_window` and `azure_patch_schedule` variables to set them to a convenient time.
 
 Note the postgres patches will always be applied first to environments where the maintenance window is not set.
+
+## Service offering
+The new service template uses the default "Teacher services cloud" value for the *Product* tag. This tag is used to identify the service in the Azure finance reporting. Each service must [register a new service offering and product](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/Create-a-service-offering.aspx) and replace "Teacher services cloud" with the right name so that Azure costs are allocated accordingly.
