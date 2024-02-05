@@ -70,6 +70,20 @@ data "environment_variables" "github_actions" {
   filter = "GITHUB_ACTIONS"
 }
 
+variable "prometheus_version" {
+  default = "v2.49.1"
+}
+
+variable "prometheus_tsdb_retention_time" {
+  description = "Prometheus retention period for locally stored data"
+  default     = "15d"
+}
+
+variable "prometheus_app_mem" {
+  description = "Prometheus app memory limit"
+  default     = "1Gi"
+}
+
 locals {
   cluster_name = (
     var.cip_tenant ?
