@@ -23,13 +23,15 @@ Documentation for the Teacher services application developers
 > [!IMPORTANT]
 > The clusters are soon to be migrated to Azure RBAC, which will change the process to access them. This documentation will be updated as we go along.
 
-### Test and Production clusters
+### Production cluster
 - Microsoft Entra Privileged Identity Management (PIM) allows gaining new user permissions in the s189 subscriptions. This is required to access the cluster and troubleshoot application or database. **We must be very cautious** as this gives access to all the other services deployed to s189 subscriptions.
 - Once added to the s189 subscription, you can PIM yourself to the *test* subscription. See the [technical guidance PIM section](https://technical-guidance.education.gov.uk/infrastructure/hosting/azure-cip/#privileged-identity-management-pim-requests).
 - You can request PIM to the *production* subscription, however this will need to be approved by members of the Managers group
 - As a manager, you should receive and email with the user request. You can also approve PIM requests by going to [Privileged Identity Management](https://portal.azure.com/?feature.msaljs=true#view/Microsoft_Azure_PIMCommon/CommonMenuBlade/~/quickStart) (PIM) in the Azure portal and selecting Approve request, Azure resources, select the user and approve the request.
 
-### Future process
+### Test cluster
+Microsoft Entra Privileged Identity Management (PIM) allows gaining new user permissions. This is required to access the cluster and troubleshoot application or database. **We must be very cautious** as this gives access to all the other services deployed to s189 subscriptions.
+
 Use [PIM for groups](https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/groups-activate-roles) to elevate your access. Two groups are available:
 - `s189 AKS admin test PIM`: access to the test cluster, self-approved
 - `s189 AKS admin production PIM`: access to the production cluster, must be approved by another team member
