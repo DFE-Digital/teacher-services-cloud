@@ -68,14 +68,15 @@ resource "kubernetes_deployment" "prometheus" {
 
     selector {
       match_labels = {
-        app = "prometheus-server"
+        app = "prometheus"
       }
     }
 
     template {
       metadata {
         labels = {
-          app = "prometheus-server"
+          app              = "prometheus"
+          thanos-store-api = true
         }
       }
 
@@ -88,6 +89,10 @@ resource "kubernetes_deployment" "prometheus" {
             "--storage.tsdb.retention.time=${var.prometheus_tsdb_retention_time}",
             "--config.file=/etc/prometheus/prometheus.yml",
             "--storage.tsdb.path=/prometheus/",
+            "--web.enable-lifecycle",
+            "--storage.tsdb.no-lockfile",
+            "--storage.tsdb.min-block-duration=2h",
+            "--storage.tsdb.max-block-duration=2h",
           ]
 
           port {
@@ -100,8 +105,8 @@ resource "kubernetes_deployment" "prometheus" {
               memory = var.prometheus_app_mem
             }
             requests = {
-              cpu    = "500m"
-              memory = "500M"
+              cpu    = var.prometheus_app_cpu
+              memory = var.prometheus_app_mem
             }
           }
 
@@ -129,6 +134,89 @@ resource "kubernetes_deployment" "prometheus" {
           empty_dir {}
         }
 
+        container {
+          image = "quay.io/thanos/thanos:${var.thanos_version}"
+          name  = "thanos"
+
+          args = [
+            "sidecar",
+            "--log.level=debug",
+            "--tsdb.path=/prometheus",
+            "--prometheus.url=http://127.0.0.1:9090",
+            "--objstore.config-file=/config/thanos.yaml",
+            # "--reloader.config-file=/etc/prometheus/prometheus.yml",
+            # "--reloader.config-envsubst-file=/etc/prometheus-shared/prometheus.yaml",
+            # "--reloader.rule-dir=/etc/prometheus/rules/",
+          ]
+
+          env {
+            name = "POD_NAME"
+            value_from {
+              field_ref {
+                field_path = "metadata.name"
+              }
+            }
+          }
+
+          liveness_probe {
+            http_get {
+              path = "/-/healthy"
+              port = "http-sidecar"
+            }
+          }
+
+          readiness_probe {
+            http_get {
+              path = "/-/ready"
+              port = "http-sidecar"
+            }
+          }
+
+          port {
+            container_port = 10902
+            name           = "http-sidecar"
+          }
+
+          port {
+            container_port = 10901
+            name           = "grpc"
+          }
+
+          resources {
+            limits = {
+              cpu    = 1
+              memory = var.prometheus_app_mem
+            }
+            requests = {
+              cpu    = var.prometheus_app_cpu
+              memory = var.prometheus_app_mem
+            }
+          }
+
+          volume_mount {
+            mount_path = "/etc/prometheus/"
+            name       = "prometheus-config-volume"
+          }
+
+          volume_mount {
+            mount_path = "/prometheus/"
+            name       = "prometheus-storage-volume"
+          }
+
+          volume_mount {
+            mount_path = "/config/"
+            name       = "thanos-config-volume"
+            read_only  = true
+          }
+        }
+
+        volume {
+          name = "thanos-config-volume"
+          secret {
+            secret_name = kubernetes_secret.thanos.metadata[0].name
+          }
+        }
+
       }
     }
   }
@@ -152,7 +240,7 @@ resource "kubernetes_service" "prometheus" {
       target_port = kubernetes_deployment.prometheus.spec[0].template[0].spec[0].container[0].port[0].container_port
     }
     selector = {
-      app = "prometheus-server"
+      app = "prometheus"
     }
     type = "NodePort"
   }

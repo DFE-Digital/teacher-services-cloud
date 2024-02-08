@@ -76,12 +76,50 @@ variable "prometheus_version" {
 
 variable "prometheus_tsdb_retention_time" {
   description = "Prometheus retention period for locally stored data"
-  default     = "15d"
+  default     = "6h"
 }
 
 variable "prometheus_app_mem" {
   description = "Prometheus app memory limit"
   default     = "1Gi"
+}
+
+variable "prometheus_app_cpu" {
+  description = "Prometheus app cpu request"
+  default     = "100m"
+}
+
+variable "thanos_version" {
+  default = "v0.8.0"
+}
+
+variable "thanos_app_mem" {
+  description = "Thanos app memory limit"
+  default     = "1Gi"
+}
+
+variable "thanos_app_cpu" {
+  description = "Thanos app cpu request"
+  default     = "100m"
+}
+
+variable "thanos_retention_raw" {
+  description = "Thanos retention period for raw samples"
+  default     = "30d"
+}
+
+variable "thanos_retention_5m" {
+  description = "Thanos retention period for 5m samples"
+  default     = "60d"
+}
+
+variable "thanos_retention_1h" {
+  description = "Thanos retention period for 1h samples"
+  default     = "90d"
+}
+
+variable "cluster_short" {
+  description = "Short name of the cluster configuration, e.g. dv, pt, ts, pd"
 }
 
 locals {
@@ -133,4 +171,9 @@ locals {
 
   spn_authentication = contains(keys(data.environment_variables.github_actions.items), "GITHUB_ACTIONS")
   kubelogin_args     = local.spn_authentication ? local.kubelogin_spn_args : local.kubelogin_azurecli_args
+
+  template_variable_map = {
+    storage-account-name = azurerm_storage_account.thanos.name
+    storage-account-key  = azurerm_storage_account.thanos.primary_access_key
+  }
 }
