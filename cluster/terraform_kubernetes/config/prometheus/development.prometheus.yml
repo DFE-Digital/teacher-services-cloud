@@ -11,6 +11,10 @@ global:
 # Keep at most 100 sets of details of targets dropped by relabeling.
 # This information is used to display in the UI for troubleshooting.
   keep_dropped_targets: 100
+  external_labels:
+    cluster: prometheus
+    # Each Prometheus has to have unique labels.
+    replica: $(POD_NAME)
 rule_files:
   - /etc/prometheus/prometheus.rules
 alerting:

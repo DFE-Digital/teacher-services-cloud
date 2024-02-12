@@ -11,6 +11,10 @@ global:
 # Keep at most 100 sets of details of targets dropped by relabeling.
 # This information is used to display in the UI for troubleshooting.
   keep_dropped_targets: 100
+  external_labels:
+    cluster: prometheus
+    # Each Prometheus has to have unique labels.
+    replica: $(POD_NAME)
 rule_files:
   - /etc/prometheus/prometheus.rules
 alerting:
@@ -157,45 +161,3 @@ scrape_configs:
     - source_labels: [__meta_kubernetes_service_name]
       action: replace
       target_label: kubernetes_name
-  #
-  #  Below were used in the spike and left here for info
-  #  They wree a quick fix, so very likely can be improved
-  #
-  # - job_name: 'nginx-pods'
-  #   kubernetes_sd_configs:
-  #     - role: pod
-  #   relabel_configs:
-  #   - source_labels: [__meta_kubernetes_pod_container_port_number]
-  #     regex: '443'
-  #     action: drop
-  #   - source_labels: [__meta_kubernetes_pod_container_port_number]
-  #     regex: '8443'
-  #     action: drop
-  #   - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
-  #     regex: 'ingress-nginx'
-  #     action: keep
-  #   - source_labels: [__address__, __meta_kubernetes_pod_container_port_number]
-  #     action: replace
-  #     regex: ([^:]+)(?::\d+)?;(\d+)
-  #     replacement: $1:10254
-  #     target_label: __address__
-  # - job_name: 'apply-pods'
-  #   kubernetes_sd_configs:
-  #     - role: pod
-  #   relabel_configs:
-  #   - source_labels: [__meta_kubernetes_pod_label_app]
-  #     regex: 'apply-review-rm1'
-  #     action: keep
-  # - job_name: 'apply-sidekiq-pods'
-  #   kubernetes_sd_configs:
-  #     - role: pod
-  #   relabel_configs:
-  #   - source_labels: [__meta_kubernetes_pod_label_app]
-  #     regex: 'apply-secondary-worker-review-rm1|apply-worker-review-rm1'
-  #     action: keep
-  #   - source_labels: [__address__]
-  #     action: replace
-  #     regex: ([^:]+)
-  #     replacement: "$${1}:9394"
-  #     target_label: __address__
-  #
