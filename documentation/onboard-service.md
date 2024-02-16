@@ -134,7 +134,7 @@ Example workflow:
 - name: Checkout code
     uses: actions/checkout@v3
 
-- uses: hashicorp/setup-terraform@v1
+- uses: hashicorp/setup-terraform@v2
     with:
     terraform_version: 1.5.1
     terraform_wrapper: false
