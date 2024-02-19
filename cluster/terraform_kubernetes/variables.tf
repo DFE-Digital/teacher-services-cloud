@@ -176,4 +176,9 @@ locals {
     storage-account-name = azurerm_storage_account.thanos.name
     storage-account-key  = azurerm_storage_account.thanos.primary_access_key
   }
+
+  cluster_sa_name = (var.environment == var.config ?
+    var.cluster_short : # pt,ts or pd
+    var.environment     # cluster1, cluster2, etc
+  )
 }

@@ -1,6 +1,6 @@
 resource "azurerm_storage_account" "thanos" {
 
-  name                            = "${var.resource_prefix}${var.cluster_short}thanossa"
+  name                            = "${var.resource_prefix}${local.cluster_sa_name}thanossa"
   location                        = data.azurerm_resource_group.resource_group.location
   resource_group_name             = data.azurerm_resource_group.resource_group.name
   account_tier                    = "Standard"
