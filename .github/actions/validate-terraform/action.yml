@@ -28,7 +28,7 @@ runs:
     shell: bash
     working-directory: ${{ inputs.terraform_root_folder }}
 
-  - uses: hashicorp/setup-terraform@v2
+  - uses: hashicorp/setup-terraform@v3
     with:
       terraform_version: ${{ env.terraform_version }}
 

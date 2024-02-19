@@ -132,9 +132,9 @@ Example workflow:
 
 ```yaml
 - name: Checkout code
-    uses: actions/checkout@v3
+    uses: actions/checkout@v4
 
-- uses: hashicorp/setup-terraform@v2
+- uses: hashicorp/setup-terraform@v3
     with:
     terraform_version: 1.5.1
     terraform_wrapper: false
