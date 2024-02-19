@@ -67,7 +67,7 @@ runs:
       make ci ${{ inputs.environment_name }} deploy-azure-resources
     shell: bash
 
-  - uses: hashicorp/setup-terraform@v2
+  - uses: hashicorp/setup-terraform@v3
     with:
       terraform_version: ${{ env.terraform_version }}
       terraform_wrapper: false

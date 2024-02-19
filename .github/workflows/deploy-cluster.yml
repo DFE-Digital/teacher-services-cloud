@@ -20,7 +20,7 @@ jobs:
     name: Validate Terraform
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Validate cluster/terraform_aks_cluster
       uses: ./.github/actions/validate-terraform
@@ -74,7 +74,7 @@ jobs:
       matrix:
         environment: [platform-test, test, production]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - uses: ./.github/actions/deploy-environment
       with:
@@ -94,9 +94,9 @@ jobs:
       matrix:
         environment: [dev-domain, prod-domain]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-    - uses: hashicorp/setup-terraform@v2
+    - uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: 1.6.4
         terraform_wrapper: false
