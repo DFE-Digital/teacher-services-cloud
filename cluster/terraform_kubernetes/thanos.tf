@@ -34,7 +34,7 @@ resource "kubernetes_service" "thanos-store-gateway" {
 
   metadata {
     name      = "thanos-store-gateway"
-    namespace = "monitoring"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
   spec {
@@ -54,7 +54,7 @@ resource "kubernetes_deployment" "thanos-querier" {
 
   metadata {
     name      = "thanos-querier"
-    namespace = "monitoring"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
   spec {
@@ -132,7 +132,7 @@ resource "kubernetes_service" "thanos-querier" {
 
   metadata {
     name      = "thanos-querier"
-    namespace = "monitoring"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
     labels = {
       app = "thanos-querier"
     }
@@ -155,7 +155,7 @@ resource "kubernetes_deployment" "thanos-store-gateway" {
 
   metadata {
     name      = "thanos-store-gateway"
-    namespace = "monitoring"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
   spec {
@@ -248,7 +248,7 @@ resource "kubernetes_deployment" "thanos-compactor" {
 
   metadata {
     name      = "thanos-compactor"
-    namespace = "monitoring"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
   spec {

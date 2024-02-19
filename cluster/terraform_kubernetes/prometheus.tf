@@ -46,7 +46,7 @@ resource "kubernetes_config_map" "prometheus" {
 
   metadata {
     name      = "prometheus-server-conf"
-    namespace = "monitoring"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
   data = {
