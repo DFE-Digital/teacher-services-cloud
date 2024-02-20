@@ -58,7 +58,7 @@ runs:
     shell: bash
     working-directory: cluster
 
-  - uses: Azure/login@v1.6.1
+  - uses: Azure/login@v1
     with:
       creds: ${{ inputs.azure_credentials }}
 
@@ -90,7 +90,7 @@ runs:
     shell: bash
 
   - name: Install kubectl
-    uses: azure/setup-kubectl@v4
+    uses: azure/setup-kubectl@v3
     with:
       version: "v1.26.1" # default is latest stable
 
