@@ -46,7 +46,8 @@ resource "kubernetes_service" "thanos-store-gateway" {
     selector = {
       thanos-store-api : "true"
     }
-    type = "ClusterIP"
+    type       = "ClusterIP"
+    cluster_ip = "None"
   }
 }
 
@@ -84,7 +85,7 @@ resource "kubernetes_deployment" "thanos-querier" {
             "query",
             "--log.level=debug",
             "--query.replica-label=replica",
-            "--store=dnssrv+thanos-store-gateway:10901",
+            "--store=dns+thanos-store-gateway:10901",
           ]
 
           liveness_probe {
@@ -263,8 +264,7 @@ resource "kubernetes_deployment" "thanos-compactor" {
     template {
       metadata {
         labels = {
-          app              = "thanos-compactor"
-          thanos-store-api = true
+          app = "thanos-compactor"
         }
       }
 
