@@ -1,6 +1,6 @@
 resource "azurerm_storage_account" "thanos" {
 
-  name                            = "${var.resource_prefix}${var.cluster_short}thanossa"
+  name                            = "${var.resource_prefix}${local.cluster_sa_name}thanossa"
   location                        = data.azurerm_resource_group.resource_group.location
   resource_group_name             = data.azurerm_resource_group.resource_group.name
   account_tier                    = "Standard"
@@ -34,7 +34,7 @@ resource "kubernetes_service" "thanos-store-gateway" {
 
   metadata {
     name      = "thanos-store-gateway"
-    namespace = "monitoring"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
   spec {
@@ -46,7 +46,8 @@ resource "kubernetes_service" "thanos-store-gateway" {
     selector = {
       thanos-store-api : "true"
     }
-    type = "ClusterIP"
+    type       = "ClusterIP"
+    cluster_ip = "None"
   }
 }
 
@@ -54,7 +55,7 @@ resource "kubernetes_deployment" "thanos-querier" {
 
   metadata {
     name      = "thanos-querier"
-    namespace = "monitoring"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
   spec {
@@ -84,7 +85,7 @@ resource "kubernetes_deployment" "thanos-querier" {
             "query",
             "--log.level=debug",
             "--query.replica-label=replica",
-            "--store=dnssrv+thanos-store-gateway:10901",
+            "--store=dns+thanos-store-gateway:10901",
           ]
 
           liveness_probe {
@@ -132,7 +133,7 @@ resource "kubernetes_service" "thanos-querier" {
 
   metadata {
     name      = "thanos-querier"
-    namespace = "monitoring"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
     labels = {
       app = "thanos-querier"
     }
@@ -155,7 +156,7 @@ resource "kubernetes_deployment" "thanos-store-gateway" {
 
   metadata {
     name      = "thanos-store-gateway"
-    namespace = "monitoring"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
   spec {
@@ -248,7 +249,7 @@ resource "kubernetes_deployment" "thanos-compactor" {
 
   metadata {
     name      = "thanos-compactor"
-    namespace = "monitoring"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
   spec {
@@ -263,8 +264,7 @@ resource "kubernetes_deployment" "thanos-compactor" {
     template {
       metadata {
         labels = {
-          app              = "thanos-compactor"
-          thanos-store-api = true
+          app = "thanos-compactor"
         }
       }
 

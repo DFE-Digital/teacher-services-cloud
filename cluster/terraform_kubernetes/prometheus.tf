@@ -46,7 +46,7 @@ resource "kubernetes_config_map" "prometheus" {
 
   metadata {
     name      = "prometheus-server-conf"
-    namespace = "monitoring"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
   data = {
@@ -149,15 +149,6 @@ resource "kubernetes_deployment" "prometheus" {
             # "--reloader.rule-dir=/etc/prometheus/rules/",
           ]
 
-          env {
-            name = "POD_NAME"
-            value_from {
-              field_ref {
-                field_path = "metadata.name"
-              }
-            }
-          }
-
           liveness_probe {
             http_get {
               path = "/-/healthy"
@@ -235,13 +226,12 @@ resource "kubernetes_service" "prometheus" {
 
   spec {
     port {
-      node_port   = 30000
+      name        = "prometheus"
       port        = 8080
       target_port = kubernetes_deployment.prometheus.spec[0].template[0].spec[0].container[0].port[0].container_port
     }
     selector = {
       app = "prometheus"
     }
-    type = "NodePort"
   }
 }

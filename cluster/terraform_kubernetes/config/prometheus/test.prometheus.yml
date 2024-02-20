@@ -13,8 +13,6 @@ global:
   keep_dropped_targets: 100
   external_labels:
     cluster: prometheus
-    # Each Prometheus has to have unique labels.
-    replica: $(POD_NAME)
 rule_files:
   - /etc/prometheus/prometheus.rules
 alerting:
