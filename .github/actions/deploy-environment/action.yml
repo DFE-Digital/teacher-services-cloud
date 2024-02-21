@@ -90,7 +90,7 @@ runs:
     shell: bash
 
   - name: Install kubectl
-    uses: azure/setup-kubectl@v4
+    uses: azure/setup-kubectl@v4.0.0
     with:
       version: "v1.26.1" # default is latest stable
 
