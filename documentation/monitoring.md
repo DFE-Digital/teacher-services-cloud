@@ -79,3 +79,16 @@ limits - with cpu  of  300m and memory of 256Mi
 liveness_probe - with endpoint /healthz and port 8080
 readiness_probe - with endpoint / and port 8081
 telemetry - the telemetry data is accesses via port 8081
+
+## Alertmanager
+
+Alertmanager handles alerts sent by client applications such as the Prometheus server. It takes care of deduplicating, grouping, and routing them to the correct receiver integration such as email, Slack, or other notification mechanisms.
+
+Alertmanager service running on NodePort 9093 ,
+
+Alertmanager is single replica deployments.
+
+The default alert version is hardcoded in the kubernetes variable.tf. It can be overridden for a cluster by adding alertmanager_image_version to the env.tfvars.json file.
+There are several other variables that can be changed depending on env requirements.
+alertmanager_app_mem - app memory limit (default 1G)
+alertmanager_app_cpu - app cpu requests (default 1)

@@ -4,12 +4,13 @@
 # Example rule below, which should be removed once real rules added
 #
 groups:
-- name: container restarts
+- name: High Number Of DesiredPods
   rules:
-  - alert: High number of restarted containers
-    expr: sum(kube_pod_container_status_restarts_total) > 1000
-    for: 5m
+  - alert: High Number Of DesiredPods
+    expr: kubelet_active_pods > 1000
+    for: 30m
     labels:
       severity: slack
     annotations:
-      summary: High number of restarted containers
+      description: High Number Of DesiredPods
+      summary: High Number Of DesiredPods
