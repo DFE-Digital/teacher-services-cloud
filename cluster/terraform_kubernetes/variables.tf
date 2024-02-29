@@ -80,6 +80,10 @@ variable "lowpriority_app_replicas" {
   default = 3
 }
 
+variable "kube_state_metrics_version" {
+  default = "2.10.1"
+}
+
 data "azurerm_client_config" "current" {}
 
 data "environment_variables" "github_actions" {
@@ -197,4 +201,5 @@ locals {
     var.cluster_short : # pt,ts or pd
     var.environment     # cluster1, cluster2, etc
   )
+
 }
