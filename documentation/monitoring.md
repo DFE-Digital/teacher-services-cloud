@@ -67,3 +67,14 @@ The default grafana version is hardcoded in the kubernetes variable.tf. It can b
 There are several other variables that can be changed depending on env requirements. e.g.
 grafana_app_mem - app memory limit (default 1Gi)
 grafana_app_cpu - app requests cpu (default 500m)
+
+## kube state metrics
+Kube-state-metrics is a listening service that generates metrics about the state of Kubernetes objects through leveraging the Kubernetes API; it focuses on object health instead of component health
+
+The default Kube-state-metrics version is hardcoded to version v2.8.2 by adding kube_state_metrics_version to variables.tf
+The metrics scraped are:
+requests -  with  cpu   of  100m and memory of 128Mi
+limits - with cpu  of  300m and memory of 256Mi
+liveness_probe - with endpoint /healthz and port 8080
+readiness_probe - with endpoint / and port 8081
+telemetry - the telemetry data is accesses via port 8081

@@ -102,7 +102,7 @@ scrape_configs:
 # Scrape config for kube-state-metrics.
   - job_name: 'kube-state-metrics'
     static_configs:
-      - targets: ['kube-state-metrics.kube-system.svc.cluster.local:8080']
+      - targets: ['kube-state-metrics.monitoring.svc.cluster.local:8080']
 # Scrape config for Kubelet cAdvisor.
 #
 # This is required for Kubernetes 1.7.3 and later, where cAdvisor metrics
