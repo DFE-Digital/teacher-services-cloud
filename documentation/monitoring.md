@@ -55,3 +55,15 @@ thanos_app_cpu - app memory requests (default 100m)
 thanos_retention_raw - Thanos retention period for raw samples (default 30d)
 thanos_retention_5m - Thanos retention period for 5m samples (default 60d)
 thanos_retention_1h - Thanos retention period for 1h samples (default 90d)
+
+
+## Grafana
+
+Grafana provides a visual interface for monitoring logs and metric.
+It can be configured to different datasources including prometheus and thanos (as it is, in this case).
+Grafana dashboard can be configured as required to provide different forms of visualisation - inluding charts, graphs etc
+
+The default grafana version is hardcoded in the kubernetes variable.tf. It can be overridden for a cluster by adding grafana_version to the env.tfvars.json file.
+There are several other variables that can be changed depending on env requirements. e.g.
+grafana_app_mem - app memory limit (default 1Gi)
+grafana_app_cpu - app requests cpu (default 500m)

@@ -52,6 +52,22 @@ variable "enable_lowpriority_app" {
   default = false
 }
 
+variable "grafana_app_cpu" {
+  default = "500m"
+}
+
+variable "grafana_app_mem" {
+  default = "500M"
+}
+
+variable "grafana_limit_mem" {
+  default = "1Gi"
+}
+
+variable "grafana_version" {
+  default = "10.3.3"
+}
+
 variable "lowpriority_app_cpu" {
   default = "1"
 }
