@@ -118,6 +118,11 @@ variable "thanos_app_mem" {
   default     = "1Gi"
 }
 
+variable "thanos_compactor_app_mem" {
+  description = "Thanos compactor memory limit"
+  default     = "1Gi"
+}
+
 variable "thanos_app_cpu" {
   description = "Thanos app cpu request"
   default     = "100m"
