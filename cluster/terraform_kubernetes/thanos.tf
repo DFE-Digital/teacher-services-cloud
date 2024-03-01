@@ -307,11 +307,11 @@ resource "kubernetes_deployment" "thanos-compactor" {
           resources {
             limits = {
               cpu    = 1
-              memory = var.thanos_app_mem
+              memory = var.thanos_compactor_app_mem
             }
             requests = {
               cpu    = var.thanos_app_cpu
-              memory = var.thanos_app_mem
+              memory = var.thanos_compactor_app_mem
             }
           }
 
