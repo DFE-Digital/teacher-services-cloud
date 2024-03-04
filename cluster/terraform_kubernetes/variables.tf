@@ -147,6 +147,21 @@ variable "cluster_short" {
   description = "Short name of the cluster configuration, e.g. dv, pt, ts, pd"
 }
 
+variable "slack_channel" {
+  default = "#teacher-services-infra"
+}
+
+variable "alertmanager_image_version" {
+  default = "v0.19.0"
+}
+
+variable "alertmanager_app_cpu" {
+  default = "100m"
+}
+
+variable "alertmanager_app_mem" {
+  default = "1Gi"
+}
 locals {
   cluster_name = (
     var.cip_tenant ?
@@ -206,5 +221,17 @@ locals {
     var.cluster_short : # pt,ts or pd
     var.environment     # cluster1, cluster2, etc
   )
+
+  alertmanager_config_path = "${path.module}/config/prometheus/alertmanager-config.yaml"
+  alertmanager_config_content = templatefile(local.alertmanager_config_path, {
+    slack_secret  = data.azurerm_key_vault_secret.slack_secret.value,
+    slack_channel = var.slack_channel
+  })
+
+  template_files = {
+    "slack.tmpl" = "${path.module}/config/prometheus/alertmanager-slack.yaml"
+  }
+
+  alertmanager_templates = { for k, v in local.template_files : k => file(v) }
 
 }
