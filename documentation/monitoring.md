@@ -25,14 +25,16 @@ and will email and page the TS infra team on failure.
 
 Prometheus monitoring is enabled for a cluster by default.
 
-The default prometheus version is hardcoded in the kubernetes variable.tf. It can be overridden for a cluster by adding prometheus_version to the env.tfvars.json file.
+The default prometheus version is hardcoded in the kubernetes variables.tf. It can be overridden for a cluster by adding prometheus_version to the env.tfvars.json file.
+
 There are several other variables that can be changed depending on env requirements.
-prometheus_app_mem - app memory limit (default 1G)
-prometheus_app_cpu - app memory requests (default 100m)
-prometheus_tsdb_retention_time - local storage retention period (default 6h)
+- prometheus_app_mem - app memory limit (default 1G)
+- prometheus_app_cpu - app memory requests (default 100m)
+- prometheus_tsdb_retention_time - local storage retention period (default 6h)
 
 Prometheus rules and yml config files are loaded from the terraform_kubernetes/config/prometheus directory. Each file is prefixed with the cluster env.
 e.g. development.prometheus.rules and development.prometheus.yml
+
 Currently a restart/reload of the prometheus process is required if changes are made to these files.
 
 ## Thanos
@@ -46,17 +48,18 @@ There are also three separate Thanos services
 - thanos-querier
 - thanos-store-gateway
 - thanos-compactor
+
 All are running as single replica deployments.
 
-The default thanos version is hardcoded in the kubernetes variable.tf. It can be overridden for a cluster by adding thanos_version to the env.tfvars.json file.
-There are several other variables that can be changed depending on env requirements.
-thanos_app_mem - app memory limit (default 1G)
-thanos_app_cpu - app memory requests (default 100m)
-thanos_compactor_app_mem - app memory limit for the thanos compactor (default 1G)
-thanos_retention_raw - Thanos retention period for raw samples (default 30d)
-thanos_retention_5m - Thanos retention period for 5m samples (default 60d)
-thanos_retention_1h - Thanos retention period for 1h samples (default 90d)
+The default thanos version is hardcoded in the kubernetes variables.tf. It can be overridden for a cluster by adding thanos_version to the env.tfvars.json file.
 
+There are several other variables that can be changed depending on env requirements.
+- thanos_app_mem - app memory limit (default 1G)
+- thanos_app_cpu - app memory requests (default 100m)
+- thanos_compactor_app_mem - app memory limit for the thanos compactor (default 1G)
+- thanos_retention_raw - Thanos retention period for raw samples (default 30d)
+- thanos_retention_5m - Thanos retention period for 5m samples (default 60d)
+- thanos_retention_1h - Thanos retention period for 1h samples (default 90d)
 
 ## Grafana
 
@@ -65,30 +68,43 @@ It can be configured to different datasources including prometheus and thanos (a
 Grafana dashboard can be configured as required to provide different forms of visualisation - inluding charts, graphs etc
 
 The default grafana version is hardcoded in the kubernetes variable.tf. It can be overridden for a cluster by adding grafana_version to the env.tfvars.json file.
-There are several other variables that can be changed depending on env requirements. e.g.
-grafana_app_mem - app memory limit (default 1Gi)
-grafana_app_cpu - app requests cpu (default 500m)
+
+There are several other variables that can be changed depending on env requirements.
+- grafana_app_mem - app memory limit (default 1Gi)
+- grafana_app_cpu - app requests cpu (default 500m)
 
 ## kube state metrics
+
 Kube-state-metrics is a listening service that generates metrics about the state of Kubernetes objects through leveraging the Kubernetes API; it focuses on object health instead of component health
 
 The default Kube-state-metrics version is hardcoded to version v2.8.2 by adding kube_state_metrics_version to variables.tf
+
 The metrics scraped are:
-requests -  with  cpu   of  100m and memory of 128Mi
-limits - with cpu  of  300m and memory of 256Mi
-liveness_probe - with endpoint /healthz and port 8080
-readiness_probe - with endpoint / and port 8081
-telemetry - the telemetry data is accesses via port 8081
+- requests -  with  cpu   of  100m and memory of 128Mi
+- limits - with cpu  of  300m and memory of 256Mi
+- liveness_probe - with endpoint /healthz and port 8080
+- readiness_probe - with endpoint / and port 8081
+- telemetry - the telemetry data is accesses via port 8081
 
 ## Alertmanager
 
 Alertmanager handles alerts sent by client applications such as the Prometheus server. It takes care of deduplicating, grouping, and routing them to the correct receiver integration such as email, Slack, or other notification mechanisms.
 
-Alertmanager service running on NodePort 9093 ,
+Alertmanager service is running on NodePort 9093.
 
-Alertmanager is single replica deployments.
+Alertmanager is a single replica deployment.
 
 The default alert version is hardcoded in the kubernetes variable.tf. It can be overridden for a cluster by adding alertmanager_image_version to the env.tfvars.json file.
+
 There are several other variables that can be changed depending on env requirements.
-alertmanager_app_mem - app memory limit (default 1G)
-alertmanager_app_cpu - app cpu requests (default 1)
+- alertmanager_app_mem - app memory limit (default 1G)
+- alertmanager_app_cpu - app cpu requests (default 1)
+
+## Node Exporter
+
+The node exporter enables o/s and hardware metrics for each node.
+
+It's deployed as a daemon set, which creates a node-exporter pod in each node on the cluster.
+Prometheus then scrapes port 9100 on each of these pods.
+
+The default node exporter version is hardcoded in the kubernetes variables.tf. It can be overridden for a cluster by adding node_exporter_version to the env.tfvars.json file.

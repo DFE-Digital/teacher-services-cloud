@@ -162,6 +162,10 @@ variable "alertmanager_app_cpu" {
 variable "alertmanager_app_mem" {
   default = "1Gi"
 }
+variable "node_exporter_version" {
+  default = "v1.7.0"
+}
+
 locals {
   cluster_name = (
     var.cip_tenant ?
