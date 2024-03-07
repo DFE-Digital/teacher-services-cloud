@@ -1,0 +1,20 @@
+filebeat.autodiscover:
+  providers:
+      - type: kubernetes
+        templates:
+          - condition:
+              equals:
+                kubernetes.annotations.logit.io/send: "true"
+            config:
+              - type: container
+                paths:
+                  - "/var/log/containers/*-$${data.kubernetes.container.id}.log"
+        add_resource_metadata:
+          node:
+            enabled: false
+          deployment: true
+
+output.logstash:
+  hosts: ["${BEATS_URL}"]
+  loadbalance: true
+  ssl.enabled: true
