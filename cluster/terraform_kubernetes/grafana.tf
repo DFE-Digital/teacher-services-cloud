@@ -53,14 +53,14 @@ resource "kubernetes_deployment" "grafana_deployment" {
           port {
             container_port = 3000
           }
-          env {
-            name  = "GF_SECURITY_ADMIN_USER"
-            value = data.azurerm_key_vault_secret.grafana_admin_user.value
-          }
-          env {
-            name  = "GF_SECURITY_ADMIN_PASSWORD"
-            value = data.azurerm_key_vault_secret.grafana_admin_password.value
-          }
+          # env {
+          #   name  = "GF_SECURITY_ADMIN_USER"
+          #   value = data.azurerm_key_vault_secret.grafana_admin_user.value
+          # }
+          # env {
+          #   name  = "GF_SECURITY_ADMIN_PASSWORD"
+          #   value = data.azurerm_key_vault_secret.grafana_admin_password.value
+          # }
           resources {
             limits = {
               cpu    = "1"
@@ -76,16 +76,16 @@ resource "kubernetes_deployment" "grafana_deployment" {
             mount_path = "/var/lib/grafana"
           }
           volume_mount {
-            name       = "grafana-datasources"
+            name       = "grafana-dashboard-provisioning"
             mount_path = "/etc/grafana/provisioning/datasources"
           }
           volume_mount {
             name       = "grafana-dashboards"
-            mount_path = "/etc/grafana/provisioning/dashboards"
+            mount_path = "/var/lib/grafana/dashboards"
           }
         }
         volume {
-          name = "grafana-datasources"
+          name = "grafana-dashboard-provisioning"
           config_map {
             name = kubernetes_config_map.grafana_datasources.metadata[0].name
           }
@@ -98,7 +98,6 @@ resource "kubernetes_deployment" "grafana_deployment" {
           name = "grafana-dashboards"
           config_map {
             name = kubernetes_config_map.grafana_dashboards.metadata[0].name
-            default_mode = "0777"
           }
         }
 
@@ -133,5 +132,16 @@ resource "kubernetes_config_map" "grafana_dashboards" {
 
   data = {
     "dashboard1.json" = file("${path.module}/config/dashboards/k8s.json")
+  }
+}
+
+resource "kubernetes_config_map" "grafana_dashboard_provisioning" {
+  metadata {
+    name      = "grafana-dashboard-provisioning"
+    namespace =  kubernetes_namespace.default_list["monitoring"].metadata[0].name
+  }
+
+  data = {
+    "dashboards.yaml" = file("${path.module}/config/dashboards.yaml")
   }
 }
