@@ -79,6 +79,17 @@ resource "kubernetes_deployment" "grafana_deployment" {
             name       = "grafana-datasources"
             mount_path = "/etc/grafana/provisioning/datasources"
           }
+
+          volume_mount {
+            name       = "grafana-dashboard-provisioning"
+            mount_path = "/etc/grafana/provisioning/dashboards"
+          }
+
+          volume_mount {
+
+            name       = "grafana-dashboards"
+            mount_path = "/var/lib/grafana/dashboards"
+          }
         }
         volume {
           name = "grafana-datasources"
@@ -90,6 +101,19 @@ resource "kubernetes_deployment" "grafana_deployment" {
           name = "grafana-storage"
           empty_dir {}
         }
+        volume {
+          name = "grafana-dashboard-provisioning"
+          config_map {
+            name = kubernetes_config_map.grafana_dashboard_provisioning.metadata[0].name
+          }
+        }
+        volume {
+          name = "grafana-dashboards"
+          config_map {
+            name = kubernetes_config_map.grafana_dashboards.metadata[0].name
+          }
+        }
+
       }
     }
   }
@@ -110,5 +134,27 @@ resource "kubernetes_service" "grafana_service" {
       port        = 3000
       target_port = 3000
     }
+  }
+}
+
+resource "kubernetes_config_map" "grafana_dashboards" {
+  metadata {
+    name      = "grafana-dashboards"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
+  }
+
+  data = {
+    "dashboard1.json" = file("${path.module}/config/dashboards/kubernetes-cluster.json")
+  }
+}
+
+resource "kubernetes_config_map" "grafana_dashboard_provisioning" {
+  metadata {
+    name      = "grafana-dashboard-provisioning"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
+  }
+
+  data = {
+    "dashboards.yaml" = file("${path.module}/config/dashboards.yaml")
   }
 }
