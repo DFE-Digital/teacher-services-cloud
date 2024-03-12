@@ -9,3 +9,9 @@ templates/new_service/terraform/domains/environment_domains/.terraform.lock.hcl
 templates/new_service/terraform/domains/environment_domains/vendor/
 templates/new_service/terraform/application/.terraform.lock.hcl
 templates/new_service/terraform/application/vendor/
+
+# terrafile
+cluster/terraform_kubernetes/vendor/modules/aks
+
+# macOS files
+.DS_Store
