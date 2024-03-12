@@ -59,7 +59,7 @@ terraform-aks-cluster-apply: terraform-aks-cluster-init
 terraform-aks-cluster-destroy: terraform-aks-cluster-init
 	terraform -chdir=cluster/terraform_aks_cluster destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
-terraform-kubernetes-init: set-azure-account
+terraform-kubernetes-init: bin/terrafile set-azure-account
 	./bin/terrafile -p cluster/terraform_kubernetes/vendor/modules -f cluster/terraform_kubernetes/config/$(CONFIG)_Terrafile
 	terraform -chdir=cluster/terraform_kubernetes init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
