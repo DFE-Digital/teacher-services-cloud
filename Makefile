@@ -1,3 +1,4 @@
+TERRAFILE_VERSION=0.8
 RG_TAGS={"Product" : "Teacher services cloud"}
 ARM_TEMPLATE_TAG=1.1.0
 
@@ -59,6 +60,7 @@ terraform-aks-cluster-destroy: terraform-aks-cluster-init
 	terraform -chdir=cluster/terraform_aks_cluster destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
 terraform-kubernetes-init: set-azure-account
+	./bin/terrafile -p cluster/terraform_kubernetes/vendor/modules -f cluster/terraform_kubernetes/config/$(CONFIG)_Terrafile
 	terraform -chdir=cluster/terraform_kubernetes init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
@@ -105,6 +107,10 @@ arm-deployment: set-azure-account
 		--template-file cluster/arm_aks_cluster/resource_group.json \
 		--parameters "managedIdentityName=${MANAGE_IDENTITY_NAME}" \
 		${WHAT_IF}
+
+bin/terrafile: ## Install terrafile to manage terraform modules
+	curl -sL https://github.com/coretech/terrafile/releases/download/v${TERRAFILE_VERSION}/terrafile_${TERRAFILE_VERSION}_$$(uname)_x86_64.tar.gz \
+		| tar xz -C ./bin terrafile
 
 deploy-azure-resources: check-auto-approve arm-deployment # make dev deploy-azure-resources
 

@@ -61,6 +61,18 @@ resource "kubernetes_deployment" "grafana_deployment" {
             name  = "GF_SECURITY_ADMIN_PASSWORD"
             value = data.azurerm_key_vault_secret.grafana_admin_password.value
           }
+          env {
+            name  = "GF_AUTH_ANONYMOUS_ENABLED"
+            value = "true"
+          }
+          env {
+            name  = "GF_AUTH_ANONYMOUS_ORG_NAME"
+            value = "Main Org."
+          }
+          env {
+            name  = "GF_AUTH_ANONYMOUS_ORG_ROLE"
+            value = "Viewer"
+          }
           resources {
             limits = {
               cpu    = "1"
@@ -130,6 +142,8 @@ resource "kubernetes_service" "grafana_service" {
       app = kubernetes_deployment.grafana_deployment.spec[0].template[0].metadata[0].labels["app"]
     }
 
+    type = "LoadBalancer"
+
     port {
       port        = 3000
       target_port = 3000
@@ -156,5 +170,32 @@ resource "kubernetes_config_map" "grafana_dashboard_provisioning" {
 
   data = {
     "dashboards.yaml" = file("${path.module}/config/dashboards.yaml")
+  }
+}
+
+resource "kubernetes_ingress_v1" "grafana_ingress" {
+
+  wait_for_load_balancer = true
+  metadata {
+    name      = "grafana"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
+  }
+  spec {
+    ingress_class_name = "nginx"
+    rule {
+      host = "grafana.${module.cluster_data.ingress_domain}"
+      http {
+        path {
+          backend {
+            service {
+              name = "grafana"
+              port {
+                number = kubernetes_service.grafana_service.spec[0].port[0].port
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
