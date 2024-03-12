@@ -33,6 +33,7 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         terraform_root_folder: cluster/terraform_kubernetes
+        terrafile_environment: ${{ matrix.environment }}
 
     - name: Validate custom_domains/terraform/infrastructure
       uses: ./.github/actions/validate-terraform
