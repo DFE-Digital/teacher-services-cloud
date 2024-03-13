@@ -17,7 +17,6 @@ flowchart TD;
 Before starting, it is important to capture the information required upfront using the  [Onboarding form](onboard-form-template.md) even if it is subject to change in the future. Also, its really important to
 check the [Production Checklist](production-checklist.md). Your code should then be ready to roll.
 
-
 ## Template
 Most services use the same code to deploy to AKS. It has been made into a template that will evolve over time to capture all the best practices from working in multiple services.
 It is used both to dramatically reduce the time required to onboard a new service, and be a point of reference to align standards across repositories.
@@ -51,8 +50,8 @@ The code covers most common use cases, but it may be necessary to amend it. Exam
 - The only environment configurations are development and production. The service may need more or use different names.
 - The web application uses `/healthcheck` as health probe. It can be changed to another path or disabled by passing `null`.
 
-## Deploy new service
-In the service repository, runs the Makefile commands.
+## Prepare new environment
+These steps must be done by the infra team.
 
 ### Login to Azure
 Raise a [PIM request](https://technical-guidance.education.gov.uk/infrastructure/hosting/azure-cip/#privileged-identity-management-pim-requests) to either:
@@ -66,6 +65,15 @@ This creates the minimum Azure resources required to run terraform, ie storage a
 
 - Validate: `make <environment config> validate-arm-resources`. Example: `make development validate-arm-resources`
 - Deploy: `make <environment config> deploy-arm-resources`. Example: `make development deploy-arm-resources`
+
+### Enable developers access
+Amend the AD group of the area:
+- Add the namespaces and resource groups to [the AD groups spreadsheet](https://educationgovuk.sharepoint.com/:x:/r/sites/teacher-services-infrastructure/Shared%20Documents/Azure/Teacher%20services%20AD%20groups.xlsx?d=wd9dfa57ba7a64515af86effd063d450a&csf=1&web=1&e=6MdA98). For instance if the service is in BAT, edit the BAT groups (delivery team and production PIM).
+- [Raise CIP requests](https://dfe.service-now.com.mcas.ms/serviceportal/?id=sc_cat_item&sys_id=51b0b9c5db1ff7809402e1aa4b96197d&referrer=recent_items) to amend the 2 groups
+- The developers should now have access to continue with the set-up
+
+## Deploy new service
+In the service repository, runs the Makefile commands.
 
 ### Configure Statuscake credentials
 If Statuscake is not required at this stage, comment out resources in `terraform/application/statuscake.tf` and the provider in `terraform/application/terraform.tf`.

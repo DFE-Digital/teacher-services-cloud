@@ -64,6 +64,12 @@ When creating a brand new cluster with its own configuration, follow these steps
 - Create the new config entry in the Makefile
 - Create low-level terraform resources: `make <config> validate-azure-resources` and `make <config> deploy-azure-resources`
 - Request the Cloud Engineering Team to assign role "Network Contributor" to the new managed identity on the new resource group
+- Create the admin AD group following the [AD groups documentation](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/AKS%20AD%20groups.aspx)
+- Use the group object id in the admin_group_id variable
+- Use PIM for groups to activate membership of the admin group
+- Run: `make <environment> terraform-apply`
+- Configure a domain pointing at the new ingress IP following [Cluster DNS zone configuration](#cluster-dns-zone-configuration).
+- Create or update the user AD groups as per the [AD groups documentation](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/AKS%20AD%20groups.aspx)
 
 ### kubectl
 - Follow the [kubectl documentation](https://kubernetes.io/docs/tasks/tools/#kubectl) to install it
@@ -130,7 +136,7 @@ Flags = 0, Tag = issue, value =“globalsign.com”
 
 See [terraform configuration](https://github.com/DFE-Digital/terraform-modules/blob/main/dns/zones/resources.tf) or [GlobalSign documentation](https://support.globalsign.com/ssl/general-ssl/how-add-dns-caa-record-dns-zone-file).
 
-1. Navigate to Key Vaults, select the applicable Key vault 
+1. Navigate to Key Vaults, select the applicable Key vault
 1. Either create a new certificate or generate a new version of an existing certificate(the latter is preferred where possible) - Validity is typically left at 12 months
 1. Add caa record list and configuration as shown in https://github.com/DFE-Digital/terraform-modules/blob/main/dns/zones/resources.tf
 
@@ -176,9 +182,21 @@ and the prod zone updated.
 The teacherservices.cloud domain is created in route53 and owned by infra-ops. So if the production zone NS records are changed for any reason, then contact infra-ops to update the domain.
 
 ## Links
+### External
+- [Developer onboarding](documentation/developer-onboarding.md)
+- [Onboard a new service to AKS](documentation/onboard-service.md)
+- [Onboarding form template](documentation/onboard-form-template.md)
+- [Kubernetes cluster Public IPs](documentation/public-ips.md)
+- [Production checklist](documentation/production-checklist.md)
+- [Postgres FAQ](documentation/postgres-faq.md)
+- [Cluster plublic IPs](documentation/public-ips.md)
+
+### Internal
 - [AKS upgrade](documentation/aks-upgrade.md)
 - [Node pool migration](documentation/node-pool-migration.md)
-- [Retrieving Log Analytics Data with KQL for AKS Clusters](documentation/aks-logs.md)
 - [Rebuild AKS cluster with zero downtime](documentation/rebuild-cluster.md)
-- [Onboard a new service to AKS](documentation/onboard-service.md)
-- [Kubernetes cluster Public IPs](documentation/public-ips.md)
+- [Ingress controller upgrade](documentation/Ingress-controller-upgrade.md)
+- [Retrieving Log Analytics Data with KQL for AKS Clusters](documentation/aks-logs.md)
+- [Low priority app](documentation/lowpriority-app.md)
+- [Monitoring](documentation/monitoring.md)
+- [Slack webhook integration](documentation/slack-webhook-integration.md)
