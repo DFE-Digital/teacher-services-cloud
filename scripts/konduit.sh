@@ -15,10 +15,10 @@ help() {
    echo
 
    echo "Syntax:"
-   echo "   konduit [-a|-c|-h|-i file-name|-p postgres-var|-r redis-var|-t timeout] app-name -- command [args]"
+   echo "   konduit [-a|-c|-h|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] app-name -- command [args]"
    echo "      Connect to the default database for app-name"
    echo
-   echo "or konduit [-a|-c|-h|-i file-name|-r redis-var|-t timeout] -d db-name -k key-vault app-name -- command [args]"
+   echo "or konduit [-a|-c|-h|-i file-name|-r redis-var|-t timeout|-n namespace] -d db-name -k key-vault app-name -- command [args]"
    echo "      Connect to a specific database from app-name"
    echo "      Requires a secret containing the DB URL in the specified Azure KV,"
    echo "      with name {db-name}-database-url"
@@ -34,6 +34,7 @@ help() {
    echo "                     postgres://ADMIN_USER:URLENCODED(ADMIN_PASSWORD)@POSTGRES_SERVER_NAME-psql.postgres.database.azure.com:5432/DB_NAME."
    echo "                     The ADMIN_PASSWORD can be url encoded using terraform console "
    echo "                     using CMD: urlencode(ADMIN_PASSWORD)"
+   echo "   -n namespace      Namespace where the app can be found. Required in case the user doesn't have cluster admin access."
    echo "   -p postgres-var   Variable for postgres [defaults to DATABASE_URL if not set]"
    echo "                     Only valid for commands psql, pg_dump or pg_restore"
    echo "   -r redis-var      Variable for redis cache [defaults to REDIS_URL if not set]"
@@ -102,7 +103,9 @@ init_setup() {
    fi
 
    # Get the deployment namespace
-   NAMESPACE=$(kubectl get deployments -A | grep "${INSTANCE} " | awk '{print $1}')
+   if [[ -z "${NAMESPACE}" ]]; then
+      NAMESPACE=$(kubectl get deployments -A | grep "${INSTANCE} " | awk '{print $1}')
+   fi
 
    # Set service ports
    DB_PORT=5432
@@ -251,7 +254,7 @@ cleanup() {
 }
 
 # Get the options
-while getopts "ahcd:i:k:r:p:t:" option; do
+while getopts "ahcd:i:k:r:n:p:t:" option; do
    case $option in
    a)
       AKS="True"
@@ -267,6 +270,9 @@ while getopts "ahcd:i:k:r:p:t:" option; do
       ;;
    i)
       Inputfile=$OPTARG
+      ;;
+   n)
+      NAMESPACE=$OPTARG
       ;;
    p)
       Postgres=$OPTARG
