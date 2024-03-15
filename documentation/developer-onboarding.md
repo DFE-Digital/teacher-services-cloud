@@ -11,27 +11,20 @@ Documentation for the Teacher services application developers
 - [kubelogin](https://azure.github.io/kubelogin/install.html)
 
 ## How to request access?
-- There is an assumption that you have been given a [CIP account](https://technical-guidance.education.gov.uk/infrastructure/hosting/azure-cip/#onboarding-users). For BYOD users, please make sure to request a digitalauth account.
-- You can then request access to the S189 subscriptions by contacting the Teacher Services Infrastructure team
-- This gives you access to the 3 s189 subscriptions:
-   - s189-teacher-services-cloud-development: infra team development work
-   - s189-teacher-services-cloud-test: contains the [test cluster](#test-cluster)
-   - s189-teacher-services-cloud-production: contains the [production cluster](#production-cluster)
+- There is an assumption that you have been given a [CIP account](https://technical-guidance.education.gov.uk/infrastructure/hosting/azure-cip/#onboarding-users). For BYOD users, please make sure to request a [digitalauth account](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/Request-a-digitalauth-Azure-account.aspx).
+- The technical lead of your team will then add you to the AD group of your area. For example if you work on a BAT service, you will be added to "s189 BAT delivery team". You will now be able to:
+   - Access (read-only) the s189 subscriptions in the [Azure portal](https://portal.azure.com/#home)
+   - Access (read-write) to your test Kubernetes namespaces and Azure resource groups in the _test_ subscription
+   - [Elevate your permissions via PIM](#how-to-request-and-approve-pim) and access (read-write) temporarily the production Kubernetes namespaces and Azure resource groups
+   - Approve other developers' PIM requests
 
-## How to request and approve PIM?
+## How to request PIM?
+Microsoft Entra Privileged Identity Management (PIM) allows gaining temporary (up to 8h) user permissions to access production resources. This is sometimes required to access the Kubernetes cluster and troubleshoot the application or database.
 
-### Access to apps on the cluster
-Microsoft Entra Privileged Identity Management (PIM) allows gaining new user permissions. This is required to access the cluster and troubleshoot application or database. **We must be very cautious** as this gives access to all the other services deployed to s189 subscriptions.
-
-Use [PIM for groups](https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/groups-activate-roles) to elevate your access. Two groups are available:
-- `s189 AKS admin test PIM`: access to the test cluster, self-approved
-- `s189 AKS admin production PIM`: access to the production cluster, must be approved by another team member
-
-### Azure admin access
-- This should only required to edit app secrets or force a deployment. **Be very cautious** as this gives you full permissions on all the Azure resources in the subscription.
-- Once added to the s189 subscription, you can PIM yourself to the *test* subscription. See the [technical guidance PIM section](https://technical-guidance.education.gov.uk/infrastructure/hosting/azure-cip/#privileged-identity-management-pim-requests).
-- You can request PIM to the *production* subscription, however this will need to be approved by members of the Managers group
-- As a manager, you should receive and email with the user request. You can also approve PIM requests by going to [Privileged Identity Management](https://portal.azure.com/?feature.msaljs=true#view/Microsoft_Azure_PIMCommon/CommonMenuBlade/~/quickStart) (PIM) in the Azure portal and selecting Approve request, Azure resources, select the user and approve the request.
+- Use [PIM for groups](https://learn.microsoft.com/en-us/entra/id-governance/privileged-identity-management/groups-activate-roles) to elevate your access. You should see the PIM group of your area. For example if you work on a BAT service, you should see: "s189 BAT production PIM".
+- Click "Activate", select the time and give a brief justification, which is important to gain approval and audit purpose.
+- The other members of the team will receive an email with a link to PIM so they can review and approve your request.
+- After a few minutes, your access will be active. It may require login out and in again.
 
 ## Which clusters can I use?
 The infra team maintains several AKS clusters. Two are usable by developers to deploy their services:
@@ -49,11 +42,11 @@ Used for all your production and production-like environments, especially if the
 - Subscription: `s189-teacher-services-cloud-production`
 
 ## How to access the cluster?
-- If not present in your repository, set up the `get-cluster-credentials` make command from the template [Makefile](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/Makefile). For Azure RBAC clusters, it must include the *kubelogin convert-kubeconfig* command.
-- Raise a [PIM request](#how-to-request-and-approve-pim) for either the test or production subscription
+- If not present in your repository, set up the `get-cluster-credentials` make command from the template [Makefile](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/Makefile).
+- If the environment is production, raise a [PIM request](#how-to-request-pim)
 - Login to azure command line using `az login` or `az login --use-device-code`
 - Run `make <environment> get-cluster-credentials`
-- This configures the `kubectl` context so you can run commands against this cluster. Be careful as the context may last even after the PIM has expired.
+- This configures the `kubectl` context so you can run commands against this cluster
 
 ## What is a namespace?
 Namespaces are a way to logically partition and isolate resources within a Kubernetes cluster. Each namespace has its own set of isolated resources like pods, services, deployments etc.
@@ -62,6 +55,8 @@ For instance, you will see:
 
 - *tra-development* and *tra-staging* on the test cluster
 - *tra-production* on the production cluster
+
+Here is the full list of namespaces [in the test cluster](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config/test.tfvars.json) and [in the production cluster](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config/production.tfvars.json).
 
 *kubectl* commands run in a particular namespace using `-n <namespace>`.
 
