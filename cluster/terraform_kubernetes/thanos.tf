@@ -115,11 +115,11 @@ resource "kubernetes_deployment" "thanos-querier" {
           resources {
             limits = {
               cpu    = 1
-              memory = var.thanos_app_mem
+              memory = var.thanos_querier_mem
             }
             requests = {
               cpu    = var.thanos_app_cpu
-              memory = var.thanos_app_mem
+              memory = var.thanos_querier_mem
             }
           }
         }
@@ -218,11 +218,11 @@ resource "kubernetes_deployment" "thanos-store-gateway" {
           resources {
             limits = {
               cpu    = 1
-              memory = var.thanos_app_mem
+              memory = var.thanos_store_mem
             }
             requests = {
               cpu    = var.thanos_app_cpu
-              memory = var.thanos_app_mem
+              memory = var.thanos_store_mem
             }
           }
 
@@ -307,11 +307,11 @@ resource "kubernetes_deployment" "thanos-compactor" {
           resources {
             limits = {
               cpu    = 1
-              memory = var.thanos_compactor_app_mem
+              memory = var.thanos_compactor_mem
             }
             requests = {
               cpu    = var.thanos_app_cpu
-              memory = var.thanos_compactor_app_mem
+              memory = var.thanos_compactor_mem
             }
           }
 

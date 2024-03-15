@@ -114,12 +114,22 @@ variable "thanos_version" {
 }
 
 variable "thanos_app_mem" {
-  description = "Thanos app memory limit"
+  description = "Thanos sidecar memory limit"
   default     = "1Gi"
 }
 
-variable "thanos_compactor_app_mem" {
+variable "thanos_querier_mem" {
+  description = "Thanos querier memory limit"
+  default     = "1Gi"
+}
+
+variable "thanos_compactor_mem" {
   description = "Thanos compactor memory limit"
+  default     = "1Gi"
+}
+
+variable "thanos_store_mem" {
+  description = "Thanos store gateway memory limit"
   default     = "1Gi"
 }
 
