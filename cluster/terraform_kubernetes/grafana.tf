@@ -158,10 +158,14 @@ resource "kubernetes_config_map" "grafana_dashboards" {
   }
 
   data = {
-    "dashboard1.json" = file("${path.module}/config/dashboards/kubernetes-cluster.json")
+    "k8s-addons-prometheus.json" = file("${path.module}/config/dashboards/k8s-addons-prometheus.json")
+    "k8s-system-api-server.json" = file("${path.module}/config/dashboards/k8s-system-api-server.json")
+    "k8s-views-global.json"      = file("${path.module}/config/dashboards/k8s-views-global.json")
+    "k8s-views-namespaces.json"  = file("${path.module}/config/dashboards/k8s-views-namespaces.json")
+    "k8s-views-nodes.json"       = file("${path.module}/config/dashboards/k8s-views-nodes.json")
+
   }
 }
-
 resource "kubernetes_config_map" "grafana_dashboard_provisioning" {
   metadata {
     name      = "grafana-dashboard-provisioning"
