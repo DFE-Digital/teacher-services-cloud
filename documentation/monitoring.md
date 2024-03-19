@@ -54,9 +54,11 @@ All are running as single replica deployments.
 The default thanos version is hardcoded in the kubernetes variables.tf. It can be overridden for a cluster by adding thanos_version to the env.tfvars.json file.
 
 There are several other variables that can be changed depending on env requirements.
-- thanos_app_mem - app memory limit (default 1G)
-- thanos_app_cpu - app memory requests (default 100m)
-- thanos_compactor_app_mem - app memory limit for the thanos compactor (default 1G)
+- thanos_app_mem - sidecar memory limit (default 1G)
+- thanos_app_cpu - thanos cpu requests (default 100m)
+- thanos_querier_mem - app memory limit for the thanos querier (default 1G)
+- thanos_compactor_mem - app memory limit for the thanos compactor (default 1G)
+- thanos_store_mem - app memory limit for the thanos store gateway (default 1G)
 - thanos_retention_raw - Thanos retention period for raw samples (default 30d)
 - thanos_retention_5m - Thanos retention period for 5m samples (default 60d)
 - thanos_retention_1h - Thanos retention period for 1h samples (default 90d)

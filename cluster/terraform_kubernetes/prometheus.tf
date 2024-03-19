@@ -176,11 +176,11 @@ resource "kubernetes_deployment" "prometheus" {
           resources {
             limits = {
               cpu    = 1
-              memory = var.prometheus_app_mem
+              memory = var.thanos_app_mem
             }
             requests = {
-              cpu    = var.prometheus_app_cpu
-              memory = var.prometheus_app_mem
+              cpu    = var.thanos_app_cpu
+              memory = var.thanos_app_mem
             }
           }
 
