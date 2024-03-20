@@ -12,6 +12,7 @@ templates/new_service/terraform/application/vendor/
 
 # terrafile
 cluster/terraform_kubernetes/vendor/modules/aks
+bin/terrafile
 
 # macOS files
 .DS_Store
