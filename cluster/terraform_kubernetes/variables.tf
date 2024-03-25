@@ -175,6 +175,9 @@ variable "alertmanager_app_mem" {
 variable "node_exporter_version" {
   default = "v1.7.0"
 }
+variable "filebeat_version" {
+  default = "8.12.2"
+}
 
 locals {
   cluster_name = (
@@ -229,6 +232,10 @@ locals {
   template_variable_map = {
     storage-account-name = azurerm_storage_account.thanos.name
     storage-account-key  = azurerm_storage_account.thanos.primary_access_key
+  }
+
+  filebeats_template_variable_map = {
+    BEATS_URL = data.azurerm_key_vault_secret.beats_url.value
   }
 
   cluster_sa_name = (var.environment == var.config ?
