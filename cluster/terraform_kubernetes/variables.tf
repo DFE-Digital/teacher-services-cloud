@@ -177,12 +177,12 @@ variable "filebeat_version" {
 
 variable "alertmanager_slack_receiver_list" {
   description = "List of alertmanager Slack receivers. Each entry must have a corresponding webhook in the keyvault."
-  default = []
+  default     = []
 }
 
 variable "alertable_apps" {
   description = "Map of deployments which we want to monitor. Each key contains a map to override the default values."
-  default = {}
+  default     = {}
 }
 
 locals {
