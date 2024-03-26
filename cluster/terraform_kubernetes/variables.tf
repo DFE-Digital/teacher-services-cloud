@@ -157,10 +157,6 @@ variable "cluster_short" {
   description = "Short name of the cluster configuration, e.g. dv, pt, ts, pd"
 }
 
-variable "slack_channel" {
-  default = "#teacher-services-infra"
-}
-
 variable "alertmanager_image_version" {
   default = "v0.19.0"
 }
@@ -177,6 +173,16 @@ variable "node_exporter_version" {
 }
 variable "filebeat_version" {
   default = "8.12.2"
+}
+
+variable "alertmanager_slack_receiver_list" {
+  description = "List of alertmanager Slack receivers. Each entry must have a corresponding webhook in the keyvault."
+  default = []
+}
+
+variable "alertable_apps" {
+  description = "Map of deployments which we want to monitor. Each key contains a map to override the default values."
+  default = {}
 }
 
 locals {
@@ -243,16 +249,40 @@ locals {
     var.environment     # cluster1, cluster2, etc
   )
 
-  alertmanager_config_path = "${path.module}/config/prometheus/alertmanager-config.yaml"
-  alertmanager_config_content = templatefile(local.alertmanager_config_path, {
-    slack_secret  = data.azurerm_key_vault_secret.slack_secret.value,
-    slack_channel = var.slack_channel
-  })
+  # Alert manager
+  alertmanager_slack_receiver_map = {
+    for r in var.alertmanager_slack_receiver_list : r => data.azurerm_key_vault_secret.slack_webhooks[replace(r, "_", "-")].value
+  }
+
+  slack_secret_names = [for s in data.azurerm_key_vault_secrets.main.names : s if startswith(s, "SLACK-WEBHOOK")]
+
+  app_alert_rules_variables = {
+    apps = [for instance, settings in var.alertable_apps : {
+      namespace                      = split("/", instance)[0]
+      app_name                       = split("/", instance)[1]
+      max_cpu                        = try(settings.max_cpu, 0.6)
+      max_mem                        = try(settings.max_mem, 60)
+      max_disk                       = try(settings.max_disk, 60)
+      max_crash_count                = try(settings.max_crash_count, 1)
+      max_elevated_req_failure_count = try(settings.max_elevated_req_failure_count, 0.1)
+      response_threshold             = try(settings.response_threshold, 1)
+      receiver                       = try(settings.receiver, "SLACK_WEBHOOK_GENERIC")
+      }
+    ]
+  }
+
+  app_alert_rules = length(var.alertable_apps) == 0 ? "" : templatefile("${path.module}/config/prometheus/alertmanager/app_alert.rules.tmpl", local.app_alert_rules_variables)
+
+  alertmanager_config_content = templatefile(
+    "${path.module}/config/prometheus/alertmanager/alertmanager.yml.tmpl", {
+      slack_url       = data.azurerm_key_vault_secret.slack_webhooks["SLACK-WEBHOOK-GENERIC"].value
+      slack_receivers = local.alertmanager_slack_receiver_map
+    }
+  )
 
   template_files = {
-    "slack.tmpl" = "${path.module}/config/prometheus/alertmanager-slack.yaml"
+    "slack.tmpl" = "${path.module}/config/prometheus/alertmanager/alertmanager-slack.yaml"
   }
 
   alertmanager_templates = { for k, v in local.template_files : k => file(v) }
-
 }

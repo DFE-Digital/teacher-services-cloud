@@ -1,5 +1,4 @@
 resource "kubernetes_cluster_role" "prometheus" {
-
   metadata {
     name = "prometheus"
   }
@@ -23,7 +22,6 @@ resource "kubernetes_cluster_role" "prometheus" {
 }
 
 resource "kubernetes_cluster_role_binding" "prometheus" {
-
   metadata {
     name = "prometheus"
   }
@@ -39,25 +37,21 @@ resource "kubernetes_cluster_role_binding" "prometheus" {
     name      = "default"
     namespace = "monitoring"
   }
-
 }
 
 resource "kubernetes_config_map" "prometheus" {
-
   metadata {
     name      = "prometheus-server-conf"
     namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
   data = {
-    "prometheus.rules" = "${file("${path.module}/config/prometheus/${var.config}.prometheus.rules")}"
-    "prometheus.yml"   = "${file("${path.module}/config/prometheus/${var.config}.prometheus.yml")}"
+    "prometheus.yml"  = file("${path.module}/config/prometheus/${var.config}.prometheus.yml")
+    "app.alert.rules" = local.app_alert_rules
   }
-
 }
 
 resource "kubernetes_deployment" "prometheus" {
-
   metadata {
     name      = "prometheus"
     namespace = "monitoring"
@@ -207,14 +201,12 @@ resource "kubernetes_deployment" "prometheus" {
             secret_name = kubernetes_secret.thanos.metadata[0].name
           }
         }
-
       }
     }
   }
 }
 
 resource "kubernetes_service" "prometheus" {
-
   metadata {
     name      = "prometheus"
     namespace = "monitoring"
