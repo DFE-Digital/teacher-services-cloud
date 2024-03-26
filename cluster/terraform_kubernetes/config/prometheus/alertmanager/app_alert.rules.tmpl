@@ -1,0 +1,24 @@
+groups:
+- name: Container restarts
+  rules:
+  - alert: High number of restarted containers
+    expr: sum(kube_pod_container_status_restarts_total) > 1000
+    for: 5m
+    labels:
+      severity: high
+    annotations:
+      summary: High number of restarted containers
+- name: High CPU
+  rules:
+%{ for instance in apps ~}
+  - alert: High CPU Alert for ${instance.app_name}
+    expr: avg(rate(container_cpu_usage_seconds_total{namespace="${instance.namespace}",pod=~"${instance.app_name}-[a-z0-9]+-[a-z0-9]+",container!=""}[5m])) by (namespace,container,image) > ${instance.max_cpu}
+    for: 5m
+    annotations:
+      summary: High CPU Alert for ${instance.app_name}
+      description: "Average pod CPU usage has been above {{ ${instance.max_cpu} | humanizePercentage }} in the last 5 minutes (current value: {{ $value | humanizePercentage }})"
+    labels:
+      severity: high
+      app: ${instance.app_name}
+      %{ if instance.receiver != null }receiver: ${instance.receiver}%{ endif }
+%{ endfor ~}

@@ -1,0 +1,50 @@
+global:
+ resolve_timeout: 1m
+%{ if slack_url != "" ~}
+ slack_api_url: '${slack_url}'
+%{ endif ~}
+
+route:
+  # The default route, this will be used if the matcher(s) of any of the child routes are not satisfied
+  receiver: 'slack-notifications'
+  group_interval: 1m
+  repeat_interval: 1h
+  group_by: [period]
+  routes:
+  - receiver: 'slack-notifications'
+    group_interval: 24h
+    repeat_interval: 24h
+    match:
+      period: 'daily'
+  - receiver: 'slack-notifications'
+    group_interval: 1m
+    repeat_interval: 1h
+    match:
+      period: 'out-of-hours'
+%{ for receiver, webhook in slack_receivers ~}
+  - receiver: ${ receiver }
+    group_interval: 1m
+    repeat_interval: 1h
+    match:
+      receiver: '${ receiver }'
+%{ endfor ~}
+
+templates:
+   - /etc/alertmanager-templates/*.tmpl
+
+receivers:
+- name: slack-notifications
+%{ if slack_url != "" ~}
+  slack_configs:
+  - send_resolved: true
+    text: '{{ template "slack.alert.text" . }}'
+    title: '{{ template "slack.alert.title" . }}'
+%{ endif ~}
+%{ for receiver, webhook in slack_receivers ~}
+- name: ${ receiver }
+  slack_configs:
+  - api_url: ${ webhook }
+    send_resolved: true
+    text: '{{ template "slack.alert.text" . }}'
+    title: '{{ template "slack.alert.title" . }}'
+%{ endfor ~}

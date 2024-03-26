@@ -1,13 +1,14 @@
-data "azurerm_key_vault_secret" "slack_secret" {
+data "azurerm_key_vault_secret" "slack_webhooks" {
+  for_each     = toset(local.slack_secret_names)
+  name         = each.key
   key_vault_id = data.azurerm_key_vault.key_vault.id
-  name         = "SLACK-SECRET"
 }
+
 resource "kubernetes_config_map" "alertmanager_config" {
   metadata {
     name      = "alertmanager-config"
     namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
-
   data = {
     "config.yml" = local.alertmanager_config_content
   }
@@ -18,7 +19,6 @@ resource "kubernetes_config_map" "alertmanager_templates" {
     name      = "alertmanager-templates"
     namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
-
   data = local.alertmanager_templates
 }
 
@@ -52,12 +52,9 @@ resource "kubernetes_deployment" "alertmanager" {
             "--config.file=/etc/alertmanager/config.yml",
             "--storage.path=/alertmanager",
           ]
-
-
           port {
             container_port = 9093
           }
-
           resources {
             limits = {
               cpu    = 1
