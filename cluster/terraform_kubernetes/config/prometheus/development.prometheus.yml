@@ -14,7 +14,7 @@ global:
   external_labels:
     cluster: prometheus
 rule_files:
-  - /etc/prometheus/prometheus.rules
+  - /etc/prometheus/app.alert.rules
 alerting:
   alertmanagers:
   - scheme: http

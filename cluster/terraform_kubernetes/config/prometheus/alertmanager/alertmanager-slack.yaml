@@ -1,0 +1,20 @@
+ {{ define "slack.devops.text" }}
+      {{range .Alerts}}{{.Annotations.DESCRIPTION}}
+      {{end}}
+{{ end }}
+
+{{ define "slack.alert.text" }}
+  {{ range .Alerts }}
+    *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+    *Description:* {{ .Annotations.description }}
+    *Details:*
+    {{ range .Labels.SortedPairs }} - *{{ .Name }}:* `{{ .Value }}`
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+{{ define "slack.alert.title" }}
+  {{ with index .Alerts 0 }}
+    {{ .Annotations.summary }}
+  {{ end }}
+{{ end }}
