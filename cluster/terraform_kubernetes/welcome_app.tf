@@ -3,7 +3,7 @@ resource "kubernetes_deployment" "welcome_app" {
 
   metadata {
     name      = local.welcome_app_name
-    namespace = kubernetes_namespace.default_list["${local.welcome_app_namespace}"].metadata[0].name
+    namespace = kubernetes_namespace.default_list[local.welcome_app_namespace].metadata[0].name
   }
   spec {
     replicas = 2
@@ -73,7 +73,7 @@ resource "kubernetes_service" "welcome_app" {
 
   metadata {
     name      = local.welcome_app_name
-    namespace = kubernetes_namespace.default_list["${local.welcome_app_namespace}"].metadata[0].name
+    namespace = kubernetes_namespace.default_list[local.welcome_app_namespace].metadata[0].name
   }
   spec {
     type = "ClusterIP"
