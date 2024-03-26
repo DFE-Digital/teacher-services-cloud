@@ -132,3 +132,53 @@ resource "kubernetes_service" "alertmanager" {
     type = "NodePort"
   }
 }
+
+
+
+data "azurerm_key_vault_secret" "alertmanager_auth" {
+  name         = "ALERTMANAGER-AUTH"
+  key_vault_id = data.azurerm_key_vault.key_vault.id
+}
+
+
+resource "kubernetes_secret" "alertmanager_basic_auth" {
+  metadata {
+    name      = "alertmanager-basic-auth"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
+  }
+
+  data = {
+    auth = data.azurerm_key_vault_secret.alertmanager_auth.value
+  }
+}
+
+resource "kubernetes_ingress_v1" "alertmanager_ingress" {
+  wait_for_load_balancer = true
+  metadata {
+    name      = "alertmanager"
+    namespace = "monitoring"
+    annotations = {
+      "nginx.ingress.kubernetes.io/auth-type"   = "basic"
+      "nginx.ingress.kubernetes.io/auth-secret" = kubernetes_secret.alertmanager_basic_auth.metadata[0].name
+      "nginx.ingress.kubernetes.io/auth-realm"  = "Authentication Required"
+    }
+  }
+  spec {
+    ingress_class_name = "nginx"
+    rule {
+      host = "alertmanager.${module.cluster_data.ingress_domain}"
+      http {
+        path {
+          backend {
+            service {
+              name = "alertmanager"
+              port {
+                number = kubernetes_service.alertmanager.spec[0].port[0].port
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -227,3 +227,50 @@ resource "kubernetes_service" "prometheus" {
     }
   }
 }
+
+data "azurerm_key_vault_secret" "prometheus_auth" {
+  name         = "PROMETHES-AUTH"
+  key_vault_id = data.azurerm_key_vault.key_vault.id
+}
+
+resource "kubernetes_secret" "prometheus_basic_auth" {
+  metadata {
+    name      = "prometheus-basic-auth"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
+  }
+
+  data = {
+    auth = data.azurerm_key_vault_secret.prometheus_auth.value
+  }
+}
+
+resource "kubernetes_ingress_v1" "prometheus_ingress" {
+  wait_for_load_balancer = true
+  metadata {
+    name      = "prometheus"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
+    annotations = {
+      "nginx.ingress.kubernetes.io/auth-type"   = "basic"
+      "nginx.ingress.kubernetes.io/auth-secret" = kubernetes_secret.prometheus_basic_auth.metadata[0].name
+      "nginx.ingress.kubernetes.io/auth-realm"  = "Authentication Required"
+    }
+  }
+  spec {
+    ingress_class_name = "nginx"
+    rule {
+      host = "prometheus.${module.cluster_data.ingress_domain}"
+      http {
+        path {
+          backend {
+            service {
+              name = "prometheus"
+              port {
+                number = kubernetes_service.prometheus.spec[0].port[0].port
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
