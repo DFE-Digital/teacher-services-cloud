@@ -51,6 +51,17 @@ resource "kubernetes_config_map" "prometheus" {
   }
 }
 
+resource "kubernetes_config_map" "config_reloader" {
+  metadata {
+    name      = "reloader-conf"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
+  }
+
+  data = {
+    "config-reloader.sh" = file("${path.module}/scripts/config-reloader.sh")
+  }
+}
+
 resource "kubernetes_deployment" "prometheus" {
   metadata {
     name      = "prometheus"
@@ -199,6 +210,51 @@ resource "kubernetes_deployment" "prometheus" {
           name = "thanos-config-volume"
           secret {
             secret_name = kubernetes_secret.thanos.metadata[0].name
+          }
+        }
+
+        container {
+          image = "alpine:3.19"
+          name  = "config-reloader"
+
+          command = [
+            "/bin/sh",
+            "-c",
+            "/opt/prometheus/config-reloader.sh",
+          ]
+
+          port {
+            container_port = 9091
+          }
+
+          resources {
+            limits = {
+              cpu    = 1
+              memory = "100Mi"
+            }
+            requests = {
+              cpu    = 0.1
+              memory = "100Mi"
+            }
+          }
+
+          volume_mount {
+            mount_path = "/etc/prometheus/"
+            name       = "prometheus-config-volume"
+          }
+
+          volume_mount {
+            mount_path = "/opt/prometheus/"
+            name       = "config-reloader-volume"
+          }
+
+        }
+
+        volume {
+          name = "config-reloader-volume"
+          config_map {
+            default_mode = "0755"
+            name = kubernetes_config_map.config_reloader.metadata[0].name
           }
         }
       }
