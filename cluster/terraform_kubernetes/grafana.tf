@@ -163,6 +163,7 @@ resource "kubernetes_config_map" "grafana_dashboards" {
     "k8s-views-global.json"      = file("${path.module}/config/dashboards/k8s-views-global.json")
     "k8s-views-namespaces.json"  = file("${path.module}/config/dashboards/k8s-views-namespaces.json")
     "k8s-views-nodes.json"       = file("${path.module}/config/dashboards/k8s-views-nodes.json")
+    "k8s-views-pod.json"         = file("${path.module}/config/dashboards/k8s-views-pod.json")
 
   }
 }
@@ -178,7 +179,6 @@ resource "kubernetes_config_map" "grafana_dashboard_provisioning" {
 }
 
 resource "kubernetes_ingress_v1" "grafana_ingress" {
-
   wait_for_load_balancer = true
   metadata {
     name      = "grafana"
