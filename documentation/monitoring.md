@@ -110,3 +110,12 @@ It's deployed as a daemon set, which creates a node-exporter pod in each node on
 Prometheus then scrapes port 9100 on each of these pods.
 
 The default node exporter version is hardcoded in the kubernetes variables.tf. It can be overridden for a cluster by adding node_exporter_version to the env.tfvars.json file.
+
+### PROMETHEUS , ALERTMANAGER and THANOS Auth Key generation.
+
+For auth key generation run the shell script 'scripts/hash_password.sh' by passing username and password , then take the generated key save in to azure vault as a secret.
+
+Following auth keys need to be stored on azure vault as a secret.
+1. PROMETHEUS-AUTH
+2. ALERTMANAGER-AUTH
+3. THANOS-AUTH

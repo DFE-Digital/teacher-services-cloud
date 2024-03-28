@@ -333,3 +333,51 @@ resource "kubernetes_deployment" "thanos-compactor" {
     }
   }
 }
+
+data "azurerm_key_vault_secret" "thanos_auth" {
+  name         = "THANOS-AUTH"
+  key_vault_id = data.azurerm_key_vault.key_vault.id
+}
+
+resource "kubernetes_secret" "thanos_basic_auth" {
+  metadata {
+    name      = "thanos-basic-auth"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
+  }
+
+  data = {
+    auth = data.azurerm_key_vault_secret.thanos_auth.value
+  }
+}
+
+resource "kubernetes_ingress_v1" "thanos_ingress" {
+
+  wait_for_load_balancer = true
+  metadata {
+    name      = "thanos"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
+    annotations = {
+      "nginx.ingress.kubernetes.io/auth-type"   = "basic"
+      "nginx.ingress.kubernetes.io/auth-secret" = kubernetes_secret.thanos_basic_auth.metadata[0].name
+      "nginx.ingress.kubernetes.io/auth-realm"  = "Authentication Required"
+    }
+  }
+  spec {
+    ingress_class_name = "nginx"
+    rule {
+      host = "thanos.${module.cluster_data.ingress_domain}"
+      http {
+        path {
+          backend {
+            service {
+              name = "thanos-querier"
+              port {
+                number = kubernetes_service.thanos-querier.spec[0].port[0].port
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
