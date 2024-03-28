@@ -113,7 +113,7 @@ The default node exporter version is hardcoded in the kubernetes variables.tf. I
 
 ### PROMETHEUS , ALERTMANAGER and THANOS Auth Key generation.
 
-For auth key generation run the shell script 'scripts/hash_password.sh' by passing username and password , then take the generated key save in to azure vault as a secret.
+For auth key generation run the shell script 'scripts/hash_password.sh' by passing username and password , then take the generated key save in to azure vault as a secret. User and password will be stored as clear text in PROMETHEUS-AUTH-CLEAR,ALERTMANAGER-AUTH-CLEAR,THANOS-AUTH-CLEAR
 
 Following auth keys need to be stored on azure vault as a secret.
 1. PROMETHEUS-AUTH

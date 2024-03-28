@@ -229,7 +229,7 @@ resource "kubernetes_service" "prometheus" {
 }
 
 data "azurerm_key_vault_secret" "prometheus_auth" {
-  name         = "PROMETHES-AUTH"
+  name         = "PROMETHEUS-AUTH"
   key_vault_id = data.azurerm_key_vault.key_vault.id
 }
 
