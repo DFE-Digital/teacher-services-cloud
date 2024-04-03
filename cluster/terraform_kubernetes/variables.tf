@@ -258,15 +258,12 @@ locals {
 
   app_alert_rules_variables = {
     apps = [for instance, settings in var.alertable_apps : {
-      namespace                      = split("/", instance)[0]
-      app_name                       = split("/", instance)[1]
-      max_cpu                        = try(settings.max_cpu, 0.6)
-      max_mem                        = try(settings.max_mem, 60)
-      max_disk                       = try(settings.max_disk, 60)
-      max_crash_count                = try(settings.max_crash_count, 1)
-      max_elevated_req_failure_count = try(settings.max_elevated_req_failure_count, 0.1)
-      response_threshold             = try(settings.response_threshold, 1)
-      receiver                       = try(settings.receiver, "SLACK_WEBHOOK_GENERIC")
+      namespace       = split("/", instance)[0]
+      app_name        = split("/", instance)[1]
+      max_cpu         = try(settings.max_cpu, 0.6)
+      max_mem         = try(settings.max_mem, 0.6)
+      max_crash_count = try(settings.max_crash_count, 1)
+      receiver        = try(settings.receiver, "SLACK_WEBHOOK_GENERIC")
       }
     ]
   }

@@ -1,13 +1,20 @@
 groups:
 - name: Container restarts
   rules:
-  - alert: High number of restarted containers
-    expr: sum(kube_pod_container_status_restarts_total) > 1000
+%{ for instance in apps ~}
+  - alert: High number of restarted containers for ${instance.app_name}
+    expr: sum(rate(kube_pod_container_status_restarts_total{container!="",namespace="development",pod=~"apply-review-nnnn-[a-z0-9]+-[a-z0-9]+"  }[5m]) * 300  ) by (namespace,container) > ${instance.max_crash_count}
     for: 5m
+    annotations:
+      summary: High number of restarted containers for ${instance.app_name}
+      description: "The rate of container restart has been above ${instance.max_crash_count}  in the last 5 minutes (current value: {{ $value }})"
     labels:
       severity: high
-    annotations:
-      summary: High number of restarted containers
+      app: ${instance.app_name}
+      %{ if instance.receiver != null }receiver: ${instance.receiver}%{ endif }
+
+%{ endfor ~}
+
 - name: High CPU
   rules:
 %{ for instance in apps ~}
@@ -22,3 +29,19 @@ groups:
       app: ${instance.app_name}
       %{ if instance.receiver != null }receiver: ${instance.receiver}%{ endif }
 %{ endfor ~}
+
+- name: Memory Utilisation
+  rules:
+%{ for instance in apps ~}
+  - alert: High Memory Utilisation for ${instance.app_name}
+    expr: sum by (namespace, container) (container_memory_working_set_bytes{container!="",image!="",namespace="development",pod=~"apply-review-nnnn-[a-z0-9]+-[a-z0-9]+"})/sum by (namespace, container) (kube_pod_container_resource_requests{container!="",namespace="development",pod=~"apply-review-nnnn-[a-z0-9]+-[a-z0-9]+",resource="memory"}) > ${instance.max_mem}
+    for: 5m
+    annotations:
+      summary:     ${instance.app_name} high memory utilization
+      description: "Memory utilization has increased in the last 5 minutes (current value: {{ $value | humanizePercentage }})"
+    labels:
+      severity:    high
+      app:         ${instance.app_name}
+      %{ if instance.receiver != null }receiver: ${instance.receiver}%{ endif }
+%{ endfor ~}
+
