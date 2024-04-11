@@ -58,14 +58,19 @@ resource "kubernetes_cluster_role_binding" "filebeat" {
 resource "kubernetes_config_map" "filebeat" {
 
   metadata {
-    name      = "filebeat-config"
+    name      = "filebeat-config-${local.config_map_hash}"
     namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
   data = {
-    "filebeat.yml" = templatefile("${path.module}/config/filebeat/filebeat.yml.tmpl", local.filebeats_template_variable_map)
+    "filebeat.yml" = local.config_map_data
   }
 
+}
+
+locals {
+  config_map_data = templatefile("${path.module}/config/filebeat/filebeat.yml.tmpl", local.filebeats_template_variable_map)
+  config_map_hash = sha1(local.config_map_data)
 }
 
 resource "kubernetes_daemonset" "filebeat" {
@@ -150,7 +155,7 @@ resource "kubernetes_daemonset" "filebeat" {
         volume {
           name = "filebeat-config"
           config_map {
-            name         = "filebeat-config"
+            name         = "filebeat-config-${local.config_map_hash}"
             default_mode = "0644"
           }
         }
