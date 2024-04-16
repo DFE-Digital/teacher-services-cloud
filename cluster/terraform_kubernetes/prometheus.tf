@@ -46,7 +46,17 @@ resource "kubernetes_config_map" "prometheus" {
   }
 
   data = {
-    "prometheus.yml"  = file("${path.module}/config/prometheus/${var.config}.prometheus.yml")
+    "prometheus.yml" = file("${path.module}/config/prometheus/${var.config}.prometheus.yml")
+  }
+}
+
+resource "kubernetes_config_map" "prometheus-rules" {
+  metadata {
+    name      = "prometheus-rules-conf"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
+  }
+
+  data = {
     "app.alert.rules" = local.app_alert_rules
   }
 }
@@ -113,6 +123,11 @@ resource "kubernetes_deployment" "prometheus" {
             mount_path = "/prometheus/"
             name       = "prometheus-storage-volume"
           }
+
+          volume_mount {
+            mount_path = "/etc/prometheus-rules/"
+            name       = "prometheus-rules-volume"
+          }
         }
 
         volume {
@@ -128,6 +143,13 @@ resource "kubernetes_deployment" "prometheus" {
           empty_dir {}
         }
 
+        volume {
+          name = "prometheus-rules-volume"
+          config_map {
+            name = kubernetes_config_map.prometheus-rules.metadata[0].name
+          }
+        }
+
         container {
           image = "quay.io/thanos/thanos:${var.thanos_version}"
           name  = "thanos"
@@ -138,9 +160,8 @@ resource "kubernetes_deployment" "prometheus" {
             "--tsdb.path=/prometheus",
             "--prometheus.url=http://127.0.0.1:9090",
             "--objstore.config-file=/config/thanos.yaml",
-            # "--reloader.config-file=/etc/prometheus/prometheus.yml",
-            # "--reloader.config-envsubst-file=/etc/prometheus-shared/prometheus.yaml",
-            # "--reloader.rule-dir=/etc/prometheus/rules/",
+            "--reloader.config-file=/etc/prometheus/prometheus.yml",
+            "--reloader.rule-dir=/etc/prometheus-rules/",
           ]
 
           liveness_probe {
@@ -192,6 +213,11 @@ resource "kubernetes_deployment" "prometheus" {
             mount_path = "/config/"
             name       = "thanos-config-volume"
             read_only  = true
+          }
+
+          volume_mount {
+            mount_path = "/etc/prometheus-rules/"
+            name       = "prometheus-rules-volume"
           }
         }
 
