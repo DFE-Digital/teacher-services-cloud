@@ -93,6 +93,12 @@ The new application uses a default domain in `test.teacherservices.cloud` in tes
 
 The code deploys integrated DNS zone and Azure front door **in the production subscription**.
 
+Before proceeding, ensure the following:
+
+- domain.sh exists in global config and there's a make command for it
+- The files present in terraform/domains/infrastructure match the sample structure in templates/new_service/terraform/domains/infrastructure, with the appropriate  configuration
+- The files present in terraform/domains/environment_domains match the sample structure in templates/new_service/terraform/domains/environment_domains, with the appropriate  configuration
+
 ### Create terraform environment
 - Validate: `make domains validate-arm-resources`
 - Deploy: `make domains deploy-arm-resources`
