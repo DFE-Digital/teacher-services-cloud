@@ -142,8 +142,6 @@ resource "kubernetes_service" "grafana_service" {
       app = kubernetes_deployment.grafana_deployment.spec[0].template[0].metadata[0].labels["app"]
     }
 
-    type = "LoadBalancer"
-
     port {
       port        = 3000
       target_port = 3000
