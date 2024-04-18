@@ -48,3 +48,5 @@ $SED_CMD "s/#DOMAINS_RESOURCE_GROUP_NAME#/${DOMAINS_RESOURCE_GROUP_NAME}/" new_s
 
 $SED_CMD "s/#SERVICE_NAME#/${SERVICE_NAME}/" new_service/terraform/domains/environment_domains/config/development.tfvars.json
 $SED_CMD "s/#SERVICE_NAME#/${SERVICE_NAME}/" new_service/terraform/domains/environment_domains/config/production.tfvars.json
+
+$SED_CMD "s/#DNS_ZONE_NAME#/${DNS_ZONE_NAME}/" new_service/terraform/application/config/production.tfvars.json
