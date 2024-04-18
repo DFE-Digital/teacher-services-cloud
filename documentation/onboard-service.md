@@ -121,19 +121,6 @@ This configures the custom domain for a particular environment in the previously
 - Plan: `make <environment config> domains-plan`
 - Apply: `make <environment config> domains-apply`
 
-## Enable monitoring
-[Enable Statuscake](#configure-statuscake-credentials) if necessary.
-
-Fill in `enable_monitoring`, `external_url` and `statuscake_contact_groups` variables in the environment *tfvars.json* file. Example:
-
-```
-"enable_monitoring" : true,
-"external_url": "https://calculate-teacher-pay.education.gov.uk/healthcheck",
-"statuscake_contact_groups": [195955]
-```
-
-Then deploy the environment.
-
 ## Deploy via Github actions
 When running the make commands for deployment, terraform uses the Azure credentials provided by `az login`.
 

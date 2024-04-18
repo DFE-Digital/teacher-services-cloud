@@ -5,6 +5,18 @@ For the service to be ready for end users, it must be reliable, performant and s
 ## StatusCake
 This is the most essential monitoring as if it alerts, it means users cannot access the site. It monitors both [uptime](https://www.statuscake.com/features/uptime/) and [SSL certificate](https://www.statuscake.com/features/ssl/). Use the [terraform module](https://github.com/DFE-Digital/terraform-modules/blob/main/monitoring/statuscake/README.md) to configure it.
 
+Ask the infra team for help with these steps:
+- Create the dev team contact group if necessary. Add the team email, developer emails and phone numbers if desired
+- Get the dev team contact group id from the URL
+- [Configure credentials](onboard-service.md#configure-statuscake-credentials)
+- Fill in `enable_monitoring`, `external_url` and `statuscake_contact_groups` variables in the environment *tfvars.json* file. Example:
+  ```yaml
+  "enable_monitoring" : true,
+  "external_url": "https://calculate-teacher-pay.education.gov.uk/healthcheck",
+  "statuscake_contact_groups": [195955]
+  ```
+- For production, add the infra team contact group id: `282453`
+
 ## Multiple replicas
 By default the template deploys only 1 replica for each [kubernetes deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/). This is not sufficient for production as if the container is unavailable, there is no other replica to serve the requests. It may be unavailable because of high usage or simply because the cluster is moving the container to another node. This will happen when the cluster version is updated.
 
