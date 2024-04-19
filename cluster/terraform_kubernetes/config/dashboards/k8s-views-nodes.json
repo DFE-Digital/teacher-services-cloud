@@ -1292,7 +1292,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "sum(container_memory_working_set_bytes{instance=\"$node\", image!=\"\", cluster=\"$cluster\"}) by (pod)",
+          "expr": "max(container_memory_working_set_bytes{instance=\"$node\", image!=\"\", cluster=\"$cluster\"}) by (pod)",
           "interval": "$resolution",
           "legendFormat": "{{ pod }}",
           "range": true,

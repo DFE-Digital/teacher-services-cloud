@@ -34,7 +34,7 @@ groups:
   rules:
 %{ for instance in apps ~}
   - alert: High Memory Utilisation for ${instance.app_name}
-    expr: sum by (namespace, container) (container_memory_working_set_bytes{container!="",image!="",namespace="${instance.namespace}",pod=~"${instance.app_name}-[a-z0-9]+-[a-z0-9]+"})/sum by (namespace, container) (kube_pod_container_resource_limits{container!="",namespace="${instance.namespace}",pod=~"${instance.app_name}-[a-z0-9]+-[a-z0-9]+",resource="memory"}) > ${instance.max_mem}
+    expr: max by (namespace, container) (container_memory_working_set_bytes{container!="",image!="",namespace="${instance.namespace}",pod=~"${instance.app_name}-[a-z0-9]+-[a-z0-9]+"})/max by (namespace, container) (kube_pod_container_resource_limits{container!="",namespace="${instance.namespace}",pod=~"${instance.app_name}-[a-z0-9]+-[a-z0-9]+",resource="memory"}) > ${instance.max_mem}
     for: 5m
     annotations:
       summary:     ${instance.app_name} high memory utilization
@@ -44,7 +44,3 @@ groups:
       app:         ${instance.app_name}
       %{ if instance.receiver != null }receiver: ${instance.receiver}%{ endif }
 %{ endfor ~}
-
-
-
-
