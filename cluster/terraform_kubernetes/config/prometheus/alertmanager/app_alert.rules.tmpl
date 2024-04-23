@@ -3,8 +3,8 @@ groups:
   rules:
 %{ for instance in apps ~}
   - alert: High number of restarted containers for ${instance.app_name}
-    expr: sum(rate(kube_pod_container_status_restarts_total{container!="",namespace="${instance.namespace}",pod=~"${instance.app_name}-[a-z0-9]+-[a-z0-9]+"  }[5m]) * 300  ) by (namespace,container) > ${instance.max_crash_count}
-    for: 5m
+    expr: sum(increase(kube_pod_container_status_restarts_total{container!="",namespace="${instance.namespace}",pod=~"${instance.app_name}-[a-z0-9]+-[a-z0-9]+"  }[30m]) ) > 0
+    for: 1m
     annotations:
       summary: High number of restarted containers for ${instance.app_name}
       description: "The rate of container restart has been above ${instance.max_crash_count}  in the last 5 minutes (current value: {{ $value }})"
@@ -44,7 +44,3 @@ groups:
       app:         ${instance.app_name}
       %{ if instance.receiver != null }receiver: ${instance.receiver}%{ endif }
 %{ endfor ~}
-
-
-
-
