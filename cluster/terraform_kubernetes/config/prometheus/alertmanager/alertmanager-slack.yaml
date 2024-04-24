@@ -6,7 +6,11 @@
 {{ define "slack.alert.text" }}
   {{ range .Alerts }}
     *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+    {{ if eq .Status "firing" -}}
     *Description:* {{ .Annotations.description }}
+    {{- else -}}
+    *Description:* Alert cleared
+    {{- end }}
     *Details:*
     {{ range .Labels.SortedPairs }} - *{{ .Name }}:* `{{ .Value }}`
     {{ end }}
