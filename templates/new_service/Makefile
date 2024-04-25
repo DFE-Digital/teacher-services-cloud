@@ -16,7 +16,7 @@ development: test-cluster
 .PHONY: review
 review: test-cluster
 	$(if ${PR_NUMBER},,$(error Missing PR_NUMBER))
-	$(eval ENVIRONMENT=${PR_NUMBER})
+	$(eval ENVIRONMENT=review-${PR_NUMBER})
 	$(eval export TF_VAR_environment=${ENVIRONMENT})
 	$(eval include global_config/review.sh)
 
