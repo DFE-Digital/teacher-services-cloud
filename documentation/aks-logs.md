@@ -46,12 +46,3 @@ Here are some examples of KQL queries that you can use to retrieve AKS Log Analy
     ```
 
 These are just a few examples of the many queries that you can write using KQL to retrieve AKS Log Analytics data.
-
-# Logit.io logging
-
-Pod log forwarding to logit.io has been enabled within each cluster.
-
-Filebeat runs in each node, and monitors for pods with the annotation "logit.io/send: true".
-Once identified, logs will be sent to the cluster BEATS_URL which is contained in the cluster KV.
-
-Services that use terraform-modules can enable logit.io logging by adding "enable_logit: true" to app environments.

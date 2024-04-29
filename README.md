@@ -197,6 +197,7 @@ The teacherservices.cloud domain is created in route53 and owned by infra-ops. S
 - [Rebuild AKS cluster with zero downtime](documentation/rebuild-cluster.md)
 - [Ingress controller upgrade](documentation/Ingress-controller-upgrade.md)
 - [Retrieving Log Analytics Data with KQL for AKS Clusters](documentation/aks-logs.md)
+- [Shipping application logs to Logit.io](/documentation/logit-io.md)
 - [Low priority app](documentation/lowpriority-app.md)
 - [Monitoring](documentation/monitoring.md)
 - [Slack webhook integration](documentation/slack-webhook-integration.md)
