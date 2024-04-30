@@ -156,12 +156,13 @@ resource "kubernetes_config_map" "grafana_dashboards" {
   }
 
   data = {
-    "k8s-addons-prometheus.json" = file("${path.module}/config/dashboards/k8s-addons-prometheus.json")
-    "k8s-system-api-server.json" = file("${path.module}/config/dashboards/k8s-system-api-server.json")
-    "k8s-views-global.json"      = file("${path.module}/config/dashboards/k8s-views-global.json")
-    "k8s-views-namespaces.json"  = file("${path.module}/config/dashboards/k8s-views-namespaces.json")
-    "k8s-views-nodes.json"       = file("${path.module}/config/dashboards/k8s-views-nodes.json")
-    "k8s-views-pod.json"         = file("${path.module}/config/dashboards/k8s-views-pod.json")
+    "k8s-addons-prometheus.json"    = file("${path.module}/config/dashboards/k8s-addons-prometheus.json")
+    "k8s-system-api-server.json"    = file("${path.module}/config/dashboards/k8s-system-api-server.json")
+    "k8s-views-global.json"         = file("${path.module}/config/dashboards/k8s-views-global.json")
+    "k8s-views-namespaces.json"     = file("${path.module}/config/dashboards/k8s-views-namespaces.json")
+    "k8s-views-nodes.json"          = file("${path.module}/config/dashboards/k8s-views-nodes.json")
+    "k8s-views-pod.json"            = file("${path.module}/config/dashboards/k8s-views-pod.json")
+    "nginx-ingress-controller.json" = file("${path.module}/config/dashboards/nginx-ingress-controller.json")
 
   }
 }
