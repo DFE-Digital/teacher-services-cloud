@@ -1,0 +1,16 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: development.#DNS_ZONE_NAME#
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: development.#DNS_ZONE_NAME#
+    http:
+      paths:
+      - pathType: ImplementationSpecific
+        backend:
+          service:
+            name: #SERVICE_NAME#-development
+            port:
+              number: 80
