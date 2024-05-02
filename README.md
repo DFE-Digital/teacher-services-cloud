@@ -188,6 +188,7 @@ The teacherservices.cloud domain is created in route53 and owned by infra-ops. S
 - [Onboarding form template](documentation/onboard-form-template.md)
 - [Kubernetes cluster Public IPs](documentation/public-ips.md)
 - [Production checklist](documentation/production-checklist.md)
+- [Maintenance page](documentation/maintenance-page.md)
 - [Postgres FAQ](documentation/postgres-faq.md)
 - [Cluster plublic IPs](documentation/public-ips.md)
 

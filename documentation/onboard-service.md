@@ -25,7 +25,7 @@ It is used both to dramatically reduce the time required to onboard a new servic
 Run the `make new_service` command with the required environment variables. Example:
 
 ```
-make new_service SERVICE_NAME=calculate-teacher-pay SERVICE_SHORT=ctp DOCKER_REPOSITORY=ghcr.io/dfe-digital/teacher-pay-calculator NAMESPACE_PREFIX=srtl DNS_ZONE_NAME=calculate-teacher-pay.education.gov.uk
+make new_service SERVICE_NAME=calculate-teacher-pay SERVICE_SHORT=ctp SERVICE_PRETTY="Calculate teacher pay" DOCKER_REPOSITORY=ghcr.io/dfe-digital/teacher-pay-calculator NAMESPACE_PREFIX=srtl DNS_ZONE_NAME=calculate-teacher-pay.education.gov.uk
 ```
 
 This can be built iteratively since the script will stop and show if a variable is missing. Example:
