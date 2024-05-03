@@ -1,3 +1,18 @@
+# Log Analytics
+
+Each cluster sends diagnostic log data to a cluster log analytics workspace.
+This can generate a lot of data, at a high cost, so we override some of the default settings.
+
+We have added two settings to ama-logs via config map.
+- Remove env vars from each ContainerInventory entry as it adds a lot of data that's not particularly useful
+    - log_collection_settings.env_var = false
+- Allow exclude of log collection from pods with annotations fluentbit.io/exclude: "true".
+    - log_collection_settings.filter_using_annotations = true
+
+The config map must be called container-azm-ms-agentconfig.
+The ama-logs daemonset has an optional mount for this map, and if one is loaded to the cluster it will automatically mount and restart any ama-logs pods with the new settings.
+see https://github.com/microsoft/Docker-Provider/blob/ci_prod/kubernetes/container-azm-ms-agentconfig.yaml for available variables and default settings.
+
 # Retrieving Log Analytics Data with KQL for AKS Clusters
 
 Kusto Query Language (KQL) is a query language that you can use to retrieve data from Log Analytics workspaces for Azure Kubernetes Service (AKS) clusters. In this guide, we will explain how to write KQL queries to retrieve Log Analytics data and analyze it for your AKS cluster.

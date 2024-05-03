@@ -7,6 +7,9 @@ Once identified, logs will be sent to the cluster BEATS_URL which is contained i
 
 Services that use terraform-modules can enable logit.io logging by adding "enable_logit: true" to app environments.
 
+Enabling logit via the terraform-module will also disable sending logs to the logs analytics workspace for that environment,
+as the module will also add the annotation "fluentbit.io/exclude: true"
+
 ## Account
 The account "Teacher Services UK" was created by Digital tools support, with the help of the Teacher services finance team to input the payment details.
 
