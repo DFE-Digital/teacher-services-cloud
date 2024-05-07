@@ -260,8 +260,8 @@ locals {
     apps = [for instance, settings in var.alertable_apps : {
       namespace       = split("/", instance)[0]
       app_name        = split("/", instance)[1]
-      max_cpu         = try(settings.max_cpu, 0.6)
-      max_mem         = try(settings.max_mem, 0.6)
+      max_cpu         = try(settings.max_cpu, 0.8)
+      max_mem         = try(settings.max_mem, 0.8)
       max_crash_count = try(settings.max_crash_count, 1)
       receiver        = try(settings.receiver, "SLACK_WEBHOOK_GENERIC")
       }
