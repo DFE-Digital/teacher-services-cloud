@@ -8,12 +8,14 @@ data "azurerm_user_assigned_identity" "aks_control_plane" {
 }
 
 resource "azurerm_kubernetes_cluster" "main" {
-  name                = local.cluster_name
-  location            = data.azurerm_resource_group.cluster.location
-  resource_group_name = data.azurerm_resource_group.cluster.name
-  node_resource_group = local.node_resource_group_name
-  dns_prefix          = local.dns_prefix
-  kubernetes_version  = var.kubernetes_version
+  name                      = local.cluster_name
+  location                  = data.azurerm_resource_group.cluster.location
+  resource_group_name       = data.azurerm_resource_group.cluster.name
+  node_resource_group       = local.node_resource_group_name
+  dns_prefix                = local.dns_prefix
+  kubernetes_version        = var.kubernetes_version
+  oidc_issuer_enabled       = true
+  workload_identity_enabled = true
 
   dynamic "azure_active_directory_role_based_access_control" {
     for_each = var.enable_azure_RBAC ? [1] : []
