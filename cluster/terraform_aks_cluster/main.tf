@@ -29,7 +29,8 @@ resource "azurerm_kubernetes_cluster" "main" {
   local_account_disabled = var.enable_azure_RBAC
 
   oms_agent {
-    log_analytics_workspace_id = azurerm_log_analytics_workspace.aks_system_logs.id
+    log_analytics_workspace_id      = azurerm_log_analytics_workspace.aks_system_logs.id
+    msi_auth_for_monitoring_enabled = true
   }
 
   default_node_pool {

@@ -112,18 +112,18 @@ The standard output from all applications is captured in [Azure Log analytics](h
 
 All logs from all the services on the cluster:
 ```
-ContainerLog
+ContainerLogV2
 ```
 
 Full text search for "Exception":
 ```
-ContainerLog
+ContainerLogV2
 | where LogEntry contains "Exception"
 ```
 
 Decode the LogEntry json to query it:
 ```
-ContainerLog
+ContainerLogV2
 | extend log_entry = parse_json(LogEntry)
 | where log_entry.host contains "register"
 | where log_entry.environment == "production"
@@ -131,7 +131,7 @@ ContainerLog
 
 Only show the timestamp and LogEntry columns:
 ```
-ContainerLog
+ContainerLogV2
 | extend log_entry = parse_json(LogEntry)
 | where log_entry.host contains "register"
 | project TimeGenerated, log_entry
@@ -139,6 +139,6 @@ ContainerLog
 
 HTTP requests from the ingress controller, using the filter from [ingress controller logs](#ingress-controller):
 ```
-ContainerLog
+ContainerLogV2
 | where LogEntry contains "cpd-production-cpd-ecf-production-web-80"
 ```
