@@ -8,6 +8,10 @@ variable "managed_identity_name" {
   type        = string
   description = "Name of the managed identiy assumed by the cluster for its control plane"
 }
+variable "ci_collection_interval" {
+  default     = "5m"
+  description = "Container Insights data collection interval"
+}
 
 # Set in config json file
 variable "cip_tenant" { type = bool }
