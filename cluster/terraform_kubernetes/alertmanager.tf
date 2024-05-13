@@ -51,6 +51,7 @@ resource "kubernetes_deployment" "alertmanager" {
           args = [
             "--config.file=/etc/alertmanager/config.yml",
             "--storage.path=/alertmanager",
+            "--web.external-url=https://alertmanager.${module.cluster_data.ingress_domain}",
           ]
           port {
             container_port = 9093

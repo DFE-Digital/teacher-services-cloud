@@ -46,5 +46,5 @@ receivers:
   - api_url: ${ webhook }
     send_resolved: true
     text: '{{ template "slack.alert.text" . }}'
-    title: '{{ template "slack.alert.title" . }}'
+    title: '{{ template "slack.alert.titlelink" . }}'
 %{ endfor ~}

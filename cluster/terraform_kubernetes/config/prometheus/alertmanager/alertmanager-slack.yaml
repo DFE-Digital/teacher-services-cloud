@@ -3,6 +3,10 @@
       {{end}}
 {{ end }}
 
+{{ define "slack.alert.titlelink" }}
+<{{ .ExternalURL }}/#/alerts?alertname={{ .CommonLabels.alertname }}&severity={{ .CommonLabels.severity }}&app={{ .CommonLabels.app }} | {{ with index .Alerts 0 }}{{ .Annotations.summary }}{{ end }}>
+{{ end }}
+
 {{ define "slack.alert.text" }}
   {{ range .Alerts }}
     *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
@@ -22,3 +26,4 @@
     {{ .Annotations.summary }}
   {{ end }}
 {{ end }}
+
