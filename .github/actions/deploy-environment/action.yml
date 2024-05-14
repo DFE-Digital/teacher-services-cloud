@@ -58,7 +58,7 @@ runs:
     shell: bash
     working-directory: cluster
 
-  - uses: Azure/login@v1
+  - uses: Azure/login@v2
     with:
       creds: ${{ inputs.azure_credentials }}
 
