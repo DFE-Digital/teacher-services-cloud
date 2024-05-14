@@ -270,6 +270,12 @@ locals {
 
   app_alert_rules = length(var.alertable_apps) == 0 ? "" : templatefile("${path.module}/config/prometheus/alertmanager/app_alert.rules.tmpl", local.app_alert_rules_variables)
 
+  node_alert_rules_variables = {
+    cluster_long = local.cluster_name
+  }
+
+  node_alert_rules = templatefile("${path.module}/config/prometheus/alertmanager/node_alert.rules.tmpl", local.node_alert_rules_variables)
+
   alertmanager_config_content = templatefile(
     "${path.module}/config/prometheus/alertmanager/alertmanager.yml.tmpl", {
       slack_url       = data.azurerm_key_vault_secret.slack_webhooks["SLACK-WEBHOOK-GENERIC"].value

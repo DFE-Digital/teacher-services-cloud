@@ -37,7 +37,7 @@ resource "kubernetes_daemonset" "node-exporter" {
             "--path.sysfs=/host/sys",
             "--path.rootfs=/host/root",
             "--no-collector.diskstats",
-            "--collector.filesystem.ignored-mount-points=^/(dev|proc|sys|run/.+|var/lib/kubelet/pods/.+)($|/)",
+            "--collector.filesystem.ignored-mount-points=^/(dev|proc|sys|etc|mnt|boot/efi|run|run.+|var/lib/kube.+|var/run/secrets.+)($|/)",
             "--collector.netclass.ignored-devices=^(veth.*)$"
           ]
 

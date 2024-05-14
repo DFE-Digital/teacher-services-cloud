@@ -1,0 +1,13 @@
+groups:
+- name: Node file system
+  rules:
+  - alert: High disk usage for node
+    expr: avg by (nodename,mountpoint) (1 - node_filesystem_avail_bytes/node_filesystem_size_bytes) > 0.875
+    for: 5m
+    annotations:
+      summary: High disk usage for node {{ $labels.nodename }} mountpoint {{ $labels.mountpoint }}
+      description: "The disk usage has been above 87.5% in the last 5 minutes (current value: {{ $value | humanizePercentage }})"
+    labels:
+      severity: high
+      cluster: ${cluster_long}
+      receiver: SLACK_WEBHOOK_GENERIC
