@@ -282,7 +282,7 @@ resource "kubernetes_ingress_v1" "prometheus_ingress" {
     }
   }
   spec {
-    ingress_class_name = "nginx"
+    ingress_class_name = local.ingress_class_name
     rule {
       host = "prometheus.${module.cluster_data.ingress_domain}"
       http {

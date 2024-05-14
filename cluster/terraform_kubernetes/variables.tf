@@ -282,4 +282,8 @@ locals {
   }
 
   alertmanager_templates = { for k, v in local.template_files : k => file(v) }
+
+  # Get value from helm_release attribute to force dependency
+  # and make sure the ingress controller is created before the ingresses
+  ingress_class_name = jsondecode(helm_release.ingress-nginx.metadata[0].values)["controller"]["ingressClassResource"]["name"]
 }
