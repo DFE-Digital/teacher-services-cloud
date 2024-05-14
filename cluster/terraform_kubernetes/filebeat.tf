@@ -155,7 +155,7 @@ resource "kubernetes_daemonset" "filebeat" {
         volume {
           name = "filebeat-config"
           config_map {
-            name         = "filebeat-config-${local.config_map_hash}"
+            name         = kubernetes_config_map.filebeat.metadata[0].name
             default_mode = "0644"
           }
         }
