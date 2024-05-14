@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # Requires gcloud cli and authentication with gcloud:
 # - gcloud init
