@@ -10,7 +10,7 @@ To configure GCP run the gcloud scripts below.
 
 ### Pre-requisites for running gcloud scripts
 
-- Install the gcloud cli for you operating system
+- [Install the gcloud CLI](https://cloud.google.com/sdk/docs/install) for you operating system
 - A google account is required. This can be requested from ServiceNow or contact the #twd_data_insights team on slack
 - **Owner** permissions are required for the project to be configured. This can be requested from the #twd_data_insights team on slack
 - Authenticate with gcloud on the cli to run the scripts below
