@@ -202,3 +202,4 @@ The teacherservices.cloud domain is created in route53 and owned by infra-ops. S
 - [Low priority app](documentation/lowpriority-app.md)
 - [Monitoring](documentation/monitoring.md)
 - [Slack webhook integration](documentation/slack-webhook-integration.md)
+- [Azure GCP Workload Identity Federation](documentation/azure-gcp-workload-identity-federation.md)
