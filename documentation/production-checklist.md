@@ -80,3 +80,6 @@ Note the postgres patches will always be applied first to environments where the
 
 ## Service offering
 The new service template uses the default "Teacher services cloud" value for the *Product* tag. This tag is used to identify the service in the Azure finance reporting. Each service must [register a new service offering and product](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/Create-a-service-offering.aspx) and replace "Teacher services cloud" with the right name so that Azure costs are allocated accordingly.
+
+## Maintenance page
+Optional but recommended for user facing services. See [Maintenance page](maintenance-page.md) for more details.

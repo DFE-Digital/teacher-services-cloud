@@ -34,4 +34,6 @@ module "web_application" {
   kubernetes_secret_name     = module.application_configuration.kubernetes_secret_name
 
   docker_image = var.docker_image
+
+  send_traffic_to_maintenance_page = var.send_traffic_to_maintenance_page
 }

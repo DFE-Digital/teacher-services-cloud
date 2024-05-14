@@ -132,3 +132,20 @@ get-cluster-credentials: set-azure-account
 bin/konduit.sh:
 	curl -s https://raw.githubusercontent.com/DFE-Digital/teacher-services-cloud/main/scripts/konduit.sh -o bin/konduit.sh \
 		&& chmod +x bin/konduit.sh
+
+maintenance-image-push:
+	$(if ${GITHUB_TOKEN},, $(error Provide a valid Github token with write:packages permissions as GITHUB_TOKEN variable))
+	$(if ${MAINTENANCE_IMAGE_TAG},, $(eval MAINTENANCE_IMAGE_TAG=$(date +%s)))
+	docker build -t ghcr.io/dfe-digital/#SERVICE_NAME#-maintenance:${MAINTENANCE_IMAGE_TAG} maintenance_page
+	echo ${GITHUB_TOKEN} | docker login ghcr.io -u USERNAME --password-stdin
+	docker push ghcr.io/dfe-digital/#SERVICE_NAME#-maintenance:${MAINTENANCE_IMAGE_TAG}
+
+maintenance-fail-over: get-cluster-credentials
+	$(eval export CONFIG)
+	./maintenance_page/scripts/failover.sh
+
+enable-maintenance: maintenance-image-push maintenance-fail-over
+
+disable-maintenance: get-cluster-credentials
+	$(eval export CONFIG)
+	./maintenance_page/scripts/failback.sh
