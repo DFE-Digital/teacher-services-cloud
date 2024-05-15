@@ -24,9 +24,9 @@ filebeat.autodiscover:
               - module: nginx
                 ingress_controller:
                   enabled: true
-                  var:
-                    paths:
+                  var.paths:
                       - "/var/log/containers/*-$${data.kubernetes.container.id}.log"
+                  input:
                     symlinks: true
         add_resource_metadata:
           node:
