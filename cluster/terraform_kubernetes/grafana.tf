@@ -184,7 +184,7 @@ resource "kubernetes_ingress_v1" "grafana_ingress" {
     namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
   spec {
-    ingress_class_name = "nginx"
+    ingress_class_name = local.ingress_class_name
     rule {
       host = "grafana.${module.cluster_data.ingress_domain}"
       http {

@@ -363,7 +363,7 @@ resource "kubernetes_ingress_v1" "thanos_ingress" {
     }
   }
   spec {
-    ingress_class_name = "nginx"
+    ingress_class_name = local.ingress_class_name
     rule {
       host = "thanos.${module.cluster_data.ingress_domain}"
       http {

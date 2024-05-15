@@ -125,6 +125,13 @@ resource "helm_release" "ingress-nginx" {
     type  = "string"
   }
 
+  # Set ingress class name so it can be retrieved as an attribute to force dependencies
+  set {
+    name  = "controller.ingressClassResource.name"
+    value = "nginx"
+    type  = "string"
+  }
+
 }
 
 resource "helm_release" "ingress-nginx-clone" {
