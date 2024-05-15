@@ -1,6 +1,4 @@
 resource "kubernetes_deployment" "welcome_app" {
-  count = length(var.welcome_app_hostnames) > 0 ? 1 : 0
-
   metadata {
     name      = local.welcome_app_name
     namespace = kubernetes_namespace.default_list[local.welcome_app_namespace].metadata[0].name
@@ -73,8 +71,6 @@ resource "kubernetes_deployment" "welcome_app" {
 
 
 resource "kubernetes_service" "welcome_app" {
-  count = length(var.welcome_app_hostnames) > 0 ? 1 : 0
-
   metadata {
     name      = local.welcome_app_name
     namespace = kubernetes_namespace.default_list[local.welcome_app_namespace].metadata[0].name
@@ -92,7 +88,7 @@ resource "kubernetes_service" "welcome_app" {
 }
 
 resource "kubernetes_ingress_v1" "welcome_app" {
-  for_each = toset(var.welcome_app_hostnames)
+  for_each = toset(local.welcome_app_hostnames)
 
   wait_for_load_balancer = true
   metadata {
@@ -107,9 +103,9 @@ resource "kubernetes_ingress_v1" "welcome_app" {
         path {
           backend {
             service {
-              name = kubernetes_service.welcome_app[0].metadata[0].name
+              name = kubernetes_service.welcome_app.metadata[0].name
               port {
-                number = kubernetes_service.welcome_app[0].spec[0].port[0].port
+                number = kubernetes_service.welcome_app.spec[0].port[0].port
               }
             }
           }
