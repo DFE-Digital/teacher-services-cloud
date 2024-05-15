@@ -17,6 +17,10 @@ resource "kubernetes_deployment" "welcome_app" {
         labels = {
           app = local.welcome_app_name
         }
+        annotations = {
+          "logit.io/send"        = "true"
+          "fluentbit.io/exclude" = "true"
+        }
       }
       spec {
         node_selector = {
