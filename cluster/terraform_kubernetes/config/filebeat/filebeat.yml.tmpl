@@ -1,14 +1,33 @@
+logging.level: debug
 filebeat.autodiscover:
   providers:
       - type: kubernetes
         templates:
           - condition:
-              equals:
-                kubernetes.annotations.logit.io/send: "true"
+              and:
+                - equals:
+                    kubernetes.annotations.logit.io/send: "true"
+                - not:
+                    equals:
+                      kubernetes.labels.app.kubernetes.io/name: "ingress-nginx"
             config:
               - type: container
                 paths:
                   - "/var/log/containers/*-$${data.kubernetes.container.id}.log"
+          - condition:
+              and:
+                - equals:
+                    kubernetes.annotations.logit.io/send: "true"
+                - equals:
+                    kubernetes.labels.app.kubernetes.io/name: "ingress-nginx"
+            config:
+              - module: nginx
+                ingress_controller:
+                  enabled: true
+                  var:
+                    paths:
+                      - "/var/log/containers/*-$${data.kubernetes.container.id}.log"
+                    symlinks: true
         add_resource_metadata:
           node:
             enabled: false
