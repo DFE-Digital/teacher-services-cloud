@@ -124,6 +124,18 @@ resource "helm_release" "ingress-nginx" {
     value = "10254"
     type  = "string"
   }
+  # Enable shipping logs to Logit.io
+  set {
+    name  = "controller.podAnnotations.logit\\.io/send"
+    value = "true"
+    type  = "string"
+  }
+  # Disable shipping logs to Log analytics via Container insights
+  set {
+    name  = "controller.podAnnotations.fluentbit\\.io/exclude"
+    value = "true"
+    type  = "string"
+  }
 
   # Set ingress class name so it can be retrieved as an attribute to force dependencies
   set {
