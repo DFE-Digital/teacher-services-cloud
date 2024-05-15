@@ -109,6 +109,10 @@ az aks nodepool get-upgrades --resource-group <ResourceGroup> --cluster-name <Cl
     - Test with the welcome app: https://www.teacherservices.cloud/
     - Raise PR
 
+1. Update the kubectl client version to match the AKS (Azure Kubernetes Service) cluster version in GitHub Actions.
+    - You can achieve this using the set-kubectl action from the https://github.com/DFE-Digital/github-actions/set-kubectl
+
+
 ## Troubleshooting
 
 1. If you see any failures , Login Azure portal and Go to AKS Cluster.
