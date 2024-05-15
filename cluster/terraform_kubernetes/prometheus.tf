@@ -57,7 +57,8 @@ resource "kubernetes_config_map" "prometheus-rules" {
   }
 
   data = {
-    "app.alert.rules" = local.app_alert_rules
+    "app.alert.rules"  = local.app_alert_rules
+    "node.alert.rules" = local.node_alert_rules
   }
 }
 
