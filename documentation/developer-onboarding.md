@@ -142,3 +142,55 @@ HTTP requests from the ingress controller, using the filter from [ingress contro
 ContainerLogV2
 | where LogEntry contains "cpd-production-cpd-ecf-production-web-80"
 ```
+
+## Monitoring
+The main monitoring tools used are Grafana and Alertmanager. For further reading about Monitoring setup in the cluster [click here](https://github.com/DFE-Digital/teacher-services-cloud/blob/97a19da1aedf604e7778b25ce747fd9a9a61a670/documentation/monitoring.md).
+
+### Grafana
+Grafana could be accessed via the respective URLs based on the environment of interest. The URLs corresponding to each environment as below:
+
+* Test | https://grafana.test.teacherservices.cloud 
+* Production | https://grafana.teacherservices.cloud/
+
+The default access to the grafana interface is view only, which does not require authentication. In order to be able to make changes for example adding more dashboards and editing existing dashboards, requests will have to be made in the #teacher-services-infra slack channel to obtain admin credentials.
+
+### Exporting a Grafana Dashboard as json
+Grafana allows you to export your dashboard as a JSON file, which can be version controlled and shared with others. This could be achieved by following these steps:
+- 	Open your dashboard in Grafana
+-	Click on the "Share" button(icon) in the top left corner
+-	In the "Export" tab, select "Export for sharing externally"
+-	Click "Save to file" to download the JSON file of your dashboard
+
+### Editing or creating new grafana dashboards
+The following steps are required for creating or editing dashboards. Please [click](https://grafana.com/docs/grafana/latest/fundamentals/dashboards-overview/) for more extensive details
+-   Ensure you are logged in as an admin
+-   Identify the purpose of your dashboard. What insights the dashboard will provide and what messages it  conveys
+- 	Plan and Design how the dashboard would look when completed, paying attention to the placement of panels, alignment, spacing, colour 
+    and organisation
+- 	Select the Appropriate Data Sources by identifying the right datasource to visualise in the dashboard (currently prometheus is the only 
+   datasource available to select )
+-  Click on the "Explore" view, select the datasource(prometheus) and then browse and search using the "Metric" dropdown
+-	Create Panels for each metric by adding panel for the metric and choosing the right visualisation (for example graph, gauge, table, 
+    heatmap) and configure the panel settings eg the query, data transformation and display options and add concise title for clarity
+
+###  Changes to dashboards and pull requests
+- Any changes made to the dashboard on the UI will be overwritten in the next deployment unless added to the codebase and a pull request 
+  made to merge it
+- In order to ensure that the new dashboard created is permanent and not deleted by subsequent deployment, add a JSON  file to the 
+  dashboards directory [here](https://github.com/DFE-Digital/teacher-services-cloud/tree/main/cluster/terraform_kubernetes/config/dashboards) by pasting the content of the json file exported from the dashboard and then make an entry to grafana_dashboards kubernetes_config_map resource in [grafana.tf](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/grafana.tf#L152C1-L153C1) file and raise a PR in order to merge the change
+
+
+### Import a dashboard from json
+- Log in to Grafana as admin
+- Navigate to the Dashboard Import Page and click the "+" icon in the left sidebar to open the dashboard menu, select "Import" from the  
+  dropdown menu to access the dashboard import page.
+- Import the JSON File by either clicking on "Upload JSON file" and selecting the json file from your computer or pasting the json file 
+  content into the text area provided
+-  Click on the "Import" button to initiate the dashboard import process
+
+### Alertmanager
+The alertmanager urls corresponding to the various environments are
+* Test | https://alertmanager.test.teacherservices.cloud/
+* Production | https://alertmanager.teacherservices.cloud/
+
+Authentication details are usually required but this is stored in the keyvault. Please ask in the #teacher-services-infra channel for more details.
