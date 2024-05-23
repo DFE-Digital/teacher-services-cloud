@@ -53,12 +53,67 @@ Filebeat sends logs to logstash as json so they can be decoded to create fields 
 
 We also ask all the applications deployed to the cluster to [log using json output](https://technical-guidance.education.gov.uk/infrastructure/monitoring/logit/#logit-io). The filebeat log contains a field `message` that we decode using the logstash pipeline. And the new fields are stored under the `app` key.
 
-The logstash pipeline is stored here and must be kept up-to-date on all the stacks:
+The logstash pipeline is stored here and must be kept up-to-date on all the stacks. It decodes the ingress controller logs so we can observe the HTTP traffic details.
+
+[Standard ECS fields](https://www.elastic.co/guide/en/ecs/current/ecs-field-reference.html) are used as much as possible. This allows a single point of reference, correlation between different event types and reuse of queries and dashbords.
 
 ```ruby
 filter {
+  ### Ingress controller logs ###
+  if [kubernetes][deployment][name] == "ingress-nginx-controller" {
+
+    # Container standard out stream
+    if [stream] == "stdout" {
+
+      # Decode message field
+      grok {
+        match => { "message" => ["%{IPORHOST:[source][ip]} - %{DATA:[url][username]} \[%{HTTPDATE:[ingress][time]}\] \"%{WORD:[http][request][method]} %{DATA:[url][original]} HTTP/%{NUMBER:[http][version]}\" %{NUMBER:[http][response][status_code]} %{NUMBER:[http][response][body][bytes]} \"%{DATA:[http][request][referrer]}\" \"%{DATA:[ingress][agent]}\" %{NUMBER:[http][request][bytes]} %{NUMBER:[ingress][request_time]} \[%{DATA:[ingress][proxy][upstream][name]}\] \[%{DATA:[ingress][proxy][alternative_upstream_name]}\] %{NOTSPACE:[ingress][upstream][addr]} %{NUMBER:[ingress][upstream][response][length]} %{NUMBER:[ingress][upstream][response][time]} %{NUMBER:[ingress][upstream][status]} %{NOTSPACE:[http][request][id]}"] }
+        # Debug: Comment this line to keep the original message
+        remove_field => "message"
+      }
+      # Use time from ingress access log as log @timestamp
+      date {
+        match => [ "[ingress][time]", "dd/MMM/YYYY:H:m:s Z" ]
+        remove_field => "[ingress][time]"
+      }
+      # Parse User agent into ECS fields
+      useragent {
+        source => "[ingress][agent]"
+        ecs_compatibility => "v8"
+        remove_field => "[ingress][agent]"
+      }
+      # Use geoip to find location of IP address
+      # If the field ends with [ip], the filter will use the parent (here [source]) as a target
+      geoip {
+        source => "[source][ip]"
+        ecs_compatibility => "v8"
+      }
+    }
+
+    # Container standard error stream
+    else if [stream] == "stderr" {
+
+      # Decode message field
+      grok {
+        match => { "message" => ["%{DATA:[ingress][time]} \[%{DATA:[log][level]}\] %{NUMBER:[ingress][pid]}#%{NUMBER:[ingress][tid]}: (\*%{NUMBER:[ingress][connection_id]} )?%{GREEDYDATA:[ingress][message]}"] }
+        # Debug: Comment this line to keep the original message
+        remove_field => "message"
+      }
+      # Use time from ingress error log as log @timestamp
+      date {
+        match => [ "[ingress][time]", "YYYY/MM/dd H:m:s" ]
+        remove_field => "[ingress][time]"
+      }
+      # Recreate message field
+      mutate {
+        rename => { "[ingress][message]" => "message" }
+      }
+    }
+  }
+
+  ### Other logs ###
   # If message looks like json, decode it and store under the app key
-  if [message] =~ /^{.*}/  {
+  else if [message] =~ /^{.*}/  {
     json {
       source => "message"
       target => "app"
