@@ -41,12 +41,12 @@ To create a new stack:
 1. Set daily volume and retention
 1. Click `ADD SUBSCRIPTION`
 1. Configure [logstash inputs](#logstash-inputs)
-1. Copy beats-SSL endpoint
+1. Copy beats-SSL endpoint and remove any other input
 1. Add beats-SSL endpoint as keyvault secret "BEATS-URL" to the corresponding AKS cluster keyvault
+1. [Delete extra indices](#delete-extra-indices)
 1. Run terraform-kubernetes-apply for the cluster or clusters
 1. Annotate pods with `logit.io/send: "true"` to ship their logs. Use the `enable_logit` variable for applications deployed with the [application module](https://github.com/DFE-Digital/terraform-modules/tree/main/aks/application).
 1. [Refresh index pattern](#refresh-index-pattern)
-1. Test by editing nginx deployment and add annotation to spec/template/metadata/annotations: `logit.io/send: "true"`
 
 ## Logstash inputs
 Filebeat sends logs to logstash as json so they can be decoded to create fields in ElasticSearch and query them with Kibana.
@@ -141,3 +141,24 @@ When logs are ingested and contain new fields, it may be necessary to refresh th
 1. Select `*-*`
 1. Click the "Refresh field list" icon
 1. The number of fields should change
+
+## Mapping conflicts
+An index mapping is created based on the field types of all the ElastiSearch indices (there is one per day). If a field has a different type in 2 different indices, it creates a mapping conflict and logs may be rejected. Rejected logs will be stored in the [Dead letter queue](https://help.logit.io/en/articles/7891797-logstash-dead-letter-queue-dlq-diagnosing-and-troubleshooting-data-issues-in-opensearch-on-logit-io).
+
+To see which fields are in conflict:
+- In kibana, open the left menu
+- Select `Dashboards Management`
+- Select `Index patterns`
+- Select `*-*`
+- There will be a warning message. For more details, in the dropdown menu select `conflict` and it will show which fields are in conflict.
+- For each one, you can see which index has each type. The first log of the day determines the type of the field for the whole day.
+
+To fix a conflict, make sure the all the logs send the right field types, then delete the indices with the wrong type. Or contact Logit.io support to reindex the logs.
+
+## Delete extra indices
+Logs collected by filebeat are stored in daily index `filebeat-<date>`. Other indices may be created with different fields and may cause mapping conflicts.
+
+1. In Kibana, select `Dev Tools` in the left menu
+1. List indices: `GET /_cat/indices/`
+1. Delete opensearch-sap-log-types-config index: `DELETE /.opensearch-sap-log-types-config`
+1. Delete logstash indices: `DELETE /logstash*`
