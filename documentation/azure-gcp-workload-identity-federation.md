@@ -44,3 +44,13 @@ gcloud shell script:
 ```
 scripts/azure-gcp-wif/create-gcp-workload-identity-pool-provider.sh
 ```
+
+## Azure configuration
+[The required resources](https://learn.microsoft.com/en-us/azure/aks/workload-identity-deploy-cluster) are added per namespace. Add namespaces to the `gcp_wif_namespaces` variable list to enable WIF. This creates a service account in the namespace, linked to a managed identity with specific federated credentials.
+
+## Applications
+To enable the feature for an application in the namespace:
+- Set `enable_gcp_wif = true`
+- Download the Google credentials from the connected service account
+- Set the GOOGLE_CLOUD_CREDENTIALS environment variable via from key vault
+- For the dfe-analytics ruby gem, set `config.azure_federated_auth = true`
