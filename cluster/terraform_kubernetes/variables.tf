@@ -24,6 +24,11 @@ variable "ingress_cert_name" {
   default = null
 }
 variable "namespaces" { type = list(string) }
+variable "gcp_wif_namespaces" {
+  description = "List of namespaces with Azure GCP Wokload Identity Federation enabled"
+  type        = list(string)
+  default     = []
+}
 
 variable "statuscake_alerts" {
   type    = map(any)
