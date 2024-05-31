@@ -45,6 +45,30 @@ gcloud shell script:
 scripts/azure-gcp-wif/create-gcp-workload-identity-pool-provider.sh
 ```
 
+### Create a service account
+
+gcloud shell script:
+
+```
+scripts/azure-gcp-wif/create-gcp-service-account.sh
+```
+
+### Update service account permissions for workload identity federation
+
+gcloud shell script:
+
+```
+scripts/azure-gcp-wif/update-wif-service-account-permissions.sh
+```
+
+### Create workload identity federation client credentials file
+
+gcloud shell script:
+
+```
+scripts/azure-gcp-wif/create-wif-client-credentials.sh
+```
+
 ## Azure configuration
 [The required resources](https://learn.microsoft.com/en-us/azure/aks/workload-identity-deploy-cluster) are added per namespace. Add namespaces to the `gcp_wif_namespaces` variable list to enable WIF. This creates a service account in the namespace, linked to a managed identity with specific federated credentials.
 
