@@ -49,7 +49,7 @@ resource "helm_release" "ingress-nginx" {
   # Allow POST requests with large body. Prevent error 413: Request entity too large
   set {
     name  = "controller.config.proxy-body-size"
-    value = "8m"
+    value = "50m"
     type  = "string"
   }
   # Sets the size of the buffer used for reading the first part of the response received from the proxied server.
