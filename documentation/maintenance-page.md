@@ -46,10 +46,12 @@ flowchart LR;
 ```
 
 ## Initial configuration
+- Ensure docker is installed and running locally
 - Use the template as described in [Onboard a new service to the Teacher Services AKS cloud platform](onboard-service.md)
 - Check the content by opening `new_service/maintenance_page/html/index.html` in a browser and edit the HTML content as needed, including the email in the footer
 - Check the domains and kubernetes resource names in `new_service/maintenance_page/manifests`
 - Only production and development environments are provided as examples. Copy and amend for new environments.
+- Create workflows for enable-maintenance and disable-maintenance similar to https://github.com/DFE-Digital/apply-for-teacher-training/blob/main/.github/workflows/enable-maintenance.yml and https://github.com/DFE-Digital/apply-for-teacher-training/blob/main/.github/workflows/disable-maintenance.yml
 - Test in each environment
 
 ## Update content
