@@ -330,4 +330,4 @@ open_tunnels >/dev/null 2>&1
 sleep 5 # Need to allow the connections to open
 $CMD    # Run the command
 echo Running cleanup...
-cleanup >/dev/null 2>&1 # Cleanup on completion
+cleanup >/dev/null 2>&1 || true # Cleanup on completion
