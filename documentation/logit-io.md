@@ -128,8 +128,45 @@ filter {
       # Debug: Comment this line to keep the original object
       remove_field => "[app][payload][params]"
     }
+    # Standardise field names with ECS: https://www.elastic.co/guide/en/ecs/current/index.html
+    # Ruby apps log mutate start
+    mutate {
+      rename => { "[app][payload][status]" => "[http][response][status_code]" }
+    }
+
+    mutate {
+      rename => { "[app][payload][method]" => "[http][request][method]" }
+    }
+
+    mutate {
+      rename => { "[app][payload][format]" => "[http][response][mime_type]" }
+    }
+
+    mutate {
+      rename => { "[app][payload][path]" => "[url][path]" }
+    }
+   # Ruby apps log mutate end
+
+   # .Net apps log mutate start
+    mutate {
+      rename => { "[app][Method]" => "[http][request][method]" }
+    }
+
+    mutate {
+      rename => { "[app][StatusCode]" => "[http][response][status_code]" }
+    }
+
+    mutate {
+      rename => { "[app][RequestId]" => "[http][request][id]" }
+    }
+
+    mutate {
+      rename => { "[app][RequestPath]" => "[url][path]" }
+    }
+    # .Net apps log mutate end
   }
 }
+
 ```
 
 ## Refresh index pattern
