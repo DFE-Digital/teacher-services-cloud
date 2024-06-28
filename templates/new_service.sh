@@ -2,9 +2,8 @@
 
 set -eu
 
-DOMAINS_RESOURCE_GROUP_NAME="s189p01-${SERVICE_SHORT}-domains-rg"
-FRONT_DOOR_NAME="s189p01-${SERVICE_SHORT}-domains-fd"
-FRONT_DOOR_NAME="s189p01-${SERVICE_SHORT}-domains-fd"
+DOMAINS_RESOURCE_GROUP_NAME="s189p01-${SERVICE_SHORT}-dom-rg"
+FRONT_DOOR_NAME="s189p01-${SERVICE_SHORT}-dom-fd"
 
 echo Copying files to ./new_service ...
 cp -r templates/new_service .
