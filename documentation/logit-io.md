@@ -88,6 +88,13 @@ filter {
         source => "[source][ip]"
         ecs_compatibility => "v8"
       }
+      # Strip query strings as there may be personal data
+      mutate {
+        gsub => ["[url][original]", "\?.*", "?<QUERY STRING STRIPPED>"]
+      }
+      mutate {
+        gsub => ["[http][request][referrer]", "\?.*", "?<QUERY STRING STRIPPED>"]
+      }
     }
 
     # Container standard error stream
