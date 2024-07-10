@@ -18,6 +18,12 @@ help() {
    echo "   konduit [-a|-c|-h|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] app-name -- command [args]"
    echo "      Connect to the default database for app-name"
    echo
+   echo "or konduit [-a|-c|-h|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] -d db-name app-name -- command [args]"
+   echo "      Connect to database 'db-name' using URL and credentials from app-name"
+   echo
+   echo "or konduit [-a|-c|-h|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] -u 'db-url' app-name -- command [args]"
+   echo "      Connect to database URL 'db-url' using app-name as tunnel"
+   echo
    echo "or konduit [-a|-c|-h|-i file-name|-r redis-var|-t timeout|-n namespace] -d db-name -k key-vault app-name -- command [args]"
    echo "      Connect to a specific database from app-name"
    echo "      Requires a secret containing the DB URL in the specified Azure KV,"
@@ -27,20 +33,19 @@ help() {
    echo "   -a                Backend is an AKS service. Default is Azure backing service."
    echo "   -c                Input file is compresses. Requires -i."
    echo "   -d db-name        Database name, required if connecting to a db other than the app default."
+   echo "                     In case of redis, it is the database index: 0, 1, 2..."
    echo "   -i file-name      Input file for a restore. Only valid for command psql."
    echo "   -k key-vault      Key vault that holds the Azure secret containing the DB URL."
    echo "                     The secret {db-name}-database-url must exist in this vault,"
-   echo "                     and contain a full connection URL. The URL is in the format:"
-   echo "                     postgres://ADMIN_USER:URLENCODED(ADMIN_PASSWORD)@DB_HOSTNAME:5432/DB_NAME"
-   echo "                     or rediss://:PASSWORD=@DB_HOSTNAME:6380/0"
-   echo "                     The ADMIN_PASSWORD can be url encoded using terraform console "
-   echo "                     using CMD: urlencode(ADMIN_PASSWORD)"
+   echo "                     and contain a full connection URL. See 'connection string' below."
    echo "   -n namespace      Namespace where the app can be found. Required in case the user doesn't have cluster admin access."
    echo "   -p postgres-var   Variable for postgres [defaults to DATABASE_URL if not set]"
    echo "                     Only valid for commands psql, pg_dump or pg_restore"
    echo "   -r redis-var      Variable for redis cache [defaults to REDIS_URL if not set]"
    echo "                     Only valid for command redis-cli"
    echo "   -t timeout        Timeout in seconds. Default is 28800 but 3600 for psql, pg_dump or pg_restore commands."
+   echo "   -u 'db-url'       Full connection URL if different from the URL in the app used for tunnelling. See 'connection string' below."
+   echo "                     It should be enclosed in quotes to avoid shell interpretation"
    echo "   -h                Print this help."
    echo
    echo "parameters:"
@@ -48,6 +53,12 @@ help() {
    echo "   command      command to run."
    echo "                  valid commands are psql, pg_dump, pg_restore or redis-cli"
    echo "   args         args for the command"
+   echo
+   echo "connection string:   The URL is in the format:"
+   echo "                     postgres://ADMIN_USER:URLENCODED(ADMIN_PASSWORD)@DB_HOSTNAME:5432/DB_NAME"
+   echo "                     or rediss://:PASSWORD=@DB_HOSTNAME:6380/0"
+   echo "                     The ADMIN_PASSWORD can be url encoded using terraform console"
+   echo "                     using CMD: urlencode(ADMIN_PASSWORD)"
 }
 
 init_setup() {
@@ -146,30 +157,29 @@ set_ports() {
 set_db_psql() {
    PORT=${DB_PORT}
    # Get DB settings
-   # Either from the app DATABASE_URL or the AZURE KV secret
+   # Either from the app $DATABASE_URL or the AZURE KV secret
    #
-   # DATABASE_URL format (K8_URL/KV_URL)
-   # for backing service
+   # Format for backing service
    #     postgres://ADMIN_USER:ADMIN_PASSWORD@s999t01-someapp-rv-review-99999-psql.postgres.database.azure.com:5432/someapp-postgres-review-99999
-   # for k8 pod
+   # Format for k8 pod
    #     postgres://ADMIN_USER:ADMIN_PASSWORD@someapp-postgres-review-99999:5432/someapp-postgres-review-99999
    #
-   if [ -z "$KV" ]; then
-      K8_URL=$(echo "echo \$${Postgres}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
-      DB_URL=$(echo "${K8_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g")
-      DB_HOSTNAME=$(echo "${K8_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
+   if [ -n "${DB_URL_ARG}" ]; then
+      ORIG_URL="${DB_URL_ARG}"
+   elif [ -z "${KV}" ]; then
+      ORIG_URL=$(echo "echo \$${Postgres}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
    else
-      KV_URL=$(az keyvault secret show --name "${DBName}"-database-url --vault-name "${KV}" | jq -r .value)
-      DB_URL=$(echo "${KV_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g")
-      DB_HOSTNAME=$(echo "${KV_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
+      ORIG_URL=$(az keyvault secret show --name "${DBName}"-database-url --vault-name "${KV}" | jq -r .value)
    fi
+   DB_URL=$(echo "${ORIG_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g")
+   DB_HOSTNAME=$(echo "${ORIG_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
 
    # Override the database name if requested
    if [ -n "$DBName" ]; then
-      DB_URL=$(echo "${DB_URL}" | sed "s|[^/]*\?|$DBName?|g")
+      DB_URL=$(echo "${DB_URL}" | sed "s|[^/]*\?|${DBName}?|g")
    fi
 
-   if [ "${KV_URL}" = "" ] && [ "${K8_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_HOSTNAME}" = "" ]; then
+   if [ "${ORIG_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_HOSTNAME}" = "" ]; then
       echo "Error: invalid DB settings"
       exit 1
    fi
@@ -178,37 +188,34 @@ set_db_psql() {
 set_db_redis() {
    PORT=${REDIS_PORT}
    # Get DB settings
-   # Either from the app REDIS_URL or the AZURE KV secret
+   # Either from the app $REDIS_URL or the AZURE KV secret
    #
-   # REDIS_URL (queue) or REDIS_CACHE_URL (cache) format (K8_URL/KV_URL)
-   # for backing service
+   # Format for backing service
    #     rediss://:somepassword=@s9999t99-att-env-redis-service.redis.cache.windows.net:6380/0
-   #
-   # for k8 pod
+   # Format for k8 pod
    #     redis://someapp-redis-review-99999:6379/0
-   #
-   # Not tested from an azure backing service
-
-   if [ "${DBName}" = "" ]; then
-      K8_URL=$(echo "echo \$${Redis}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
-      if [ "${AKS}" = "" ]; then
-         DB_URL=$(echo "${K8_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g" | sed "s/rediss:\/\//rediss:\/\/default/g")
-         DB_HOSTNAME=$(echo "${K8_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
-      else
-         DB_URL=$(echo "$K8_URL" | sed "s/\/\/[^~]*/\/\/127.0.0.1:${LOCAL_PORT}\//g")
-         DB_HOSTNAME=$(echo "$K8_URL" | awk -F"/" '{print $3}' | awk -F":" '{print $1}')
-      fi
+   if [ -n "${DB_URL_ARG}" ]; then
+      ORIG_URL="${DB_URL_ARG}"
+   elif [ -z "${KV}" ]; then
+      ORIG_URL=$(echo "echo \$${Redis}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
    else
-      KV_URL=$(az keyvault secret show --name "${DBName}"-database-url --vault-name "${KV}" | jq -r .value)
-      if [ "${AKS}" = "" ]; then
-         DB_URL=$(echo "${KV_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g" | sed "s/rediss:\/\//rediss:\/\/default/g")
-      else
-         DB_URL=$(echo "${KV_URL}" | sed "s/\/\/[^~]*/\/\/127.0.0.1:${LOCAL_PORT}\//g")
-      fi
-      DB_HOSTNAME="${DBName}"
+      ORIG_URL=$(az keyvault secret show --name "${DBName}"-database-url --vault-name "${KV}" | jq -r .value)
    fi
 
-   if [ "${KV_URL}" = "" ] && [ "${K8_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_HOSTNAME}" = "" ]; then
+   if [ "${AKS}" = "" ]; then
+      DB_URL=$(echo "${ORIG_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g" | sed "s/rediss:\/\//rediss:\/\/default/g")
+      DB_HOSTNAME=$(echo "${ORIG_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
+   else
+      DB_URL=$(echo "$ORIG_URL" | sed "s/\/\/[^~]*/\/\/127.0.0.1:${LOCAL_PORT}\//g")
+      DB_HOSTNAME=$(echo "$ORIG_URL" | awk -F"/" '{print $3}' | awk -F":" '{print $1}')
+   fi
+
+   # Override the database name if requested
+   if [ -n "$DBName" ]; then
+      DB_URL=$(echo "${DB_URL}" | sed "s|[^/]*$|${DBName}|g")
+   fi
+
+   if [ "${ORIG_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_HOSTNAME}" = "" ]; then
       echo "Error: invalid DB settings"
       exit 1
    fi
@@ -252,14 +259,14 @@ run_pg_restore() {
 }
 
 cleanup() {
-   unset DB_URL DB_HOSTNAME K8_URL
+   unset DB_URL DB_HOSTNAME ORIG_URL
    pkill -15 -f "kubectl port-forward.*${LOCAL_PORT}"
    sleep 3 # let the port-forward finish
    kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- pkill -15 -f "nc -v -lk -p ${DEST_PORT}"
 }
 
 # Get the options
-while getopts "ahcd:i:k:r:n:p:t:" option; do
+while getopts "ahcd:i:k:r:n:p:t:u:" option; do
    case $option in
    a)
       AKS="True"
@@ -287,6 +294,9 @@ while getopts "ahcd:i:k:r:n:p:t:" option; do
       ;;
    t)
       Timeout=$OPTARG
+      ;;
+   u)
+      DB_URL_ARG=$OPTARG
       ;;
    h)
       help
