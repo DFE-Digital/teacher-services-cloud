@@ -31,7 +31,7 @@ help() {
    echo "   -k key-vault      Key vault that holds the Azure secret containing the DB URL."
    echo "                     The secret {db-name}-database-url must exist in this vault,"
    echo "                     and contain a full connection URL. The URL is in the format:"
-   echo "                     postgres://ADMIN_USER:URLENCODED(ADMIN_PASSWORD)@POSTGRES_HOSTNAME:5432/DB_NAME."
+   echo "                     postgres://ADMIN_USER:URLENCODED(ADMIN_PASSWORD)@DB_HOSTNAME:5432/DB_NAME"
    echo "                     or rediss://:PASSWORD=@DB_HOSTNAME:6380/0"
    echo "                     The ADMIN_PASSWORD can be url encoded using terraform console "
    echo "                     using CMD: urlencode(ADMIN_PASSWORD)"
@@ -154,8 +154,7 @@ set_db_psql() {
    # for k8 pod
    #     postgres://ADMIN_USER:ADMIN_PASSWORD@someapp-postgres-review-99999:5432/someapp-postgres-review-99999
    #
-   if [ "${DBName}" = "" ]; then
-      # If an input file is given, check it exists and is readable
+   if [ -z "$KV" ]; then
       K8_URL=$(echo "echo \$${Postgres}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
       DB_URL=$(echo "${K8_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g")
       DB_HOSTNAME=$(echo "${K8_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
@@ -163,6 +162,11 @@ set_db_psql() {
       KV_URL=$(az keyvault secret show --name "${DBName}"-database-url --vault-name "${KV}" | jq -r .value)
       DB_URL=$(echo "${KV_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g")
       DB_HOSTNAME=$(echo "${KV_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
+   fi
+
+   # Override the database name if requested
+   if [ -n "$DBName" ]; then
+      DB_URL=$(echo "${DB_URL}" | sed "s|[^/]*\?|$DBName?|g")
    fi
 
    if [ "${KV_URL}" = "" ] && [ "${K8_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_HOSTNAME}" = "" ]; then
