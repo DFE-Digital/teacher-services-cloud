@@ -31,7 +31,8 @@ help() {
    echo "   -k key-vault      Key vault that holds the Azure secret containing the DB URL."
    echo "                     The secret {db-name}-database-url must exist in this vault,"
    echo "                     and contain a full connection URL. The URL is in the format:"
-   echo "                     postgres://ADMIN_USER:URLENCODED(ADMIN_PASSWORD)@POSTGRES_SERVER_NAME-psql.postgres.database.azure.com:5432/DB_NAME."
+   echo "                     postgres://ADMIN_USER:URLENCODED(ADMIN_PASSWORD)@POSTGRES_HOSTNAME:5432/DB_NAME."
+   echo "                     or rediss://:PASSWORD=@DB_HOSTNAME:6380/0"
    echo "                     The ADMIN_PASSWORD can be url encoded using terraform console "
    echo "                     using CMD: urlencode(ADMIN_PASSWORD)"
    echo "   -n namespace      Namespace where the app can be found. Required in case the user doesn't have cluster admin access."
@@ -157,14 +158,14 @@ set_db_psql() {
       # If an input file is given, check it exists and is readable
       K8_URL=$(echo "echo \$${Postgres}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
       DB_URL=$(echo "${K8_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g")
-      DB_NAME=$(echo "${K8_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
+      DB_HOSTNAME=$(echo "${K8_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
    else
       KV_URL=$(az keyvault secret show --name "${DBName}"-database-url --vault-name "${KV}" | jq -r .value)
       DB_URL=$(echo "${KV_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g")
-      DB_NAME=$(echo "${KV_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
+      DB_HOSTNAME=$(echo "${KV_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
    fi
 
-   if [ "${KV_URL}" = "" ] && [ "${K8_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_NAME}" = "" ]; then
+   if [ "${KV_URL}" = "" ] && [ "${K8_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_HOSTNAME}" = "" ]; then
       echo "Error: invalid DB settings"
       exit 1
    fi
@@ -188,10 +189,10 @@ set_db_redis() {
       K8_URL=$(echo "echo \$${Redis}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
       if [ "${AKS}" = "" ]; then
          DB_URL=$(echo "${K8_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g" | sed "s/rediss:\/\//rediss:\/\/default/g")
-         DB_NAME=$(echo "${K8_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
+         DB_HOSTNAME=$(echo "${K8_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
       else
          DB_URL=$(echo "$K8_URL" | sed "s/\/\/[^~]*/\/\/127.0.0.1:${LOCAL_PORT}\//g")
-         DB_NAME=$(echo "$K8_URL" | awk -F"/" '{print $3}' | awk -F":" '{print $1}')
+         DB_HOSTNAME=$(echo "$K8_URL" | awk -F"/" '{print $3}' | awk -F":" '{print $1}')
       fi
    else
       KV_URL=$(az keyvault secret show --name "${DBName}"-database-url --vault-name "${KV}" | jq -r .value)
@@ -200,10 +201,10 @@ set_db_redis() {
       else
          DB_URL=$(echo "${KV_URL}" | sed "s/\/\/[^~]*/\/\/127.0.0.1:${LOCAL_PORT}\//g")
       fi
-      DB_NAME="${DBName}"
+      DB_HOSTNAME="${DBName}"
    fi
 
-   if [ "${KV_URL}" = "" ] && [ "${K8_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_NAME}" = "" ]; then
+   if [ "${KV_URL}" = "" ] && [ "${K8_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_HOSTNAME}" = "" ]; then
       echo "Error: invalid DB settings"
       exit 1
    fi
@@ -214,7 +215,7 @@ open_tunnels() {
    # Timeout of 8 hours set for an interactive session
    # Testing for kubectl deployment with multiple replicas always hit the same pod (the first one?),
    # will have to revisit if it becomes an issue
-   echo 'nc -v -lk -p '${DEST_PORT}' -w '${TMOUT}' -e /usr/bin/nc -w '${TMOUT} "${DB_NAME}" "${PORT}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh &
+   echo 'nc -v -lk -p '${DEST_PORT}' -w '${TMOUT}' -e /usr/bin/nc -w '${TMOUT} "${DB_HOSTNAME}" "${PORT}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh &
 
    # Open local tunnel to k8 deployment
    kubectl port-forward -n "${NAMESPACE}" deployment/"${INSTANCE}" ${LOCAL_PORT}:${DEST_PORT} &
@@ -247,7 +248,7 @@ run_pg_restore() {
 }
 
 cleanup() {
-   unset DB_URL DB_NAME K8_URL
+   unset DB_URL DB_HOSTNAME K8_URL
    pkill -15 -f "kubectl port-forward.*${LOCAL_PORT}"
    sleep 3 # let the port-forward finish
    kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- pkill -15 -f "nc -v -lk -p ${DEST_PORT}"
