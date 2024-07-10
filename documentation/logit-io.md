@@ -121,6 +121,13 @@ filter {
       remove_field => ["message"]
     }
 
+    # Remove stack trace for 404 errors in rails apps, as it is large and adds no value
+    if [app][exception][name] == "ActionController::RoutingError" {
+      mutate {
+        remove_field => "[app][exception][stack_trace]"
+      }
+    }
+
     # Encode HTTP params as json string to avoid indexing thousands of fields
     json_encode {
       source => "[app][payload][params]"
