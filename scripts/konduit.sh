@@ -171,7 +171,7 @@ set_db_psql() {
    else
       ORIG_URL=$(az keyvault secret show --name "${DBName}"-database-url --vault-name "${KV}" | jq -r .value)
    fi
-   DB_URL=$(echo "${ORIG_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g")
+   DB_URL=$(echo "${ORIG_URL}" | sed "s|@.*/|@127.0.0.1:${LOCAL_PORT}/|g")
    DB_HOSTNAME=$(echo "${ORIG_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
 
    # Override the database name if requested
@@ -203,10 +203,10 @@ set_db_redis() {
    fi
 
    if [ "${AKS}" = "" ]; then
-      DB_URL=$(echo "${ORIG_URL}" | sed "s/@[^~]*\//@127.0.0.1:${LOCAL_PORT}\//g" | sed "s/rediss:\/\//rediss:\/\/default/g")
+      DB_URL=$(echo "${ORIG_URL}" | sed "s|@.*/|@127.0.0.1:${LOCAL_PORT}/|g" | sed "s|rediss://|rediss://default|g")
       DB_HOSTNAME=$(echo "${ORIG_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
    else
-      DB_URL=$(echo "$ORIG_URL" | sed "s/\/\/[^~]*/\/\/127.0.0.1:${LOCAL_PORT}\//g")
+      DB_URL=$(echo "$ORIG_URL" | sed "s|//.*|//127.0.0.1:${LOCAL_PORT}/|g")
       DB_HOSTNAME=$(echo "$ORIG_URL" | awk -F"/" '{print $3}' | awk -F":" '{print $1}')
    fi
 
