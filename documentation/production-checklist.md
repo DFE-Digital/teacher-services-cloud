@@ -44,7 +44,7 @@ If time is short or user traffic is expected to be low, make sure to monitor the
 ## Postgres backups to Azure storage
 Azure postgres provides an [automatic backup](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-backup-restore) with a 7 days retention period. It can be restored from a point in time to a new database server.
 
-In case there is a major  and the above doesn't work, we strongly suggest taking another daily backup every night and storing it in Azure storage. Set [azure_enable_backup_storage variable](https://github.com/DFE-Digital/terraform-modules/blob/83801213853ed1e4b4bdcb8d36773c8683ff010f/aks/postgres/variables.tf#L132) to true to create the storage. Then create a workflow such as [this example](https://github.com/DFE-Digital/early-careers-framework/blob/main/.github/actions/backup-and-upload-database/action.yml).
+In case there is a major issue and the above doesn't work, we strongly suggest taking another daily backup every night and storing it in Azure storage. Set [azure_enable_backup_storage variable](https://github.com/DFE-Digital/terraform-modules/blob/83801213853ed1e4b4bdcb8d36773c8683ff010f/aks/postgres/variables.tf#L132) to true to create the storage account. Then create a workflow using the [backup-postgres](https://github.com/DFE-Digital/github-actions/tree/master/backup-postgres) github action and [schedule](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) it nightly.
 
 ## Postgres and redis monitoring
 Set `azure_enable_monitoring` to true to enable logging, monitoring and alerting. It will alert the infrastructure team by email by default.
