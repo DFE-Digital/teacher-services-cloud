@@ -15,16 +15,16 @@ help() {
    echo
 
    echo "Syntax:"
-   echo "   konduit [-a|-c|-h|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] app-name -- command [args]"
+   echo "   konduit [-a|-c|-h|-x|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] app-name -- command [args]"
    echo "      Connect to the default database for app-name"
    echo
-   echo "or konduit [-a|-c|-h|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] -b db-name app-name -- command [args]"
+   echo "or konduit [-a|-c|-h|-x|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] -b db-name app-name -- command [args]"
    echo "      Connect to database 'db-name' using URL and credentials from app-name"
    echo
-   echo "or konduit [-a|-c|-h|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] -u 'db-url' app-name -- command [args]"
+   echo "or konduit [-a|-c|-h|-x|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] -u 'db-url' app-name -- command [args]"
    echo "      Connect to database URL 'db-url' using app-name as tunnel"
    echo
-   echo "or konduit [-a|-c|-h|-i file-name|-r redis-var|-t timeout|-n namespace] -d keyvault-db-name -k key-vault app-name -- command [args]"
+   echo "or konduit [-a|-c|-h|-x|-i file-name|-r redis-var|-t timeout|-n namespace] -d keyvault-db-name -k key-vault app-name -- command [args]"
    echo "      Connect to a specific database from app-name"
    echo "      Requires a secret containing the DB URL in the specified Azure KV,"
    echo "      with name {keyvault-db-name}-database-url"
@@ -48,6 +48,7 @@ help() {
    echo "   -t timeout        Timeout in seconds. Default is 28800 but 3600 for psql, pg_dump or pg_restore commands."
    echo "   -u 'db-url'       Full connection URL if different from the URL in the app used for tunnelling. See 'connection string' below."
    echo "                     It should be enclosed in quotes to avoid shell interpretation"
+   echo "   -x                Runs konduit through a separate pod"
    echo "   -h                Print this help."
    echo
    echo "parameters:"
@@ -123,6 +124,97 @@ init_setup() {
 
    # Set service ports
    DB_PORT=5432
+
+   # Set variables if using a separate deployment to access the database
+   if [ "${Jumppod}" != "" ]; then
+      OLDINST=${INSTANCE}
+      INSTANCE="konduit-app-${RANDOM}"
+      PODJSON=$(cat - << EOF
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "${INSTANCE}",
+    "labels": {
+      "app": "konduit-app"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "matchLabels": {
+        "app": "konduit-app"
+      }
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "konduit-app"
+        }
+      },
+      "spec": {
+        "automountServiceAccountToken": false,
+        "nodeSelector": {
+          "teacherservices.cloud/node_pool": "applications",
+          "kubernetes.io/os": "linux"
+        },
+        "containers": [
+          {
+            "name": "konduit-container",
+            "image": "alpine:3.20.1",
+            "command": [
+              "sh",
+              "-c",
+              "sleep 10800"
+            ],
+            "securityContext": {
+              "runAsUser": 1000,
+              "runAsGroup": 3000,
+              "capabilities": {
+                "add": [
+                  "NET_BIND_SERVICE"
+                ],
+                "drop": [
+                  "ALL"
+                ]
+              },
+              "allowPrivilegeEscalation": false,
+              "privileged": false,
+              "runAsNonRoot": true,
+              "readOnlyRootFilesystem": true,
+              "seccompProfile": {
+                "type": "RuntimeDefault"
+              }
+            },
+            "resources": {
+              "requests": {
+                "cpu": "10m",
+                "memory": "50Mi"
+              },
+              "limits": {
+                "cpu": "100m",
+                "memory": "50Mi"
+              }
+            },
+            "ports": [
+              {
+                "containerPort": 80
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
+EOF
+)
+      echo "Using app ${INSTANCE} to connect to database for ${OLDINST}"
+      echo ${PODJSON} | kubectl -n ${NAMESPACE} create -f -
+      sleep 5
+   else
+      echo "Using app ${INSTANCE} to connect to database"
+   fi
 }
 
 check_instance() {
@@ -166,6 +258,11 @@ set_db_psql() {
    # Format for k8 pod
    #     postgres://ADMIN_USER:ADMIN_PASSWORD@someapp-postgres-review-99999:5432/someapp-postgres-review-99999
    #
+   if  [ "${Jumppod}" != "" ]; then
+      SECRET=$(kubectl -n ${NAMESPACE} get deployment/$OLDINST -o jsonpath='{.spec.template.spec.containers[0].envFrom[1].secretRef.name}')
+      DB_URL_ARG=$(kubectl -n ${NAMESPACE} get secret $SECRET -o jsonpath="{.data.$Postgres}" | base64 --decode)
+   fi
+
    if [ -n "${DB_URL_ARG}" ]; then
       ORIG_URL="${DB_URL_ARG}"
    elif [ -z "${KV}" ]; then
@@ -197,6 +294,11 @@ set_db_redis() {
    #     rediss://:somepassword=@s9999t99-att-env-redis-service.redis.cache.windows.net:6380/0
    # Format for k8 pod
    #     redis://someapp-redis-review-99999:6379/0
+   if  [ "${Jumppod}" != "" ]; then
+      SECRET=$(kubectl -n ${NAMESPACE} get deployment/$OLDINST -o jsonpath='{.spec.template.spec.containers[0].envFrom[1].secretRef.name}')
+      DB_URL_ARG=$(kubectl -n ${NAMESPACE} get secret $SECRET -o jsonpath="{.data.$Redis}" | base64 --decode)
+   fi
+
    if [ -n "${DB_URL_ARG}" ]; then
       ORIG_URL="${DB_URL_ARG}"
    elif [ -z "${KV}" ]; then
@@ -265,11 +367,17 @@ cleanup() {
    unset DB_URL DB_HOSTNAME ORIG_URL
    pkill -15 -f "kubectl port-forward.*${LOCAL_PORT}"
    sleep 3 # let the port-forward finish
-   kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- pkill -15 -f "nc -v -lk -p ${DEST_PORT}"
+   if [ "${Jumppod}" != "" ]; then
+      echo ${PODJSON} | kubectl -n ${NAMESPACE} delete -f -
+   else
+      kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- pkill -15 -f "nc -v -lk -p ${DEST_PORT}"
+   fi
+   trap - EXIT
+   exit
 }
 
 # Get the options
-while getopts "ahcd:i:k:r:n:p:t:u:b:" option; do
+while getopts "ahcxd:i:k:r:n:p:t:u:b:" option; do
    case $option in
    a)
       AKS="True"
@@ -304,6 +412,9 @@ while getopts "ahcd:i:k:r:n:p:t:u:b:" option; do
    u)
       DB_URL_ARG=$OPTARG
       ;;
+   x)
+      Jumppod="True"
+      ;;
    h)
       help
       exit
@@ -325,6 +436,7 @@ OTHERARGS=$*
 ### Main
 ###
 
+trap 'echo Running cleanup...;cleanup >/dev/null 2>&1 || true' EXIT SIGHUP SIGTERM
 init_setup
 check_instance
 set_ports
@@ -350,5 +462,3 @@ esac
 open_tunnels >/dev/null 2>&1
 sleep 5 # Need to allow the connections to open
 $CMD    # Run the command
-echo Running cleanup...
-cleanup >/dev/null 2>&1 || true # Cleanup on completion
