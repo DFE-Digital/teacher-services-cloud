@@ -18,22 +18,24 @@ help() {
    echo "   konduit [-a|-c|-h|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] app-name -- command [args]"
    echo "      Connect to the default database for app-name"
    echo
-   echo "or konduit [-a|-c|-h|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] -d db-name app-name -- command [args]"
+   echo "or konduit [-a|-c|-h|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] -b db-name app-name -- command [args]"
    echo "      Connect to database 'db-name' using URL and credentials from app-name"
    echo
    echo "or konduit [-a|-c|-h|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] -u 'db-url' app-name -- command [args]"
    echo "      Connect to database URL 'db-url' using app-name as tunnel"
    echo
-   echo "or konduit [-a|-c|-h|-i file-name|-r redis-var|-t timeout|-n namespace] -d db-name -k key-vault app-name -- command [args]"
+   echo "or konduit [-a|-c|-h|-i file-name|-r redis-var|-t timeout|-n namespace] -d keyvault-db-name -k key-vault app-name -- command [args]"
    echo "      Connect to a specific database from app-name"
    echo "      Requires a secret containing the DB URL in the specified Azure KV,"
-   echo "      with name {db-name}-database-url"
+   echo "      with name {keyvault-db-name}-database-url"
    echo
    echo "options:"
    echo "   -a                Backend is an AKS service. Default is Azure backing service."
    echo "   -c                Input file is compresses. Requires -i."
-   echo "   -d db-name        Database name, required if connecting to a db other than the app default."
+   echo "   -b                Override database name if connecting to a db other than the app default."
    echo "                     In case of redis, it is the database index: 0, 1, 2..."
+   echo "   -d keyvault-db-name        Database name in keyvault secret name, required for the -k option"
+   echo "                     It can only contain alphanumerical characters and hyphens"
    echo "   -i file-name      Input file for a restore. Only valid for command psql."
    echo "   -k key-vault      Key vault that holds the Azure secret containing the DB URL."
    echo "                     The secret {db-name}-database-url must exist in this vault,"
@@ -169,14 +171,15 @@ set_db_psql() {
    elif [ -z "${KV}" ]; then
       ORIG_URL=$(echo "echo \$${Postgres}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
    else
-      ORIG_URL=$(az keyvault secret show --name "${DBName}"-database-url --vault-name "${KV}" | jq -r .value)
+      ORIG_URL=$(az keyvault secret show --name "${KVDBName}"-database-url --vault-name "${KV}" | jq -r .value)
    fi
    DB_URL=$(echo "${ORIG_URL}" | sed "s|@.*/|@127.0.0.1:${LOCAL_PORT}/|g")
    DB_HOSTNAME=$(echo "${ORIG_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
 
    # Override the database name if requested
    if [ -n "$DBName" ]; then
-      DB_URL=$(echo "${DB_URL}" | sed "s|[^/]*\?|${DBName}?|g")
+      # Replace the database name after the last /, and before ? if it's present
+      DB_URL=$(echo "${DB_URL}" | sed "s|/[^/?]*\([?].*\)\?$|/${DBName}\1|")
    fi
 
    if [ "${ORIG_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_HOSTNAME}" = "" ]; then
@@ -199,7 +202,7 @@ set_db_redis() {
    elif [ -z "${KV}" ]; then
       ORIG_URL=$(echo "echo \$${Redis}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
    else
-      ORIG_URL=$(az keyvault secret show --name "${DBName}"-database-url --vault-name "${KV}" | jq -r .value)
+      ORIG_URL=$(az keyvault secret show --name "${KVDBName}"-database-url --vault-name "${KV}" | jq -r .value)
    fi
 
    if [ "${AKS}" = "" ]; then
@@ -266,16 +269,19 @@ cleanup() {
 }
 
 # Get the options
-while getopts "ahcd:i:k:r:n:p:t:u:" option; do
+while getopts "ahcd:i:k:r:n:p:t:u:b:" option; do
    case $option in
    a)
       AKS="True"
+      ;;
+   b)
+      DBName=$OPTARG
       ;;
    c)
       CompressedInput="True"
       ;;
    d)
-      DBName=$OPTARG
+      KVDBName=$OPTARG
       ;;
    k)
       KV=$OPTARG
