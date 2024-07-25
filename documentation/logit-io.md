@@ -182,6 +182,13 @@ filter {
 }
 
 ```
+### Debug Grok Expression
+The following tool is useful for debugging Grok expressions:  https://grokconstructor.appspot.com/
+
+### Known Issues for Parsing Errors
+
+1. Multiple Upstream Responses
+2. URI Too Long
 
 ## Refresh index pattern
 When logs are ingested and contain new fields, it may be necessary to refresh the index pattern as non indexed fields cannot be queried. You can see the field is not indexed if there is a warning sign on the log.
