@@ -143,7 +143,7 @@ resource "kubernetes_service" "thanos-querier" {
     port {
       name        = "http"
       port        = 9090
-      target_port = "http"
+      target_port = 10902
       protocol    = "TCP"
     }
     selector = {
@@ -151,6 +151,7 @@ resource "kubernetes_service" "thanos-querier" {
     }
   }
 }
+
 
 resource "kubernetes_deployment" "thanos-store-gateway" {
 
