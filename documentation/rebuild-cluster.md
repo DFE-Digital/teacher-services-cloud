@@ -18,6 +18,7 @@ Then we use scripts to export the resources from each namespace from one cluster
     - test: `*.test.teacherservices.cloud`
     - development: `*.cluster3.development.teacherservices.cloud`
     - etc
+- Remove the delete lock on the AKS Azure resource
 
 ## Clone cluster
 Add or update the variables and apply:
@@ -69,6 +70,7 @@ Since the applications domain points to the main cluster, you won't be able to t
     vm_size = "Standard_D2_v2"
     ```
 - Run terraform-apply to rebuild the main cluster
+- Add the delete lock on the AKS Azure resource
 
 ## Import resources to the main cluster
 - Run: `make <config> import-aks-resources` (e.g. `make production import-aks-resources`)

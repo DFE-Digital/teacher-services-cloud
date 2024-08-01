@@ -83,3 +83,8 @@ The new service template uses the default "Teacher services cloud" value for the
 
 ## Maintenance page
 Optional but recommended for user facing services. See [Maintenance page](maintenance-page.md) for more details.
+
+## Lock critical resources
+Add a lock to critical Azure resources to prevent against accidental deletion, such as production databases. Members of the `s189-teacher-services-cloud-ResLock Admin` Entra ID group (infra team) can manage locks.
+- Open the resource in the Azure portal
+- Settings > Locks > + Add > Lock name: Delete, Lock type: Delete > OK
