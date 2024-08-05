@@ -4,6 +4,9 @@ This allows Azure AKS client to access GCP resources without the use of plain te
 
 Workload Identity Federation requires configuration on both Azure and GCP.
 
+## Overview
+<img src="azure-gcp-wif.svg" >
+
 ## GCP Configuration
 
 To configure GCP run the gcloud scripts below.
