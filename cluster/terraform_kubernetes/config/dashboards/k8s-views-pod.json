@@ -1259,73 +1259,34 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "blue",
-            "mode": "thresholds"
+            "fixedColor": "dark-red",
+            "mode": "fixed"
           },
           "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "Percent",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 25,
-            "gradientMode": "opacity",
+            "fillOpacity": 70,
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
             "insertNulls": false,
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "area"
-            }
+            "lineWidth": 0,
+            "spanNulls": false
           },
           "mappings": [],
-          "max": 1,
-          "min": 0,
           "thresholds": {
-            "mode": "percentage",
+            "mode": "absolute",
             "steps": [
               {
-                "color": "red",
+                "color": "green",
                 "value": null
               },
               {
-                "color": "yellow",
-                "value": 20
-              },
-              {
-                "color": "green",
-                "value": 30
-              },
-              {
                 "color": "#EAB839",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 80
+                "value": 1
               }
             ]
           },
-          "unit": "none",
           "unitScale": true
         },
         "overrides": []
@@ -1338,18 +1299,21 @@
       },
       "id": 60,
       "options": {
+        "alignValue": "left",
         "legend": {
-          "calcs": [],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
         },
+        "mergeValues": true,
+        "rowHeight": 0.52,
+        "showValue": "never",
         "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
+          "mode": "single",
+          "sort": "none"
         }
       },
-      "pluginVersion": "8.3.3",
+      "pluginVersion": "10.3.3",
       "targets": [
         {
           "datasource": {
@@ -1358,7 +1322,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "sum(increase(container_oom_events_total{namespace=\"${namespace}\", pod=~\"${pod}\", container!=\"\", cluster=\"$cluster\"}[5m])) by (pod)",
+          "expr": "(\n  kube_pod_container_status_restarts_total{namespace=\"${namespace}\", pod=~\"${pod}\", container!=\"\", cluster=\"$cluster\"} - kube_pod_container_status_restarts_total {namespace=\"${namespace}\", pod=~\"${pod}\", container!=\"\", cluster=\"$cluster\"} offset 10m >= 1\n) \nand ignoring (reason) \nmin_over_time(kube_pod_container_status_last_terminated_reason{namespace=\"${namespace}\", pod=~\"${pod}\", container!=\"\", cluster=\"$cluster\",reason=\"OOMKilled\"}[10m]) == 1",
           "interval": "",
           "legendFormat": "{{ pod }}",
           "range": true,
@@ -1366,7 +1330,7 @@
         }
       ],
       "title": "OOM Events by pod",
-      "type": "timeseries"
+      "type": "state-timeline"
     },
     {
       "datasource": {
