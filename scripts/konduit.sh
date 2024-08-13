@@ -258,15 +258,16 @@ set_db_psql() {
    # Format for k8 pod
    #     postgres://ADMIN_USER:ADMIN_PASSWORD@someapp-postgres-review-99999:5432/someapp-postgres-review-99999
    #
-   if  [ "${Jumppod}" != "" ]; then
-      SECRET=$(kubectl -n ${NAMESPACE} get deployment/$OLDINST -o jsonpath='{.spec.template.spec.containers[0].envFrom[1].secretRef.name}')
-      DB_URL_ARG=$(kubectl -n ${NAMESPACE} get secret $SECRET -o jsonpath="{.data.$Postgres}" | base64 --decode)
-   fi
 
    if [ -n "${DB_URL_ARG}" ]; then
       ORIG_URL="${DB_URL_ARG}"
    elif [ -z "${KV}" ]; then
-      ORIG_URL=$(echo "echo \$${Postgres}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
+      if [ -z "${Jumppod}" ]; then
+         ORIG_URL=$(echo "echo \$${Postgres}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
+      else
+         SECRET=$(kubectl -n ${NAMESPACE} get deployment/$OLDINST -o jsonpath='{.spec.template.spec.containers[0].envFrom[1].secretRef.name}')
+         ORIG_URL=$(kubectl -n ${NAMESPACE} get secret $SECRET -o jsonpath="{.data.$Postgres}" | base64 --decode)
+      fi
    else
       ORIG_URL=$(az keyvault secret show --name "${KVDBName}"-database-url --vault-name "${KV}" | jq -r .value)
    fi
@@ -294,15 +295,16 @@ set_db_redis() {
    #     rediss://:somepassword=@s9999t99-att-env-redis-service.redis.cache.windows.net:6380/0
    # Format for k8 pod
    #     redis://someapp-redis-review-99999:6379/0
-   if  [ "${Jumppod}" != "" ]; then
-      SECRET=$(kubectl -n ${NAMESPACE} get deployment/$OLDINST -o jsonpath='{.spec.template.spec.containers[0].envFrom[1].secretRef.name}')
-      DB_URL_ARG=$(kubectl -n ${NAMESPACE} get secret $SECRET -o jsonpath="{.data.$Redis}" | base64 --decode)
-   fi
 
    if [ -n "${DB_URL_ARG}" ]; then
       ORIG_URL="${DB_URL_ARG}"
    elif [ -z "${KV}" ]; then
-      ORIG_URL=$(echo "echo \$${Redis}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
+      if [ -z "${Jumppod}" ]; then
+         ORIG_URL=$(echo "echo \$${Redis}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
+      else
+         SECRET=$(kubectl -n ${NAMESPACE} get deployment/$OLDINST -o jsonpath='{.spec.template.spec.containers[0].envFrom[1].secretRef.name}')
+         ORIG_URL=$(kubectl -n ${NAMESPACE} get secret $SECRET -o jsonpath="{.data.$Redis}" | base64 --decode)
+      fi
    else
       ORIG_URL=$(az keyvault secret show --name "${KVDBName}"-database-url --vault-name "${KV}" | jq -r .value)
    fi
