@@ -2097,7 +2097,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "sum(increase(container_oom_events_total{cluster=\"$cluster\"}[5m])) by (namespace) > 0",
+          "expr": "(\nkube_pod_container_status_restarts_total{ container!=\"\", cluster=\"$cluster\"} - kube_pod_container_status_restarts_total {container!=\"\", cluster=\"$cluster\"} offset 5m >= 1\n)\nand ignoring (reason)\nmin_over_time(kube_pod_container_status_last_terminated_reason{ container!=\"\", cluster=\"$cluster\",reason=\"OOMKilled\"}[5m]) == 1",
           "interval": "",
           "legendFormat": "{{ namespace }}",
           "range": true,
