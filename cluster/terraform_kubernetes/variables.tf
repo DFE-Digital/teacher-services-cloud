@@ -190,6 +190,12 @@ variable "alertable_apps" {
   default     = {}
 }
 
+variable "block_metrics_endpoint" {
+  description = "Block metric endpoints"
+  default     = true
+  type        = bool
+}
+
 locals {
   cluster_name = (
     var.cip_tenant ?
