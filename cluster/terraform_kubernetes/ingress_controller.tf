@@ -143,7 +143,20 @@ resource "helm_release" "ingress-nginx" {
     value = "nginx"
     type  = "string"
   }
+  # Block access to /metrics endpoint
+  dynamic "set" {
+    for_each = var.block_metrics_endpoint ? [1] : []
 
+    content {
+      name  = "controller.config.server-snippet"
+      value = <<-EOT
+        location /metrics {
+            deny all;
+        }
+      EOT
+      type  = "string"
+    }
+  }
 }
 
 resource "helm_release" "ingress-nginx-clone" {
