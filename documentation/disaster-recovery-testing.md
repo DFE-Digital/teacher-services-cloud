@@ -26,8 +26,7 @@ This document covers the Disaster Recovery testing procedure for applications ho
 
 ## Documentation requirements
 
-Copy the template DR testing document which will be a record of the steps run, time taken, and any issues
-- template doc tba
+Copy the [template DR testing document](https://educationgovuk.sharepoint.com/:w:/r/sites/TeacherServices/Shared%20Documents/DR%20tests/DR%20test%20template.docx?d=waba054c48ee644e5ab5a66c784fa3b95&csf=1&web=1&e=CRNjv7) which will be a record of the scenarios run, time taken, and any issues.
 
 ## Initial set-up
 
@@ -79,9 +78,7 @@ Alert developers that merge to main is allowed.
 
 ### Documentation requirements
 
-- Complete the DR testing document
-    - record of the steps run, time taken, and any issues
-- Save the document here (tba)
+- Complete the DR testing document and save in the [DR test Reports folder](https://educationgovuk.sharepoint.com/:f:/r/sites/TeacherServices/Shared%20Documents/DR%20tests/Reports?csf=1&web=1&e=DyDQqy)
 - Update the service on the infra team sharepoint service list with the DR date and status (success/fail)
 
 ## Post DR test review
