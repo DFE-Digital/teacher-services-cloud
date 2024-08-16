@@ -15,10 +15,10 @@ help() {
    echo
 
    echo "Syntax:"
-   echo "   konduit [-a|-c|-h|-x|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] app-name -- command [args]"
+   echo "   konduit [-a|-c|-h|-x|-i file-name|-p postgres-var|-r redis-var|-s server-name|-t timeout|-n namespace] app-name -- command [args]"
    echo "      Connect to the default database for app-name"
    echo
-   echo "or konduit [-a|-c|-h|-x|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] -b db-name app-name -- command [args]"
+   echo "or konduit [-a|-c|-h|-x|-i file-name|-p postgres-var|-r redis-var|-s server-name|-t timeout|-n namespace] -b db-name app-name -- command [args]"
    echo "      Connect to database 'db-name' using URL and credentials from app-name"
    echo
    echo "or konduit [-a|-c|-h|-x|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] -u 'db-url' app-name -- command [args]"
@@ -45,6 +45,7 @@ help() {
    echo "                     Only valid for commands psql, pg_dump or pg_restore"
    echo "   -r redis-var      Variable for redis cache [defaults to REDIS_URL if not set]"
    echo "                     Only valid for command redis-cli"
+   echo "   -s server-name    Override server name. Postgres only, used to access PTR server"
    echo "   -t timeout        Timeout in seconds. Default is 28800 but 3600 for psql, pg_dump or pg_restore commands."
    echo "   -u 'db-url'       Full connection URL if different from the URL in the app used for tunnelling. See 'connection string' below."
    echo "                     It should be enclosed in quotes to avoid shell interpretation"
@@ -280,6 +281,11 @@ set_db_psql() {
       DB_URL=$(echo "${DB_URL}" | sed "s|/[^/?]*\([?].*\)\?$|/${DBName}\1|")
    fi
 
+   # Override the server name if requested
+   if [ -n "$ServerName" ]; then
+      DB_HOSTNAME=${ServerName}.postgres.database.azure.com
+   fi
+
    if [ "${ORIG_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_HOSTNAME}" = "" ]; then
       echo "Error: invalid DB settings"
       exit 1
@@ -379,7 +385,7 @@ cleanup() {
 }
 
 # Get the options
-while getopts "ahcxd:i:k:r:n:p:t:u:b:" option; do
+while getopts "ahcxd:i:k:r:n:p:s:t:u:b:" option; do
    case $option in
    a)
       AKS="True"
@@ -407,6 +413,9 @@ while getopts "ahcxd:i:k:r:n:p:t:u:b:" option; do
       ;;
    r)
       Redis=$OPTARG
+      ;;
+   s)
+      ServerName=$OPTARG
       ;;
    t)
       Timeout=$OPTARG
