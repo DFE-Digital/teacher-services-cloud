@@ -2,7 +2,7 @@
 
 set -eu
 
-NAMESPACE=$(jq -r '.namespace' terraform/aks/workspace_variables/${CONFIG}.tfvars.json)
+NAMESPACE=$(jq -r '.namespace' terraform/application/config/${CONFIG}.tfvars.json)
 
 # Remove if the service does not declare the external ingress i.e. null_host_header = false
 # https://github.com/DFE-Digital/terraform-modules/blob/101f2fa721661cbf0ad05e8105c3628900351008/domains/environment_domains/variables.tf#L15
