@@ -2,7 +2,7 @@
 
 set -eu
 
-NAMESPACE=$(jq -r '.namespace' terraform/aks/workspace_variables/${CONFIG}.tfvars.json)
+NAMESPACE=$(jq -r '.namespace' terraform/application/config/${CONFIG}.tfvars.json)
 
 ### Deploy maintenance app ###
 echo Update image tag in the maintenance deployment manifest
