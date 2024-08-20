@@ -7,11 +7,11 @@ terraform {
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "2.24.0"
+      version = "2.32.0"
     }
     statuscake = {
       source  = "StatusCakeDev/statuscake"
-      version = "2.1.0"
+      version = "2.2.2"
     }
   }
   backend "azurerm" {
