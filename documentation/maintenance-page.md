@@ -51,6 +51,7 @@ flowchart LR;
 - Check the content by opening `new_service/maintenance_page/html/index.html` in a browser and edit the HTML content as needed, including the email in the footer
 - Check the domains and kubernetes resource names in `new_service/maintenance_page/manifests`
 - Only production and development environments are provided as examples. Copy and amend for new environments.
+- If the service uses DSI, then add the temporary ingresses to the DSI configuration
 - Create workflows for enable-maintenance and disable-maintenance similar to https://github.com/DFE-Digital/apply-for-teacher-training/blob/main/.github/workflows/enable-maintenance.yml and https://github.com/DFE-Digital/apply-for-teacher-training/blob/main/.github/workflows/disable-maintenance.yml
 - The enable-maintenance workflow above should create a package with the correct permissions and visibility settings - if for some reason the workflow is missing or hasn't been run, the package will need to be manually set as public in [github packages](https://github.com/orgs/DFE-Digital/packages).
 - Test in each environment
