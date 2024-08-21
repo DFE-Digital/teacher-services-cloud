@@ -2,10 +2,11 @@
 .terraform
 terraform/application/vendor
 terraform/domains/environment_domains/vendor
+terraform/domains/infrastructure/vendor
 terraform.tfstate*
-bin/terrafile
 
 # Downloaded commands
+bin/terrafile
 bin/konduit.sh
 
 # Maintenance page manifests
