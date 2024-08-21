@@ -206,6 +206,9 @@ resource "kubernetes_deployment" "thanos-store-gateway" {
               path = "/-/healthy"
               port = "http"
             }
+            failure_threshold = 10
+            period_seconds    = 10
+            timeout_seconds   = 5
           }
 
           readiness_probe {
