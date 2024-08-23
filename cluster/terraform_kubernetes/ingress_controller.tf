@@ -157,30 +157,53 @@ resource "helm_release" "ingress-nginx" {
       type  = "string"
     }
   }
-}
 
-resource "helm_release" "ingress-nginx-clone" {
-  count    = var.clone_cluster ? 1 : 0
-  provider = helm.clone
+  set {
+    name  = "controller.podSecurityContext.runAsUser"
+    value = "1000"
+    type  = "auto"
+  }
+  set {
+    name  = "controller.podSecurityContext.runAsGroup"
+    value = "3000"
+    type  = "auto"
+  }
+  set {
+    name  = "controller.securityContext.capabilities.drop[0]"
+    value = "ALL"
+    type  = "string"
+  }
+  // By default, NET_BIND_SERVICE is added to the deployment by the Helm chart, even if we do not explicitly set it.
 
-  name       = helm_release.ingress-nginx.name
-  repository = helm_release.ingress-nginx.repository
-  chart      = helm_release.ingress-nginx.chart
-  version    = helm_release.ingress-nginx.version
-
-  dynamic "set" {
-    # Exclude the load balancer IP to force clone to use dynamic Public IP for load balancer ingress
-    for_each = [
-      for s in helm_release.ingress-nginx.set : s
-      if s.name != "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-ipv4"
-      && s.name != "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-resource-group"
-    ]
-
-    content {
-      name  = set.value["name"]
-      value = set.value["value"]
-      type  = set.value["type"]
-    }
+  set {
+    name  = "controller.securityContext.allowPrivilegeEscalation"
+    value = "false"
+    type  = "string"
+  }
+  set {
+    name  = "controller.securityContext.privileged"
+    value = "false"
+    type  = "string"
+  }
+  set {
+    name  = "controller.securityContext.runAsNonRoot"
+    value = "true"
+    type  = "string"
+  }
+  set {
+    name  = "controller.securityContext.readOnlyRootFilesystem"
+    value = "true"
+    type  = "string"
+  }
+  set {
+    name  = "controller.securityContext.seccompProfile.type"
+    value = "RuntimeDefault"
+    type  = "string"
+  }
+  set {
+    name  = "controller.automountServiceAccountToken"
+    value = "false"
+    type  = "string"
   }
 }
 

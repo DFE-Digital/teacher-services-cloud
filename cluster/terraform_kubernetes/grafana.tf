@@ -50,6 +50,20 @@ resource "kubernetes_deployment" "grafana_deployment" {
         container {
           name  = "grafana"
           image = "grafana/grafana:${var.grafana_version}"
+          security_context {
+            run_as_user  = 1000
+            run_as_group = 3000
+            capabilities {
+              drop = ["ALL"]
+            }
+            allow_privilege_escalation = false
+            privileged                 = false
+            run_as_non_root            = true
+            read_only_root_filesystem  = true
+            seccomp_profile {
+              type = "RuntimeDefault"
+            }
+          }
           port {
             container_port = 3000
           }
