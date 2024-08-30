@@ -25,7 +25,7 @@
 make test terraform-apply CONFIRM_TEST=yes
 ```
 - At this point monitor your cluster as well as curl response and make sure it returns and cycle `200` .
-- You will also see the pod recreated through its life cucle below:
+- You will also see the pod recreated through its life cycle below:
 
         ```
         ingress-nginx-admission-create-kksm2        0/1     Pending   0          0s
@@ -36,4 +36,4 @@ make test terraform-apply CONFIRM_TEST=yes
 
         ```
 - Follow the same process for production and raise a PR for each environment.
-- Please give at least 24 hours notice to the application teams before upgrade.
+- Wait at least 24 hours before applying upgrade to production (if any downtime was obversed during deployment(s) to lower environment(s), notify the application teams before production upgrade).
