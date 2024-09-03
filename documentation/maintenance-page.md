@@ -59,6 +59,11 @@ flowchart LR;
 ## Update content
 There is a default message in `new_service/maintenance_page/html`. Customise it as required for the occasion.
 
+If the maintenance page message needs to be updated at any time during an incident
+- update maintenance_page/html/index.html in a new branch
+- push the new branch to github
+- rerun the *enable maintenance workflow* using the new branch
+
 ## Github token
 A user with write access to the repository must generate a token.
 

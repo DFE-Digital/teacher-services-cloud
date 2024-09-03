@@ -1,13 +1,13 @@
 # Disaster Recovery testing
 
-This document covers the Disaster Recovery testing procedure for applications hosted on the Teacher Services AKS clusters based on scenerios details in the [Disaster recovery document](disaster-recovery.md).
+This document covers the Disaster Recovery testing procedure for applications hosted on the Teacher Services AKS clusters based on scenarios detailed in the [Disaster recovery document](disaster-recovery.md).
 
 ## Prerequisites
 
 - Identified environment for the test e.g. qa, staging, test, etc
 - Identified scenario(s) that are to be tested
-    1. [loss of database instance]((disaster-recovery/#scenario-1-loss-of-database-instance))
-    1. [loss of data](disaster-recovery#scenario-2-loss-of-data)
+    1. [loss of database instance](disaster-recovery.md/#scenario-1-loss-of-database-server)
+    1. [loss of data](disaster-recovery.md/#scenario-2-loss-of-data)
 - Repository workflows that should utilise existing DFE github-actions
     - deploy selected env
         - e.g. https://github.com/DFE-Digital/apply-for-teacher-training/blob/main/.github/workflows/deploy-v2.yml
@@ -38,13 +38,8 @@ Schedule virtual meeting for the test to take place
 
 Regularly provide updates on the service Slack channel to keep product owners abreast of developments.
 
-## Freeze pipeline
-
-Alert developers that no one should merge to main.
-- In github setings, a user with repo admin privileges should update the *Branch protection rules* and set required PR approvers to 6
-
 ## Scenario 1: Loss of database instance
-See [DR scenario 1](disaster-recovery/#scenario-1-loss-of-database-instance).
+See [DR scenario 1](disaster-recovery.md/#scenario-1-loss-of-database-server).
 
 ### Delete the postgres database instance
 
@@ -57,7 +52,7 @@ Note that you must have a previously created backup on azure storage before star
 Follow the disaster recovery instructions.
 
 ## Scenario 2: Loss of data
-See [DR scenario 2](disaster-recovery#scenario-2-loss-of-data).
+See [DR scenario 2](disaster-recovery.md#scenario-2-loss-of-data).
 
 ### Delete data from the postgres database instance
 
@@ -70,11 +65,6 @@ Make a note of the time this step is being started as the restore point must be 
 Follow the disaster recovery instructions.
 
 ## Post scenario steps
-
-### Unfreeze pipeline
-
-Alert developers that merge to main is allowed.
-- In github settings, update the Branch protection rules and set required PR approvers back to 1
 
 ### Documentation requirements
 
