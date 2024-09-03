@@ -49,7 +49,7 @@ variable "welcome_app_hostnames" {
 variable "ingress_nginx_version" {
   description = "Version of the ingress-nginx helm chart to use"
   type        = string
-  default     = "4.4.0"
+  default     = "4.11.0"
 }
 
 variable "enable_lowpriority_app" {
