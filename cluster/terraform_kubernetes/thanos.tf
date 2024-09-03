@@ -80,6 +80,20 @@ resource "kubernetes_deployment" "thanos-querier" {
         container {
           image = "quay.io/thanos/thanos:${var.thanos_version}"
           name  = "thanos-querier"
+          security_context {
+            run_as_user  = 1000
+            run_as_group = 3000
+            capabilities {
+              drop = ["ALL"]
+            }
+            allow_privilege_escalation = false
+            privileged                 = false
+            run_as_non_root            = true
+            read_only_root_filesystem  = true
+            seccomp_profile {
+              type = "RuntimeDefault"
+            }
+          }
 
           args = [
             "query",
@@ -181,6 +195,20 @@ resource "kubernetes_deployment" "thanos-store-gateway" {
         container {
           image = "quay.io/thanos/thanos:${var.thanos_version}"
           name  = "thanos-store-gateway"
+          security_context {
+            run_as_user  = 1000
+            run_as_group = 3000
+            capabilities {
+              drop = ["ALL"]
+            }
+            allow_privilege_escalation = false
+            privileged                 = false
+            run_as_non_root            = true
+            read_only_root_filesystem  = true
+            seccomp_profile {
+              type = "RuntimeDefault"
+            }
+          }
 
           args = [
             "store",
@@ -234,6 +262,11 @@ resource "kubernetes_deployment" "thanos-store-gateway" {
             name       = "thanos-config-volume"
             read_only  = true
           }
+
+          volume_mount {
+            mount_path = "/data" # Mounting the /data directory to a writable volume
+            name       = "thanos-data-volume"
+          }
         }
 
         volume {
@@ -241,6 +274,11 @@ resource "kubernetes_deployment" "thanos-store-gateway" {
           secret {
             secret_name = "thanos-objstore-config"
           }
+        }
+
+        volume {
+          name = "thanos-data-volume"
+          empty_dir {}
         }
 
       }
@@ -276,6 +314,21 @@ resource "kubernetes_deployment" "thanos-compactor" {
         container {
           image = "quay.io/thanos/thanos:${var.thanos_version}"
           name  = "thanos-compactor"
+
+          security_context {
+            run_as_user  = 1000
+            run_as_group = 3000
+            capabilities {
+              drop = ["ALL"]
+            }
+            allow_privilege_escalation = false
+            privileged                 = false
+            run_as_non_root            = true
+            read_only_root_filesystem  = true
+            seccomp_profile {
+              type = "RuntimeDefault"
+            }
+          }
 
           args = [
             "compact",
@@ -323,6 +376,11 @@ resource "kubernetes_deployment" "thanos-compactor" {
             name       = "thanos-config-volume"
             read_only  = true
           }
+
+          volume_mount {
+            mount_path = "/data" # Mounting the /data directory to a writable volume
+            name       = "thanos-data-volume"
+          }
         }
 
         volume {
@@ -330,6 +388,11 @@ resource "kubernetes_deployment" "thanos-compactor" {
           secret {
             secret_name = "thanos-objstore-config"
           }
+        }
+
+        volume {
+          name = "thanos-data-volume"
+          empty_dir {}
         }
 
       }

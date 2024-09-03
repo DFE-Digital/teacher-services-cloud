@@ -90,6 +90,21 @@ resource "kubernetes_deployment" "prometheus" {
           image = "prom/prometheus:${var.prometheus_version}"
           name  = "prometheus"
 
+          security_context {
+            run_as_user  = 1000
+            run_as_group = 3000
+            capabilities {
+              drop = ["ALL"]
+            }
+            allow_privilege_escalation = false
+            privileged                 = false
+            run_as_non_root            = true
+            read_only_root_filesystem  = true
+            seccomp_profile {
+              type = "RuntimeDefault"
+            }
+          }
+
           args = [
             "--storage.tsdb.retention.time=${var.prometheus_tsdb_retention_time}",
             "--config.file=/etc/prometheus/prometheus.yml",
