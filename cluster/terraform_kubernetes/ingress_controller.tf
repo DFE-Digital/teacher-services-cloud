@@ -106,9 +106,12 @@ resource "helm_release" "ingress-nginx" {
     type  = "string"
   }
 
-  # Annotations to enable scraping for ingress controller
-  # where podAnnotations is the top level property, port is ingress controller port for metrics,
-  # path is default path for metrics used throughout, enabled is true if scraping is desired
+  # Enable prometheus metrics and configure scraping
+  set {
+    name  = "controller.metrics.enabled"
+    value = "true"
+    type  = "auto"
+  }
   set {
     name  = "controller.podAnnotations.prometheus\\.io/scrape"
     value = "true"
