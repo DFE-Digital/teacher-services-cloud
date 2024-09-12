@@ -70,7 +70,7 @@ variable "grafana_limit_mem" {
 }
 
 variable "grafana_version" {
-  default = "10.3.3"
+  default = "11.1.5"
 }
 
 variable "lowpriority_app_cpu" {
@@ -86,7 +86,7 @@ variable "lowpriority_app_replicas" {
 }
 
 variable "kube_state_metrics_version" {
-  default = "2.10.1"
+  default = "2.12.0"
 }
 
 data "azurerm_client_config" "current" {}
@@ -96,7 +96,7 @@ data "environment_variables" "github_actions" {
 }
 
 variable "prometheus_version" {
-  default = "v2.49.1"
+  default = "v2.54.1"
 }
 
 variable "prometheus_tsdb_retention_time" {
@@ -115,7 +115,7 @@ variable "prometheus_app_cpu" {
 }
 
 variable "thanos_version" {
-  default = "v0.8.0"
+  default = "v0.36.1"
 }
 
 variable "thanos_app_mem" {
@@ -163,7 +163,7 @@ variable "cluster_short" {
 }
 
 variable "alertmanager_image_version" {
-  default = "v0.19.0"
+  default = "v0.27.0"
 }
 
 variable "alertmanager_app_cpu" {
@@ -174,7 +174,7 @@ variable "alertmanager_app_mem" {
   default = "1Gi"
 }
 variable "node_exporter_version" {
-  default = "v1.7.0"
+  default = "v1.8.2"
 }
 variable "filebeat_version" {
   default = "8.12.2"
