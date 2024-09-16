@@ -16,8 +16,7 @@ development: test-cluster
 .PHONY: review
 review: test-cluster
 	$(if ${PR_NUMBER},,$(error Missing PR_NUMBER))
-	$(eval ENVIRONMENT=review-${PR_NUMBER})
-	$(eval export TF_VAR_environment=${ENVIRONMENT})
+	$(eval ENVIRONMENT=pr-${PR_NUMBER})
 	$(eval include global_config/review.sh)
 
 production: production-cluster
@@ -54,6 +53,7 @@ terraform-init: composed-variables bin/terrafile set-azure-account
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=${ENVIRONMENT}_kubernetes.tfstate
 
+	$(eval export TF_VAR_environment=${ENVIRONMENT})
 	$(eval export TF_VAR_azure_resource_prefix=${AZURE_RESOURCE_PREFIX})
 	$(eval export TF_VAR_config_short=${CONFIG_SHORT})
 	$(eval export TF_VAR_service_name=${SERVICE_NAME})
