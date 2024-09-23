@@ -66,7 +66,7 @@ help() {
 }
 
 init_setup() {
-   if [ "${RUNCMD}" != "psql" ] && [ "${RUNCMD}" != "pg_dump" ] && [ "${RUNCMD}" != "pg_restore" ] && [ "${RUNCMD}" != "redis-cli" ]; then
+   if [ "${RUNCMD}" != "psql" ] && [ "${RUNCMD}" != "pg_dump" ] && [ "${RUNCMD}" != "pg_restore" ] && [ "${RUNCMD}" != "redis-cli" ] && [ "${RUNCMD}" != "rails-c" ]; then
       echo
       echo "Error: invalid command ${RUNCMD}"
       echo "Only valid options are psql, pg_dump, pg_restore or redis-cli"
@@ -371,6 +371,12 @@ run_pg_restore() {
    pg_restore -d "$DB_URL" --no-password ${OTHERARGS}
 }
 
+run_rails() {
+  export DATABASE_URL=$DB_URL
+
+   rails c
+}
+
 cleanup() {
    unset DB_URL DB_HOSTNAME ORIG_URL
    pkill -15 -f "kubectl port-forward.*${LOCAL_PORT}"
@@ -468,6 +474,10 @@ pg_restore)
 redis-cli)
    set_db_redis
    CMD="redis-cli -u $DB_URL $TLS ${OTHERARGS}"
+   ;;
+rails-c)
+   set_db_psql
+   CMD="run_rails"
    ;;
 esac
 open_tunnels >/dev/null 2>&1
