@@ -97,6 +97,8 @@ az aks nodepool get-upgrades --resource-group <ResourceGroup> --cluster-name <Cl
     - Run following commands in another terminal to see the cluster upgrade progress.
         -  kubectl get events --watch
         -  kubectl get nodes --watch
+1. After successful upgrades for each environment, check metrics are still displaying and working well in Grafana
+    - Check the dashboards in grafana: https://grafana.cluster<x\>.development.teacherservices.cloud, https://grafana.platform-test.teacherservices.cloud, https://grafana.test.teacherservices.cloud, https://grafana.teacherservices.cloud
 1. Follow the same manual process to upgrade the platform_test cluster
     - Test with the welcome app: https://www.platform-test.teacherservices.cloud/
     - Raise PR
