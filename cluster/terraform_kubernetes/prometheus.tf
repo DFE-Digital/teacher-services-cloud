@@ -91,8 +91,8 @@ resource "kubernetes_deployment" "prometheus" {
           name  = "prometheus"
 
           security_context {
-            run_as_user  = 1000
-            run_as_group = 3000
+            run_as_user  = 1001
+            run_as_group = 1001
             capabilities {
               drop = ["ALL"]
             }
