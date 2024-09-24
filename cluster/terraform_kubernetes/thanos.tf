@@ -81,8 +81,8 @@ resource "kubernetes_deployment" "thanos-querier" {
           image = "quay.io/thanos/thanos:${var.thanos_version}"
           name  = "thanos-querier"
           security_context {
-            run_as_user  = 1000
-            run_as_group = 3000
+            run_as_user  = 1001
+            run_as_group = 1001
             capabilities {
               drop = ["ALL"]
             }
@@ -196,8 +196,8 @@ resource "kubernetes_deployment" "thanos-store-gateway" {
           image = "quay.io/thanos/thanos:${var.thanos_version}"
           name  = "thanos-store-gateway"
           security_context {
-            run_as_user  = 1000
-            run_as_group = 3000
+            run_as_user  = 1001
+            run_as_group = 1001
             capabilities {
               drop = ["ALL"]
             }
@@ -316,8 +316,8 @@ resource "kubernetes_deployment" "thanos-compactor" {
           name  = "thanos-compactor"
 
           security_context {
-            run_as_user  = 1000
-            run_as_group = 3000
+            run_as_user  = 1001
+            run_as_group = 1001
             capabilities {
               drop = ["ALL"]
             }
