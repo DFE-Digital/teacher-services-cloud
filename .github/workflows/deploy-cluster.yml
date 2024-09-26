@@ -62,6 +62,17 @@ jobs:
         terraform_root_folder: templates/new_service/terraform/domains/environment_domains
         terrafile_environment: development
 
+    - name: Send Slack notification on failure
+      if: ${{ failure() && github.ref == 'refs/heads/main' }}
+      uses: rtCamp/action-slack-notify@master
+      env:
+        SLACK_COLOR: '#ef5343'
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_TITLE: A Cluster update failure has occurred
+        SLACK_MESSAGE: |
+          The terraform validation during cluster update has failed
+          Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
+
   deploy:
     name: Deploy Cluster
     if: github.ref == 'refs/heads/main'
@@ -81,6 +92,17 @@ jobs:
       with:
         azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
         environment_name: ${{ matrix.environment }}
+
+    - name: Send Slack notification on failure
+      if: failure()
+      uses: rtCamp/action-slack-notify@master
+      env:
+        SLACK_COLOR: '#ef5343'
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_TITLE: A Cluster update failure has occurred
+        SLACK_MESSAGE: |
+          The cluster deployment to ${{ matrix.environment }} has failed
+          Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
 
   update-domains:
     name: Update DNS domains
@@ -113,3 +135,14 @@ jobs:
       shell: bash
       env:
         TF_VAR_azure_sp_credentials_json: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Send Slack notification on failure
+      if: failure()
+      uses: rtCamp/action-slack-notify@master
+      env:
+        SLACK_COLOR: '#ef5343'
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        SLACK_TITLE: A Cluster update failure has occurred
+        SLACK_MESSAGE: |
+          The domain update to ${{ matrix.environment }} has failed
+          Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
