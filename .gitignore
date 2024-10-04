@@ -17,3 +17,6 @@ bin/terrafile
 
 # macOS files
 .DS_Store
+
+# Ignore Jetbrains IDE settings
+.idea
