@@ -9,17 +9,17 @@ This document covers the Disaster Recovery testing procedure for applications ho
     1. [loss of database instance](disaster-recovery.md/#scenario-1-loss-of-database-server)
     1. [loss of data](disaster-recovery.md/#scenario-2-loss-of-data)
 - Repository workflows that should utilise existing DFE github-actions
-    - deploy selected env
+    - Deploy selected env
         - e.g. https://github.com/DFE-Digital/apply-for-teacher-training/blob/main/.github/workflows/deploy-v2.yml
-    - backup postgres database to Azure storage [required for scenario 1 above]
+    - *Backup postgres database to Azure storage* [required for scenario 1 above]
         - using https://github.com/DFE-Digital/github-actions/tree/master/backup-postgres
-    - restore postgres database from Azure storage [required for scenario 1 above]
+    - *Restore database from Azure storage* [required for scenario 1 above]
         - using https://github.com/DFE-Digital/github-actions/tree/master/restore-postgres-backup
-    - point in time restore of postgres database [required for scenario 2 above]
+    - *Restore database from point in time to new database server* [required for scenario 2 above]
         - using https://github.com/DFE-Digital/github-actions/tree/master/ptr-postgres
 - Repo workflows to enable and disable the maintenance page.
     - see https://github.com/DFE-Digital/teacher-services-cloud/blob/main/documentation/maintenance-page.md
-    - confirm workflows exists for the selected environment to be tested. Examples;
+    - confirm workflows exists for the selected environment to be tested. Examples:
         - https://github.com/DFE-Digital/apply-for-teacher-training/actions/workflows/enable-maintenance.yml
         - https://github.com/DFE-Digital/apply-for-teacher-training/actions/workflows/disable-maintenance.yml
 - an app url that identifies the current docker image sha. Can be part of the healthcheck e.g. https://github.com/sdglhm/okcomputer/blob/master/lib/ok_computer/built_in_checks/app_version_check.rb
