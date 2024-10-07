@@ -48,6 +48,13 @@ To create a new stack:
 1. Annotate pods with `logit.io/send: "true"` to ship their logs. Use the `enable_logit` variable for applications deployed with the [application module](https://github.com/DFE-Digital/terraform-modules/tree/main/aks/application).
 1. [Refresh index pattern](#refresh-index-pattern)
 
+## Monitoring and Alerting
+
+We have enabled Logit stack alerts and notification (elastalert).
+Each stack has a monitor for too many logs per hour, and no logs in 30 minutes.
+When triggered, an email alert will be sent to the TS Infra team email address, and we should investigate why there are too many or missing logs.
+It will re-alert every 3 hours until any issue is resolved.
+
 ## Logstash inputs
 Filebeat sends logs to logstash as json so they can be decoded to create fields in ElasticSearch and query them with Kibana.
 
