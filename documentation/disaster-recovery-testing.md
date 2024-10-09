@@ -12,16 +12,16 @@ This document covers the Disaster Recovery testing procedure for applications ho
     - Deploy selected env
         - e.g. https://github.com/DFE-Digital/apply-for-teacher-training/blob/main/.github/workflows/deploy-v2.yml
     - *Backup postgres database to Azure storage* [required for scenario 1 above]
-        - using https://github.com/DFE-Digital/github-actions/tree/master/backup-postgres
+        - using https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/workflows/backup-db.yml
     - *Restore database from Azure storage* [required for scenario 1 above]
-        - using https://github.com/DFE-Digital/github-actions/tree/master/restore-postgres-backup
+        - using https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/workflows/postgres-restore.yml
     - *Restore database from point in time to new database server* [required for scenario 2 above]
-        - using https://github.com/DFE-Digital/github-actions/tree/master/ptr-postgres
+        - using https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/workflows/postgres-ptr.yml
 - Repo workflows to enable and disable the maintenance page.
     - see https://github.com/DFE-Digital/teacher-services-cloud/blob/main/documentation/maintenance-page.md
     - confirm workflows exists for the selected environment to be tested. Examples:
-        - https://github.com/DFE-Digital/apply-for-teacher-training/actions/workflows/enable-maintenance.yml
-        - https://github.com/DFE-Digital/apply-for-teacher-training/actions/workflows/disable-maintenance.yml
+        - https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/workflows/enable-maintenance.yml
+        - https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/workflows/disable-maintenance.yml
 - an app url that identifies the current docker image sha. Can be part of the healthcheck e.g. https://github.com/sdglhm/okcomputer/blob/master/lib/ok_computer/built_in_checks/app_version_check.rb
 - Identify the technical and non technical stakeholders who will participate in the test, based on the [Teacher services list](https://educationgovuk.sharepoint.com.mcas.ms/sites/teacher-services-infrastructure/Lists/Teacher%20services%20list/AllItems.aspx)
 
