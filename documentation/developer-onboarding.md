@@ -26,6 +26,9 @@ Microsoft Entra Privileged Identity Management (PIM) allows gaining temporary (u
 - The other members of the team will receive an email with a link to PIM so they can review and approve your request.
 - After a few minutes, your access will be active. It may require login out and in again.
 
+## Accessing Azure Portal
+- When Access the [Azure portal](https://portal.azure.com/#home) make sure you switch to your digitalauth account and switch directory to DfE Platform Identity.
+
 ## Which clusters can I use?
 The infra team maintains several AKS clusters. Two are usable by developers to deploy their services:
 
@@ -47,6 +50,7 @@ Used for all your production and production-like environments, especially if the
 - Login to azure command line using `az login` or `az login --use-device-code`
 - Run `make <environment> get-cluster-credentials`
 - This configures the `kubectl` context so you can run commands against this cluster
+- *NOTE:* If problems running `az login` make sure you have accessed the Azure Portal as above first. Also run `az logout` before running `az login`.
 
 ## What is a namespace?
 Namespaces are a way to logically partition and isolate resources within a Kubernetes cluster. Each namespace has its own set of isolated resources like pods, services, deployments etc.
@@ -149,7 +153,7 @@ The main monitoring tools used are Grafana and Alertmanager. For further reading
 ### Grafana
 Grafana could be accessed via the respective URLs based on the environment of interest. The URLs corresponding to each environment as below:
 
-* Test | https://grafana.test.teacherservices.cloud 
+* Test | https://grafana.test.teacherservices.cloud
 * Production | https://grafana.teacherservices.cloud/
 
 The default access to the grafana interface is view only, which does not require authentication. In order to be able to make changes for example adding more dashboards and editing existing dashboards, requests will have to be made in the #teacher-services-infra slack channel to obtain admin credentials.
@@ -165,26 +169,26 @@ Grafana allows you to export your dashboard as a JSON file, which can be version
 The following steps are required for creating or editing dashboards. Please [click](https://grafana.com/docs/grafana/latest/fundamentals/dashboards-overview/) for more extensive details
 -   Ensure you are logged in as an admin
 -   Identify the purpose of your dashboard. What insights the dashboard will provide and what messages it  conveys
-- 	Plan and Design how the dashboard would look when completed, paying attention to the placement of panels, alignment, spacing, colour 
+- 	Plan and Design how the dashboard would look when completed, paying attention to the placement of panels, alignment, spacing, colour
     and organisation
-- 	Select the Appropriate Data Sources by identifying the right datasource to visualise in the dashboard (currently prometheus is the only 
+- 	Select the Appropriate Data Sources by identifying the right datasource to visualise in the dashboard (currently prometheus is the only
    datasource available to select )
 -  Click on the "Explore" view, select the datasource(prometheus) and then browse and search using the "Metric" dropdown
--	Create Panels for each metric by adding panel for the metric and choosing the right visualisation (for example graph, gauge, table, 
+-	Create Panels for each metric by adding panel for the metric and choosing the right visualisation (for example graph, gauge, table,
     heatmap) and configure the panel settings eg the query, data transformation and display options and add concise title for clarity
 
 ###  Changes to dashboards and pull requests
-- Any changes made to the dashboard on the UI will be overwritten in the next deployment unless added to the codebase and a pull request 
+- Any changes made to the dashboard on the UI will be overwritten in the next deployment unless added to the codebase and a pull request
   made to merge it
-- In order to ensure that the new dashboard created is permanent and not deleted by subsequent deployment, add a JSON  file to the 
+- In order to ensure that the new dashboard created is permanent and not deleted by subsequent deployment, add a JSON  file to the
   dashboards directory [here](https://github.com/DFE-Digital/teacher-services-cloud/tree/main/cluster/terraform_kubernetes/config/dashboards) by pasting the content of the json file exported from the dashboard and then make an entry to grafana_dashboards kubernetes_config_map resource in [grafana.tf](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/grafana.tf#L152C1-L153C1) file and raise a PR in order to merge the change
 
 
 ### Import a dashboard from json
 - Log in to Grafana as admin
-- Navigate to the Dashboard Import Page and click the "+" icon in the left sidebar to open the dashboard menu, select "Import" from the  
+- Navigate to the Dashboard Import Page and click the "+" icon in the left sidebar to open the dashboard menu, select "Import" from the
   dropdown menu to access the dashboard import page.
-- Import the JSON File by either clicking on "Upload JSON file" and selecting the json file from your computer or pasting the json file 
+- Import the JSON File by either clicking on "Upload JSON file" and selecting the json file from your computer or pasting the json file
   content into the text area provided
 -  Click on the "Import" button to initiate the dashboard import process
 
