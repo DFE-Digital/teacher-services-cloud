@@ -1,0 +1,55 @@
+name: Enable maintenance
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        required: true
+        type: choice
+        options:
+        - development
+        - production
+
+jobs:
+  enable-maintenance:
+    name: Enable maintenance app
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Build and push docker image
+      id: build-image
+      uses: DFE-Digital/github-actions/build-docker-image@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        dockerfile-path: maintenance_page/Dockerfile
+        docker-repository: ghcr.io/dfe-digital/itt-mentor-services-maintenance
+        context: maintenance_page
+
+    - uses: azure/login@v2
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Set ARM and kubelogin environment
+      uses: DFE-Digital/github-actions/set-kubelogin-environment@master
+      with:
+        azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Deploy maintenance app
+      run: make ${{ inputs.environment }} maintenance-fail-over
+      env:
+        MAINTENANCE_IMAGE_TAG: ${{steps.build-image.outputs.tag}}
+
+    - name: Maintenance Summary
+      if: success()
+      run: |
+        NOW=$(TZ=Europe/London date +"%F %R")
+        echo 'MAINTENANCE PAGE ENABLED!' >> $GITHUB_STEP_SUMMARY
+        echo 'ENV: ${{ inputs.environment }}' >> $GITHUB_STEP_SUMMARY
+        echo "AT : ${NOW}" >> $GITHUB_STEP_SUMMARY
+        TEMP_URLS=$(awk '/name:.*cloud/ {print $2}' ./maintenance_page/manifests/${{ inputs.environment }}/ingress_temp*.yml)
+        echo 'TEMP URLS:' >> $GITHUB_STEP_SUMMARY
+        echo "${TEMP_URLS}" >> $GITHUB_STEP_SUMMARY
