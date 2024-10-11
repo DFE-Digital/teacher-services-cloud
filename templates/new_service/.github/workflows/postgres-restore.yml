@@ -26,8 +26,9 @@ on:
         required: false
 
 env:
+  SERVICE_NAME: #SERVICE_NAME#
   SERVICE_SHORT: #SERVICE_SHORT#
-  TF_VARS_PATH: terraform/aks/config
+  TF_VARS_PATH: terraform/application/config
 
 jobs:
   restore:
@@ -63,17 +64,7 @@ jobs:
       with:
         storage-account: ${{ env.STORAGE_ACCOUNT_NAME }}
         resource-group: ${{ env.RESOURCE_GROUP_NAME }}
-        app-name: ${{ env.SERVICE_SHORT }}-${{ inputs.environment }}
+        app-name: ${{ env.SERVICE_NAME }}-${{ inputs.environment }}
         cluster: ${{ env.CLUSTER }}
         azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
         backup-file: ${{ env.BACKUP_FILE }}
-
-    - name: Restore Summary
-      if: success()
-      run: |
-        NOW=$(TZ=Europe/London date +"%F %R")
-        echo 'RESTORE SUCCESSFUL!' >> $GITHUB_STEP_SUMMARY
-        echo '  ENV: ${{ inputs.environment }}' >> $GITHUB_STEP_SUMMARY
-        echo "  AT : ${NOW}" >> $GITHUB_STEP_SUMMARY
-        echo '  DB SERVER: ${{ env.DB_SERVER }}' >> $GITHUB_STEP_SUMMARY
-        echo '  BACKUP FILE RESTORED: ${{ env.BACKUP_FILE }}' >> $GITHUB_STEP_SUMMARY

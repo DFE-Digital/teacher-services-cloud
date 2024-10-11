@@ -30,7 +30,7 @@ on:
 
 env:
   SERVICE_SHORT: #SERVICE_SHORT#
-  TF_VARS_PATH: terraform/aks/config
+  TF_VARS_PATH: terraform/application/config
 
 jobs:
   ptr-restore:
@@ -68,14 +68,3 @@ jobs:
         restore-time: ${{ inputs.restore-time }}
         cluster: ${{ env.CLUSTER }}
         azure-credentials: ${{ secrets.AZURE_CREDENTIALS}}
-
-    - name: Restore Summary
-      if: success()
-      run: |
-        NOW=$(TZ=Europe/London date +"%F %R")
-        echo 'RESTORE SUCCESSFUL!' >> $GITHUB_STEP_SUMMARY
-        echo '  ENV: ${{ inputs.environment }}' >> $GITHUB_STEP_SUMMARY
-        echo "  AT : ${NOW}" >> $GITHUB_STEP_SUMMARY
-        echo '  SOURCE SERVER: ${{ env.DB_SERVER }}' >> $GITHUB_STEP_SUMMARY
-        echo '  RESTORED SERVER: ${{ env.NEW_DB_SERVER }}' >> $GITHUB_STEP_SUMMARY
-        echo '  RESTORE POINT: ${{ inputs.restore-time }} UTC' >> $GITHUB_STEP_SUMMARY

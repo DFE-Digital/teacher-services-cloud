@@ -51,7 +51,7 @@ The code covers most common use cases, but it may be necessary to amend it. Exam
 - The web application uses `/healthcheck` as health probe. It can be changed to another path or disabled by passing `null`.
 
 ### Github actions workflow templates
-Several workflow templates will be created in the /workflows directory.
+Several workflow templates will be created in the .github/workflows directory.
 These should be moved to the service repo .github/workflows directory and should be used as templates for post build tasks
 - postgres database backups and restores (as part of DR)
 - maintenance page enable/disable
