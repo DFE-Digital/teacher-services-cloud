@@ -9,68 +9,11 @@ Workload Identity Federation requires configuration on both Azure and GCP.
 
 ## GCP Configuration
 
-To configure GCP run the gcloud scripts below.
+To configure GCP to run the gcloud scripts see [GCloud FAQ](https://github.com/DFE-Digital/teacher-services-analytics-cloud/blob/main/documentation/gcloud-faq.md).
 
-### Pre-requisites for running gcloud scripts
+## GCloud scripts and documentation
 
-- [Install the gcloud CLI](https://cloud.google.com/sdk/docs/install) for you operating system
-- A google account is required. This can be requested from ServiceNow or contact the #twd_data_insights team on slack
-- **Owner** permissions are required for the project to be configured. This can be requested from the #twd_data_insights team on slack
-- Authenticate with gcloud on the cli to run the scripts below
-
-### Authenticating with gcloud
-
-Login with the following gcloud command to authenticate through a browser:
-
-```
-gcloud auth login
-```
-
-For convenience to set defaults run the init command and follow the prompts:
-
-```
-gcloud init
-```
-
-### Create a workload identity pool
-
-gcloud shell script:
-
-```
-scripts/azure-gcp-wif/create-gcp-workload-identity-pool.sh
-```
-
-### Create a workload identity pool provider
-
-gcloud shell script:
-
-```
-scripts/azure-gcp-wif/create-gcp-workload-identity-pool-provider.sh
-```
-
-### Create a service account
-
-gcloud shell script:
-
-```
-scripts/azure-gcp-wif/create-gcp-service-account.sh
-```
-
-### Update service account permissions for workload identity federation
-
-gcloud shell script:
-
-```
-scripts/azure-gcp-wif/update-wif-service-account-permissions.sh
-```
-
-### Create workload identity federation client credentials file
-
-gcloud shell script:
-
-```
-scripts/azure-gcp-wif/create-wif-client-credentials.sh
-```
+For GCloud WIF helper scripts and documentation see [GCloud scripts](https://github.com/DFE-Digital/teacher-services-analytics-cloud/tree/main/scripts/gcloud) and [Documentation](https://github.com/DFE-Digital/teacher-services-analytics-cloud/blob/main/documentation/gcloud-scripts.md).
 
 ## Azure configuration
 [The required resources](https://learn.microsoft.com/en-us/azure/aks/workload-identity-deploy-cluster) are added per namespace. Add namespaces to the `gcp_wif_namespaces` variable list to enable WIF. This creates a service account in the namespace, linked to a managed identity with specific federated credentials.
