@@ -10,6 +10,27 @@ Documentation for the Teacher services application developers
 - [jq](https://stedolan.github.io/jq/)
 - [kubelogin](https://azure.github.io/kubelogin/install.html)
 
+## Documentation for Infrastructure
+Documentation is in three places:
+- teacher-services-cloud github repository
+- Sharepoint
+- Technical Guidance
+
+each can be searched separately for info
+
+### Search documentation in teacher-services-cloud github repository
+- In browser go to https://github.com/DFE-Digital/teacher-services-cloud
+- To search for 'dns' in documentation directory in search box top right enter:
+`repo:DFE-Digital/teacher-services-cloud path:/^documentation\//  dns`
+
+### Search in sharepoint docs
+- In browser go to https://educationgovuk.sharepoint.com.mcas.ms/sites/teacher-services-infrastructure/
+- In search box at the top enter search term like 'dns'
+
+### Search Technical Guidance
+- In browser go to https://technical-guidance.education.gov.uk/infrastructure/
+- In search box top left enter search term e.g. 'dns'
+
 ## How to request access?
 - There is an assumption that you have been given a [CIP account](https://technical-guidance.education.gov.uk/infrastructure/hosting/azure-cip/#onboarding-users). For BYOD users, please make sure to request a [digitalauth account](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/Request-a-digitalauth-Azure-account.aspx).
 - The technical lead of your team will then add you to the AD group of your area. For example if you work on a BAT service, you will be added to "s189 BAT delivery team". You will now be able to:
