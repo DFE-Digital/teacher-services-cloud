@@ -2,9 +2,8 @@
 
 Documentation for the Teacher services application developers
 
-NOTE: For additional info for onboarding infrastructure team members see [
-Teacher services infrastructure -
-Onboarding a team member](https://educationgovuk.sharepoint.com.mcas.ms/sites/teacher-services-infrastructure/SitePages/Onboarding-a-team-member.aspx)
+NOTE: For additional info about infrastructure see [
+Sharepoint: Teacher services infrastructure](https://educationgovuk.sharepoint.com.mcas.ms/sites/teacher-services-infrastructure)
 
 ## Software requirements
 - OS: Linux, MacOS or Windows with WSL
