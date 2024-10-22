@@ -2,6 +2,9 @@
 
 Documentation for the Teacher services application developers
 
+NOTE: For additional info about infrastructure see [
+Sharepoint: Teacher services infrastructure](https://educationgovuk.sharepoint.com.mcas.ms/sites/teacher-services-infrastructure)
+
 ## Software requirements
 - OS: Linux, MacOS or Windows with WSL
 - [azure cli](https://technical-guidance.education.gov.uk/infrastructure/dev-tools/#azure-cli)
