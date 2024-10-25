@@ -58,4 +58,6 @@ locals {
   postgres_ssl_mode = var.enable_postgres_ssl ? "require" : "disable"
 
   environment_variables = yamldecode(file("${path.module}/config/${var.config}.yml"))
+
+  external_url = try(local.environment_variables["EXTERNAL_URL"], module.web_application.url)
 }

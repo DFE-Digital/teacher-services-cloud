@@ -1,0 +1,166 @@
+name: Build and Deploy
+concurrency: build_and_deploy_${{ github.ref_name }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Deploy environment"
+        required: true
+        type: choice
+        default: review
+        options:
+        - review
+        - development
+        - production
+      docker-image-tag:
+        description: "Docker image tag to deploy (optional)"
+        required: true
+        type: string
+      pull-request-number:
+        description: "Pull request number (required for review environment)"
+        required: false
+        type: string
+  push:
+   branches:
+    - main
+  pull_request:
+    branches:
+    - main
+    types: [opened, reopened, synchronize, labeled]
+
+env:
+  TERRAFORM_BASE: terraform/application
+  HEALTHCHECK_CMD: 'healthcheck/all'
+
+jobs:
+  build:
+    name: Build
+    if: ${{ github.event_name != 'workflow_dispatch' }}
+    env:
+      DOCKER_REPOSITORY: #DOCKER_REPOSITORY#
+    outputs:
+      docker-image-tag: ${{ steps.build-image.outputs.tag }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      name: Checkout
+
+    - name: Build and push docker image
+      id: build-image
+      uses: DFE-Digital/github-actions/build-docker-image@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        context: .
+        docker-repository: ${{ env.DOCKER_REPOSITORY }}
+        max-cache: true
+        reuse-cache: true
+        snyk-token: ${{ secrets.SNYK_TOKEN }}
+
+  test:
+    name: Run tests
+    if: ${{ github.event_name != 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+
+    # This is a skeleton test job
+    # It will need to be updated to set the environment and run required tests
+    # The steps can be moved to a separate action if preferred
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    # - name: Run tests
+    #   shell: bash
+    #   run: |
+    #     run some tests
+
+  deploy-review-app:
+    name: Deployment To Review
+    concurrency: deploy_review_${{ github.event.pull_request.number }}
+    if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'deploy') }}
+    needs: [build]
+    environment:
+      name: review
+      url: ${{ steps.deploy_review.outputs.environment_url }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      pull-requests: write
+
+    steps:
+    - name: Deploy App to Review
+      id: deploy_review
+      uses: DFE-Digital/github-actions/deploy-to-aks@master
+      with:
+        azure-credentials:  ${{ secrets.AZURE_CREDENTIALS }}
+        environment: review
+        pr-number: ${{ github.event.pull_request.number }}
+        sha: ${{ needs.build.outputs.docker-image-tag }}
+        terraform-base: ${{ env.TERRAFORM_BASE }}
+        healthcheck: ${{ env.HEALTHCHECK_CMD }}
+        db-seed: true
+        smoke-test: true
+#        gcp-wip: ${{ vars.GCP_WIP }}
+#        gcp-project-id: ${{ vars.GCP_PROJECT_ID }}
+
+  deploy:
+    name: Deploy environments
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+    environment:
+      name: ${{ matrix.environment }}
+      url: ${{ steps.deploy_app.outputs.environment_url }}
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      pull-requests: write
+    strategy:
+      max-parallel: 1
+      matrix:
+        environment: [development,production]
+
+    steps:
+    - name: Deploy app to ${{ matrix.environment }}
+      id: deploy_app
+      uses: DFE-Digital/github-actions/deploy-to-aks@master
+      with:
+        azure-credentials:  ${{ secrets.AZURE_CREDENTIALS }}
+        environment: ${{ matrix.environment }}
+        pr-number: ${{ github.event.pull_request.number }}
+        sha: ${{ needs.build.outputs.docker-image-tag }}
+        terraform-base: ${{ env.TERRAFORM_BASE }}
+        healthcheck: ${{ env.HEALTHCHECK_CMD }}
+        slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
+        smoke-test: true
+#        gcp-wip: ${{ vars.GCP_WIP }}
+#        gcp-project-id: ${{ vars.GCP_PROJECT_ID }}
+
+  manual_deploy:
+    name: Manual deploy
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ steps.deploy_manual.outputs.environment_url }}
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      pull-requests: write
+
+    steps:
+    - name: Deploy app to ${{ inputs.environment }}
+      id: deploy_manual
+      uses: DFE-Digital/github-actions/deploy-to-aks@master
+      with:
+        azure-credentials:  ${{ secrets.AZURE_CREDENTIALS }}
+        environment: ${{ inputs.environment }}
+        pr-number: ${{ inputs.pull-request-number }}
+        sha: ${{ inputs.docker-image-tag }}
+        terraform-base: ${{ env.TERRAFORM_BASE }}
+        healthcheck: ${{ env.HEALTHCHECK_CMD }}
+        slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
+        smoke-test: true
+        db-seed: ${{ inputs.environment == 'review' && 'true' || 'false' }}
+#        gcp-wip: ${{ vars.GCP_WIP }}
+#        gcp-project-id: ${{ vars.GCP_PROJECT_ID }}

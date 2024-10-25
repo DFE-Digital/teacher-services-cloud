@@ -150,3 +150,8 @@ enable-maintenance: maintenance-image-push maintenance-fail-over
 disable-maintenance: get-cluster-credentials
 	$(eval export CONFIG)
 	./maintenance_page/scripts/failback.sh
+
+db-seed: get-cluster-credentials # Example db seed for review apps, modify as required
+	$(if $(PR_NUMBER), , $(error can only run with PR_NUMBER))
+	$(eval NAMESPACE=$(shell jq -r '.namespace' terraform/application/config/$(CONFIG).tfvars.json))
+	kubectl -n ${NAMESPACE} exec deployment/#SERVICE_NAME#-pr-${PR_NUMBER} -- /bin/sh -c "cd /app && bundle exec rake db:seed"
