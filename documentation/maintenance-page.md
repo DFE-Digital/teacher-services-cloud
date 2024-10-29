@@ -80,6 +80,16 @@ A user with write access to the repository must generate a token.
 ## Build image and enable maintenance
 - Run: `make <environment> enable-maintenance GITHUB_TOKEN=xxx`
 
+## Set Permissions on package image
+First time a package image is created the permissions need to be set manually:
+- Go to Github Packages https://github.com/orgs/DFE-Digital/packages and search for the maintenance package image built.
+- Click the name of the package that you want to manage.
+- Under your package versions, click Connect repository.
+- Select the repository to link to the package, then click Connect repository.
+- Then click on Package settings on right of page
+- In section Manage Actions access select Add Repository and add the repo and set access to Admin.
+- Finally, at bottom of page click Change package visibility and set to Public.
+
 ## Enable maintenance with an existing image
 You can deploy the maintenance image of a known tag:
 
