@@ -67,8 +67,12 @@ Raise a [PIM request](https://technical-guidance.education.gov.uk/infrastructure
 Then login to Azure using `az login`.
 
 ### Create terraform environment
-This creates the minimum Azure resources required to run terraform, ie storage account and keyvaults.
+This creates the minimum Azure resources required to run terraform for this environment:
+- **resource group** e.g. s189t01-rsm-ts-rg. Databases and other resources will be created in it. Developers will have read/write access to the resource group and the resources inside.
+- **storage account** e.g. s189t01rsmtstfsa. Contains a version blob container to store the terraform state.
+- **keyvaults** e.g. s189t01-rsm-ts-app-kv for application secrets and s189t01-rsm-ts-inf-kv for infrastructure secrets
 
+Run:
 - Validate: `make <environment config> validate-arm-resources`. Example: `make development validate-arm-resources`
 - Deploy: `make <environment config> deploy-arm-resources`. Example: `make development deploy-arm-resources`
 
@@ -79,7 +83,14 @@ Amend the AD group of the area:
 - The developers should now have access to continue with the set-up
 
 ## Deploy new service
-In the service repository, runs the Makefile commands.
+
+### Configure environment variables
+The application is configured for each environment using [environment variables](https://12factor.net/config). The [application_configuration](https://github.com/DFE-Digital/terraform-modules/tree/main/aks/application_configuration) module allows setting the variables and mapping them to the application automatically. Internally, *non-secret variables* are stored in a Kubernetes configmap and *secret variables* are stored in a Kubernetes secret.
+
+- Default rails variables are provided by [the terraform module](https://github.com/DFE-Digital/terraform-modules/blob/2fe7c6330db16abc2097cda37ff369c22b398f61/aks/application_configuration/resources.tf#L3)
+- Custom non secret variables are configured in the environment yaml files: `terraform/application/config/review.yml`, `terraform/application/config/production.yml`, etc. e.g. external domain, feature flags... They are merged to the terraform module config_variables
+- Custom secrets are manually configured in the application key vault created in [Create terraform environment](#create-terraform-environment), and loaded automatically by [the terraform module](https://github.com/DFE-Digital/teacher-services-cloud/blob/a14bc31bad011d3227c9787b1d60011431359373/templates/new_service/terraform/application/application.tf#L9). e.g. rails secret key, notify key...
+- Access keys to resources created by terraform like databases or storage accounts are [configured directly via terraform](https://github.com/DFE-Digital/teacher-services-cloud/blob/a14bc31bad011d3227c9787b1d60011431359373/templates/new_service/terraform/application/application.tf#L19) in secret_variables
 
 ### Configure Statuscake credentials
 If Statuscake is not required at this stage, comment out resources in `terraform/application/statuscake.tf` and the provider in `terraform/application/terraform.tf`.
@@ -87,6 +98,8 @@ If Statuscake is not required at this stage, comment out resources in `terraform
 If it is:
 - [Request](https://technical-guidance.education.gov.uk/infrastructure/monitoring/statuscake/#statuscake) a user account and an API key
 - Create a secret "STATUSCAKE-API-TOKEN" in the "inf" keyvault, with the API key as value
+
+Any secret "X" created in the *infrastructure* keyvault is available to use in terraform using [module.infrastructure_secrets.X](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/terraform/application/secrets.tf).
 
 ### Deploy application
 Deploy the application, ingress, database...
@@ -102,14 +115,14 @@ The code deploys integrated DNS zone and Azure front door **in the production su
 Before proceeding, ensure the following:
 
 - domain.sh exists in global config and there's a make command for it
-- The files present in terraform/domains/infrastructure match the sample structure in templates/new_service/terraform/domains/infrastructure, with the appropriate  configuration
+- The files present in terraform/domains/infrastructure match the sample structure in templates/new_service/terraform/domains/infrastructure, with the appropriate configuration
 - The files present in terraform/domains/environment_domains match the sample structure in templates/new_service/terraform/domains/environment_domains, with the appropriate  configuration
 
-### Create terraform environment
+### Create domains terraform environment
 - Validate: `make domains validate-arm-resources`
 - Deploy: `make domains deploy-arm-resources`
 
-### Deploy infrastructure
+### Deploy domains infrastructure
 This deploys one DNS zone and one front door which will be used subsequently by all the domains.
 
 - Plan: `make domains-infra-plan`

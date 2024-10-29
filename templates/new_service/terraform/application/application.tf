@@ -11,10 +11,13 @@ module "application_configuration" {
   # Delete for non rails apps
   is_rails_application = true
 
-  config_variables = {
-    ENVIRONMENT_NAME = var.environment
-    PGSSLMODE        = local.postgres_ssl_mode
-  }
+  config_variables = merge(
+    local.environment_variables,
+    {
+      ENVIRONMENT_NAME = var.environment
+      PGSSLMODE        = local.postgres_ssl_mode
+    }
+  )
   secret_variables = {
     DATABASE_URL = module.postgres.url
   }

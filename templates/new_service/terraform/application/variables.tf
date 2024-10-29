@@ -10,6 +10,9 @@ variable "environment" {
 variable "azure_resource_prefix" {
   description = "Standard resource prefix. Usually s189t01 (test) or s189p01 (production)"
 }
+variable "config" {
+  description = "Long name of the environment configuration, e.g. development, staging, production..."
+}
 variable "config_short" {
   description = "Short name of the environment configuration, e.g. dv, st, pd..."
 }
@@ -53,4 +56,6 @@ variable "send_traffic_to_maintenance_page" {
 
 locals {
   postgres_ssl_mode = var.enable_postgres_ssl ? "require" : "disable"
+
+  environment_variables = yamldecode(file("${path.module}/config/${var.config}.yml"))
 }
