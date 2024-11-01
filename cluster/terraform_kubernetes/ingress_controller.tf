@@ -83,8 +83,10 @@ resource "helm_release" "ingress-nginx" {
     type  = "string"
   }
 
-  # Send x-forwarded-for HTTP header to keep the client IP for the apps
+  # Send X-Forwarded-For HTTP header to keep the client IP for the apps
   # When used behind front door, it contains the front door backend IP as well
+  # The Host header is replaced by the value of X-Forwarded-Host header. When using front door,
+  # apps will see the external host instead of the ingress host
   set {
     name  = "controller.config.use-forwarded-headers"
     value = "true"
