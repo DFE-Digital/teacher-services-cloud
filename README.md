@@ -193,6 +193,7 @@ The teacherservices.cloud domain is created in route53 and owned by infra-ops. S
 - [Cluster plublic IPs](documentation/public-ips.md)
 - [Disaster recovery](documentation/disaster-recovery.md)
 - [Disaster recovery testing](documentation/disaster-recovery-testing.md)
+- [HTTP request](documentation/http.md)
 
 ### Internal
 - [AKS upgrade](documentation/aks-upgrade.md)
