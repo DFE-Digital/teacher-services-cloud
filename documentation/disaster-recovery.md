@@ -74,6 +74,8 @@ e.g. [update namespace and deployment names as required]
 - `kubectl -n bat-staging scale deployment itt-mentor-services-staging --replicas 0`
 - `kubectl -n bat-staging scale deployment itt-mentor-services-staging-worker --replicas 0`
 
+Note: You can [enable maintenance mode](#enable-maintenance-mode) first, however it is still recommended to scale down the web and worker apps to prevent any side effects from occuring.
+
 ### Start the incident process (if not already in progress)
 Follow the [incident playbook](https://tech-docs.teacherservices.cloud/operating-a-service/incident-playbook.html) and contact the relevant stakeholders as described in [create-an-incident-slack-channel-and-inform-the-stakeholders-comms-lead](https://tech-docs.teacherservices.cloud/operating-a-service/incident-playbook.html#4-create-an-incident-slack-channel-and-inform-the-stakeholders-comms-lead).
 
@@ -102,9 +104,9 @@ It may be necessary to connect to the PTR postgres server for troubleshooting, b
 
 To connect to the PTR postgres copy using `psql` via konduit:
 - Install `konduit.sh` locally using the `make` command
-- Run: `bin/konduit.sh -x -s <name-of-ptr-server> <name-of-deployment> -- psql`
+- Run: `bin/konduit.sh -x -n <namespace-of-deployment> -s <name-of-ptr-server> <name-of-deployment> -- psql`
 
-e.g. `bin/konduit.sh -x -s s189t01-ittms-stg-pg-ptr itt-mentor-services-staging -- psql`
+e.g. `bin/konduit.sh -x -n tra-test -s s189t01-ittms-stg-pg-ptr itt-mentor-services-staging -- psql`
 
 To connect to the existing live postgres server for comparison:
 - Run: `bin/konduit.sh -x name-of-deployment -- psql`
