@@ -7,6 +7,8 @@ terraform {
     }
   }
   backend "azurerm" {
+    container_name = "tscdomains-tfstate"
+    key            = "tscdomains.tfstate"
   }
 }
 

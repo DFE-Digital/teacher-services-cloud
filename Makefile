@@ -129,7 +129,8 @@ domains-infra-init: bin/terrafile set-azure-account
 	./bin/terrafile -p custom_domains/terraform/infrastructure/vendor/modules -f custom_domains/terraform/infrastructure/config/${DOMAINS_ID}_Terrafile
 
 	terraform -chdir=custom_domains/terraform/infrastructure init -reconfigure -upgrade \
-		-backend-config=config/${DOMAINS_ID}_backend.tfvars
+		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
+		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME}
 
 domains-infra-plan: domains-infra-init
 	terraform -chdir=custom_domains/terraform/infrastructure plan -var-file config/${DOMAINS_ID}.tfvars.json
