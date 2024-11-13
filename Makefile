@@ -113,25 +113,30 @@ bin/terrafile: ## Install terrafile to manage terraform modules
 		| tar xz -C ./bin terrafile
 
 deploy-azure-resources: check-auto-approve arm-deployment # make dev deploy-azure-resources
-
 validate-azure-resources: set-what-if arm-deployment # make dev validate-azure-resources
 
-domain-azure-resources: set-azure-account # make domain domain-azure-resources
+domains-arm-deployment: set-azure-account
 	az deployment sub create --name "resourcedeploy-tscdomains-$(shell date +%Y%m%d%H%M%S)" \
 		-l "UK South" --template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/resourcedeploy.json" \
 		--parameters "resourceGroupName=${RESOURCE_GROUP_NAME}" 'tags=${RG_TAGS}' \
 			"tfStorageAccountName=${STORAGE_ACCOUNT_NAME}" "tfStorageContainerName=tscdomains-tfstate" \
 			"keyVaultName=${KEYVAULT_NAME}" ${WHAT_IF}
 
-domains-infra-init: set-azure-account
+deploy-domains-azure-resources: check-auto-approve domains-arm-deployment # make dev deploy-domains-azure-resources
+validate-domains-azure-resources: set-what-if domains-arm-deployment # make dev validate-domains-azure-resources
+
+domains-infra-init: bin/terrafile set-azure-account
+	./bin/terrafile -p custom_domains/terraform/infrastructure/vendor/modules -f custom_domains/terraform/infrastructure/config/${DOMAINS_ID}_Terrafile
+
 	terraform -chdir=custom_domains/terraform/infrastructure init -reconfigure -upgrade \
-		-backend-config=workspace_variables/${DOMAINS_ID}_backend.tfvars
+		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
+		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME}
 
 domains-infra-plan: domains-infra-init
-	terraform -chdir=custom_domains/terraform/infrastructure plan -var-file workspace_variables/${DOMAINS_ID}.tfvars.json
+	terraform -chdir=custom_domains/terraform/infrastructure plan -var-file config/${DOMAINS_ID}.tfvars.json
 
 domains-infra-apply: domains-infra-init
-	terraform -chdir=custom_domains/terraform/infrastructure apply -var-file workspace_variables/${DOMAINS_ID}.tfvars.json ${AUTO_APPROVE}
+	terraform -chdir=custom_domains/terraform/infrastructure apply -var-file config/${DOMAINS_ID}.tfvars.json ${AUTO_APPROVE}
 
 get-cluster-credentials: set-azure-account ## make <config> get-cluster-credentials [ENVIRONMENT=<clusterX>]
 	az aks get-credentials --overwrite-existing -g ${RESOURCE_GROUP_NAME} -n ${RESOURCE_PREFIX}-tsc-${ENVIRONMENT}${CLONE_STRING}-aks
