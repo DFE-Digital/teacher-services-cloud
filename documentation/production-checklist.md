@@ -88,3 +88,8 @@ Optional but recommended for user facing services. See [Maintenance page](mainte
 Add a lock to critical Azure resources to prevent against accidental deletion, such as production databases. Members of the `s189-teacher-services-cloud-ResLock Admin` Entra ID group (infra team) can manage locks.
 - Open the resource in the Azure portal
 - Settings > Locks > + Add > Lock name: Delete, Lock type: Delete > OK
+
+## Build image security scanning
+We use SNYK scanning to [check build images for vulnerabilities](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/Testing-software.aspx).
+
+This is enabled by passing a valid [SNYK-TOKEN](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/.github/workflows/build-and-deploy.yml#L3) to the build-and-deploy github action

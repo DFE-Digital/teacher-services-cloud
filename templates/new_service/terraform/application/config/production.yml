@@ -1,2 +1,3 @@
 ---
 EXAMPLE_KEY: example value 3
+EXTERNAL_URL: "https://#DNS_ZONE_NAME#"

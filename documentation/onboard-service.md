@@ -55,6 +55,8 @@ Several workflow templates will be created in the .github/workflows directory.
 These should be moved to the service repo .github/workflows directory and should be used as templates for post build tasks
 - postgres database backups and restores (as part of DR)
 - maintenance page enable/disable
+- build and deploy
+- build without cache
 
 ## Prepare new environment
 These steps must be done by the infra team.
@@ -147,6 +149,8 @@ When running in a Github actions workflow, it uses a [service principal key](htt
 
 - Use the `s189t01-tsc-contributor` service principal for non production environments to deploy to the test cluster
 - Use `s189p01-tsc-contributor` for production environments to deploy to the production cluster
+
+Note that there are template deployment workflows created by 'make new_service' and these should be used for any new services.
 
 Example workflow:
 
