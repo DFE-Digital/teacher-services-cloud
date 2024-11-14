@@ -11,9 +11,9 @@ We have added two settings to ama-logs via config map.
 
 The config map must be called container-azm-ms-agentconfig.
 The ama-logs daemonset has an optional mount for this map, and if one is loaded to the cluster it will automatically mount and restart any ama-logs pods with the new settings.
-see https://github.com/microsoft/Docker-Provider/blob/ci_prod/kubernetes/container-azm-ms-agentconfig.yaml for available variables and default settings.
+see [container-azm-ms-agentconfig](https://github.com/microsoft/Docker-Provider/blob/ci_prod/kubernetes/container-azm-ms-agentconfig.yaml) for available variables and default settings.
 
-# Retrieving Log Analytics Data with KQL for AKS Clusters
+## Retrieving Log Analytics Data with KQL for AKS Clusters
 
 Kusto Query Language (KQL) is a query language that you can use to retrieve data from Log Analytics workspaces for Azure Kubernetes Service (AKS) clusters. In this guide, we will explain how to write KQL queries to retrieve Log Analytics data and analyze it for your AKS cluster.
 
@@ -61,3 +61,34 @@ Here are some examples of KQL queries that you can use to retrieve AKS Log Analy
     ```
 
 These are just a few examples of the many queries that you can write using KQL to retrieve AKS Log Analytics data.
+
+## Application logs
+
+The standard output from all applications should be captured and [sent to Logit.io](https://github.com/DFE-Digital/terraform-modules/blob/eae51cf1b82b5eb5a4fe6cafd76d50c8469b4aad/aks/application/variables.tf#L151) as standard. When it's not configured, logs are kept in Log analytics in the ContainerLogV2 table, and the standard output is in the LogEntry Column.
+
+- All logs from all the services on the cluster:
+  ```
+  ContainerLogV2
+  ```
+
+- Full text search for "Exception":
+  ```
+  ContainerLogV2
+  | where LogEntry contains "Exception"
+  ```
+
+- Decode the LogEntry json to query it:
+  ```
+  ContainerLogV2
+  | extend log_entry = parse_json(LogEntry)
+  | where log_entry.host contains "register"
+  | where log_entry.environment == "production"
+  ```
+
+- Only show the timestamp and LogEntry columns:
+  ```
+  ContainerLogV2
+  | extend log_entry = parse_json(LogEntry)
+  | where log_entry.host contains "register"
+  | project TimeGenerated, log_entry
+  ```

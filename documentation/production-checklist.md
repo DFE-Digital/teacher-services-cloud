@@ -46,6 +46,13 @@ Azure postgres provides an [automatic backup](https://learn.microsoft.com/en-us/
 
 In case there is a major issue and the above doesn't work, we strongly suggest taking another daily backup every night and storing it in Azure storage. Set [azure_enable_backup_storage variable](https://github.com/DFE-Digital/terraform-modules/blob/83801213853ed1e4b4bdcb8d36773c8683ff010f/aks/postgres/variables.tf#L132) to true to create the storage account. Then create a workflow using the [backup-postgres](https://github.com/DFE-Digital/github-actions/tree/master/backup-postgres) github action and [schedule](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule) it nightly.
 
+## Logging
+Container logs are available temporarily in the cluster. To store the logs, all applications should ship logs to Logit.io. The Teacher services UK account stores all the data in the UK region.
+
+Set [enable_logit](https://github.com/DFE-Digital/terraform-modules/blob/eae51cf1b82b5eb5a4fe6cafd76d50c8469b4aad/aks/application/variables.tf#L151) to `true` to ship the logs. Logs must sent as json, normally using [the standard libraries](https://technical-guidance.education.gov.uk/infrastructure/monitoring/logit/) for the language.
+
+Developers need to request access to Logit.io to access them.
+
 ## Postgres and redis monitoring
 Set `azure_enable_monitoring` to true to enable logging, monitoring and alerting. It will alert the infrastructure team by email by default.
 
