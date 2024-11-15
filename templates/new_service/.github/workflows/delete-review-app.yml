@@ -1,0 +1,54 @@
+name: Delete Review App
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: PR number of review app to delete
+        required: true
+        type: string
+
+jobs:
+  delete-review-app:
+    name: Delete Review App ${{ github.event.pull_request.number }}
+    concurrency: deploy_review_${{ github.event.pull_request.number }}
+    environment: review
+    if: contains(github.event.pull_request.labels.*.name, 'deploy') ||  ${{ github.event_name }} == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
+    steps:
+      - name: set PR_NUMBER
+        id: config
+        run: |
+          if [ ${{ github.event_name }} == 'workflow_dispatch' ]; then
+            PR_NUMBER=${{ github.event.inputs.pr_number }}
+          else
+            PR_NUMBER=${{ github.event.pull_request.number }}
+          fi
+          echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_ENV
+          echo "ENVIRONMENT=pr-${PR_NUMBER})" >> $GITHUB_ENV
+
+      - name: Set environment variables
+        shell: bash
+        run: |
+          source global_config/review.sh
+          echo "AZURE_RESOURCE_PREFIX=${AZURE_RESOURCE_PREFIX}" >> $GITHUB_ENV
+          echo "CONFIG_SHORT=${CONFIG_SHORT}" >> $GITHUB_ENV
+
+      - name: Delete Review App
+        id: delete-review-app
+        uses: DFE-Digital/github-actions/delete-review-app@master
+        with:
+          azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
+          container-name: terraform-state
+          gcp-wip: ${{ vars.GCP_WIP }}
+          gcp-project-id: ${{ vars.GCP_PROJECT_ID }}
+          pr-number: ${{ env.PR_NUMBER }}
+          resource-group-name: "${{ env.AZURE_RESOURCE_PREFIX }}-#SERVICE_SHORT#-${{ env.CONFIG_SHORT }}-rg"
+          storage-account-name: "${{ env.AZURE_RESOURCE_PREFIX }}#SERVICE_SHORT#${{ env.CONFIG_SHORT }}tfsa"
+          tf-state-file: "${{ env.ENVIRONMENT }}_kubernetes.tfstate"
