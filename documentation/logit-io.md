@@ -207,6 +207,15 @@ When logs are ingested and contain new fields, it may be necessary to refresh th
 1. Click the "Refresh field list" icon
 1. The number of fields should change
 
+## Overusage on your Logit.io Stack
+
+We get an alert if we send more data than the plan allows by one or more of our services to the logit stacks. Usually this is because one of the services is generating an excessive number of log messages.
+To determine the service:
+1. Go to Kibana (From the dashboard, click `LAUNCH LOGS`) for the affected logit stack.
+1. In the left hand of the search page find the field kubernetes.deployment.name.
+1. Click on the magnify glass icon next to the field and a popup with show the 5 top values.
+1. Then we need to message the developers for the service for the top value and get them to look at why they are generating an excessive number of messages.
+
 ## Mapping conflicts
 An index mapping is created based on the field types of all the ElastiSearch indices (there is one per day). If a field has a different type in 2 different indices, it creates a mapping conflict and logs may be rejected. Rejected logs will be stored in the [Dead letter queue](https://help.logit.io/en/articles/7891797-logstash-dead-letter-queue-dlq-diagnosing-and-troubleshooting-data-issues-in-opensearch-on-logit-io).
 
