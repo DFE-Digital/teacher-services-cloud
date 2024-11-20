@@ -8,6 +8,5 @@ module "domains" {
   domains             = each.value.domains
   environment         = each.value.environment_short
   host_name           = each.value.origin_hostname
-  null_host_header    = try(each.value.null_host_header, false)
   cached_paths        = try(each.value.cached_paths, [])
 }
