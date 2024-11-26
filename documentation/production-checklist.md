@@ -77,8 +77,7 @@ Components with versions:
 - Terraform providers (azure, kubernetes, StatusCake)
 - Postgres
 - Redis
-- Terrafile binary
-- Terrafile environment files: each one should point at either main, testing or stable according to the [terraform modules release process](https://github.com/DFE-Digital/terraform-modules/blob/main/README.md#references)
+- Terraform modules: the TERRAFORM_MODULES_TAG variable should point at either main, testing or stable according to the [terraform modules release process](https://github.com/DFE-Digital/terraform-modules/blob/main/README.md#references)
 
 ## Maintenance window
 Azure applies patches and minor updates to postgres and redis. Since this may cause a minor disruption, use the `azure_maintenance_window` and `azure_patch_schedule` variables to set them to a convenient time, when the service receives less traffic.
