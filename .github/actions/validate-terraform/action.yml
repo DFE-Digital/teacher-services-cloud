@@ -52,8 +52,10 @@ runs:
     shell: bash
     working-directory: ${{ inputs.terraform_root_folder }}
 
-  - uses: reviewdog/action-tflint@v1.17
+  - uses: reviewdog/action-tflint@v1
     with:
       github_token: ${{ inputs.github_token }}
       tflint_rulesets: azurerm
-      working_directory: ${{ inputs.terraform_root_folder }}
+      tflint_target_dir: ${{ inputs.terraform_root_folder }}
+      tflint_config: ''
+      reporter: github-pr-review
