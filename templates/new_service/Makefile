@@ -1,4 +1,3 @@
-TERRAFILE_VERSION=0.8
 ARM_TEMPLATE_TAG=1.1.10
 RG_TAGS={"Product" : "Teacher services cloud"}
 REGION=UK South
@@ -37,17 +36,15 @@ ci:
 	$(eval SKIP_AZURE_LOGIN=true)
 	$(eval SKIP_CONFIRM=true)
 
-bin/terrafile: ## Install terrafile to manage terraform modules
-	curl -sL https://github.com/coretech/terrafile/releases/download/v${TERRAFILE_VERSION}/terrafile_${TERRAFILE_VERSION}_$$(uname)_$$(uname -m).tar.gz \
-		| tar xz -C ./bin terrafile
-
 set-azure-account:
 	[ "${SKIP_AZURE_LOGIN}" != "true" ] && az account set -s ${AZURE_SUBSCRIPTION} || true
 
-terraform-init: composed-variables bin/terrafile set-azure-account
+terraform-init: composed-variables set-azure-account
 	$(if ${DOCKER_IMAGE_TAG}, , $(eval DOCKER_IMAGE_TAG=main))
 
-	./bin/terrafile -p terraform/application/vendor/modules -f terraform/application/config/$(CONFIG)_Terrafile
+	rm -rf terraform/application/vendor/modules/aks
+	git clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git terraform/application/vendor/modules/aks
+
 	terraform -chdir=terraform/application init -upgrade -reconfigure \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
@@ -90,8 +87,9 @@ deploy-arm-resources: arm-deployment ## Validate ARM resource deployment. Usage:
 
 validate-arm-resources: set-what-if arm-deployment ## Validate ARM resource deployment. Usage: make domains validate-arm-resources
 
-domains-infra-init: bin/terrafile domains composed-variables set-azure-account
-	./bin/terrafile -p terraform/domains/infrastructure/vendor/modules -f terraform/domains/infrastructure/config/zones_Terrafile
+domains-infra-init: domains composed-variables set-azure-account
+	rm -rf terraform/domains/infrastructure/vendor/modules/aks
+	git clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git terraform/domains/infrastructure/vendor/modules/aks
 
 	terraform -chdir=terraform/domains/infrastructure init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
@@ -104,8 +102,9 @@ domains-infra-plan: domains domains-infra-init  ## Terraform plan for DNS infras
 domains-infra-apply: domains domains-infra-init  ## Terraform apply for DNS infrastructure (DNS zone and front door). Usage: make domains-infra-apply
 	terraform -chdir=terraform/domains/infrastructure apply -var-file config/zones.tfvars.json ${AUTO_APPROVE}
 
-domains-init: bin/terrafile domains composed-variables set-azure-account
-	./bin/terrafile -p terraform/domains/environment_domains/vendor/modules -f terraform/domains/environment_domains/config/${CONFIG}_Terrafile
+domains-init: domains composed-variables set-azure-account
+	rm -rf terraform/domains/environment_domains/vendor/modules/aks
+	git clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git terraform/domains/environment_domains/vendor/modules/aks
 
 	terraform -chdir=terraform/domains/environment_domains init -upgrade -reconfigure \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
