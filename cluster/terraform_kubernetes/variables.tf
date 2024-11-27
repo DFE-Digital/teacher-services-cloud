@@ -58,34 +58,42 @@ variable "enable_lowpriority_app" {
 }
 
 variable "grafana_app_cpu" {
+  type    = string
   default = "500m"
 }
 
 variable "grafana_app_mem" {
+  type    = string
   default = "500M"
 }
 
 variable "grafana_limit_mem" {
+  type    = string
   default = "1Gi"
 }
 
 variable "grafana_version" {
+  type    = string
   default = "11.1.5"
 }
 
 variable "lowpriority_app_cpu" {
+  type    = string
   default = "1"
 }
 
 variable "lowpriority_app_mem" {
+  type    = string
   default = "1500Mi"
 }
 
 variable "lowpriority_app_replicas" {
+  type    = number
   default = 3
 }
 
 variable "kube_state_metrics_version" {
+  type    = string
   default = "2.12.0"
 }
 
@@ -96,96 +104,117 @@ data "environment_variables" "github_actions" {
 }
 
 variable "prometheus_version" {
+  type    = string
   default = "v2.54.1"
 }
 
 variable "prometheus_tsdb_retention_time" {
+  type        = string
   description = "Prometheus retention period for locally stored data"
   default     = "6h"
 }
 
 variable "prometheus_app_mem" {
+  type        = string
   description = "Prometheus app memory limit"
   default     = "1Gi"
 }
 
 variable "prometheus_app_cpu" {
+  type        = string
   description = "Prometheus app cpu request"
   default     = "100m"
 }
 
 variable "thanos_version" {
+  type    = string
   default = "v0.36.1"
 }
 
 variable "thanos_app_mem" {
+  type        = string
   description = "Thanos sidecar memory limit"
   default     = "1Gi"
 }
 
 variable "thanos_querier_mem" {
+  type        = string
   description = "Thanos querier memory limit"
   default     = "1Gi"
 }
 
 variable "thanos_compactor_mem" {
+  type        = string
   description = "Thanos compactor memory limit"
   default     = "1Gi"
 }
 
 variable "thanos_store_mem" {
+  type        = string
   description = "Thanos store gateway memory limit"
   default     = "1Gi"
 }
 
 variable "thanos_app_cpu" {
+  type        = string
   description = "Thanos app cpu request"
   default     = "100m"
 }
 
 variable "thanos_retention_raw" {
+  type        = string
   description = "Thanos retention period for raw samples"
   default     = "30d"
 }
 
 variable "thanos_retention_5m" {
+  type        = string
   description = "Thanos retention period for 5m samples"
   default     = "60d"
 }
 
 variable "thanos_retention_1h" {
+  type        = string
   description = "Thanos retention period for 1h samples"
   default     = "90d"
 }
 
 variable "cluster_short" {
+  type        = string
   description = "Short name of the cluster configuration, e.g. dv, pt, ts, pd"
 }
 
 variable "alertmanager_image_version" {
+  type    = string
   default = "v0.27.0"
 }
 
 variable "alertmanager_app_cpu" {
+  type    = string
   default = "100m"
 }
 
 variable "alertmanager_app_mem" {
+  type    = string
   default = "1Gi"
 }
 variable "node_exporter_version" {
+  type    = string
   default = "v1.8.2"
 }
 variable "filebeat_version" {
+  type    = string
   default = "8.12.2"
 }
 
 variable "alertmanager_slack_receiver_list" {
+  type        = list(any)
   description = "List of alertmanager Slack receivers. Each entry must have a corresponding webhook in the keyvault."
   default     = []
 }
 
 variable "alertable_apps" {
+  type        = map(any)
   description = "Map of deployments which we want to monitor. Each key contains a map to override the default values."
   default     = {}
 }
