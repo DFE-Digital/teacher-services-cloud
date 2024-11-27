@@ -3,5 +3,6 @@ variable "hosted_zone" {
 }
 
 variable "deploy_default_records" {
+  type    = bool
   default = true
 }

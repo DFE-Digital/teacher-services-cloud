@@ -9,6 +9,7 @@ variable "managed_identity_name" {
   description = "Name of the managed identiy assumed by the cluster for its control plane"
 }
 variable "ci_collection_interval" {
+  type        = string
   default     = "5m"
   description = "Container Insights data collection interval"
 }
@@ -23,13 +24,16 @@ variable "clone_cluster" {
   default = false
 }
 variable "admin_group_id" {
+  type        = string
   description = "Object Id of the cluster admins Entra ID group"
 }
 variable "enable_azure_RBAC" {
+  type        = bool
   default     = false
   description = "Enable Azure AD RBAC on this cluster"
 }
 variable "enable_azure_RBAC_clone" {
+  type        = bool
   default     = false
   description = "Enable Azure AD RBAC on the clone cluster"
 }
