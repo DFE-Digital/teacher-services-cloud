@@ -7,8 +7,12 @@ inputs:
   terraform_root_folder:
     description: The folder that contains the terraform to be validated
     required: true
-  terrafile_environment:
-    description: Run terrafile with the specific environment Terrafile (optional)
+  terraform_modules_tag:
+    description: Tag of terraform-modules repository - main, testing or stable (optional)
+    required: false
+    default: ''
+  terraform_modules_dir:
+    description: Directory where terraform-modules repository is downloaded (optional)
     required: false
     default: ''
 
@@ -36,10 +40,9 @@ runs:
     shell: bash
     working-directory: ${{ inputs.terraform_root_folder }}
 
-  - if: inputs.terrafile_environment != ''
+  - if: inputs.terraform_modules_tag != ''
     run: |
-      curl -sL https://github.com/coretech/terrafile/releases/download/v0.8/terrafile_0.8_Linux_x86_64.tar.gz | tar xz terrafile
-      ./terrafile -p vendor/modules -f config/${{ inputs.terrafile_environment }}_Terrafile
+      git clone --depth=1 --single-branch --branch ${{ inputs.terraform_modules_tag }} https://github.com/DFE-Digital/terraform-modules.git vendor/modules/${{ inputs.terraform_modules_dir }}
     shell: bash
     working-directory: ${{ inputs.terraform_root_folder }}
 
@@ -49,8 +52,10 @@ runs:
     shell: bash
     working-directory: ${{ inputs.terraform_root_folder }}
 
-  - uses: reviewdog/action-tflint@v1.17
+  - uses: reviewdog/action-tflint@v1
     with:
       github_token: ${{ inputs.github_token }}
       tflint_rulesets: azurerm
-      working_directory: ${{ inputs.terraform_root_folder }}
+      tflint_target_dir: ${{ inputs.terraform_root_folder }}
+      tflint_config: ''
+      reporter: github-pr-review

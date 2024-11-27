@@ -1,4 +1,3 @@
-TERRAFILE_VERSION=0.8
 RG_TAGS={"Product" : "Teacher services cloud"}
 ARM_TEMPLATE_TAG=1.1.0
 
@@ -59,8 +58,10 @@ terraform-aks-cluster-apply: terraform-aks-cluster-init
 terraform-aks-cluster-destroy: terraform-aks-cluster-init
 	terraform -chdir=cluster/terraform_aks_cluster destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
-terraform-kubernetes-init: bin/terrafile set-azure-account
-	./bin/terrafile -p cluster/terraform_kubernetes/vendor/modules -f cluster/terraform_kubernetes/config/$(CONFIG)_Terrafile
+terraform-kubernetes-init: set-azure-account
+	rm -rf cluster/terraform_kubernetes/vendor/modules/aks
+	git clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git cluster/terraform_kubernetes/vendor/modules/aks
+
 	terraform -chdir=cluster/terraform_kubernetes init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
@@ -108,10 +109,6 @@ arm-deployment: set-azure-account
 		--parameters "managedIdentityName=${MANAGE_IDENTITY_NAME}" \
 		${WHAT_IF}
 
-bin/terrafile: ## Install terrafile to manage terraform modules
-	curl -sL https://github.com/coretech/terrafile/releases/download/v${TERRAFILE_VERSION}/terrafile_${TERRAFILE_VERSION}_$$(uname)_$$(uname -m).tar.gz \
-		| tar xz -C ./bin terrafile
-
 deploy-azure-resources: check-auto-approve arm-deployment # make dev deploy-azure-resources
 validate-azure-resources: set-what-if arm-deployment # make dev validate-azure-resources
 
@@ -125,8 +122,9 @@ domains-arm-deployment: set-azure-account
 deploy-domains-azure-resources: check-auto-approve domains-arm-deployment # make dev deploy-domains-azure-resources
 validate-domains-azure-resources: set-what-if domains-arm-deployment # make dev validate-domains-azure-resources
 
-domains-infra-init: bin/terrafile set-azure-account
-	./bin/terrafile -p custom_domains/terraform/infrastructure/vendor/modules -f custom_domains/terraform/infrastructure/config/${DOMAINS_ID}_Terrafile
+domains-infra-init: set-azure-account
+	rm -rf custom_domains/terraform/infrastructure/vendor/modules/domains
+	git clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git custom_domains/terraform/infrastructure/vendor/modules/domains
 
 	terraform -chdir=custom_domains/terraform/infrastructure init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \

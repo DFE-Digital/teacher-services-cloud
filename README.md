@@ -11,11 +11,11 @@ A repo for building Teacher Sevices cloud infrastructure
     - terraform_aks_cluster
         *.tf files for low level cluster set-up
         - config
-            *_Terrafile and *.tfvars.json config files for each cluster environment
+            *.tfvars.json config files for each cluster environment
     - terraform_kubernetes
         *.tf files for high-level configuration using the kubernetes and helm providers only
         - config
-            *_Terrafile and *.tfvars.json config files for each cluster environment
+            *.tfvars.json config files for each cluster environment
 - custom_domains
     - config
         *.sh config files for each cluster DNS zone
@@ -23,7 +23,7 @@ A repo for building Teacher Sevices cloud infrastructure
         - infrastructure
             *.tf files for cluster DNS zone build
             - config
-                *_Terrafile and *.tfvars.json config files for each cluster DNS zone
+                *.tfvars.json config files for each cluster DNS zone
 Makefile
 ```
 

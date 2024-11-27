@@ -33,35 +33,40 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         terraform_root_folder: cluster/terraform_kubernetes
-        terrafile_environment: development
+        terraform_modules_tag: main
+        terraform_modules_dir: aks
 
     - name: Validate custom_domains/terraform/infrastructure
       uses: ./.github/actions/validate-terraform
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         terraform_root_folder: custom_domains/terraform/infrastructure
-        terrafile_environment: tscd
+        terraform_modules_tag: testing
+        terraform_modules_dir: domains
 
     - name: Validate templates/new_service/terraform/application
       uses: ./.github/actions/validate-terraform
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         terraform_root_folder: templates/new_service/terraform/application
-        terrafile_environment: development
+        terraform_modules_tag: main
+        terraform_modules_dir: aks
 
     - name: Validate templates/new_service/terraform/domains/infrastructure
       uses: ./.github/actions/validate-terraform
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         terraform_root_folder: templates/new_service/terraform/domains/infrastructure
-        terrafile_environment: zones
+        terraform_modules_tag: testing
+        terraform_modules_dir: domains
 
     - name: Validate templates/new_service/terraform/domains/environment_domains
       uses: ./.github/actions/validate-terraform
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         terraform_root_folder: templates/new_service/terraform/domains/environment_domains
-        terrafile_environment: development
+        terraform_modules_tag: testing
+        terraform_modules_dir: domains
 
     - name: Send Slack notification on failure
       if: ${{ failure() && github.ref == 'refs/heads/main' }}

@@ -10,8 +10,7 @@ templates/new_service/terraform/domains/environment_domains/vendor/
 templates/new_service/terraform/application/.terraform.lock.hcl
 templates/new_service/terraform/application/vendor/
 
-# terrafile
-bin/terrafile
+# terraform modules
 cluster/terraform_kubernetes/vendor/modules/aks
 custom_domains/terraform/infrastructure/vendor/
 
