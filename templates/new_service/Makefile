@@ -136,9 +136,9 @@ bin/konduit.sh:
 maintenance-image-push:
 	$(if ${GITHUB_TOKEN},, $(error Provide a valid Github token with write:packages permissions as GITHUB_TOKEN variable))
 	$(if ${MAINTENANCE_IMAGE_TAG},, $(eval export MAINTENANCE_IMAGE_TAG=$(shell date +%s)))
-	docker build -t ghcr.io/dfe-digital/#SERVICE_NAME#-maintenance:${MAINTENANCE_IMAGE_TAG} maintenance_page
+	docker build -t ghcr.io/dfe-digital/${SERVICE_NAME}-maintenance:${MAINTENANCE_IMAGE_TAG} maintenance_page
 	echo ${GITHUB_TOKEN} | docker login ghcr.io -u USERNAME --password-stdin
-	docker push ghcr.io/dfe-digital/#SERVICE_NAME#-maintenance:${MAINTENANCE_IMAGE_TAG}
+	docker push ghcr.io/dfe-digital/${SERVICE_NAME}-maintenance:${MAINTENANCE_IMAGE_TAG}
 
 maintenance-fail-over: get-cluster-credentials
 	$(eval export CONFIG)
@@ -153,4 +153,9 @@ disable-maintenance: get-cluster-credentials
 db-seed: get-cluster-credentials # Example db seed for review apps, modify as required
 	$(if $(PR_NUMBER), , $(error can only run with PR_NUMBER))
 	$(eval NAMESPACE=$(shell jq -r '.namespace' terraform/application/config/$(CONFIG).tfvars.json))
-	kubectl -n ${NAMESPACE} exec deployment/#SERVICE_NAME#-pr-${PR_NUMBER} -- /bin/sh -c "cd /app && bundle exec rake db:seed"
+	kubectl -n ${NAMESPACE} exec deployment/${SERVICE_NAME}-pr-${PR_NUMBER} -- /bin/sh -c "cd /app && bundle exec rake db:seed"
+
+action-group: set-azure-account # make production action-group ACTION_GROUP_EMAIL=notificationemail@domain.com . Must be run before setting enable_monitoring=true. Use any non-prod environment to create in the test subscription.
+	$(if $(ACTION_GROUP_EMAIL), , $(error Please specify a notification email for the action group))
+	az group create -l uksouth -g ${AZURE_RESOURCE_PREFIX}-${SERVICE_SHORT}-mn-rg --tags "Product=${SERVICE_NAME}"
+	az monitor action-group create -n ${AZURE_RESOURCE_PREFIX}-${SERVICE_NAME} -g ${AZURE_RESOURCE_PREFIX}-${SERVICE_SHORT}-mn-rg --action email ${AZURE_RESOURCE_PREFIX}-${SERVICE_SHORT}-email ${ACTION_GROUP_EMAIL}
