@@ -149,8 +149,16 @@ filter {
       # Debug: Comment this line to keep the original object
       remove_field => "[app][payload][params]"
     }
+
+    # current_user_id may be a number or a UUID. Enforce string type. Used by ECF and NPQ
+    if [app][payload][current_user_id] {
+      mutate {
+        convert => { "[app][payload][current_user_id]" => "string" }
+      }
+    }
+
     # Standardise field names with ECS: https://www.elastic.co/guide/en/ecs/current/index.html
-    # Ruby apps log mutate start
+    ## Ruby apps log mutate start
     mutate {
       rename => { "[app][payload][status]" => "[http][response][status_code]" }
     }
@@ -166,9 +174,9 @@ filter {
     mutate {
       rename => { "[app][payload][path]" => "[url][path]" }
     }
-   # Ruby apps log mutate end
+   ## Ruby apps log mutate end
 
-   # .Net apps log mutate start
+   ## .Net apps log mutate start
     mutate {
       rename => { "[app][Method]" => "[http][request][method]" }
     }
@@ -184,7 +192,7 @@ filter {
     mutate {
       rename => { "[app][RequestPath]" => "[url][path]" }
     }
-    # .Net apps log mutate end
+    ## .Net apps log mutate end
   }
 }
 
