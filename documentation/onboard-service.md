@@ -94,14 +94,8 @@ The application is configured for each environment using [environment variables]
 - Custom secrets are manually configured in the application key vault created in [Create terraform environment](#create-terraform-environment), and loaded automatically by [the terraform module](https://github.com/DFE-Digital/teacher-services-cloud/blob/a14bc31bad011d3227c9787b1d60011431359373/templates/new_service/terraform/application/application.tf#L9). e.g. rails secret key, notify key...
 - Access keys to resources created by terraform like databases or storage accounts are [configured directly via terraform](https://github.com/DFE-Digital/teacher-services-cloud/blob/a14bc31bad011d3227c9787b1d60011431359373/templates/new_service/terraform/application/application.tf#L19) in secret_variables
 
-### Configure Statuscake credentials
-If Statuscake is not required at this stage, comment out resources in `terraform/application/statuscake.tf` and the provider in `terraform/application/terraform.tf`.
-
-If it is:
-- [Request](https://technical-guidance.education.gov.uk/infrastructure/monitoring/statuscake/#statuscake) a user account and an API key
-- Create a secret "STATUSCAKE-API-TOKEN" in the "inf" keyvault, with the API key as value
-
-Any secret "X" created in the *infrastructure* keyvault is available to use in terraform using [module.infrastructure_secrets.X](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/terraform/application/secrets.tf).
+### Statuscake
+If Statuscake monitoring is not required at this stage, comment out resources in `terraform/application/statuscake.tf` and the provider in `terraform/application/terraform.tf`. See the [production checklist](production-checklist#statuscake) for full configuration.
 
 ### Deploy application
 Deploy the application, ingress, database...
