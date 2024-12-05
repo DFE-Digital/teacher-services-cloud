@@ -2,21 +2,6 @@
 
 For the service to be ready for end users, it must be reliable, performant and sustainable.
 
-## StatusCake
-This is the most essential monitoring as if it alerts, it means users cannot access the site. It monitors both [uptime](https://www.statuscake.com/features/uptime/) and [SSL certificate](https://www.statuscake.com/features/ssl/). Use the [terraform module](https://github.com/DFE-Digital/terraform-modules/blob/main/monitoring/statuscake/README.md) to configure it.
-
-Ask the infra team for help with these steps:
-- Create the dev team contact group if necessary. Add the team email, developer emails and phone numbers if desired
-- Get the dev team contact group id from the URL
-- [Configure credentials](onboard-service.md#configure-statuscake-credentials)
-- Fill in `enable_monitoring`, `external_url` and `statuscake_contact_groups` variables in the environment *tfvars.json* file. Example:
-  ```yaml
-  "enable_monitoring" : true,
-  "external_url": "https://calculate-teacher-pay.education.gov.uk/healthcheck",
-  "statuscake_contact_groups": [195955]
-  ```
-- For production, add the infra team contact group id: `282453`
-
 ## Multiple replicas
 By default the template deploys only 1 replica for each [kubernetes deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/). This is not sufficient for production as if the container is unavailable, there is no other replica to serve the requests. It may be unavailable because of high usage or simply because the cluster is moving the container to another node. This will happen when the cluster version is updated.
 
@@ -51,13 +36,50 @@ Container logs are available temporarily in the cluster. To store the logs, all 
 
 Set [enable_logit](https://github.com/DFE-Digital/terraform-modules/blob/eae51cf1b82b5eb5a4fe6cafd76d50c8469b4aad/aks/application/variables.tf#L151) to `true` to ship the logs. Logs must sent as json, normally using [the standard libraries](https://technical-guidance.education.gov.uk/infrastructure/monitoring/logit/) for the language.
 
-Developers need to request access to Logit.io to access them.
+Developers need to request [access to Logit.io](developer-onboarding#access) to visualise the logs.
 
-## Postgres and redis monitoring
+## Monitoring
+### StatusCake
+[Statuscake](https://technical-guidance.education.gov.uk/infrastructure/monitoring/statuscake/) is the most essential monitoring tool as if it alerts, it means users cannot access the site. Use the [terraform module](https://github.com/DFE-Digital/terraform-modules/blob/main/monitoring/statuscake/README.md) to monitor:
+- [uptime](https://www.statuscake.com/features/uptime/)
+- [SSL certificate](https://www.statuscake.com/features/ssl/)
+- [Push check](https://www.statuscake.com/kb/knowledge-base/what-is-push-monitoring/)
+
+Ask the infra team for help with these steps:
+- Create the dev team [contact group](https://app.statuscake.com/CurrentGroups.php) if necessary. Add the team email, developer emails and phone numbers if desired.
+- Get the dev team contact group id from the URL
+- Obtain an existing API key or request a new one. Ideally there should be one per service or at least one per area.
+- Create a secret "STATUSCAKE-API-TOKEN" in the "inf" keyvault, with the API key as value. The statuscake provider is configured to get the token from `module.infrastructure_secrets.map.STATUSCAKE-API-TOKEN`.
+- Fill in `enable_monitoring`, `external_url` and `statuscake_contact_groups` variables in the environment *tfvars.json* file. Example:
+  ```json
+  "enable_monitoring" : true,
+  "external_url": "https://calculate-teacher-pay.education.gov.uk/healthcheck",
+  "statuscake_contact_groups": [195955]
+  ```
+- For production, add the infra team contact group id: `282453`
+
+### Postgres and redis
+It requires [creating a monitoring action group](https://github.com/DFE-Digital/terraform-modules/tree/main/aks/application#monitoring). The [new_service template](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/Makefile) includes the `make action-group` command to automate this task. Ask the infra team to set it up.
+
 Set `azure_enable_monitoring` to true to enable logging, monitoring and alerting. It will alert the infrastructure team by email by default.
 
-## Front door monitoring
-Set `azure_enable_monitoring` to true in the domains/infrastructure module to enable logging on front door. It is  verbose and costly and should not be used by default. But it can be extremely useful for troubleshooting.
+### Front door
+Set `azure_enable_monitoring` to true in the domains/infrastructure module to enable logging on front door. It is  verbose and costly and should not be used by default (check with the infra team). But it can be extremely useful for troubleshooting.
+
+### Pods
+Pods CPU, memory, restarts... are monitored using prometheus. To enable it follow:
+- [Enable prometheus scraping](https://github.com/DFE-Digital/terraform-modules/blob/main/aks/application/tfdocs.md#input_enable_prometheus_monitoring) on *each* deployment you want to monitor
+- Create a webhook slack app in the [Teacher services cloud Slack app](https://api.slack.com/apps/A05Q1UNM3U2) or reuse one if it has the desired channel
+- If using a new webhook, create a secret in the Teacher services cloud keyvault (*s189t01-tsc-ts-kv* or *s189p01-tsc-pd-kv*). It must be named *SLACK-WEBHOOK-XXX* where XXX is a service like ATT or an area like CPD.
+- If using a new webhook, add the secret name to [alertmanager_slack_receiver_list]((cluster/terraform_kubernetes/config))
+- Enable alerting on *each* deployment you want to monitor by adding to [alertable_apps](cluster/terraform_kubernetes/config), each entry is: `"namespace/deployment": { "receiver": "RECEIVER"}`, such as:
+  ```json
+  "bat-production/itt-mentor-services-sandbox": {
+      "receiver": "SLACK_WEBHOOK_ITTMS"
+    },
+  ```
+  If the receiver is not specified, SLACK_WEBHOOK_GENERIC will be used to alert the infra channel.
+
 
 ## Custom domain
 The default web application domain in production is `teacherservices.cloud`, and the application domain is `<application_name>.teacherservices.cloud`. It should not be used by end users. Rather we normally create a subdomain of either `education.gov.uk` or `service.gov.uk`. Here is the process:
@@ -98,4 +120,4 @@ Add a lock to critical Azure resources to prevent against accidental deletion, s
 ## Build image security scanning
 We use SNYK scanning to [check build images for vulnerabilities](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/Testing-software.aspx).
 
-This is enabled by passing a valid [SNYK-TOKEN](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/.github/workflows/build-and-deploy.yml#L3) to the build-and-deploy github action
+This is enabled by passing a valid [SNYK-TOKEN](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/.github/workflows/build-and-deploy.yml#L3) to the build-and-deploy github action.
