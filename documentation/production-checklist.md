@@ -36,7 +36,7 @@ Container logs are available temporarily in the cluster. To store the logs, all 
 
 Set [enable_logit](https://github.com/DFE-Digital/terraform-modules/blob/eae51cf1b82b5eb5a4fe6cafd76d50c8469b4aad/aks/application/variables.tf#L151) to `true` to ship the logs. Logs must sent as json, normally using [the standard libraries](https://technical-guidance.education.gov.uk/infrastructure/monitoring/logit/) for the language.
 
-Developers need to request [access to Logit.io](developer-onboarding#access) to visualise the logs.
+Developers need to request [access to Logit.io](developer-onboarding.md#access) to visualise the logs.
 
 ## Monitoring
 ### StatusCake
@@ -71,8 +71,8 @@ Pods CPU, memory, restarts... are monitored using prometheus. To enable it follo
 - [Enable prometheus scraping](https://github.com/DFE-Digital/terraform-modules/blob/main/aks/application/tfdocs.md#input_enable_prometheus_monitoring) on *each* deployment you want to monitor
 - Create a webhook slack app in the [Teacher services cloud Slack app](https://api.slack.com/apps/A05Q1UNM3U2) or reuse one if it has the desired channel
 - If using a new webhook, create a secret in the Teacher services cloud keyvault (*s189t01-tsc-ts-kv* or *s189p01-tsc-pd-kv*). It must be named *SLACK-WEBHOOK-XXX* where XXX is a service like ATT or an area like CPD.
-- If using a new webhook, add the secret name to [alertmanager_slack_receiver_list]((cluster/terraform_kubernetes/config))
-- Enable alerting on *each* deployment you want to monitor by adding to [alertable_apps](cluster/terraform_kubernetes/config), each entry is: `"namespace/deployment": { "receiver": "RECEIVER"}`, such as:
+- If using a new webhook, add the secret name to [alertmanager_slack_receiver_list](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config)
+- Enable alerting on *each* deployment you want to monitor by adding to [alertable_apps](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config/), each entry is: `"namespace/deployment": { "receiver": "RECEIVER"}`, such as:
   ```json
   "bat-production/itt-mentor-services-sandbox": {
       "receiver": "SLACK_WEBHOOK_ITTMS"
