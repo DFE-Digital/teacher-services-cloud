@@ -1,9 +1,10 @@
 # Teacher services infra - Service onboarding form
 - Service name? e.g. Calculate teacher pay
 - Domains  ? e.g.
-    - school-placements-production.teacherservices.cloud
-    - getintoteaching.education.gov.uk
-    - get-information-schools.service.gov.uk
+    - internal: school-placements-production.teacherservices.cloud
+    - external, education.gov.uk: getintoteaching.education.gov.uk
+    - external, service.gov.uk: get-information-schools.service.gov.uk
+    - Note the total length any "subdomain.domain" (e.g. staging.getintoteaching.education.gov.uk) cannot exceed 64 characters
 - Service short name? e.g. ctp
 - Repository? e.g. https://github.com/DFE-Digital/itt-mentor-services
 - Environments? e.g. develoment, staging, production

@@ -104,15 +104,18 @@ Deploy the application, ingress, database...
 - Apply: `make <environment config> terraform-apply`. Example: `make development terraform-apply`
 
 ## Custom domain
-The new application uses a default domain in `test.teacherservices.cloud` in test and `teacherservices.cloud` in production. Usually a custom domain is required to present a familiar domain to end users, ending in either `education.gov.uk` or `service.gov.uk`.
+The new application uses a default domain in `test.teacherservices.cloud` in test and `teacherservices.cloud` in production. Usually a [custom domain](https://technical-guidance.education.gov.uk/infrastructure/hosting/dns/#page_toc) is required to present a familiar domain to end users, ending in either `education.gov.uk` or `service.gov.uk`.
 
-The code deploys integrated DNS zone and Azure front door **in the production subscription**.
+The code deploys Azure DNS zone and Azure front door **in the production subscription**.
 
 Before proceeding, ensure the following:
 
-- domain.sh exists in global config and there's a make command for it
-- The files present in terraform/domains/infrastructure match the sample structure in templates/new_service/terraform/domains/infrastructure, with the appropriate configuration
-- The files present in terraform/domains/environment_domains match the sample structure in templates/new_service/terraform/domains/environment_domains, with the appropriate  configuration
+- The total length any "subdomain.domain" (e.g. staging.getintoteaching.education.gov.uk) cannot exceed 64 characters
+- [Generate the code](#generate-code) using the template to create:
+  - domain.sh in global config
+  - domains make commands
+  - terraform code in terraform/domains/infrastructure and terraform/domains/environment_domains
+- It is possible to set up multiple top-level domains. Duplicate the code in the json files, such as in [ITTMS](https://github.com/DFE-Digital/itt-mentor-services/blob/main/terraform/domains/environment_domains/config/production.tfvars.json).
 
 ### Create domains terraform environment
 - Validate: `make domains validate-arm-resources`
