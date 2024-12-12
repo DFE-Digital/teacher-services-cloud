@@ -29,7 +29,11 @@ Alert developers that no one should merge to main.
 
 Run the *Enable maintenance* workflow for the service and environment affected.
 
-The maintenance page message can be [updated](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/documentation/maintenance-page.md#update-content) at any time during the incident
+The maintenance page message can be [updated](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/documentation/maintenance-page.md#update-content) at any time during the incident.
+
+e.g. https://claim-additional-payments-for-teaching-test-web.test.teacherservices.cloud will now display the maintenance page and
+
+https://claim-additional-payments-for-teaching-temp.test.teacherservices.cloud will display the application.
 
 ### Recreate the lost postgres database server
 
@@ -46,6 +50,9 @@ Run the *Restore database from Azure storage* workflow.
 
 ### Validate app
 Confirm the app is working and can see the restored data. The app is available on the [temporary ingress](maintenance-page.md/#fail-over) URL.
+
+e.g. https://claim-additional-payments-for-teaching-temp.test.teacherservices.cloud will display the application.
+
 
 ### Disable maintenance mode
 Run the *Disable maintenance* workflow for the service and environment affected.
