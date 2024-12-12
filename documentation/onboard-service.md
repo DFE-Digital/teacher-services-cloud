@@ -14,8 +14,14 @@ flowchart TD;
     ProdReady --> Done["Start deploying"] ;
 ```
 
-Before starting, it is important to capture the information required upfront using the  [Onboarding form](onboard-form-template.md) even if it is subject to change in the future. Also, its really important to
-check the [Production Checklist](production-checklist.md). Your code should then be ready to roll.
+## Before you start
+
+- Your application needs to be dockerized. The build workflow will make it available at ghcr.io/dfe-digital/your-service-name.
+- If you are getting started on a local machine and you have an Apple
+Silicon laptop, note that you will need to build your container with the
+`--platform=linux/amd64` flag.
+- Capture the information required upfront using the [Onboarding form](onboard-form-template.md), even if it is subject to change in the future. Keep it in hedgedoc and update it as you go along.
+- Do not forget to check the [Production Checklist](production-checklist.md) in the end
 
 ## Template
 Most services use the same code to deploy to AKS. It has been made into a template that will evolve over time to capture all the best practices from working in multiple services.
@@ -44,11 +50,15 @@ Make sure to copy all the files, including invisible files. Example:
 cp -r teacher-services-cloud/new_service/. teacher-pay-calculator
 ```
 
+Note that for an existing repository, this may clobber your `.gitignore`, `.tool-versions` and `Makefile`. Only add what is missing and check `git diff` to make sure you're not
+losing information.
+
 ### Tailor the code
 The code covers most common use cases, but it may be necessary to amend it. Examples:
 - By default the code deploys a postgres database, but the service may not need it
 - The only environment configurations are development and production. The service may need more or use different names.
-- The web application uses `/healthcheck` as health probe. It can be changed to another path or disabled by passing `null`.
+- The web application uses `/healthcheck` as health probe. It can be changed to another path or disabled by passing `null`. If you don't have a
+healthcheck endpoint and don't configure or disable this, deployments will time out (See [FAQ](#faq)).
 
 ### Github actions workflow templates
 Several workflow templates will be created in the .github/workflows directory.
@@ -104,15 +114,18 @@ Deploy the application, ingress, database...
 - Apply: `make <environment config> terraform-apply`. Example: `make development terraform-apply`
 
 ## Custom domain
-The new application uses a default domain in `test.teacherservices.cloud` in test and `teacherservices.cloud` in production. Usually a custom domain is required to present a familiar domain to end users, ending in either `education.gov.uk` or `service.gov.uk`.
+The new application uses a default domain in `test.teacherservices.cloud` in test and `teacherservices.cloud` in production. Usually a [custom domain](https://technical-guidance.education.gov.uk/infrastructure/hosting/dns/#page_toc) is required to present a familiar domain to end users, ending in either `education.gov.uk` or `service.gov.uk`.
 
-The code deploys integrated DNS zone and Azure front door **in the production subscription**.
+The code deploys Azure DNS zone and Azure front door **in the production subscription**.
 
 Before proceeding, ensure the following:
 
-- domain.sh exists in global config and there's a make command for it
-- The files present in terraform/domains/infrastructure match the sample structure in templates/new_service/terraform/domains/infrastructure, with the appropriate configuration
-- The files present in terraform/domains/environment_domains match the sample structure in templates/new_service/terraform/domains/environment_domains, with the appropriate  configuration
+- The total length any "subdomain.domain" (e.g. staging.getintoteaching.education.gov.uk) cannot exceed 64 characters
+- [Generate the code](#generate-code) using the template to create:
+  - domain.sh in global config
+  - domains make commands
+  - terraform code in terraform/domains/infrastructure and terraform/domains/environment_domains
+- It is possible to set up multiple top-level domains. Duplicate the code in the json files, such as in [ITTMS](https://github.com/DFE-Digital/itt-mentor-services/blob/main/terraform/domains/environment_domains/config/production.tfvars.json).
 
 ### Create domains terraform environment
 - Validate: `make domains validate-arm-resources`
@@ -172,7 +185,7 @@ Follow the [production checklist](production-checklist.md) to make sure the serv
 
 ## FAQ
 
-### Why does my web application deployment times out?
+### Why does my web application deployment time out?
 It may be that the container fails to start. By default, Kubernetes probes the web container on the `/healthcheck` endpoint and expects a successful response with a 200 HTTP code. If the application doesn't have this endpoint or returns an error, it will keep trying until it times out.
 
 Solutions:
