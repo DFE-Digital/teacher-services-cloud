@@ -94,7 +94,7 @@ variable "lowpriority_app_replicas" {
 
 variable "kube_state_metrics_version" {
   type    = string
-  default = "2.12.0"
+  default = "2.13.0"
 }
 
 data "azurerm_client_config" "current" {}
