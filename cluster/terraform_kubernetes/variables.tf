@@ -225,6 +225,10 @@ variable "block_metrics_endpoint" {
   type        = bool
 }
 
+variable "github_actions_mi" {
+  default = {}
+}
+
 locals {
   cluster_name = (
     var.cip_tenant ?
