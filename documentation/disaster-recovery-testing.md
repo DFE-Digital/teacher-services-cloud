@@ -48,7 +48,7 @@ Note that you must have a previously created backup on azure storage before star
 - Delete the existing postgres database
     - manually delete via UI https://portal.azure.com/#browse/Microsoft.DBforPostgreSQL%2FflexibleServers
 - Confirm it's deleted
-- Check and delete any postgres diagnostics remaining for the deleted instance in https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/diagnosticsLogs as the later deploy to rebuild postgres will fail if it remains. e.g. s189t01-ittms-stg-pg-diagnotics
+- Check and delete any postgres diagnostics remaining for the deleted instance in https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/diagnosticsLogs as the later deploy to rebuild postgres will fail if it remains. e.g. search using subscription s189-teacher-services-cloud-test and resource group s189t01-ittms-stg-pg and look for enabled Diagnostic settings.
 
 Follow the disaster recovery instructions.
 
