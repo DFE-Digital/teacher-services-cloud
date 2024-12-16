@@ -43,7 +43,7 @@ terraform-init: composed-variables set-azure-account
 	$(if ${DOCKER_IMAGE_TAG}, , $(eval DOCKER_IMAGE_TAG=main))
 
 	rm -rf terraform/application/vendor/modules/aks
-	git clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git terraform/application/vendor/modules/aks
+	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git terraform/application/vendor/modules/aks
 
 	terraform -chdir=terraform/application init -upgrade -reconfigure \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
