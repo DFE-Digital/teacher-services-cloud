@@ -7,7 +7,7 @@ output "ga_wif_creds" {
     mi.name => {
       client_id = mi.client_id
       tenant_id = mi.tenant_id
-      subscription =
+      subscription_id = data.data.azurerm_subscription.current.subscription_id
     }
   }
 }
