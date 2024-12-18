@@ -127,14 +127,20 @@ az aks nodepool get-upgrades --resource-group <ResourceGroup> --cluster-name <Cl
       1. Regularly monitor the status of nodes in your Kubernetes cluster. If a node is stuck in 'Ready,SchedulingDisabled' state, follow these steps.
       2. Describe the Node :
             1. Use the following command to describe the node and understand the reason for the status:
-                1.  ``` kubectl describe node <node-name>  ```
+                1.  ` kubectl describe node <node-name>  `
                 2. Look for reasons in the output. For  example, you might see :
-                                  - ``` Eviction blocked by Too many Requests (usually a pdb): claim-additional-payments-for-teaching-production-worker-64dqxw ```.
+                                  - ` Eviction blocked by Too many Requests (usually a pdb): claim-additional-payments-for-teaching-production-worker-64dqxw `.
      3. Check the Pod Status
          1. Identify the problematic pod mentioned in the node description. Check its status using:
-               1.  ``` kubectl get pods -n <namespace> | grep <pod-name>  ```
-                   1. Example : ``` srtl-production        claim-additional-payments-for-teaching-production-worker-64dqxw   0/1     CrashLoopBackOff ```.
+               1.  ` kubectl get pods -n <namespace> | grep <pod-name>  `
+                   1. Example : ` srtl-production        claim-additional-payments-for-teaching-production-worker-64dqxw   0/1     CrashLoopBackOff `.
       4. Handle Pods in CrashLoopBackOff State:
-         1. If the pod is in a ``` CrashLoopBackOff ``` state, it might be preventing the node from scheduling new pods
+         1. If the pod is in a ` CrashLoopBackOff ` state, it might be preventing the node from scheduling new pods
          2. Scale down the problematic pod to resolve the issue. For example, if it is part of a deployment, you can scale down the deployment
-         3.  ``` kubectl scale deployment <deployment-name> --replicas=0 -n <namespace>  ```
+         3.  ` kubectl scale deployment <deployment-name> --replicas=0 -n <namespace>  `
+6. Review apps & Container images
+   1. If a review app uses an image from a public repository, it may encounter rate limit during image pull for example postgresql, redis images. This issue will resolve itself. But  it can be resolved faster by following the process below.
+   2. Scale down the replicas of all deployments of a review application
+      1. ` kubectl scale deployment <deployment-name> --replicas=0 -n <namespace>  `
+      2. Wait for 1 hr
+      3. Scale up the replicas one deployment at a time and check.
