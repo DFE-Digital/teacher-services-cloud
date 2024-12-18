@@ -225,7 +225,7 @@ variable "block_metrics_endpoint" {
   type        = bool
 }
 
-variable "ga_wif_namespaces" {
+variable "ga_wif_managed_id" {
   default = {}
 }
 
