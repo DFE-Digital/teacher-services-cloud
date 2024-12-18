@@ -2,7 +2,7 @@ resource "azurerm_user_assigned_identity" "ga_wif" {
   for_each = var.ga_wif_namespaces
 
   location            = data.azurerm_resource_group.resource_group.location
-  name                = "${var.resource_prefix}-ga-wif-${var.config}-${each.key}-mi"
+  name                = "${var.resource_prefix}-ga-wif-${var.config}-${each.key}-id"
   resource_group_name = var.resource_group_name
 }
 
