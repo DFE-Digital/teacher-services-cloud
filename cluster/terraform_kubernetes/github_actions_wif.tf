@@ -1,5 +1,5 @@
 resource "azurerm_user_assigned_identity" "ga_wif" {
-  for_each = var.github_actions_mi
+  for_each = var.ga_wif_namespaces
 
   location            = data.azurerm_resource_group.resource_group.location
   name                = "${var.resource_prefix}-ga-wif-${var.config}-${each.key}-mi"
@@ -7,9 +7,9 @@ resource "azurerm_user_assigned_identity" "ga_wif" {
 }
 
 locals {
-  # Iterate over github_actions_mi, repos and environments to create a list of maps
+  # Iterate over ga_wif_namespaces, repos and environments to create a list of maps
   ga_wif_credentials = flatten([
-    for namespace, repos in var.github_actions_mi : [
+    for namespace, repos in var.ga_wif_namespaces : [
       for repo, environments in repos : [
         for environment in environments : {
           n = namespace

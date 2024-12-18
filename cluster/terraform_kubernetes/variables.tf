@@ -225,7 +225,7 @@ variable "block_metrics_endpoint" {
   type        = bool
 }
 
-variable "github_actions_mi" {
+variable "ga_wif_namespaces" {
   default = {}
 }
 
