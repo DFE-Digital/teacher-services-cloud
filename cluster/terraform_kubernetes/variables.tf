@@ -225,6 +225,11 @@ variable "block_metrics_endpoint" {
   type        = bool
 }
 
+variable "ga_wif_managed_id" {
+  default = {}
+  type    = map(map(list(string)))
+}
+
 locals {
   cluster_name = (
     var.cip_tenant ?
