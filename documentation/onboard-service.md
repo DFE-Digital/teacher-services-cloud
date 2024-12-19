@@ -150,35 +150,19 @@ This configures the custom domain for a particular environment in the previously
 - Apply: `make <environment config> domains-apply`
 
 ## Deploy via Github actions
-When running the make commands for deployment, terraform uses the Azure credentials provided by `az login`.
+When running the make commands for deployment, the Azure credentials provided by `az login` are used by:
+- the [terraform azurerm provider](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs) and [azure cli](https://learn.microsoft.com/en-us/cli/azure/) to authenticate to Azure and managed Azure resources
+- [kubelogin](https://azure.github.io/kubelogin/) to authenticate to the Entra ID enabled AKS cluster. kubelogin is required by the [terraform kubernetes provider](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs) and any [kubectl](https://kubernetes.io/docs/reference/kubectl/) commands.
 
-When running in a Github actions workflow, it uses a [service principal key](https://technical-guidance.education.gov.uk/infrastructure/hosting/azure-cip/#use-the-service-principal-in-external-systems). Follow the process in the documentation to create `AZURE_CREDENTIALS` per environment.
+When running in a Github actions workflow, authentication is made using [OIDC](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-azure):
+- the workflow runs in a Github environment
+- this environment is declared as federated credential in a managed identity
+- the managed identity is member of the same AD group as in [Enable developers access](#enable-developers-access). This gives it permission to manage Azure resources and kubernetes namespaces.
 
-- Use the `s189t01-tsc-contributor` service principal for non production environments to deploy to the test cluster
-- Use `s189p01-tsc-contributor` for production environments to deploy to the production cluster
-
-Note that there are template deployment workflows created by 'make new_service' and these should be used for any new services.
-
-Example workflow:
-
-```yaml
-- name: Checkout code
-    uses: actions/checkout@v4
-
-- uses: hashicorp/setup-terraform@v3
-    with:
-    terraform_version: 1.5.1
-    terraform_wrapper: false
-
-- uses: DFE-Digital/github-actions/set-arm-environment-variables@master
-    with:
-    azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
-
-- name: Apply Terraform
-    run: make ci ${{ matrix.environment }} terraform-apply
-    env:
-        DOCKER_IMAGE_TAG: ${{ needs.build.outputs.docker-image-tag }}
-```
+1. Create the federated credentials by adding the service and environments to the `ga_wif_managed_id` variable
+1. Deploy via pull request on this repository
+1. In the `Deploy Cluster` job, note the data from the `ga_wif_config` output to populate `azure-client-id`, `azure-tenant-id` and `azure-subscription-id` in the workflows. It is recommended to store them as Github environment secrets.
+1. Create the workflows. Note that there are [template deployment workflows](https://github.com/DFE-Digital/teacher-services-cloud/tree/main/templates/new_service/.github/workflows) created by `make new_service` and these should be used for any new services.
 
 ## Get ready for production
 Follow the [production checklist](production-checklist.md) to make sure the service is ready for end users
