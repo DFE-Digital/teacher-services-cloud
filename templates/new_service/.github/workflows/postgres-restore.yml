@@ -66,5 +66,7 @@ jobs:
         resource-group: ${{ env.RESOURCE_GROUP_NAME }}
         app-name: ${{ env.SERVICE_NAME }}-${{ inputs.environment }}
         cluster: ${{ env.CLUSTER }}
-        azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         backup-file: ${{ env.BACKUP_FILE }}
