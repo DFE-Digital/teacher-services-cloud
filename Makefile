@@ -60,7 +60,7 @@ terraform-aks-cluster-destroy: terraform-aks-cluster-init
 
 terraform-kubernetes-init: set-azure-account
 	rm -rf cluster/terraform_kubernetes/vendor/modules/aks
-	git clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git cluster/terraform_kubernetes/vendor/modules/aks
+	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git cluster/terraform_kubernetes/vendor/modules/aks
 
 	terraform -chdir=cluster/terraform_kubernetes init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \

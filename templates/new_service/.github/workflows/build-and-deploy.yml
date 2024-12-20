@@ -94,7 +94,9 @@ jobs:
       id: deploy_review
       uses: DFE-Digital/github-actions/deploy-to-aks@master
       with:
-        azure-credentials:  ${{ secrets.AZURE_CREDENTIALS }}
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         environment: review
         pr-number: ${{ github.event.pull_request.number }}
         sha: ${{ needs.build.outputs.docker-image-tag }}
@@ -126,7 +128,9 @@ jobs:
       id: deploy_app
       uses: DFE-Digital/github-actions/deploy-to-aks@master
       with:
-        azure-credentials:  ${{ secrets.AZURE_CREDENTIALS }}
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         environment: ${{ matrix.environment }}
         pr-number: ${{ github.event.pull_request.number }}
         sha: ${{ needs.build.outputs.docker-image-tag }}
@@ -153,7 +157,9 @@ jobs:
       id: deploy_manual
       uses: DFE-Digital/github-actions/deploy-to-aks@master
       with:
-        azure-credentials:  ${{ secrets.AZURE_CREDENTIALS }}
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         environment: ${{ inputs.environment }}
         pr-number: ${{ inputs.pull-request-number }}
         sha: ${{ inputs.docker-image-tag }}
