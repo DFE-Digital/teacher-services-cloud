@@ -161,8 +161,8 @@ When running in a Github actions workflow, authentication is made using [OIDC](h
 
 1. Create the federated credentials by adding the service and environments to the `ga_wif_managed_id` variable
 1. Deploy via pull request on this repository
-1. In the `Deploy Cluster` job, note the data from the `ga_wif_config` output to populate `azure-client-id`, `azure-tenant-id` and `azure-subscription-id` in the workflows. It is recommended to store them as Github environment secrets.
-1. Create the workflows. Note that there are [template deployment workflows](https://github.com/DFE-Digital/teacher-services-cloud/tree/main/templates/new_service/.github/workflows) created by `make new_service` and these should be used for any new services.
+1. In the service repository, create repository secret `AZURE_TENANT_ID`, and for each environment, environment secrets `AZURE_CLIENT_ID` and `AZURE_SUBSCRIPTION_ID`. Get the values from the relevant managed identities in the Azure portal, or from the `ga_wif_config` output of terraform-kubernetes-plan.
+1. Create or update the workflows and reference the above secrets. Note that there are [template deployment workflows](https://github.com/DFE-Digital/teacher-services-cloud/tree/main/templates/new_service/.github/workflows) created by `make new_service` and these should be used for any new services.
 
 ## Get ready for production
 Follow the [production checklist](production-checklist.md) to make sure the service is ready for end users
