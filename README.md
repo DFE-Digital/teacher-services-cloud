@@ -96,3 +96,4 @@ kubectl get pods
 - [Monitoring](documentation/monitoring.md)
 - [Slack webhook integration](documentation/slack-webhook-integration.md)
 - [Azure GCP Workload Identity Federation](documentation/azure-gcp-workload-identity-federation.md)
+- [Platform FAQ](documentation/platform-faq.md)
