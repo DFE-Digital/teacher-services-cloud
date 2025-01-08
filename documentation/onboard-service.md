@@ -150,7 +150,7 @@ This configures the custom domain for a particular environment in the previously
 - Apply: `make <environment config> domains-apply`
 
 ## Deploy via Github actions
-When running the make commands for deployment, the Azure credentials provided by `az login` are used by:
+When running the make commands locally, the Azure credentials provided by `az login` are used by:
 - the [terraform azurerm provider](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs) and [azure cli](https://learn.microsoft.com/en-us/cli/azure/) to authenticate to Azure and managed Azure resources
 - [kubelogin](https://azure.github.io/kubelogin/) to authenticate to the Entra ID enabled AKS cluster. kubelogin is required by the [terraform kubernetes provider](https://registry.terraform.io/providers/hashicorp/kubernetes/latest/docs) and any [kubectl](https://kubernetes.io/docs/reference/kubectl/) commands.
 
@@ -158,6 +158,8 @@ When running in a Github actions workflow, authentication is made using [OIDC](h
 - the workflow runs in a Github environment
 - this environment is declared as federated credential in a managed identity
 - the managed identity is member of the same AD group as in [Enable developers access](#enable-developers-access). This gives it permission to manage Azure resources and kubernetes namespaces.
+
+See [AKS AD groups](https://educationgovuk.sharepoint.com.mcas.ms/sites/teacher-services-infrastructure/SitePages/AKS%20AD%20groups.aspx) for more details.
 
 1. Create the federated credentials by adding the service and environments to the `ga_wif_managed_id` variable
 1. Deploy via pull request on this repository
