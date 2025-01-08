@@ -11,3 +11,25 @@ groups:
       severity: high
       cluster: ${cluster_long}
       receiver: SLACK_WEBHOOK_GENERIC
+
+  - alert: KubernetesNodeMemoryPressure
+    expr: kube_node_status_condition{condition="MemoryPressure",status="true"} == 1
+    for: 2m
+    annotations:
+      summary: Kubernetes Node memory pressure (instance {{ $labels.instance }})
+      description: "Node {{ $labels.nodename }} has MemoryPressure condition\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+    labels:
+      severity: critical
+      cluster: ${cluster_long}
+      receiver: SLACK_WEBHOOK_GENERIC
+
+  - alert: KubernetesNodeDiskPressure
+    expr: kube_node_status_condition{condition="DiskPressure",status="true"} == 1
+    for: 2m
+    annotations:
+      summary: Kubernetes Node disk pressure (instance {{ $labels.instance }})
+      description: "Node {{ $labels.nodename }} has DiskPressure condition\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+    labels:
+      severity: critical
+      cluster: ${cluster_long}
+      receiver: SLACK_WEBHOOK_GENERIC
