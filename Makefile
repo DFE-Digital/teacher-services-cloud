@@ -142,11 +142,11 @@ domains-infra-plan: domains-infra-init
 domains-infra-apply: domains-infra-init
 	terraform -chdir=custom_domains/terraform/infrastructure apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
-get-cluster-credentials: set-azure-account ## make <config> get-cluster-credentials [ENVIRONMENT=<clusterX>]
+get-cluster-credentials: cluster-composed-variables set-azure-account ## make <config> get-cluster-credentials [ENVIRONMENT=<clusterX>]
 	az aks get-credentials --overwrite-existing -g ${RESOURCE_GROUP_NAME} -n ${RESOURCE_PREFIX}-tsc-${ENVIRONMENT}${CLONE_STRING}-aks
 	kubelogin convert-kubeconfig -l $(if ${AAD_LOGIN_METHOD},${AAD_LOGIN_METHOD},azurecli)
 
-disable-cluster-node-autoscaler: set-azure-account
+disable-cluster-node-autoscaler: cluster-composed-variables set-azure-account
 	$(if $(NODE_POOL), , $(error Please specify a node pool))
 	az aks nodepool update --resource-group ${RESOURCE_GROUP_NAME} --cluster-name ${RESOURCE_PREFIX}-tsc-${ENVIRONMENT}-aks --name ${NODE_POOL} --disable-cluster-autoscaler
 
