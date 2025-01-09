@@ -10,7 +10,7 @@ There are two DNS zones for ingress DNS:
 ### Zone Build
 
 ```
-make {dev/prod}-domain domains-infra-{plan/apply}
+make {development/production} domains-infra-{plan/apply}
 ```
 
 There is also an NS record for delegation from teacherservices.cloud to development.teacherservices.cloud,
@@ -100,3 +100,14 @@ When creating a brand new cluster with its own configuration, follow these steps
 - Run: `make <environment> terraform-apply`
 - Configure a domain pointing at the new ingress IP following [Cluster DNS zone configuration](#cluster-dns-zone-configuration)
 - Create or update the user AD groups as per the [AD groups documentation](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/AKS%20AD%20groups.aspx)
+
+## Deployment workflow
+When a pull request is created, the `Deploy Cluster` workflow runs and validates the terraform code.
+
+When the pull request is merged, the workflow continues and deploys successively the `platform-test`, `test` and `production` clusters. Then it updates the domains in the `development` and `production` zones.
+
+The jobs run in separate Github environments. Each environment contains secrets `AZURE_CLIENT_ID` and `AZURE_SUBSCRIPTION_ID` required for [Github OIDC authentication](https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-azure), as well as `AZURE_TENANT_ID` stored as repository secret. The variables correspond to Entra ID app registrations that have the `s189-Contributor and Key Vault editor` role.
+
+[Federated credentials](https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation-create-trust?pivots=identity-wif-apps-methods-azp#github-actions) are created manually by an app registration owner. Each one authenticates a Github environment in the teacher-services-cloud repository.
+
+The Github environment variables `TEST_APP_DEPLOYMENT` enables the application deployment smoke test after the deployment. It simulates a typical application deployment using OIDC by deploying *ITT mentor services* to the cluster, testing, and deleting the application. `ITTMS_ENVIRONMENT` points at the chosen environment in [ITTMS](https://github.com/DFE-Digital/itt-mentor-services).

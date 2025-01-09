@@ -1,8 +1,15 @@
-name: Deploy Environment
+name: Deploy environment
+description: Deploy cluster and configure kubernetes
 
 inputs:
-  azure_credentials:
-    description: Credentials with Contributor & KeyVault access to Azure subscription
+  azure-client-id:
+    description: Azure managed identity client ID for OIDC authentication
+    required: true
+  azure-subscription-id:
+    description: Azure managed identity subscription ID for OIDC authentication
+    required: true
+  azure-tenant-id:
+    description: Azure managed identity tenant ID for OIDC authentication
     required: true
   environment_name:
     description: Name of the environment in Makefile
@@ -60,7 +67,9 @@ runs:
 
   - uses: Azure/login@v2
     with:
-      creds: ${{ inputs.azure_credentials }}
+      client-id: ${{ inputs.azure-client-id }}
+      tenant-id: ${{ inputs.azure-tenant-id }}
+      subscription-id: ${{ inputs.azure-subscription-id }}
 
   - id: deploy-arm-resources
     run: |
@@ -75,7 +84,9 @@ runs:
   - name: Set ARM and kubelogin environment
     uses: DFE-Digital/github-actions/set-kubelogin-environment@master
     with:
-      azure-credentials: ${{ inputs.AZURE_CREDENTIALS }}
+      azure-client-id: ${{ inputs.azure-client-id }}
+      azure-tenant-id: ${{ inputs.azure-tenant-id }}
+      azure-subscription-id: ${{ inputs.azure-subscription-id }}
 
   - id: terraform
     run: |

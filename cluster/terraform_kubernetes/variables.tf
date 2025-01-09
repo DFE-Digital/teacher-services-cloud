@@ -252,20 +252,8 @@ locals {
   lowpriority_app_name      = "lowpriority-app"
   lowpriority_app_namespace = "infra"
 
-  rbac_enabled = length(data.azurerm_kubernetes_cluster.main.azure_active_directory_role_based_access_control) > 0
-  rbac_enabled_clone = try(
-    length(data.azurerm_kubernetes_cluster.clone[0].azure_active_directory_role_based_access_control) > 0,
-    false
-  )
-
-  kubelogin_spn_args = [
+  kubelogin_github_actions_args = [
     "get-token",
-    "--login",
-    "spn",
-    "--environment",
-    "AzurePublicCloud",
-    "--tenant-id",
-    data.azurerm_client_config.current.tenant_id,
     "--server-id",
     "6dae42f8-4368-4678-94ff-3960e28e3630" # See https://azure.github.io/kubelogin/concepts/aks.html
   ]
@@ -276,9 +264,13 @@ locals {
     "--server-id",
     "6dae42f8-4368-4678-94ff-3960e28e3630"
   ]
-
-  spn_authentication = contains(keys(data.environment_variables.github_actions.items), "GITHUB_ACTIONS")
-  kubelogin_args     = local.spn_authentication ? local.kubelogin_spn_args : local.kubelogin_azurecli_args
+  running_in_github_actions = contains(keys(data.environment_variables.github_actions.items), "GITHUB_ACTIONS")
+  # If running in github actions, AAD_LOGIN_METHOD determines the login method, either workloadidentity or spn
+  # If not, use azurecli explicitly as command line argument
+  kubelogin_args = (local.running_in_github_actions ?
+    local.kubelogin_github_actions_args :
+    local.kubelogin_azurecli_args
+  )
 
   template_variable_map = {
     storage-account-name = azurerm_storage_account.thanos.name

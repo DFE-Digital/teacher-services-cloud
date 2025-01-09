@@ -14,10 +14,10 @@ jobs:
       - name: Select Tests
         id: select-tests
         run: |
-          d="{'environment' :'dev-domain'  , 'principal': 's189d01-tsc-contributor'}"
-          t="{'environment' :'test'      , 'principal': 's189t01-tsc-contributor'}"
-          p="{'environment' :'production'   , 'principal': 's189p01-tsc-contributor'}"
-          tests="{ 'data':[ ${d} ,  ${t} ,  ${p} ]}"
+          d="{'environment' :'development', 'principal': 's189d01-tsc-contributor'}"
+          t="{'environment' :'test', 'principal': 's189t01-tsc-contributor'}"
+          p="{'environment' :'production', 'principal': 's189p01-tsc-contributor'}"
+          tests="{'data':[${d}, ${t}, ${p}]}"
           echo "tests=${tests}" >> $GITHUB_OUTPUT
 
   check_expires:
