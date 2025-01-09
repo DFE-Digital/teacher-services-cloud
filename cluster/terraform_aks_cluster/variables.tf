@@ -79,4 +79,8 @@ locals {
     "privatelink.redis.cache.windows.net"
   ]
   uk_south_availability_zones = ["1", "2", "3"]
+  monitor_action_group_name   = "${var.resource_prefix}-tsc"
+  monitoring_resource_group   = "${var.resource_prefix}-tsc-mn-rg"
+  required_available_nodes    = 2
+  node_threshold              = var.node_pools["apps1"].max_count + var.default_node_pool.node_count - local.required_available_nodes
 }
