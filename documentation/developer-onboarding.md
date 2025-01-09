@@ -3,7 +3,7 @@
 Documentation for the Teacher services application developers
 
 NOTE: For additional info about infrastructure see [
-Sharepoint: Teacher services infrastructure](https://educationgovuk.sharepoint.com.mcas.ms/sites/teacher-services-infrastructure)
+Sharepoint: Teacher services infrastructure](https://educationgovuk.sharepoint.com.mcas.ms/sites/teacher-services-infrastructure). Also make sure to review the [technical guidance](https://technical-guidance.education.gov.uk/) and especially [Data Protection Considerations](https://technical-guidance.education.gov.uk/standards/storing-source-code/#data-protection-considerations-git-repositories).
 
 ## Software requirements
 - OS: Linux, MacOS or Windows with WSL
