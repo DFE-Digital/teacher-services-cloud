@@ -13,7 +13,6 @@ on:
       - reopened
       - opened
       - converted_to_draft
-  workflow_dispatch:
 
 jobs:
   validate-terraform:
@@ -91,13 +90,27 @@ jobs:
       max-parallel: 1
       matrix:
         environment: [platform-test, test, production]
+    permissions:
+      id-token: write # Required for OIDC authentication to Azure
+
     steps:
     - uses: actions/checkout@v4
 
     - uses: ./.github/actions/deploy-environment
       with:
-        azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         environment_name: ${{ matrix.environment }}
+
+    - name: Test application deployment
+      if: vars.TEST_APP_DEPLOYMENT == 'true'
+      uses: ./.github/actions/test-app-deployment
+      with:
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        environment: ${{ vars.ITTMS_ENVIRONMENT }}
 
     - name: Send Slack notification on failure
       if: failure()
@@ -133,7 +146,9 @@ jobs:
     - name: Set ARM environment variables
       uses: DFE-Digital/github-actions/set-arm-environment-variables@master
       with:
-        azure-credentials: ${{ secrets.AZURE_CREDENTIALS }}
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
 
     - name: Update DNS in ${{ matrix.environment }}
       run: |
