@@ -22,25 +22,6 @@ runs:
   - name: Set environment variables
     run: |
       TERRAFORM_VERSION=$(awk '/{/{f=/^terraform/;next}f' terraform_aks_cluster/terraform.tf | grep -o [0-9\.]*)
-      . config/${{ inputs.environment_name }}.sh
-
-      if [ -z "$RESOURCE_GROUP_NAME" ]; then
-        echo "::error ::RESOURCE_GROUP_NAME not defined in config shell script"
-        exit 1
-      fi
-
-      if [ -z "$STORAGE_ACCOUNT_NAME" ]; then
-        echo "::error ::STORAGE_ACCOUNT_NAME not defined in config shell script"
-        exit 1
-      fi
-
-      if [ -z "$TERRAFORM_VERSION" ]; then
-        echo "::error ::Failed to extract TERRAFORM_VERSION from terraform.tf"
-        exit 1
-      fi
-
-      echo "resource_group_name=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
-      echo "storage_account_name=$STORAGE_ACCOUNT_NAME" >> $GITHUB_ENV
       echo "terraform_version=$TERRAFORM_VERSION" >> $GITHUB_ENV
 
       case ${{ inputs.environment_name }} in
