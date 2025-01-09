@@ -134,7 +134,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        environment: [dev-domain, prod-domain]
+        environment: [development, production]
     steps:
     - uses: actions/checkout@v4
 
@@ -155,7 +155,7 @@ jobs:
         make ci ${{ matrix.environment }} domains-infra-apply
       shell: bash
       env:
-        TF_VAR_azure_sp_credentials_json: ${{ secrets.AZURE_CREDENTIALS }}
+        ENVIRONMENT: dummy # "make development" requires the ENVIRONMENT var but it is not used for domains
 
     - name: Send Slack notification on failure
       if: failure()

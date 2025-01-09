@@ -22,13 +22,19 @@ production:
 	$(if $(or ${CI}, ${CONFIRM_PRODUCTION}), , $(error Missing CONFIRM_PRODUCTION=yes))
 	$(eval include cluster/config/production.sh)
 
-prod-domain:
-	$(if $(or ${CI}, ${CONFIRM_PROD_DOMAIN}), , $(error Missing CONFIRM_PROD_DOMAIN=yes))
-	$(eval include custom_domains/config/prod-domain.sh)
+domains:
+	$(eval include cluster/config/domains.sh)
 
-dev-domain:
-	$(if $(or ${CI}, ${CONFIRM_DEV_DOMAIN}), , $(error Missing CONFIRM_DEV_DOMAIN=yes))
-	$(eval include custom_domains/config/dev-domain.sh)
+cluster-composed-variables:
+	$(eval RESOURCE_GROUP_NAME=${RESOURCE_PREFIX}-tsc-${CONFIG_SHORT}-rg)
+	$(eval KEYVAULT_NAME=${RESOURCE_PREFIX}-tsc-${CONFIG_SHORT}-kv)
+	$(eval STORAGE_ACCOUNT_NAME=${RESOURCE_PREFIX}tsctfstate${CONFIG_SHORT})
+	$(eval MANAGE_IDENTITY_NAME=${RESOURCE_PREFIX}-tsc-${CONFIG_SHORT}-id)
+
+domains-composed-variables: domains
+	$(eval RESOURCE_GROUP_NAME=${RESOURCE_PREFIX}-tscdomains-rg)
+	$(eval KEYVAULT_NAME=${RESOURCE_PREFIX}-tscdomains-kv)
+	$(eval STORAGE_ACCOUNT_NAME=${RESOURCE_PREFIX}tscdomainstf)
 
 clone:
 	$(eval CLONE_STRING=-clone)
@@ -36,7 +42,7 @@ clone:
 set-azure-account:
 	[ "${SKIP_AZURE_LOGIN}" != "true" ] && az account set -s ${AZ_SUBSCRIPTION} || true
 
-terraform-aks-cluster-init: set-azure-account
+terraform-aks-cluster-init: cluster-composed-variables set-azure-account
 	terraform -chdir=cluster/terraform_aks_cluster init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
@@ -58,7 +64,7 @@ terraform-aks-cluster-apply: terraform-aks-cluster-init
 terraform-aks-cluster-destroy: terraform-aks-cluster-init
 	terraform -chdir=cluster/terraform_aks_cluster destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
-terraform-kubernetes-init: set-azure-account
+terraform-kubernetes-init: cluster-composed-variables set-azure-account
 	rm -rf cluster/terraform_kubernetes/vendor/modules/aks
 	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git cluster/terraform_kubernetes/vendor/modules/aks
 
@@ -95,7 +101,7 @@ set-what-if:
 check-auto-approve:
 	$(if $(AUTO_APPROVE), , $(error can only run with AUTO_APPROVE))
 
-arm-deployment: set-azure-account
+arm-deployment: cluster-composed-variables set-azure-account
 	az deployment sub create --name "resourcedeploy-tsc-$(shell date +%Y%m%d%H%M%S)" \
 		-l "UK South" --template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/resourcedeploy.json" \
 		--parameters "resourceGroupName=${RESOURCE_GROUP_NAME}" 'tags=${RG_TAGS}' \
@@ -109,32 +115,32 @@ arm-deployment: set-azure-account
 		--parameters "managedIdentityName=${MANAGE_IDENTITY_NAME}" \
 		${WHAT_IF}
 
-deploy-azure-resources: check-auto-approve arm-deployment # make dev deploy-azure-resources
-validate-azure-resources: set-what-if arm-deployment # make dev validate-azure-resources
+deploy-azure-resources: check-auto-approve arm-deployment # make test deploy-azure-resources
+validate-azure-resources: set-what-if arm-deployment # make test validate-azure-resources
 
-domains-arm-deployment: set-azure-account
+domains-arm-deployment: domains-composed-variables set-azure-account
 	az deployment sub create --name "resourcedeploy-tscdomains-$(shell date +%Y%m%d%H%M%S)" \
 		-l "UK South" --template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/resourcedeploy.json" \
 		--parameters "resourceGroupName=${RESOURCE_GROUP_NAME}" 'tags=${RG_TAGS}' \
 			"tfStorageAccountName=${STORAGE_ACCOUNT_NAME}" "tfStorageContainerName=tscdomains-tfstate" \
 			"keyVaultName=${KEYVAULT_NAME}" ${WHAT_IF}
 
-deploy-domains-azure-resources: check-auto-approve domains-arm-deployment # make dev deploy-domains-azure-resources
-validate-domains-azure-resources: set-what-if domains-arm-deployment # make dev validate-domains-azure-resources
+deploy-domains-azure-resources: check-auto-approve domains-arm-deployment # make test deploy-domains-azure-resources
+validate-domains-azure-resources: set-what-if domains-arm-deployment # make test validate-domains-azure-resources
 
-domains-infra-init: set-azure-account
+domains-infra-init: domains-composed-variables set-azure-account
 	rm -rf custom_domains/terraform/infrastructure/vendor/modules/domains
-	git clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git custom_domains/terraform/infrastructure/vendor/modules/domains
+	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git custom_domains/terraform/infrastructure/vendor/modules/domains
 
 	terraform -chdir=custom_domains/terraform/infrastructure init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME}
 
 domains-infra-plan: domains-infra-init
-	terraform -chdir=custom_domains/terraform/infrastructure plan -var-file config/${DOMAINS_ID}.tfvars.json
+	terraform -chdir=custom_domains/terraform/infrastructure plan -var-file config/${CONFIG}.tfvars.json
 
 domains-infra-apply: domains-infra-init
-	terraform -chdir=custom_domains/terraform/infrastructure apply -var-file config/${DOMAINS_ID}.tfvars.json ${AUTO_APPROVE}
+	terraform -chdir=custom_domains/terraform/infrastructure apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
 get-cluster-credentials: set-azure-account ## make <config> get-cluster-credentials [ENVIRONMENT=<clusterX>]
 	az aks get-credentials --overwrite-existing -g ${RESOURCE_GROUP_NAME} -n ${RESOURCE_PREFIX}-tsc-${ENVIRONMENT}${CLONE_STRING}-aks
