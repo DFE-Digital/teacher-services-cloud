@@ -1,5 +1,7 @@
 RG_TAGS={"Product" : "Teacher services cloud"}
 ARM_TEMPLATE_TAG=1.1.0
+SERVICE_NAME=teacher-services-cloud
+SERVICE_SHORT=tsc
 
 ci:
 	$(eval AUTO_APPROVE=-auto-approve)
@@ -173,3 +175,8 @@ import-aks-resources: get-cluster-credentials
 .PHONY: new_service
 new_service:
 	bash templates/new_service.sh
+
+action-group: set-azure-account # make production action-group ACTION_GROUP_EMAIL=notificationemail@domain.com . Must be run before setting enable_monitoring=true. Use any non-prod environment to create in the test subscription.
+	$(if $(ACTION_GROUP_EMAIL), , $(error Please specify a notification email for the action group))
+	az group create -l uksouth -g ${RESOURCE_PREFIX}-${SERVICE_SHORT}-mn-rg --tags "Product=${SERVICE_NAME}"
+	az monitor action-group create -n ${RESOURCE_PREFIX}-${SERVICE_SHORT} -g ${RESOURCE_PREFIX}-${SERVICE_SHORT}-mn-rg --action email ${RESOURCE_PREFIX}-${SERVICE_SHORT}-email ${ACTION_GROUP_EMAIL}

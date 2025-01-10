@@ -119,3 +119,25 @@ Following auth keys need to be stored on azure vault as a secret.
 1. PROMETHEUS-AUTH
 2. ALERTMANAGER-AUTH
 3. THANOS-AUTH
+
+### Azure Monitor Alerting
+
+Azure Monitor is used to track the health and performance of the AKS clusters. The monitoring is configured through Terraform in the `azure_metric_alerts.tf` file.
+
+#### Node Availability Monitoring
+
+A metric alert is configured to monitor the availability of nodes in the AKS cluster:
+
+- Alert Name: `[resource-prefix]-tsc-[environment]-nodes-capacity`
+- Metric: `kube_node_status_condition`
+- Evaluation: Every 1 minute over a 5-minute window
+- Threshold: Triggers when the number of available nodes with "Ready" status exceeds the configured threshold
+- Action: Notifications are sent to the configured Azure Monitor Action Group
+
+The alert helps ensure the cluster maintains sufficient node capacity for workloads. The action group is configured to notify the appropriate team members when node availability issues are detected.
+
+Configuration is managed through Terraform variables:
+- The monitoring resource group and action group are defined in the cluster configuration
+- The action group name follows the format `[resource-prefix]-tsc`
+- Alert thresholds can be customized per environment
+- The metric namespace used is `microsoft.containerservice/managedclusters`
