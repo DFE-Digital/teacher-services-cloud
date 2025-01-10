@@ -1,8 +1,14 @@
 # Platform FAQ
 
 ## Github actions OIDC
-- ```
+- Terraform *azurerm* provider:
+  ```
   Error: Error building ARM Config: obtain subscription(***) from Azure CLI: parsing json result from the Azure CLI: waiting for the Azure CLI: exit status 1:   ERROR: Please run 'az login' to setup account.
+  ```
+  *azure/login* Github actions:
+  ```
+  Error: Please make sure to give write permissions to id-token in the workflow.
+  Error: Login failed with Error: Error message: Unable to get ACTIONS_ID_TOKEN_REQUEST_URL env variable. Double check if the 'auth-type' is correct. Refer to https://github.com/Azure/login#readme for more information.
   ```
   - The permissions block may be missing. See [deploy-to-aks example](https://github.com/DFE-Digital/github-actions/tree/master/deploy-to-aks#example).
 - ```
