@@ -43,3 +43,10 @@
   - The managed identity does not exist
   - The managed identity is not added to the Entra ID group
   - The Entra ID group is missing the role assignement
+- ```
+  Error: The subscription of '***' doesn't exist in cloud 'AzureCloud'.
+  Error: Login failed with Error: The process '/usr/bin/az' failed with exit code 1. Double check if the 'auth-type' is correct. Refer to https://github.com/Azure/login#readme for more information.
+  ```
+  The error may be caused by:
+  - AZURE_SUBSCRIPTION_ID is not correct
+  - The service principal doesn't have access to the subscription
