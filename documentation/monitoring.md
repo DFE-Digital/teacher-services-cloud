@@ -138,5 +138,6 @@ The alert helps ensure the cluster maintains sufficient node capacity for worklo
 
 Configuration is managed through Terraform variables:
 - The monitoring resource group and action group are defined in the cluster configuration
+- The action group name follows the format `[resource-prefix]-tsc`
 - Alert thresholds can be customized per environment
 - The metric namespace used is `microsoft.containerservice/managedclusters`
