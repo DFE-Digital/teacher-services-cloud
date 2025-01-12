@@ -207,6 +207,24 @@ variable "filebeat_version" {
   default = "8.12.2"
 }
 
+variable "reloader_version" {
+  type        = string
+  description = "Version of the Reloader helm chart to use"
+  default     = "1.0.69"
+}
+
+variable "reloader_app_cpu" {
+  type        = string
+  description = "Reloader app cpu request/limit"
+  default     = "100m"
+}
+
+variable "reloader_app_mem" {
+  type        = string
+  description = "Reloader app memory request/limit"
+  default     = "512Mi"
+}
+
 variable "alertmanager_slack_receiver_list" {
   type        = list(any)
   description = "List of alertmanager Slack receivers. Each entry must have a corresponding webhook in the keyvault."
