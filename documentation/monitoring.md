@@ -141,3 +141,19 @@ Configuration is managed through Terraform variables:
 - The action group name follows the format `[resource-prefix]-tsc`
 - Alert thresholds can be customized per environment
 - The metric namespace used is `microsoft.containerservice/managedclusters`
+
+### High Port Usage
+
+AKS uses an azure load balancer for inbound and outbound connections and this can lead to port exhaustion if a node does alot of network requests.
+
+If port usage goes over a threshold we alert on this as a warning so we can take pre-emptive action.
+
+### Port Exhaustion
+
+If connections start failing because of port exhaustion we alert on this as an error.
+
+### Troubleshooting Port Exhaustion
+
+Unfortunately we can't alert which kubernetes service is using aa high number of ports so this is a troublshooting exercise following:
+
+[Troubleshoot SNAT port exhaustion on Azure Kubernetes Service nodes](https://learn.microsoft.com/en-us/troubleshoot/azure/azure-kubernetes/connectivity/snat-port-exhaustion?tabs=for-a-linux-pod)
