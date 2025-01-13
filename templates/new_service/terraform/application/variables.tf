@@ -78,7 +78,5 @@ variable "send_traffic_to_maintenance_page" {
 locals {
   postgres_ssl_mode = var.enable_postgres_ssl ? "require" : "disable"
 
-  environment_variables = yamldecode(file("${path.module}/config/${var.config}.yml"))
-
   external_url = try(var.external_url, module.web_application.url)
 }
