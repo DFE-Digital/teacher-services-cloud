@@ -52,7 +52,12 @@ variable "docker_image" {
 variable "external_url" {
   type        = string
   default     = null
-  description = "Healthcheck URL for StatusCake monitoring"
+  description = "Healthcheck URL for StatusCake uptime monitoring"
+}
+variable "apex_url" {
+  type        = string
+  default     = null
+  description = "URL for StatusCake SSL certificate monitoring. Only for DNS zone apex domain."
 }
 variable "statuscake_contact_groups" {
   type        = list(any)
