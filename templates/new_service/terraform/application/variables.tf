@@ -80,5 +80,5 @@ locals {
 
   environment_variables = yamldecode(file("${path.module}/config/${var.config}.yml"))
 
-  external_url = try(local.environment_variables["EXTERNAL_URL"], module.web_application.url)
+  external_url = try(var.external_url, module.web_application.url)
 }
