@@ -7,17 +7,15 @@ module "application_configuration" {
   service_short          = var.service_short
   config_short           = var.config_short
   secret_key_vault_short = "app"
+  config_variables_path  = "${path.module}/config/${var.config}.yml"
 
   # Delete for non rails apps
   is_rails_application = true
 
-  config_variables = merge(
-    local.environment_variables,
-    {
-      ENVIRONMENT_NAME = var.environment
-      PGSSLMODE        = local.postgres_ssl_mode
-    }
-  )
+  config_variables = {
+    ENVIRONMENT_NAME = var.environment
+    PGSSLMODE        = local.postgres_ssl_mode
+  }
   secret_variables = {
     DATABASE_URL = module.postgres.url
   }
