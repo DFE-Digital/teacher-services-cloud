@@ -49,7 +49,7 @@ resource "kubernetes_deployment" "welcome_app" {
 
         container {
           name  = local.welcome_app_name
-          image = "nginxinc/nginx-unprivileged:1.26.1"
+          image = "nginxinc/nginx-unprivileged:1.27.3-alpine3.20"
 
           security_context {
             run_as_user  = 1000
