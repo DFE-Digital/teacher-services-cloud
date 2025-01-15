@@ -209,7 +209,7 @@ variable "filebeat_version" {
 
 variable "reloader_version" {
   type        = string
-  description = "Version of the Reloader helm chart to use"
+  description = "Version of the Reloader container image to use"
   default     = "1.0.69"
 }
 

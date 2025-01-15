@@ -1,32 +1,116 @@
-resource "helm_release" "reloader" {
-  name       = "reloader"
-  namespace  = "monitoring"
-  repository = "https://stakater.github.io/stakater-charts"
-  chart      = "reloader"
-  version    = var.reloader_version
-
-  set {
-    name  = "reloader.watchGlobally"
-    value = "true"
+# ClusterRole for Reloader
+resource "kubernetes_cluster_role" "reloader" {
+  metadata {
+    name = "reloader-role"
   }
 
-  set {
-    name  = "reloader.deployment.resources.limits.memory"
-    value = var.reloader_app_mem
+  rule {
+    api_groups = [""]
+    resources  = ["configmaps", "secrets"]
+    verbs      = ["list", "get", "watch"]
   }
 
-  set {
-    name  = "reloader.deployment.resources.limits.cpu"
-    value = var.reloader_app_cpu
+  rule {
+    api_groups = ["apps"]
+    resources  = ["deployments", "daemonsets", "statefulsets"]
+    verbs      = ["list", "get", "update", "patch"]
   }
 
-  set {
-    name  = "reloader.deployment.resources.requests.memory"
-    value = var.reloader_app_mem
+  rule {
+    api_groups = ["extensions"]
+    resources  = ["deployments", "daemonsets"]
+    verbs      = ["list", "get", "update", "patch"]
+  }
+}
+
+# ServiceAccount for Reloader
+resource "kubernetes_service_account" "reloader" {
+  metadata {
+    name      = "reloader"
+    namespace = "monitoring"
+  }
+}
+
+# ClusterRoleBinding for Reloader
+resource "kubernetes_cluster_role_binding" "reloader" {
+  metadata {
+    name = "reloader-role-binding"
   }
 
-  set {
-    name  = "reloader.deployment.resources.requests.cpu"
-    value = var.reloader_app_cpu
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = kubernetes_cluster_role.reloader.metadata[0].name
+  }
+
+  subject {
+    kind      = "ServiceAccount"
+    name      = kubernetes_service_account.reloader.metadata[0].name
+    namespace = kubernetes_service_account.reloader.metadata[0].namespace
+  }
+}
+
+# Deployment for Reloader
+resource "kubernetes_deployment" "reloader" {
+  metadata {
+    name      = "reloader"
+    namespace = "monitoring"
+    labels = {
+      app = "reloader"
+    }
+  }
+
+  spec {
+    replicas = 1
+
+    selector {
+      match_labels = {
+        app = "reloader"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "reloader"
+        }
+      }
+
+      spec {
+        service_account_name = kubernetes_service_account.reloader.metadata[0].name
+
+        container {
+          name  = "reloader"
+          image = "stakater/reloader:v${var.reloader_version}"
+
+          args = ["--reload-strategy=annotations"]
+
+          resources {
+            limits = {
+              cpu    = var.reloader_app_cpu
+              memory = var.reloader_app_mem
+            }
+            requests = {
+              cpu    = var.reloader_app_cpu
+              memory = var.reloader_app_mem
+            }
+          }
+
+          security_context {
+            run_as_user  = 65534 # nobody user
+            run_as_group = 65534 # nobody group
+            capabilities {
+              drop = ["ALL"]
+            }
+            allow_privilege_escalation = false
+            privileged                 = false
+            read_only_root_filesystem  = true
+            seccomp_profile {
+              type = "RuntimeDefault"
+            }
+          }
+        }
+      }
+    }
   }
 }
