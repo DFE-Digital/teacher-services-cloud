@@ -41,6 +41,9 @@ resource "kubernetes_deployment" "alertmanager" {
         labels = {
           app = "alertmanager"
         }
+        annotations = {
+          "reloader.stakater.com/auto" = "true"
+        }
       }
 
       spec {
