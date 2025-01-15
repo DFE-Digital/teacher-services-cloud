@@ -51,9 +51,17 @@ To create a new stack:
 ## Monitoring and Alerting
 
 We have enabled Logit stack alerts and notification (elastalert).
-Each stack has a monitor for too many logs per hour, and no logs in 30 minutes.
+
+Each stack has a monitor for
+- too many logs per hour
+- no logs in 30 minutes
+- email addresses in the logs
+
 When triggered, an email alert will be sent to the TS Infra team email address, and we should investigate why there are too many or missing logs.
+
 It will re-alert every 3 hours until any issue is resolved.
+
+See [Elastart docs](https://elastalert.readthedocs.io/) for info on writing alerts.
 
 ## Logstash inputs
 Filebeat sends logs to logstash as json so they can be decoded to create fields in ElasticSearch and query them with Kibana.
