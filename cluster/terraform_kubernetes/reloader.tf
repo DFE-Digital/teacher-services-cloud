@@ -11,6 +11,18 @@ resource "kubernetes_cluster_role" "reloader" {
   }
 
   rule {
+    api_groups = [""]
+    resources  = ["events"]
+    verbs      = ["create", "patch", "update"]
+  }
+
+  rule {
+    api_groups = ["batch"]
+    resources  = ["cronjobs"]
+    verbs      = ["list", "get", "watch"]
+  }
+
+  rule {
     api_groups = ["apps"]
     resources  = ["deployments", "daemonsets", "statefulsets"]
     verbs      = ["list", "get", "update", "patch"]
@@ -27,7 +39,7 @@ resource "kubernetes_cluster_role" "reloader" {
 resource "kubernetes_service_account" "reloader" {
   metadata {
     name      = "reloader"
-    namespace = "monitoring"
+    namespace = "infra"
   }
 }
 
@@ -54,7 +66,7 @@ resource "kubernetes_cluster_role_binding" "reloader" {
 resource "kubernetes_deployment" "reloader" {
   metadata {
     name      = "reloader"
-    namespace = "monitoring"
+    namespace = "infra"
     labels = {
       app = "reloader"
     }
