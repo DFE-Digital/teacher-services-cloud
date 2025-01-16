@@ -157,3 +157,12 @@ If connections start failing because of port exhaustion we alert on this as an e
 Unfortunately we can't alert which kubernetes service is using aa high number of ports so this is a troublshooting exercise following:
 
 [Troubleshoot SNAT port exhaustion on Azure Kubernetes Service nodes](https://learn.microsoft.com/en-us/troubleshoot/azure/azure-kubernetes/connectivity/snat-port-exhaustion?tabs=for-a-linux-pod)
+
+## Metrics Retention
+
+Metrics retention is based on sampling
+- Raw data(actual data captured) is retained for 30 days.
+- 5m down samples are retained for 60days
+- 1hr down samples are retained for 90 days.
+
+More information on down sampling is available on this [link](https://thanos.io/v0.8/components/compact/#downsampling-resolution-and-retention)
