@@ -24,7 +24,6 @@ runs:
     with:
       repository: DFE-Digital/itt-mentor-services
       path: itt-mentor-services
-      ref: 843-github-actions-oidc # Remove this line when the 843-github-actions-oidc branch is merged
 
   - name: Set Environment variables
     id: set_env_var
