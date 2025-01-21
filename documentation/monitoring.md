@@ -63,6 +63,35 @@ There are several other variables that can be changed depending on env requireme
 - thanos_retention_5m - Thanos retention period for 5m samples (default 60d)
 - thanos_retention_1h - Thanos retention period for 1h samples (default 90d)
 
+### Metrics Retention
+
+Metrics retention is based on sampling
+- Raw data(actual data captured) is retained for 30 days. This is data as it is captured by prometheus.
+- 5m down samples are retained for 60days.This is data point for a metric 5m apart.
+- 1hr down samples are retained for 90 days. This is data point for a metric 1hr apart.
+
+More information on down sampling is available on this [link](https://thanos.io/v0.8/components/compact/#downsampling-resolution-and-retention)
+
+Down sample allows for reduced storage costs as all the raw data does not need to stored for longer duration charting.
+
+### Thanos UI
+Metrics can be queried/charted by using thanos UI. While charting metrics in thanos the following should be noted
+
+- Change the data source to **prometheus** or **thanos**. See this [image](thanos-dropdown.png)
+
+
+### Raw Data Sampling
+- Thanos UI allows for querying raw data. However, it retains raw data for only 30 days. Raw data can be queries created by selecting `Only raw data` as below. If more than 30 days is queried for raw data, the charts based on raw data will not show data more than 30 days. See [image](thanos-raw-sample.png)
+
+### 5m down sample
+Beyond 30days - thanos down samples the data. `5m down sample` stores samples for 60 days.  See [image](thanos-5m-down-sample.png)
+
+### 1hr down sample
+`1hr down sample` stores metric samples for 90 days. See [image](thanos-1h-down-sample.png)
+
+### Auto down sample
+This option is used by grafana when during charting/visualisation. Where the charts are over a long period of time grafana adopts the most appropriate down sampling for data.
+
 ## Grafana
 
 Grafana provides a visual interface for monitoring logs and metric.
@@ -157,12 +186,3 @@ If connections start failing because of port exhaustion we alert on this as an e
 Unfortunately we can't alert which kubernetes service is using aa high number of ports so this is a troublshooting exercise following:
 
 [Troubleshoot SNAT port exhaustion on Azure Kubernetes Service nodes](https://learn.microsoft.com/en-us/troubleshoot/azure/azure-kubernetes/connectivity/snat-port-exhaustion?tabs=for-a-linux-pod)
-
-## Metrics Retention
-
-Metrics retention is based on sampling
-- Raw data(actual data captured) is retained for 30 days.
-- 5m down samples are retained for 60days
-- 1hr down samples are retained for 90 days.
-
-More information on down sampling is available on this [link](https://thanos.io/v0.8/components/compact/#downsampling-resolution-and-retention)
