@@ -37,7 +37,7 @@ data "azurerm_subscription" "current" {}
 resource "azurerm_monitor_metric_alert" "port_exhaustion" {
   name                = "${var.resource_prefix}-tsc-${var.environment}-port-exhaustion"
   resource_group_name = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-rg"
-  scopes              = ["/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${var.resource_prefix}-tsc-aks-nodes-${var.environment}-rg/providers/Microsoft.Network/loadBalancers/kubernetes"]
+  scopes              = ["/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${azurerm_kubernetes_cluster.main.node_resource_group}/providers/Microsoft.Network/loadBalancers/kubernetes"]
   severity            = 1
   criteria {
     metric_namespace = "microsoft.network/loadbalancers"
@@ -62,7 +62,7 @@ resource "azurerm_monitor_metric_alert" "port_exhaustion" {
 resource "azurerm_monitor_metric_alert" "high_port_usage" {
   name                = "${var.resource_prefix}-tsc-${var.environment}-high-port-usage"
   resource_group_name = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-rg"
-  scopes              = ["/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${var.resource_prefix}-tsc-aks-nodes-${var.environment}-rg/providers/Microsoft.Network/loadBalancers/kubernetes"]
+  scopes              = ["/subscriptions/${data.azurerm_subscription.current.subscription_id}/resourceGroups/${azurerm_kubernetes_cluster.main.node_resource_group}/providers/Microsoft.Network/loadBalancers/kubernetes"]
   severity            = 2
   criteria {
     metric_namespace = "microsoft.network/loadbalancers"

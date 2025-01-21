@@ -14,7 +14,7 @@ resource "kubernetes_service_account" "gcp_wif" {
 
   metadata {
     name      = "gcp-wif"
-    namespace = each.key
+    namespace = kubernetes_namespace.default_list[each.key].metadata[0].name
 
     annotations = {
       "azure.workload.identity/client-id" = azurerm_user_assigned_identity.gcp_wif[each.key].client_id
