@@ -89,6 +89,8 @@ resource "azurerm_kubernetes_cluster" "clone" {
   node_resource_group = local.clone_node_resource_group_name
   dns_prefix          = "${azurerm_kubernetes_cluster.main.dns_prefix}-clone"
   kubernetes_version  = azurerm_kubernetes_cluster.main.kubernetes_version
+  oidc_issuer_enabled       = true
+  workload_identity_enabled = true
 
   dynamic "azure_active_directory_role_based_access_control" {
     for_each = var.enable_azure_RBAC_clone ? [1] : []
@@ -111,7 +113,17 @@ resource "azurerm_kubernetes_cluster" "clone" {
   }
 
   identity {
-    type = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [data.azurerm_user_assigned_identity.aks_control_plane.id]
+  }
+
+  network_profile {
+    network_plugin    = "kubenet"
+    load_balancer_sku = "standard"
+
+    load_balancer_profile {
+      outbound_ip_address_ids = [azurerm_public_ip.egress-public-ip-clone[0].id]
+    }
   }
 
   lifecycle { ignore_changes = [tags] }
@@ -134,6 +146,17 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools_clone" {
 
 resource "azurerm_public_ip" "egress-public-ip" {
   name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-egress-pip"
+  location            = data.azurerm_resource_group.cluster.location
+  resource_group_name = data.azurerm_resource_group.cluster.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+
+  lifecycle { ignore_changes = [tags] }
+}
+
+resource "azurerm_public_ip" "egress-public-ip-clone" {
+  count = var.clone_cluster ? 1 : 0
+  name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-clone-egress-pip"
   location            = data.azurerm_resource_group.cluster.location
   resource_group_name = data.azurerm_resource_group.cluster.name
   allocation_method   = "Static"
