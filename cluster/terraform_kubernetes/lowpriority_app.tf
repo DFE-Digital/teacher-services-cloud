@@ -59,7 +59,7 @@ resource "kubernetes_deployment" "lowpriority_app" {
 #
 
 resource "kubernetes_priority_class_v1" "lowpriority_clone" {
-  count = var.enable_lowpriority_app_clone ? 1 : 0
+  count    = var.enable_lowpriority_app_clone ? 1 : 0
   provider = kubernetes.clone
 
   metadata {
@@ -70,7 +70,7 @@ resource "kubernetes_priority_class_v1" "lowpriority_clone" {
 }
 
 resource "kubernetes_deployment" "lowpriority_app_clone" {
-  count = var.enable_lowpriority_app_clone ? 1 : 0
+  count    = var.enable_lowpriority_app_clone ? 1 : 0
   provider = kubernetes.clone
 
   metadata {

@@ -196,7 +196,7 @@ EOT
 #
 
 resource "kubernetes_deployment" "welcome_app_clone" {
-  count = var.clone_cluster ? 1 : 0
+  count    = var.clone_cluster ? 1 : 0
   provider = kubernetes.clone
   metadata {
     name      = local.welcome_app_name
@@ -320,7 +320,7 @@ resource "kubernetes_deployment" "welcome_app_clone" {
 }
 
 resource "kubernetes_service" "welcome_app_clone" {
-  count = var.clone_cluster ? 1 : 0
+  count    = var.clone_cluster ? 1 : 0
   provider = kubernetes.clone
   metadata {
     name      = local.welcome_app_name
@@ -368,7 +368,7 @@ resource "kubernetes_ingress_v1" "welcome_app_clone" {
 }
 
 resource "kubernetes_config_map" "welcome_app_nginx_config_clone" {
-  count = var.clone_cluster ? 1 : 0
+  count    = var.clone_cluster ? 1 : 0
   provider = kubernetes.clone
   metadata {
     name      = "nginx-config"

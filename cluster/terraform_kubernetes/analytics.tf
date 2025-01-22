@@ -24,7 +24,7 @@ resource "kubernetes_config_map" "ama_logs" {
 }
 
 resource "kubernetes_config_map" "ama_logs_clone" {
-  count = var.clone_cluster ? 1 : 0
+  count    = var.clone_cluster ? 1 : 0
   provider = kubernetes.clone
   metadata {
     name      = "container-azm-ms-agentconfig"

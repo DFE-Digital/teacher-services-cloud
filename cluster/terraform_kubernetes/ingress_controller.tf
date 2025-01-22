@@ -213,7 +213,7 @@ resource "helm_release" "ingress-nginx" {
 }
 
 resource "helm_release" "ingress-nginx-clone" {
-  count = var.clone_cluster ? 1 : 0
+  count    = var.clone_cluster ? 1 : 0
   provider = helm.clone
 
   name       = helm_release.ingress-nginx.name
@@ -440,7 +440,7 @@ resource "azurerm_public_ip" "ingress-public-ip" {
 }
 
 resource "azurerm_public_ip" "ingress-public-ip-clone" {
-  count = var.clone_cluster ? 1 : 0
+  count               = var.clone_cluster ? 1 : 0
   name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-clone-ingress-pip"
   location            = data.azurerm_resource_group.resource_group.location
   resource_group_name = data.azurerm_resource_group.resource_group.name

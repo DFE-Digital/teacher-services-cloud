@@ -185,7 +185,7 @@ resource "kubernetes_daemonset" "filebeat" {
 #
 
 resource "kubernetes_service_account" "filebeat_clone" {
-  count = var.clone_cluster ? 1 : 0
+  count    = var.clone_cluster ? 1 : 0
   provider = kubernetes.clone
   metadata {
     name      = "filebeat"
@@ -197,7 +197,7 @@ resource "kubernetes_service_account" "filebeat_clone" {
 }
 
 resource "kubernetes_cluster_role" "filebeat_clone" {
-  count = var.clone_cluster ? 1 : 0
+  count    = var.clone_cluster ? 1 : 0
   provider = kubernetes.clone
   metadata {
     name = "filebeat"
@@ -220,7 +220,7 @@ resource "kubernetes_cluster_role" "filebeat_clone" {
 }
 
 resource "kubernetes_cluster_role_binding" "filebeat_clone" {
-  count = var.clone_cluster ? 1 : 0
+  count    = var.clone_cluster ? 1 : 0
   provider = kubernetes.clone
   metadata {
     name = "filebeat"
@@ -243,7 +243,7 @@ resource "kubernetes_cluster_role_binding" "filebeat_clone" {
 }
 
 resource "kubernetes_config_map" "filebeat_clone" {
-  count = var.clone_cluster ? 1 : 0
+  count    = var.clone_cluster ? 1 : 0
   provider = kubernetes.clone
 
   metadata {
@@ -258,7 +258,7 @@ resource "kubernetes_config_map" "filebeat_clone" {
 }
 
 resource "kubernetes_daemonset" "filebeat_clone" {
-  count = var.clone_cluster ? 1 : 0
+  count    = var.clone_cluster ? 1 : 0
   provider = kubernetes.clone
 
   metadata {

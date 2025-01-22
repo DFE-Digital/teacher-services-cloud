@@ -83,12 +83,12 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
 resource "azurerm_kubernetes_cluster" "clone" {
   count = var.clone_cluster ? 1 : 0
 
-  name                = local.clone_cluster_name
-  location            = azurerm_kubernetes_cluster.main.location
-  resource_group_name = azurerm_kubernetes_cluster.main.resource_group_name
-  node_resource_group = local.clone_node_resource_group_name
-  dns_prefix          = "${azurerm_kubernetes_cluster.main.dns_prefix}-clone"
-  kubernetes_version  = azurerm_kubernetes_cluster.main.kubernetes_version
+  name                      = local.clone_cluster_name
+  location                  = azurerm_kubernetes_cluster.main.location
+  resource_group_name       = azurerm_kubernetes_cluster.main.resource_group_name
+  node_resource_group       = local.clone_node_resource_group_name
+  dns_prefix                = "${azurerm_kubernetes_cluster.main.dns_prefix}-clone"
+  kubernetes_version        = azurerm_kubernetes_cluster.main.kubernetes_version
   oidc_issuer_enabled       = true
   workload_identity_enabled = true
 
@@ -155,7 +155,7 @@ resource "azurerm_public_ip" "egress-public-ip" {
 }
 
 resource "azurerm_public_ip" "egress-public-ip-clone" {
-  count = var.clone_cluster ? 1 : 0
+  count               = var.clone_cluster ? 1 : 0
   name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-clone-egress-pip"
   location            = data.azurerm_resource_group.cluster.location
   resource_group_name = data.azurerm_resource_group.cluster.name
