@@ -30,8 +30,13 @@ runs:
     shell: bash
     working-directory: itt-mentor-services
     run: |
+      # Get terraform version
       terraform_version=$(awk '/{/{f=/^terraform/;next}f' terraform/application/terraform.tf | grep -o [0-9\.]*)
       echo "TERRAFORM_VERSION=$terraform_version" >> $GITHUB_ENV
+
+      # Get latest commit id on main to fetch the corresponding docker tag
+      COMMIT_ID=$(git rev-parse HEAD)
+      echo "COMMIT_ID=$COMMIT_ID" >> $GITHUB_ENV
 
   - name: Use Terraform ${{ env.TERRAFORM_VERSION }}
     uses: hashicorp/setup-terraform@v3
@@ -50,7 +55,7 @@ runs:
     working-directory: itt-mentor-services
     run: make ${{ inputs.environment }} ci terraform-apply
     env:
-      DOCKER_IMAGE_TAG: main
+      DOCKER_IMAGE_TAG: ${{ env.COMMIT_ID }}
       PR_NUMBER: 9999
 
   - name: Run healthcheck
