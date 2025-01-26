@@ -22,13 +22,10 @@ The UK region must be selected at account creation time as all the ELK stacks cr
 We created 3 subscriptions for logs, one for each Azure subscription:
 - TEACHER SERVICES CLOUD DEVELOPMENT
     - For testing with dev clusters
-    - Plan: cheap plan for testing
 - TEACHER SERVICES CLOUD TEST:
     - For the platform-test and test clusters
-    - Plan: enough daily volume for the apps on the test cluster, but low retention
 - TEACHER SERVICES CLOUD PRODUCTION:
     - For the production cluster
-    - Plan: enough daily volume for the apps on the production cluster and 30 days retention
 
 To create a new stack:
 1. Discuss the cost with the Teacher services finance team and if required get approval from the deputy director
