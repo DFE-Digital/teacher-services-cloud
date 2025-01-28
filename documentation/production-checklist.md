@@ -58,10 +58,17 @@ Ask the infra team for help with these steps:
   ```
 - For production, add the infra team contact group id: `282453`
 
-### Postgres and redis
-It requires [creating a monitoring action group](https://github.com/DFE-Digital/terraform-modules/tree/main/aks/application#monitoring). The [new_service template](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/Makefile) includes the `make action-group` command to automate this task. Ask the infra team to set it up.
+### Upptime
+We provide a [status page](https://teacher-services-status.education.gov.uk/) of all services in Teacher services. It uses [Github actions](https://github.com/DFE-Digital/teacher-services-upptime/actions) to ping websites running every 5 min (more or less) and produce a dashboard for external users.
 
-Set `azure_enable_monitoring` to true to enable logging, monitoring and alerting. It will alert the infrastructure team by email by default.
+When a website is offline, it shows the error in the daashboard, sends an alert to the infra Slack channel and records an incident as a [Github issue](https://github.com/DFE-Digital/teacher-services-upptime/issues). The team can post comments to the issue to send incident updates.
+
+Request write access to the repository and edit the [upptimerc.yml](https://github.com/DFE-Digital/teacher-services-upptime/blob/master/.upptimerc.yml) without PR to add your production website.
+
+### Postgres and redis
+We use *Azure monitor* to define alerts on postgres and redis metrics. Alerts are sent via email, using a [monitoring action group](https://github.com/DFE-Digital/terraform-modules/tree/main/aks/application#monitoring). The [new_service template](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/Makefile) includes the `make action-group` command to automate this task. Ask the infra team to set it up. By default it is set up to alert the infrastructure team by default, but any email address or [distribution list](https://dfe.service-now.com.mcas.ms/ithelpcentre?id=sc_cat_item&table=sc_cat_item&sys_id=a28540a5dbeeee005ca2fddabf961968&recordUrl=com.glideapp.servicecatalog_cat_item_view.do) (preferred) may be used.
+
+Set `azure_enable_monitoring` to true to enable logging, monitoring and alerting.
 
 ### Front door
 Set `azure_enable_monitoring` to true in the domains/infrastructure module to enable logging on front door. It is  verbose and costly and should not be used by default (check with the infra team). But it can be extremely useful for troubleshooting.
@@ -80,7 +87,6 @@ Pods CPU, memory, restarts... are monitored using prometheus. To enable it follo
   ```
   If the receiver is not specified, SLACK_WEBHOOK_GENERIC will be used to alert the infra channel.
 
-
 ## Custom domain
 The default web application domain in production is `teacherservices.cloud`, and the application domain is `<application_name>.teacherservices.cloud`. It should not be used by end users. Rather we normally create a subdomain of either `education.gov.uk` or `service.gov.uk`. Here is the process:
 
@@ -90,11 +96,24 @@ The default web application domain in production is `teacherservices.cloud`, and
 
 If an [apex domain](https://learn.microsoft.com/en-us/azure/frontdoor/apex-domain) is used, make sure to configure [StatusCake](#statuscake) SSL monitoring as the certificate must be regenerated manually every 180 days.
 
+## Caching
+The custom domains are implemented using the Azure front door CDN. It provides simple caching of HTTP requests by path. For instance, rails apps usually cache assets (javascripts, CSS, fonts...) under the `/assets` path.
+
+CDN Caching makes requests faster for users and reduces the load on the application. Use the environment_domains module [cached_paths variable](https://github.com/DFE-Digital/teacher-services-cloud/blob/8b7a9e94e41747b5ac4faf9fc4b41632c3c741ac/templates/new_service/terraform/domains/environment_domains/config/production.tfvars.json#L9-L10) to cache all the paths as required.
+
+## Redirects
+It is possible to support multiple domains and subdomains, and create a redirect between them to catch more user traffic. For instance:
+- https://www.apply-for-teacher-training.education.gov.uk/ redirects to https://www.apply-for-teacher-training.service.gov.uk/
+- https://www.claim-funding-for-mentor-training.education.gov.uk redirects to https://claim-funding-for-mentor-training.education.gov.uk
+
+Use the environment_domains module [redirect_rules variable](https://github.com/DFE-Digital/terraform-modules/blob/1d9f7202cb981499ed5a86bd4bdf655013a74743/domains/environment_domains/variables.tf#L46).
+
 ## Pin all versions
 The infrastructure code should pin the versions of all components to avoid receiving different versions. The build must be predictable between environments and over time. We should upgrade versions frequently, but only when it is desired and fully tested.
 
 Components with versions:
 
+- Base docker image: pin language version (e.g. ruby 3.3.0) and Alpine version (e.g. alpine-3.20)
 - Terraform (in application, domains infrastructure and environment_domains)
 - Terraform providers (azure, kubernetes, StatusCake)
 - Postgres
@@ -121,3 +140,13 @@ Add a lock to critical Azure resources to prevent against accidental deletion, s
 We use SNYK scanning to [check build images for vulnerabilities](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/Testing-software.aspx).
 
 This is enabled by passing a valid [SNYK-TOKEN](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/.github/workflows/build-and-deploy.yml#L3) to the build-and-deploy github action.
+
+## Secrets
+We keep application secrets in Azure key vault. There is always a risk of an attack or a mistake leading to a leak, especially when using public repositories. In case an incident happens, it is important to **rotate all the secrets** as soon as possible.
+
+We want to minimise the time to recovery, and help the team members rotating the secrets, especially when they are not familiar with them. Secrets are not stored in the Github repository and don't have comments nor git commit history. We recommend keeping an exhaustive list of all secrets, preferably in Sharepoint and not in the public repository.
+
+Document for each secret:
+- Environment variable name
+- What is it used for
+- How to generate or request a new secret
