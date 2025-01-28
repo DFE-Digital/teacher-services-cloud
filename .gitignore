@@ -1,6 +1,9 @@
 .terraform
 *-export
 
+# vscode directory
+.vscode
+
 # templates
 /new_service
 templates/new_service/terraform/domains/infrastructure/.terraform.lock.hcl
