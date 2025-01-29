@@ -29,12 +29,12 @@ variable "admin_group_id" {
 }
 variable "enable_azure_RBAC" {
   type        = bool
-  default     = false
+  default     = true
   description = "Enable Azure AD RBAC on this cluster"
 }
 variable "enable_azure_RBAC_clone" {
   type        = bool
-  default     = false
+  default     = true
   description = "Enable Azure AD RBAC on the clone cluster"
 }
 

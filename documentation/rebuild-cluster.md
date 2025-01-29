@@ -24,7 +24,6 @@ Then we use scripts to export the resources from each namespace from one cluster
 Add or update the variables and apply:
 - `cluster/terraform_aks_cluster/config/<config>.tfvars.json`:
     - `"clone_cluster": true`
-    - `"enable_azure_RBAC_clone": true`
 - `cluster/terraform_kubernetes/config/<config>.tfvars.json`:
     - `"clone_cluster": true`
 - Run: `make <config> terraform-apply`
@@ -99,7 +98,6 @@ Since the applications domain points to the main cluster, you won't be able to t
 ## Delete the temp cluster
 - `cluster/terraform_aks_cluster/config/<config>.tfvars.json`:
     - `"clone_cluster": false` (or remove variable)
-    - `"enable_azure_RBAC_clone": false` (or remove variable)
 - Run: `make <config> terraform-kubernetes-apply`
 - `cluster/terraform_kubernetes/config/<config>.tfvars.json`:
     - `"clone_cluster": false` (or remove variable)
