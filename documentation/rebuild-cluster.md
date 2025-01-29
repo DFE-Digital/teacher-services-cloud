@@ -27,7 +27,6 @@ Add or update the variables and apply:
     - `"enable_azure_RBAC_clone": true`
 - `cluster/terraform_kubernetes/config/<config>.tfvars.json`:
     - `"clone_cluster": true`
-    - `"enable_lowpriority_app_clone": true` (if enabled for main)
 - Run: `make <config> terraform-apply`
 
 ## Export resources from main cluster
@@ -104,7 +103,6 @@ Since the applications domain points to the main cluster, you won't be able to t
 - Run: `make <config> terraform-kubernetes-apply`
 - `cluster/terraform_kubernetes/config/<config>.tfvars.json`:
     - `"clone_cluster": false` (or remove variable)
-    - `"enable_lowpriority_app_clone": false` (or remove variable)
 - Run: `make <config> terraform-aks-cluster-apply`. It may be necessary to remove the pod disruption budgets (check with `kubectl get pdb -A`).
 
 ## Delete the export files

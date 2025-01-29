@@ -57,11 +57,6 @@ variable "enable_lowpriority_app" {
   default = false
 }
 
-variable "enable_lowpriority_app_clone" {
-  type    = bool
-  default = false
-}
-
 variable "grafana_app_cpu" {
   type    = string
   default = "500m"
