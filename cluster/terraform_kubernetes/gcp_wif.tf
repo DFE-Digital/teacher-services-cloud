@@ -14,7 +14,23 @@ resource "kubernetes_service_account" "gcp_wif" {
 
   metadata {
     name      = "gcp-wif"
-    namespace = each.key
+    namespace = kubernetes_namespace.default_list[each.key].metadata[0].name
+
+    annotations = {
+      "azure.workload.identity/client-id" = azurerm_user_assigned_identity.gcp_wif[each.key].client_id
+    }
+  }
+}
+
+resource "kubernetes_service_account" "gcp_wif_clone" {
+
+  for_each = var.clone_cluster ? toset(var.gcp_wif_namespaces) : []
+
+  provider = kubernetes.clone
+
+  metadata {
+    name      = "gcp-wif"
+    namespace = kubernetes_namespace.default_list[each.key].metadata[0].name
 
     annotations = {
       "azure.workload.identity/client-id" = azurerm_user_assigned_identity.gcp_wif[each.key].client_id

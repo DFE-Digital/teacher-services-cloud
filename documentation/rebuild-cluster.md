@@ -57,7 +57,11 @@ Since the applications domain points to the main cluster, you won't be able to t
 ## Rebuild the first cluster
 - Wait for traffic to stop on main cluster. You can now make changes on the main cluster without impacting users.
 - Delete the non-system pod disruption budgets (check with `kubectl get pdb -A`)
+- Delete the aks-systems-logs diagnostic setting from the main cluster under Monitoring -> Diagnostic settings
 - Make the required code changes in terraform
+- Update your local branch to ignore the app domain record change that was made earlier, otherwise it will reset to the main cluster IP
+    - `cluster/terraform_kubernetes/config/dns.tf`:
+        - Add `lifecycle { ignore_changes = [records] }` to the cluster_a_record
 - Run terraform-plan to check the changes and make sure only the main cluter is updated. Most of the cloned configuration is referenced from the main cluster, so if the value changes on the main cluster, it would also impact the cloned cluster and force a rebuild, which would disrupt users. If it's the case, hardcode the original value temporarily for the cloned cluster. For instance, if you want to change the default node pool vm_size from "Standard_D2_v2", change the cloned cluster from:
 
     ```
@@ -84,7 +88,10 @@ Since the applications domain points to the main cluster, you won't be able to t
 - Restore your hosts file
 
 ## Route traffic to the main cluster
-- Change the the applications domain record in the DNS zone manually
+- Revert the local branch change to ignore the app domain record change that was made earlier
+    - `cluster/terraform_kubernetes/config/dns.tf`:
+        - Delete `lifecycle { ignore_changes = [records] }`from the cluster_a_record
+- Run terraform-apply or change the applications domain record in the DNS zone manually
 - Wait at least 5 min for the TTL to expire
 - Update the DNS record in terraform code
 

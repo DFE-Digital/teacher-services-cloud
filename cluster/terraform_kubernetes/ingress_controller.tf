@@ -212,8 +212,58 @@ resource "helm_release" "ingress-nginx" {
   }
 }
 
+resource "helm_release" "ingress-nginx-clone" {
+  count    = var.clone_cluster ? 1 : 0
+  provider = helm.clone
+
+  name       = helm_release.ingress-nginx.name
+  repository = helm_release.ingress-nginx.repository
+  chart      = helm_release.ingress-nginx.chart
+  version    = helm_release.ingress-nginx.version
+
+  dynamic "set" {
+    # Exclude the load balancer IP to force clone to use dynamic Public IP for load balancer ingress
+    for_each = [
+      for s in helm_release.ingress-nginx.set : s
+      if s.name != "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-ipv4"
+      && s.name != "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-resource-group"
+    ]
+
+    content {
+      name  = set.value["name"]
+      value = set.value["value"]
+      type  = set.value["type"]
+    }
+  }
+
+  # Resource group of the ingress public IP
+  # The cluster managed identity must have Network Contributor role on the resource group
+  set {
+    name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-resource-group"
+    value = azurerm_public_ip.ingress-public-ip-clone[0].resource_group_name
+    type  = "string"
+  }
+  # Ingress IP
+  set {
+    name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-ipv4"
+    value = azurerm_public_ip.ingress-public-ip-clone[0].ip_address
+    type  = "string"
+  }
+}
+
 resource "azurerm_public_ip" "ingress-public-ip" {
   name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-ingress-pip"
+  location            = data.azurerm_resource_group.resource_group.location
+  resource_group_name = data.azurerm_resource_group.resource_group.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+
+  lifecycle { ignore_changes = [tags] }
+}
+
+resource "azurerm_public_ip" "ingress-public-ip-clone" {
+  count               = var.clone_cluster ? 1 : 0
+  name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-clone-ingress-pip"
   location            = data.azurerm_resource_group.resource_group.location
   resource_group_name = data.azurerm_resource_group.resource_group.name
   allocation_method   = "Static"

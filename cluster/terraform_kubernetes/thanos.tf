@@ -21,7 +21,7 @@ resource "kubernetes_secret" "thanos" {
 
   metadata {
     name      = "thanos-objstore-config"
-    namespace = "monitoring"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
   data = {

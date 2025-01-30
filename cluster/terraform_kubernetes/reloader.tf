@@ -39,7 +39,7 @@ resource "kubernetes_cluster_role" "reloader" {
 resource "kubernetes_service_account" "reloader" {
   metadata {
     name      = "reloader"
-    namespace = "infra"
+    namespace = kubernetes_namespace.default_list["infra"].metadata[0].name
   }
 }
 
@@ -66,7 +66,7 @@ resource "kubernetes_cluster_role_binding" "reloader" {
 resource "kubernetes_deployment" "reloader" {
   metadata {
     name      = "reloader"
-    namespace = "infra"
+    namespace = kubernetes_namespace.default_list["infra"].metadata[0].name
     labels = {
       app = "reloader"
     }

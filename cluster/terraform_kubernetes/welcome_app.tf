@@ -120,9 +120,6 @@ resource "kubernetes_deployment" "welcome_app" {
   }
 }
 
-
-
-
 resource "kubernetes_service" "welcome_app" {
   metadata {
     name      = local.welcome_app_name
