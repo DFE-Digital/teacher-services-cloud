@@ -140,6 +140,18 @@ filter {
       remove_field => ["message"]
     }
 
+    # TEMP drop DfE::Analytics::SendEvents of Type Info
+    if ([app][payload][job_class] == "DfE::Analytics::SendEvents" and [app][level] == "info") {
+    	drop {}
+  	}
+
+    # TEMP remove stack_trace for DfE::Analytics::SendEvents of Type error
+    if ([app][payload][job_class] == "DfE::Analytics::SendEvents" and [app][level] == "error") {
+    	mutate {
+        	remove_field => "[app][exception][stack_trace]"
+        }
+    }
+
     # Remove stack trace for 404 errors in rails apps, as it is large and adds no value
     if [app][exception][name] == "ActionController::RoutingError" {
       mutate {
