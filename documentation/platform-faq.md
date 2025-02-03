@@ -38,11 +38,21 @@
 - ```
   ERROR: (Forbidden) Caller is not authorized to perform action on resource.
   ```
+
+  or
+
+  ```
+  │ Error: Failed to get existing workspaces: Error retrieving keys for Storage Account "s189t01ctptfstatedvsa": storage.AccountsClient#ListKeys: Failure responding to request: StatusCode=403 -- Original Error: autorest/azure: Service returned an error. Status=403 Code="AuthorizationFailed" Message="The client '202cf44d-8ab7-4e03-b132-1c12eb1cc3ab' with object id '202cf44d-8ab7-4e03-b132-1c12eb1cc3ab' does not have authorization to perform action 'Microsoft.Storage/storageAccounts/listKeys/action' over scope '/subscriptions/***/resourceGroups/s189t01-ctp-dv-rg/providers/Microsoft.Storage/storageAccounts/s189t01ctptfstatedvsa' or the scope is invalid. If access was recently granted, please refresh your credentials."
+  ```
+
   Authorisation failures may be caused by:
   - The federated credential for this environment does not exist
   - The managed identity does not exist
   - The managed identity is not added to the Entra ID group
   - The Entra ID group is missing the role assignement
+
+  The managed identity should be added to the relevant Entra ID group via the `add member` option. If you cannot select this, validate you are an owner. Being an owner is required to add the managed identity to the Entra ID group.
+
 - ```
   Error: The subscription of '***' doesn't exist in cloud 'AzureCloud'.
   Error: Login failed with Error: The process '/usr/bin/az' failed with exit code 1. Double check if the 'auth-type' is correct. Refer to https://github.com/Azure/login#readme for more information.
