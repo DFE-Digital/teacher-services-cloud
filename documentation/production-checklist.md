@@ -132,9 +132,23 @@ The new service template uses the default "Teacher services cloud" value for the
 Optional but recommended for user facing services. See [Maintenance page](maintenance-page.md) for more details.
 
 ## Lock critical resources
-Add a lock to critical Azure resources to prevent against accidental deletion, such as production databases. Members of the `s189-teacher-services-cloud-ResLock Admin` Entra ID group (infra team) can manage locks.
+Add a lock to critical Azure resources to prevent against accidental deletion.
+We currently create locks for two types of resources.
+(Members of the `s189-teacher-services-cloud-ResLock Admin` Entra ID group (infra team) can manage locks.)
+
+1. Production database servers.
 - Open the resource in the Azure portal
 - Settings > Locks > + Add > Lock name: Delete, Lock type: Delete > OK
+
+2. DNS zones.
+We lock the SOA record in the zone as this prevents zone deletion while enabling records to be added, deleted and updated.
+Currently, this type of lock can only be added via powershell, but it can be removed via powershell or the portal.
+```
+Connect-AzAccount
+New-AzResourceLock -LockLevel "CanNotDelete" -LockName "s189p01-<SERVICE_SHORT>-lock" -ResourceName "<DNS_ZONE_NAME>/@" -ResourceType "Microsoft.Network/DNSZones/SOA" -ResourceGroupName "<DOMAINS_RESOURCE_GROUP_NAME>"
+e.g.
+New-AzResourceLock -LockLevel "CanNotDelete" -LockName "s189p01-att-lock" -ResourceName "apply-for-teacher-training.education.gov.uk/@" -ResourceType "Microsoft.Network/DNSZones/SOA" -ResourceGroupName "s189p01-applydomains-rg"
+```
 
 ## Build image security scanning
 We use SNYK scanning to [check build images for vulnerabilities](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/Testing-software.aspx).
