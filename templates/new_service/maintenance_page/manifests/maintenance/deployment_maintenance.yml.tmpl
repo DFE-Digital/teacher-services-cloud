@@ -20,6 +20,9 @@ spec:
       containers:
       - name: #SERVICE_NAME#-maintenance
         image: #DOCKER_REPOSITORY#-maintenance:#MAINTENANCE_IMAGE_TAG#
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
         ports:
         - containerPort: 8080
         resources:
