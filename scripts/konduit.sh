@@ -12,7 +12,7 @@
 # Stop the script in case a command fails. Cleanup will still run
 # Fail when a variable is unexpectedly not set
 # If variable $VAR can be unset, use ${VAR:-} to provide a default "" value
-set -eu
+set -euo pipefail
 
 help() {
    echo
