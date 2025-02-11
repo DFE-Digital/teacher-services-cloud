@@ -17,9 +17,6 @@
   - Some secrets may not be present or be empty.
 - ```
   Error from server (Forbidden): deployments.apps is forbidden: User "e15248ce-c1f1-4998-9b98-6c441835139d" cannot list resource "deployments" in API group "apps" at the cluster scope: User does not have access to the resource in Azure. Update role assignment to allow access.
-  error: unknown shorthand flag: 'f' in -f
-  See 'kubectl --help' for usage.
-  Error from server (Forbidden): deployments.apps "konduit-app-8980" is forbidden: User "e15248ce-c1f1-4998-9b98-6c441835139d" cannot get resource "deployments" in API group "apps" in the namespace "default": User does not have access to the resource in Azure. Update role assignment to allow access.
   ```
   - User is not cluster admin and `kubectl -n <namespace>` argument is not used.
 - Unexpected login results on command line

@@ -9,6 +9,11 @@
 # - confirm before running if interactive, a flag to run without confirmation?
 #
 
+# Stop the script in case a command fails. Cleanup will still run
+# Fail when a variable is unexpectedly not set
+# If variable $VAR can be unset, use ${VAR:-} to provide a default "" value
+set -eu
+
 help() {
    echo
    echo "Script to connect to a k8 backing service via an app service"
@@ -45,7 +50,7 @@ help() {
    echo "                     Only valid for commands psql, pg_dump or pg_restore"
    echo "   -r redis-var      Variable for redis cache [defaults to REDIS_URL if not set]"
    echo "                     Only valid for command redis-cli"
-   echo "   -s server-name    Override server name. Postgres only, used to access PTR server"
+   echo "   -s server-name    Override server name. Postgres only, used to access PTR server. Hostname without .postgres.database.azure.com suffix."
    echo "   -t timeout        Timeout in seconds. Default is 28800 but 3600 for psql, pg_dump or pg_restore commands."
    echo "   -u 'db-url'       Full connection URL if different from the URL in the app used for tunnelling. See 'connection string' below."
    echo "                     It should be enclosed in quotes to avoid shell interpretation"
@@ -74,13 +79,13 @@ init_setup() {
       exit 1
    fi
 
-   if [ "${Timeout}" = "" ]; then
+   if [ -z "${Timeout:-}" ]; then
       # Default timeout for psql/pg_dump/pg_restore set to 8 hours. Increase if required.
       # This is to allow for long running queries or backups.
       # The timeout is reset for each command run.
       # The timeout can be overridden with the -t option.
       TMOUT=28800 # 8 hour timeout default for nc tunnel
-      if [ "${RUNCMD}" = "psql" ] && [ "${Inputfile}" != "" ]; then
+      if [ "${RUNCMD}" = "psql" ] && [ -n "${Inputfile:-}" ]; then
          # Default timeout for restore set to 1 hour. Increase if required.
          TMOUT=3600
       elif [ "${RUNCMD}" = "pg_dump" ] || [ "${RUNCMD}" = "pg_restore" ]; then
@@ -92,13 +97,13 @@ init_setup() {
    fi
 
    # If an input file is given, check it exists and is readable
-   if [ "${Inputfile}" != "" ] && [ ! -r "${Inputfile}" ]; then
+   if [ -n "${Inputfile:-}" ] && [ ! -r "${Inputfile}" ]; then
       echo "Error: invalid input file"
       exit 1
    fi
 
    # Settings dependant on AKS or Azure backing service
-   if [ "${AKS}" = "" ]; then
+   if [ -z "${AKS:-}" ]; then
       # redis backing service requires TLS set for redis-cli
       TLS="--tls"
       REDIS_PORT=6380
@@ -109,17 +114,17 @@ init_setup() {
    fi
 
    # Set default Redis var if not set
-   if [ "${Redis}" = "" ]; then
+   if [ -z "${Redis:-}" ]; then
       Redis="REDIS_URL"
    fi
 
    # Set default Postgres var if not set
-   if [ "${Postgres}" = "" ]; then
+   if [ -z "${Postgres:-}" ]; then
       Postgres="DATABASE_URL"
    fi
 
    # Get the deployment namespace
-   if [[ -z "${NAMESPACE}" ]]; then
+   if [[ -z "${NAMESPACE:-}" ]]; then
       NAMESPACE=$(kubectl get deployments -A | grep "${INSTANCE} " | awk '{print $1}')
    fi
 
@@ -127,7 +132,7 @@ init_setup() {
    DB_PORT=5432
 
    # Set variables if using a separate deployment to access the database
-   if [ "${Jumppod}" != "" ]; then
+   if [ -n "${Jumppod:-}" ]; then
       OLDINST=${INSTANCE}
       INSTANCE="konduit-app-${RANDOM}"
       PODJSON=$(cat - << EOF
@@ -219,10 +224,6 @@ EOF
 }
 
 check_instance() {
-   if [ "$INSTANCE" = "" ]; then
-      echo "Error: Must provide instance name as parameter e.g. apply-qa, apply-review-1234"
-      exit 1
-   fi
    # make sure it's LC
    INSTANCE=$(echo "${INSTANCE}" | tr '[:upper:]' '[:lower:]')
    # Lets check the container exists and we can connect to it first
@@ -232,20 +233,24 @@ check_instance() {
    fi
 }
 
+is_port_in_use() {
+   nc -z 127.0.0.1 $LOCAL_PORT 2>/dev/null
+}
+
 set_ports() {
    # Get a random DEST port for the k8 container
    # so there is minimal conflict between users
-   DEST_PORT=0
+   DEST_PORT=$RANDOM
    until [ $DEST_PORT -gt 1024 ]; do
       DEST_PORT=$RANDOM
    done
 
    # Get a random LOCAL port
    # so we can have more than one session if wanted
-   LOCAL_PORT=0
-   until [ $LOCAL_PORT -gt 1024 ]; do
+   LOCAL_PORT=$RANDOM
+   # try again if it's in use
+   until [[ $LOCAL_PORT -gt 1024 && ! $(is_port_in_use $LOCAL_PORT) ]]; do
       LOCAL_PORT=$RANDOM
-      nc -z 127.0.0.1 $LOCAL_PORT 2>/dev/null && LOCAL_PORT=0 # try again if it's in use
    done
 }
 
@@ -260,10 +265,10 @@ set_db_psql() {
    #     postgres://ADMIN_USER:ADMIN_PASSWORD@someapp-postgres-review-99999:5432/someapp-postgres-review-99999
    #
 
-   if [ -n "${DB_URL_ARG}" ]; then
+   if [ -n "${DB_URL_ARG:-}" ]; then
       ORIG_URL="${DB_URL_ARG}"
-   elif [ -z "${KV}" ]; then
-      if [ -z "${Jumppod}" ]; then
+   elif [ -z "${KV:-}" ]; then
+      if [ -z "${Jumppod:-}" ]; then
          ORIG_URL=$(echo "echo \$${Postgres}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
       else
          SECRET=$(kubectl -n ${NAMESPACE} get deployment/$OLDINST -o jsonpath='{.spec.template.spec.containers[0].envFrom[1].secretRef.name}')
@@ -276,17 +281,17 @@ set_db_psql() {
    DB_HOSTNAME=$(echo "${ORIG_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
 
    # Override the database name if requested
-   if [ -n "$DBName" ]; then
+   if [ -n "${DBName:-}" ]; then
       # Replace the database name after the last /, and before ? if it's present
       DB_URL=$(echo "${DB_URL}" | sed "s|/[^/?]*\([?].*\)\?$|/${DBName}\1|")
    fi
 
    # Override the server name if requested
-   if [ -n "$ServerName" ]; then
+   if [ -n "${ServerName:-}" ]; then
       DB_HOSTNAME=${ServerName}.postgres.database.azure.com
    fi
 
-   if [ "${ORIG_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_HOSTNAME}" = "" ]; then
+   if [ -z "${ORIG_URL:-}" ] || [ -z "${DB_URL:-}" ] || [ -z "${DB_HOSTNAME:-}" ]; then
       echo "Error: invalid DB settings"
       exit 1
    fi
@@ -302,10 +307,10 @@ set_db_redis() {
    # Format for k8 pod
    #     redis://someapp-redis-review-99999:6379/0
 
-   if [ -n "${DB_URL_ARG}" ]; then
+   if [ -n "${DB_URL_ARG:-}" ]; then
       ORIG_URL="${DB_URL_ARG}"
-   elif [ -z "${KV}" ]; then
-      if [ -z "${Jumppod}" ]; then
+   elif [ -z "${KV:-}" ]; then
+      if [ -z "${Jumppod:-}" ]; then
          ORIG_URL=$(echo "echo \$${Redis}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh)
       else
          SECRET=$(kubectl -n ${NAMESPACE} get deployment/$OLDINST -o jsonpath='{.spec.template.spec.containers[0].envFrom[1].secretRef.name}')
@@ -315,7 +320,7 @@ set_db_redis() {
       ORIG_URL=$(az keyvault secret show --name "${KVDBName}"-database-url --vault-name "${KV}" | jq -r .value)
    fi
 
-   if [ "${AKS}" = "" ]; then
+   if [ -z "${AKS:-}" ]; then
       DB_URL=$(echo "${ORIG_URL}" | sed "s|@.*/|@127.0.0.1:${LOCAL_PORT}/|g" | sed "s|rediss://|rediss://default|g")
       DB_HOSTNAME=$(echo "${ORIG_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
    else
@@ -324,11 +329,11 @@ set_db_redis() {
    fi
 
    # Override the database name if requested
-   if [ -n "$DBName" ]; then
+   if [ -n "${DBName:-}" ]; then
       DB_URL=$(echo "${DB_URL}" | sed "s|[^/]*$|${DBName}|g")
    fi
 
-   if [ "${ORIG_URL}" = "" ] || [ "${DB_URL}" = "" ] || [ "${DB_HOSTNAME}" = "" ]; then
+   if [ -z "${ORIG_URL:-}" ] || [ -z "${DB_URL:-}" ] || [ -z "${DB_HOSTNAME:-}" ]; then
       echo "Error: invalid DB settings"
       exit 1
    fi
@@ -346,9 +351,9 @@ open_tunnels() {
 }
 
 run_psql() {
-   if [ "$Inputfile" = "" ]; then
+   if [ -z "${Inputfile:-}" ]; then
       psql -d "$DB_URL" --no-password "${OTHERARGS}"
-   elif [ "$CompressedInput" = "" ]; then
+   elif [ -z "${CompressedInput:-}" ]; then
       psql -d "$DB_URL" --no-password <"$Inputfile"
    else
       gzip -d --to-stdout "${Inputfile}" | psql -d "$DB_URL" --no-password
@@ -356,7 +361,7 @@ run_psql() {
 }
 
 run_pgdump() {
-   if [ "${OTHERARGS}" = "" ]; then
+   if [ -z "${OTHERARGS:-}" ]; then
       echo "ERROR: Must supply arguments for pg_dump"
       exit 1
    fi
@@ -364,7 +369,7 @@ run_pgdump() {
 }
 
 run_pg_restore() {
-   if [ "${OTHERARGS}" = "" ]; then
+   if [ -z "${OTHERARGS:-}" ]; then
       echo "ERROR: Must supply arguments for pg_restore"
       exit 1
    fi
@@ -375,7 +380,7 @@ cleanup() {
    unset DB_URL DB_HOSTNAME ORIG_URL
    pkill -15 -f "kubectl port-forward.*${LOCAL_PORT}"
    sleep 3 # let the port-forward finish
-   if [ "${Jumppod}" != "" ]; then
+   if [ -n "${Jumppod:-}" ]; then
       echo ${PODJSON} | kubectl -n ${NAMESPACE} delete -f -
    else
       kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- pkill -15 -f "nc -v -lk -p ${DEST_PORT}"
@@ -437,11 +442,21 @@ while getopts "ahcxd:i:k:r:n:p:s:t:u:b:" option; do
    esac
 done
 shift "$((OPTIND - 1))"
-INSTANCE=$1
+INSTANCE=${1:-}
+if [ -z "$INSTANCE" ]; then
+   echo "Error: Must provide instance name as parameter e.g. apply-qa, apply-review-1234"
+   help
+   exit 1
+fi
 # $2 is --
-RUNCMD=$3
+RUNCMD=${3:-}
+if [[ -z "$RUNCMD" ]]; then
+   echo "Error: missing command name"
+   help
+   exit 1
+fi
 shift 3
-OTHERARGS=$*
+OTHERARGS=${*:-}
 
 ###
 ### Main
