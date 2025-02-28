@@ -46,7 +46,7 @@
   - The federated credential for this environment does not exist
   - The managed identity does not exist
   - The managed identity is not added to the Entra ID group
-  - The Entra ID group is missing the role assignement
+  - The Entra ID group is missing the resource group within role assignement scope
 
   The managed identity should be added to the relevant Entra ID group via the `add member` option. If you cannot select this, validate you are an owner. Being an owner is required to add the managed identity to the Entra ID group.
 
