@@ -27,7 +27,7 @@ Alert developers that no one should merge to main.
 
 ### Enable maintenance mode
 
-Run the *Enable maintenance* workflow for the service and environment affected.
+Run the *Enable maintenance* or *Set maintenance mode* workflow for the service and environment affected.
 
 The maintenance page message can be [updated](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/documentation/maintenance-page.md#update-content) at any time during the incident.
 
@@ -35,15 +35,19 @@ e.g. https://claim-additional-payments-for-teaching-test-web.test.teacherservice
 
 https://claim-additional-payments-for-teaching-temp.test.teacherservices.cloud will display the application.
 
+Note that the available temp route can be seen on the completed maintenance workflow summary view in github.
+
 ### Recreate the lost postgres database server
 
 Run the deploy workflow to recreate the missing postgres database.
 
 As the maintenance page has been enabled, you will need to:
-- create a branch from main
-- update the terraform application config as per: [configure-terraform-to-keep-deploying-the-application](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/documentation/maintenance-page.md#configure-terraform-to-keep-deploying-the-application)
-- push the branch to github
-- run the deploy workflow using your branch
+1. create a branch from main
+1. update the terraform application config as per: [configure-terraform-to-keep-deploying-the-application](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/documentation/maintenance-page.md#configure-terraform-to-keep-deploying-the-application)
+1. push the branch to github (no need to create a PR)
+1. run the deploy workflow using your branch
+
+Note that the deploy workflow my fail on steps after the postgres server creation e.g. smoke tests or database migrations. This is expected due to the enabling of maintenance page. You can confirm the server is available via a healthcheck url that checks the database status (if your service has one), or via the azure portal. The healthcheck url will need to use the temp route.
 
 ### Restore the data from previous backup in Azure storage
 Run the *Restore database from Azure storage* workflow.
@@ -53,9 +57,10 @@ Confirm the app is working and can see the restored data. The app is available o
 
 e.g. https://claim-additional-payments-for-teaching-temp.test.teacherservices.cloud will display the application.
 
+You may also want to check any healthcheck urls (e.g. /healthcheck), admin interfaces, api requests, etc
 
 ### Disable maintenance mode
-Run the *Disable maintenance* workflow for the service and environment affected.
+Run the *Disable maintenance* or *Set maintenance mode* workflow for the service and environment affected.
 
 ### Unfreeze pipeline
 
@@ -91,9 +96,11 @@ Alert developers that no one should merge to main.
 - In github setings, a user with repo admin privileges should update the *Branch protection rules* and set required PR approvers to 6
 
 ### Enable maintenance mode
-Run the *Enable maintenance* workflow for the service and environment affected.
+Run the *Enable maintenance* or *Set maintenance mode* workflow for the service and environment affected.
 
 The maintenance page message can be [updated](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/documentation/maintenance-page.md#update-content) at any time during the incident
+
+Note that the available temp route can be seen on the completed maintenance workflow summary view in github.
 
 ### Consider backing up the database
 If users have entered data or new users have signed up, we may need to keep this data for reconciliation later on. Use the *Backup database to Azure storage* workflow to save a copy of the flawed database. Use a specific name to identify the backup file later on.
@@ -132,8 +139,10 @@ e.g. [update namespace, deployment names and replicas as required]
 ### Validate app
 Confirm the app is working and can see the restored data. If the maintenance page is enabled, the app is available on the [temporary ingress](maintenance-page.md/#fail-over) URL.
 
+You may also want to check any healthcheck urls (e.g. /healthcheck), admin interfaces, api requests, etc
+
 ### Disable maintenance mode
-Run the *Disable maintenance* workflow for the service and environment affected
+Run the *Disable maintenance* or *Set maintenance mode* workflow for the service and environment affected
 
 ### Unfreeze pipeline
 
