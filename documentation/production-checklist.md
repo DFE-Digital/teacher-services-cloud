@@ -76,7 +76,7 @@ Set `azure_enable_monitoring` to true in the domains/infrastructure module to en
 ### Pods
 Pods CPU, memory, restarts... are monitored using prometheus. To enable it follow:
 - [Enable prometheus scraping](https://github.com/DFE-Digital/terraform-modules/blob/main/aks/application/tfdocs.md#input_enable_prometheus_monitoring) on *each* deployment you want to monitor
-- Create a webhook slack app in the [Teacher services cloud Slack app](https://api.slack.com/apps/A05Q1UNM3U2) or reuse one if it has the desired channel
+- Create a webhook slack app in the [Teacher services cloud Slack app](slack-webhook-integration.md) or reuse one if it has the desired channel
 - If using a new webhook, create a secret in the Teacher services cloud keyvault (*s189t01-tsc-ts-kv* or *s189p01-tsc-pd-kv*). It must be named *SLACK-WEBHOOK-XXX* where XXX is a service like ATT or an area like CPD.
 - If using a new webhook, add the secret name to [alertmanager_slack_receiver_list](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config)
 - Enable alerting on *each* deployment you want to monitor by adding to [alertable_apps](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config/), each entry is: `"namespace/deployment": { "receiver": "RECEIVER"}`, such as:
@@ -86,6 +86,12 @@ Pods CPU, memory, restarts... are monitored using prometheus. To enable it follo
     },
   ```
   If the receiver is not specified, SLACK_WEBHOOK_GENERIC will be used to alert the infra channel.
+
+### Workflows
+Get notified of workflow failures on a Slack channel.
+- Create a webhook slack app in the [Teacher services cloud Slack app](slack-webhook-integration.md) or reuse one if it has the desired channel
+- Use it in the existing Github actions with `${{ secrets.SLACK_WEBHOOK }}`
+- Add your own messages using the [rtCamp/action-slack-notify](https://github.com/rtCamp/action-slack-notify) action
 
 ## Custom domain
 The default web application domain in production is `teacherservices.cloud`, and the application domain is `<application_name>.teacherservices.cloud`. It should not be used by end users. Rather we normally create a subdomain of either `education.gov.uk` or `service.gov.uk`. Here is the process:
