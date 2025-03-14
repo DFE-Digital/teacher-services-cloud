@@ -124,21 +124,6 @@ jobs:
         environment: [development,production]
 
     steps:
-    - uses: azure/login@v2
-      with:
-        client-id:  ${{ secrets.AZURE_CLIENT_ID  }}
-        tenant-id:  ${{ secrets.AZURE_TENANT_ID   }}
-        subscription-id:  ${{ secrets.AZURE_SUBSCRIPTION_ID   }}
-
-    - name: Fetch secrets from key vault
-      uses: azure/CLI@v2
-      id: keyvault-secret
-      with:
-        inlineScript: |
-          SLACK_WEBHOOK=$(az keyvault secret show --name "SLACK-WEBHOOK" --vault-name "${{ secrets.INF_KEY_VAULT }}" --query "value" -o tsv)
-          echo "::add-mask::$SLACK_WEBHOOK"
-          echo "SLACK_WEBHOOK=$SLACK_WEBHOOK" >> $GITHUB_OUTPUT
-
     - name: Deploy app to ${{ matrix.environment }}
       id: deploy_app
       uses: DFE-Digital/github-actions/deploy-to-aks@master
@@ -151,7 +136,7 @@ jobs:
         sha: ${{ needs.build.outputs.docker-image-tag }}
         terraform-base: ${{ env.TERRAFORM_BASE }}
         healthcheck: ${{ env.HEALTHCHECK_CMD }}
-        slack-webhook: ${{ steps.keyvault-secret.outputs.SLACK_WEBHOOK }}
+        slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
         smoke-test: true
 #        gcp-wip: ${{ vars.GCP_WIP }}
 #        gcp-project-id: ${{ vars.GCP_PROJECT_ID }}
@@ -168,21 +153,6 @@ jobs:
       pull-requests: write
 
     steps:
-    - uses: azure/login@v2
-      with:
-        client-id:  ${{ secrets.AZURE_CLIENT_ID  }}
-        tenant-id:  ${{ secrets.AZURE_TENANT_ID   }}
-        subscription-id:  ${{ secrets.AZURE_SUBSCRIPTION_ID   }}
-
-    - name: Fetch secrets from key vault
-      uses: azure/CLI@v2
-      id: keyvault-secret
-      with:
-        inlineScript: |
-          SLACK_WEBHOOK=$(az keyvault secret show --name "SLACK-WEBHOOK" --vault-name "${{ secrets.INF_KEY_VAULT }}" --query "value" -o tsv)
-          echo "::add-mask::$SLACK_WEBHOOK"
-          echo "SLACK_WEBHOOK=$SLACK_WEBHOOK" >> $GITHUB_OUTPUT
-
     - name: Deploy app to ${{ inputs.environment }}
       id: deploy_manual
       uses: DFE-Digital/github-actions/deploy-to-aks@master
@@ -195,7 +165,7 @@ jobs:
         sha: ${{ inputs.docker-image-tag }}
         terraform-base: ${{ env.TERRAFORM_BASE }}
         healthcheck: ${{ env.HEALTHCHECK_CMD }}
-        slack-webhook: ${{ steps.keyvault-secret.outputs.SLACK_WEBHOOK }}
+        slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
         smoke-test: true
         db-seed: ${{ inputs.environment == 'review' && 'true' || 'false' }}
 #        gcp-wip: ${{ vars.GCP_WIP }}
@@ -213,29 +183,13 @@ jobs:
       id-token: write
 
     steps:
-      - uses: azure/login@v2
-        with:
-          client-id:  ${{ secrets.AZURE_CLIENT_ID  }}
-          tenant-id:  ${{ secrets.AZURE_TENANT_ID   }}
-          subscription-id:  ${{ secrets.AZURE_SUBSCRIPTION_ID   }}
-
-      - name: Fetch secrets from key vault
-        uses: azure/CLI@v2
-        id: keyvault-secret
-        with:
-          inlineScript: |
-            SLACK_WEBHOOK=$(az keyvault secret show --name "SLACK-WEBHOOK" --vault-name "${{ secrets.INF_KEY_VAULT }}" --query "value" -o tsv)
-            echo "::add-mask::$SLACK_WEBHOOK"
-            echo "SLACK_WEBHOOK=$SLACK_WEBHOOK" >> $GITHUB_OUTPUT
-
-      - name: Deploy Domains Infrastructure
-        id: deploy_domains_infra
-        uses: DFE-Digital/github-actions/deploy-domains-infra@master
-        with:
-          azure-client-id:  ${{ secrets.AZURE_CLIENT_ID  }}
-          azure-tenant-id:  ${{ secrets.AZURE_TENANT_ID   }}
-          azure-subscription-id:  ${{ secrets.AZURE_SUBSCRIPTION_ID   }}
-          slack-webhook: ${{ steps.keyvault-secret.outputs.SLACK_WEBHOOK }}
+    - name: Deploy Domains Infrastructure
+      uses: DFE-Digital/github-actions/deploy-domains-infra@master
+      with:
+        azure-client-id:  ${{ secrets.AZURE_CLIENT_ID  }}
+        azure-tenant-id:  ${{ secrets.AZURE_TENANT_ID   }}
+        azure-subscription-id:  ${{ secrets.AZURE_SUBSCRIPTION_ID   }}
+        slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
 
   deploy_domains_env:
     name: Deploy Domains to ${{ matrix.domain_environment }} environment
@@ -253,23 +207,7 @@ jobs:
       id-token: write
 
     steps:
-      - uses: azure/login@v2
-        with:
-          client-id:  ${{ secrets.AZURE_CLIENT_ID  }}
-          tenant-id:  ${{ secrets.AZURE_TENANT_ID   }}
-          subscription-id:  ${{ secrets.AZURE_SUBSCRIPTION_ID   }}
-
-      - name: Fetch secrets from key vault
-        uses: azure/CLI@v2
-        id: keyvault-secret
-        with:
-          inlineScript: |
-            SLACK_WEBHOOK=$(az keyvault secret show --name "SLACK-WEBHOOK" --vault-name "${{ secrets.INF_KEY_VAULT }}" --query "value" -o tsv)
-            echo "::add-mask::$SLACK_WEBHOOK"
-            echo "SLACK_WEBHOOK=$SLACK_WEBHOOK" >> $GITHUB_OUTPUT
-
       - name: Deploy Domains Environment
-        id: deploy_domains_env
         uses: DFE-Digital/github-actions/deploy-domains-env@master
         with:
           azure-client-id:  ${{ secrets.AZURE_CLIENT_ID  }}
@@ -277,4 +215,4 @@ jobs:
           azure-subscription-id:  ${{ secrets.AZURE_SUBSCRIPTION_ID   }}
           environment: ${{ matrix.domain_environment }}
           healthcheck: healthcheck/all
-          slack-webhook: ${{ steps.keyvault-secret.outputs.SLACK_WEBHOOK }}
+          slack-webhook: ${{ secrets.SLACK_WEBHOOK }}
