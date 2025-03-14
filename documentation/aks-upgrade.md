@@ -87,7 +87,6 @@ az aks nodepool get-upgrades --resource-group <ResourceGroup> --cluster-name <Cl
 1. Test the whole process in a dev cluster:
     - Deploy Apply to the cluster using `dev_platform_review_aks`
     - Continuously monitor it during the upgrade and check for downtime. Example:
-
         ```
         while true; do date; curl -is https://apply-review-1234.cluster4.development.teacherservices.cloud/check | grep HTTP ; sleep 1 ; done
         ```
@@ -104,14 +103,13 @@ az aks nodepool get-upgrades --resource-group <ResourceGroup> --cluster-name <Cl
     - Test with the welcome app: https://www.platform-test.teacherservices.cloud/
     - Raise PR
     - Wait 24h
-1. Follow the same manual process to upgrade the test cluster
+1. For the test cluster, it is useful to identify and delete orphan review apps as they are not needed and they make the upgrade slower. Use the Grafana "Review app" dashboard to show old deployments and pods, and correlate with the open pull requests. Then follow the same manual process:
     - Test with the welcome app: https://www.test.teacherservices.cloud/
     - Raise PR
     - Wait 24h
 1. Follow the same manual process to upgrade the production cluster
     - Test with the welcome app: https://www.teacherservices.cloud/
     - Raise PR
-
 1. Update the kubectl client version to match the AKS (Azure Kubernetes Service) cluster version in GitHub Actions.
     - You can achieve this using the set-kubectl action from the https://github.com/DFE-Digital/github-actions/set-kubectl
 
