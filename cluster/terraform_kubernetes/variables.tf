@@ -350,4 +350,7 @@ locals {
 
   default_welcome_app_hostname = "www.${module.cluster_data.ingress_domain}"
   welcome_app_hostnames        = concat(var.welcome_app_hostnames, [local.default_welcome_app_hostname])
+
+  grafana_dasboards      = fileset("${path.module}/config/dashboards", "*.json")
+  grafana_dashboards_map = { for d in local.grafana_dasboards : d => file("${path.module}/config/dashboards/${d}") }
 }
