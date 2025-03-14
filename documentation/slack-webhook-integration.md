@@ -1,18 +1,11 @@
+# Slack webhook integration
 
-### Step 1: Create a Webhook in Slack
-- Documentation to create a webhook can be found in the technical guidance repo.
-technical-guidance/source/infrastructure/monitoring/slack/index.html.md.erb
+The [Teacher services cloud Slack app](https://api.slack.com/apps/A05Q1UNM3U2) was created to provide webhooks to all services who need them. Each webhook can send messages to a specific channel.
 
-### Step 2: Create a Repository Secret in GitHub
-- Navigate to your GitHub repository.
-- Click on the Settings tab.
-- On the left sidebar, click on Secrets.
-- Click on New repository secret.
-- For the Name, you might name it SLACK_WEBHOOK.
-- For the Value, paste the Webhook URL from Slack.
-- Click on Add secret.
+[The technical guidance](https://technical-guidance.education.gov.uk/infrastructure/monitoring/slack/) shows how to create the app and the webhooks.
 
-### Step3: Secret Renewal
-- Once the notification is received for an expiring secret
-- Please refer to https://technical-guidance.education.gov.uk/infrastructure/hosting/azure-cip/#create-service-principal
-- CIP team would need to refresh the secret
+There is overhead to create, register and manage the app. In most cases, it's only required to add a webhook.
+
+The infra team can add webhooks or dev teams can be added as collaborators so they can manage their webhooks.
+
+The collaborators list must be kept up-to-date, especially when onboarding and offboarding infra team members.
