@@ -16,40 +16,65 @@
       {
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "P5DCFC7561CCDE821"
         },
         "enable": true,
-        "expr": "sum(changes(nginx_ingress_controller_config_last_reload_successful_timestamp_seconds{instance!=\"unknown\",controller_class=~\"$controller_class\",namespace=~\"$namespace\"}[30s])) by (controller_class)",
+        "expr": "sum(changes(nginx_ingress_controller_config_last_reload_successful_timestamp_seconds{instance!=\"unknown\",namespace=~\"$namespace\"}[30s])) by (controller_pod)",
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Config Reloads",
         "showIn": 0,
         "step": "30s",
-        "tagKeys": "controller_class",
+        "tagKeys": "controller_pod",
         "tags": [],
         "titleFormat": "Config Reloaded",
         "type": "tags"
       }
     ]
   },
+  "description": "Nginx Ingress Controller via Prometheus Metrics Dashboard created for DevOps Nirvana @ https://github.com/DevOps-Nirvana",
   "editable": true,
   "fiscalYearStartMonth": 0,
+  "gnetId": 14314,
   "graphTooltip": 0,
   "links": [],
-  "liveNow": false,
   "panels": [
     {
+      "collapsed": false,
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "P5DCFC7561CCDE821"
       },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 31,
+      "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "refId": "A"
+        }
+      ],
+      "title": "Overview",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "description": "This is the total number of requests made in this period (top-right period selected)",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "fixedColor": "rgb(31, 120, 193)",
-            "mode": "fixed"
-          },
+          "decimals": 1,
           "mappings": [
             {
               "options": {
@@ -74,104 +99,27 @@
               }
             ]
           },
-          "unit": "ops",
-          "unitScale": true
-        },
-        "overrides": []
-      },
-      "id": 20,
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "none",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "expr": "round(sum(irate(nginx_ingress_controller_requests{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",namespace=~\"$namespace\"}[2m])), 0.001)",
-          "format": "time_series",
-          "intervalFactor": 1,
-          "refId": "A",
-          "step": 4
-        }
-      ],
-      "title": "Controller Request Volume",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "rgb(31, 120, 193)",
-            "mode": "fixed"
-          },
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "none",
-          "unitScale": true
+          "unit": "percent"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 3,
-        "w": 6,
-        "x": 6,
-        "y": 0
+        "w": 4,
+        "x": 0,
+        "y": 1
       },
-      "id": 82,
-      "links": [],
+      "id": 8,
       "maxDataPoints": 100,
       "options": {
         "colorMode": "none",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
@@ -180,123 +128,34 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.1.5",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "expr": "sum(avg_over_time(nginx_ingress_controller_nginx_process_connections{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",state=\"active\"}[2m]))",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "refId": "A",
-          "step": 4
-        }
-      ],
-      "title": "Controller Connections",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "fixedColor": "rgb(31, 120, 193)",
-            "mode": "fixed"
-          },
-          "mappings": [
-            {
-              "options": {
-                "match": "null",
-                "result": {
-                  "text": "N/A"
-                }
-              },
-              "type": "special"
-            }
-          ],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "rgba(245, 54, 54, 0.9)",
-                "value": null
-              },
-              {
-                "color": "rgba(237, 129, 40, 0.89)",
-                "value": 95
-              },
-              {
-                "color": "rgba(50, 172, 45, 0.97)",
-                "value": 99
-              }
-            ]
-          },
-          "unit": "percentunit",
-          "unitScale": true
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 12,
-        "y": 0
-      },
-      "id": 21,
-      "links": [],
-      "maxDataPoints": 100,
-      "options": {
-        "colorMode": "none",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "mean"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(rate(nginx_ingress_controller_requests{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",namespace=~\"$exported_namespace\",ingress=~\"$ingress\",status!~\"[4-5].*\"}[2m])) / sum(rate(nginx_ingress_controller_requests{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",namespace=~\"$exported_namespace\",ingress=~\"$ingress\"}[2m]))",
+          "expr": "(sum(\n  rate(\n    nginx_ingress_controller_requests{status!~\"[4-5].*\", controller_class=~\"$controller_class\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[${__range_s}s]\n      )\n   )   \n/ \n(\n  sum(\n    rate(\n      nginx_ingress_controller_requests{ controller_class=~\"$controller_class\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[${__range_s}s]\n        )\n     ) - \n  (\n  sum(\n    rate(\n      nginx_ingress_controller_requests{status=~\"404|499\", controller_class=~\"$controller_class\", ingress=~\"$ingress\",namespace=~\"$namespace\", controller_pod=~\"$pod\"}[${__range_s}s]\n        )\n     ) \n  or vector(0)\n  )\n)) * 100",
           "format": "time_series",
+          "interval": "5m",
           "intervalFactor": 1,
+          "legendFormat": "{{ingress}}",
           "range": true,
-          "refId": "A",
-          "step": 4
+          "refId": "A"
         }
       ],
-      "title": "Controller Success Rate (non-4|5xx responses)",
+      "title": "% Success (Current Interval)",
       "type": "stat"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "P5DCFC7561CCDE821"
       },
+      "description": "The number of HTTP requests made within the selected time interval",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "fixedColor": "rgb(31, 120, 193)",
-            "mode": "fixed"
-          },
           "decimals": 0,
           "mappings": [
             {
@@ -322,25 +181,24 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 3,
-        "w": 3,
-        "x": 18,
-        "y": 0
+        "w": 4,
+        "x": 4,
+        "y": 1
       },
-      "id": 81,
-      "links": [],
+      "id": 7,
       "maxDataPoints": 100,
       "options": {
         "colorMode": "none",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "sum"
@@ -352,35 +210,34 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.1.5",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "P5DCFC7561CCDE821"
           },
-          "expr": "avg(irate(nginx_ingress_controller_success{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\"}[1m])) * 60",
+          "editorMode": "code",
+          "expr": "sum(increase(nginx_ingress_controller_requests{ ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval]))",
           "format": "time_series",
-          "instant": false,
+          "interval": "5m",
           "intervalFactor": 1,
-          "refId": "A",
-          "step": 4
+          "legendFormat": "",
+          "range": true,
+          "refId": "A"
         }
       ],
-      "title": "Config Reloads",
+      "title": "Reqs (Current Interval)",
       "type": "stat"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "P5DCFC7561CCDE821"
       },
+      "description": "This is the number of successful requests in the selected time interval. Successful being 1xx or 2xx by the standard HTTP definition.",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "fixedColor": "rgb(31, 120, 193)",
-            "mode": "fixed"
-          },
           "decimals": 0,
           "mappings": [
             {
@@ -406,28 +263,27 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "short"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 3,
-        "w": 3,
-        "x": 21,
-        "y": 0
+        "w": 4,
+        "x": 8,
+        "y": 1
       },
-      "id": 83,
-      "links": [],
+      "id": 12,
       "maxDataPoints": 100,
       "options": {
-        "colorMode": "none",
+        "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
-            "mean"
+            "sum"
           ],
           "fields": "",
           "values": false
@@ -436,29 +292,282 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "11.1.5",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "P5DCFC7561CCDE821"
           },
-          "expr": "count(nginx_ingress_controller_config_last_reload_successful{controller_pod=~\"$controller\",controller_namespace=~\"$namespace\"} == 0)",
+          "editorMode": "code",
+          "expr": "sum(increase(nginx_ingress_controller_requests{status=~\"(1|2).*\",  ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval])) or vector(0)",
           "format": "time_series",
-          "instant": true,
+          "interval": "5m",
           "intervalFactor": 1,
-          "refId": "A",
-          "step": 4
+          "legendFormat": "",
+          "range": true,
+          "refId": "A"
         }
       ],
-      "title": "Last Config Failed",
+      "title": "HTTP 1/2xx (Current Interval)",
+      "transparent": true,
       "type": "stat"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "P5DCFC7561CCDE821"
       },
+      "description": "This is the number of 3xx requests in the selected time interval.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "id": 10,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.1.5",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(nginx_ingress_controller_requests{status=~\"3.*\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval])) or vector(0)",
+          "format": "time_series",
+          "interval": "5m",
+          "intervalFactor": 1,
+          "legendFormat": "",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP 3xx (Current Interval)",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "description": "This is the number of 4xx requests in the selected time interval.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 16,
+        "y": 1
+      },
+      "id": 18,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.1.5",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(nginx_ingress_controller_requests{status=~\"4.*\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval])) or vector(0)",
+          "format": "time_series",
+          "interval": "5m",
+          "intervalFactor": 1,
+          "legendFormat": "",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP 4xx (Current Interval)",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "description": "This is the number of 5xx requests in the selected time interval.",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
+      "id": 11,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.1.5",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(nginx_ingress_controller_requests{status=~\"5.*\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval])) or vector(0)",
+          "format": "time_series",
+          "interval": "5m",
+          "intervalFactor": 1,
+          "legendFormat": "",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP 5xx (Current Interval)",
+      "transparent": true,
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "description": "This is a total number of requests broken down by the ingress.  This can help get a sense of scale in relation to each other.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -481,13 +590,13 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineWidth": 2,
+            "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true,
+            "spanNulls": false,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -496,6 +605,7 @@
               "mode": "off"
             }
           },
+          "links": [],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -510,10 +620,552 @@
               }
             ]
           },
-          "unit": "reqps",
-          "unitScale": true
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 4
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "7.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(nginx_ingress_controller_requests{ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval])) by (status)",
+          "format": "time_series",
+          "interval": "2m",
+          "intervalFactor": 1,
+          "legendFormat": "HTTP {{status}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP Requests / Ingress",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "description": "The breakdown of the various HTTP status codes of the requests handled within' this period that matches the variables chosen above.\n\nThis chart helps notice and dive into which service is having failures and of what kind.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
         },
         "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP 101"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "dark-green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/HTTP [1-2].*/i"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#37872D",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/HTTP 4.*/i"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#C4162A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP 404"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FF9830",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "HTTP 499"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#FA6400",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/HTTP 5.*/i"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#C4162A",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 4
+      },
+      "id": 3,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "7.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(nginx_ingress_controller_requests{ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval])) by (status)",
+          "format": "time_series",
+          "interval": "2m",
+          "intervalFactor": 1,
+          "legendFormat": "HTTP {{status}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP Status Codes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "description": "The total number of HTTP requests made within each time interval",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byType",
+              "options": "time"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 4
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "7.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(nginx_ingress_controller_requests{ ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval]))",
+          "format": "time_series",
+          "interval": "5m",
+          "intervalFactor": 1,
+          "legendFormat": "{{ingress}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Total HTTP Requests",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 33,
+      "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "refId": "A"
+        }
+      ],
+      "title": "Latency",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "description": "This graph can help assess and help us meet SLA requirements as far as the responsive time of our services.\n\nFor a more detailed latency graph broken out by ingress please open the closed tab at the bottom because it is very CPU intensive.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Average"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#F2495C",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              },
+              {
+                "id": "custom.showPoints",
+                "value": "always"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "0.95"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgb(44, 0, 182)",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "0.9"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#1F60C4",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "0.75"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8AB8FF",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 10
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "0.5"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgb(255, 255, 255)",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "0.99"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#8F3BB8",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 0
+              }
+            ]
+          },
           {
             "matcher": {
               "id": "byValue",
@@ -530,160 +1182,6 @@
                   "legend": true,
                   "tooltip": true,
                   "viz": false
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 0,
-        "y": 3
-      },
-      "id": 86,
-      "links": [],
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true,
-          "width": 300
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "10.3.3",
-      "repeatDirection": "h",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "round(sum(irate(nginx_ingress_controller_requests{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",namespace=~\"$exported_namespace\"}[2m])) by (ingress), 0.001)",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "intervalFactor": 1,
-          "legendFormat": "{{ ingress }}",
-          "metric": "network",
-          "refId": "A",
-          "step": 10
-        }
-      ],
-      "title": "Ingress Request Volume",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "percentunit",
-          "unitScale": true
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "max - istio-proxy"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#890f02",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "max - master"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#bf1b00",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "max - prometheus"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#bf1b00",
-                  "mode": "fixed"
                 }
               }
             ]
@@ -711,54 +1209,730 @@
         ]
       },
       "gridPos": {
-        "h": 7,
+        "h": 8,
         "w": 12,
-        "x": 12,
-        "y": 3
+        "x": 0,
+        "y": 13
       },
-      "id": 87,
-      "links": [],
+      "id": 29,
       "options": {
         "legend": {
           "calcs": [
-            "mean"
+            "mean",
+            "max",
+            "min"
           ],
           "displayMode": "table",
           "placement": "right",
-          "showLegend": true,
-          "width": 300
+          "showLegend": true
         },
         "tooltip": {
           "mode": "multi",
-          "sort": "asc"
+          "sort": "desc"
         }
       },
-      "pluginVersion": "10.3.3",
+      "pluginVersion": "7.4.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "P5DCFC7561CCDE821"
           },
-          "editorMode": "code",
-          "expr": "sum(rate(nginx_ingress_controller_requests{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",namespace=~\"$exported_namespace\",ingress=~\"$ingress\",status!~\"[4-5].*\"}[2m])) by (ingress) / sum(rate(nginx_ingress_controller_requests{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",namespace=~\"$exported_namespace\",ingress=~\"$ingress\"}[2m])) by (ingress)",
+          "expr": "histogram_quantile(\n  0.99,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\",\n        controller_pod=~\"$pod\"\n      }[$__interval]\n    )\n  )\n)",
           "format": "time_series",
-          "instant": false,
-          "interval": "10s",
+          "interval": "5m",
           "intervalFactor": 1,
-          "legendFormat": "{{ ingress }}",
-          "metric": "container_memory_usage:sort_desc",
-          "refId": "A",
-          "step": 10
+          "legendFormat": "0.99",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "expr": "histogram_quantile(\n  0.95,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\",\n        controller_pod=~\"$pod\"\n      }[$__interval]\n    )\n  )\n)",
+          "format": "time_series",
+          "hide": false,
+          "interval": "5m",
+          "intervalFactor": 1,
+          "legendFormat": "0.95",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "expr": "histogram_quantile(\n  0.9,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\",\n        controller_pod=~\"$pod\"\n      }[$__interval]\n    )\n  )\n)",
+          "format": "time_series",
+          "hide": false,
+          "interval": "5m",
+          "intervalFactor": 1,
+          "legendFormat": "0.9",
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "expr": "histogram_quantile(\n  0.5,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\",\n        controller_pod=~\"$pod\"\n      }[$__interval]\n    )\n  )\n)",
+          "format": "time_series",
+          "hide": false,
+          "interval": "5m",
+          "intervalFactor": 1,
+          "legendFormat": "0.5",
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "expr": "histogram_quantile(\n  0.75,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\",\n        controller_pod=~\"$pod\"\n      }[$__interval]\n    )\n  )\n)",
+          "format": "time_series",
+          "hide": false,
+          "interval": "5m",
+          "intervalFactor": 1,
+          "legendFormat": "0.75",
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "expr": "(\n\n(sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"0.01\"\n}[$__interval]))\n* 0.01)\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"0.1\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"0.01\"\n}[$__interval])))\n* 0.1)\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"1\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"0.1\"\n}[$__interval])))\n* 1)\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"10\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"1\"\n}[$__interval])))\n* 10 )\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"30\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"10\"\n}[$__interval])))\n* 30 )\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"60\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"30\"\n}[$__interval])))\n* 60 )\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"+Inf\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"60\"\n}[$__interval])))\n* 120 )\n\n) / \n\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"+Inf\"\n}[$__interval]))\n",
+          "format": "time_series",
+          "hide": false,
+          "interval": "5m",
+          "intervalFactor": 1,
+          "legendFormat": "Average",
+          "refId": "F"
         }
       ],
-      "title": "Ingress Success Rate (non-4|5xx responses)",
+      "title": "Latency (Average Percentiles)",
+      "type": "timeseries"
+    },
+    {
+      "cards": {},
+      "color": {
+        "cardColor": "#C4162A",
+        "colorScale": "linear",
+        "colorScheme": "interpolateTurbo",
+        "exponent": 0.5,
+        "mode": "spectrum"
+      },
+      "dataFormat": "tsbuckets",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "description": "This graph can help assess and help us meet SLA requirements as far as the responsive time of our services.\n\nFor a more detailed latency graph broken out by ingress please open the closed tab at the bottom because it is very CPU intensive.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 13
+      },
+      "heatmap": {},
+      "hideZeroBuckets": false,
+      "highlightCards": true,
+      "id": 27,
+      "legend": {
+        "show": true
+      },
+      "options": {
+        "calculate": false,
+        "calculation": {},
+        "cellGap": 2,
+        "cellValues": {},
+        "color": {
+          "exponent": 0.5,
+          "fill": "#C4162A",
+          "mode": "scheme",
+          "reverse": false,
+          "scale": "exponential",
+          "scheme": "Turbo",
+          "steps": 128
+        },
+        "exemplars": {
+          "color": "rgba(255,0,255,0.7)"
+        },
+        "filterValues": {
+          "le": 1e-9
+        },
+        "legend": {
+          "show": true
+        },
+        "rowsFrame": {
+          "layout": "auto"
+        },
+        "showValue": "never",
+        "tooltip": {
+          "mode": "single",
+          "showColorScale": false,
+          "yHistogram": false
+        },
+        "yAxis": {
+          "axisPlacement": "left",
+          "decimals": 0,
+          "reverse": false,
+          "unit": "s"
+        }
+      },
+      "pluginVersion": "11.1.5",
+      "reverseYBuckets": false,
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "expr": "sum by (le)(\n  increase(\n    nginx_ingress_controller_request_duration_seconds_bucket{\n      status!=\"404\",status!=\"500\",\n      namespace =~ \"$namespace\",\n      ingress =~ \"$ingress\"\n    }[$__interval]\n  )\n)",
+          "format": "time_series",
+          "hide": false,
+          "interval": "5m",
+          "intervalFactor": 1,
+          "legendFormat": "{{le}}",
+          "refId": "D"
+        }
+      ],
+      "title": "Latency Heatmap",
+      "tooltip": {
+        "show": true,
+        "showHistogram": false
+      },
+      "type": "heatmap",
+      "xAxis": {
+        "show": true
+      },
+      "yAxis": {
+        "decimals": 0,
+        "format": "s",
+        "logBase": 1,
+        "show": true
+      },
+      "yBucketBound": "auto"
+    },
+    {
+      "collapsed": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "id": 35,
+      "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "refId": "A"
+        }
+      ],
+      "title": "Connections",
+      "type": "row"
+    },
+    {
+      "colorBackground": false,
+      "colorValue": false,
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "decimals": 1,
+      "description": "This is the percentage of successful requests over the entire period in the top-right hand corner.\n\nNOTE: Ignoring 404s in this metric, since a 404 is a normal response for errant/invalid request.  This helps prevent this percentage from being affected by typical web scanners and security probes.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#d44a3a",
+                "value": null
+              },
+              {
+                "color": "rgba(237, 129, 40, 0.89)",
+                "value": 0.7
+              },
+              {
+                "color": "#299c46",
+                "value": 0.9
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "format": "percentunit",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 22
+      },
+      "id": 14,
+      "options": {
+        "displayMode": "gradient",
+        "maxVizHeight": 300,
+        "minVizHeight": 10,
+        "minVizWidth": 0,
+        "namePlacement": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "text": {},
+        "valueMode": "color"
+      },
+      "pluginVersion": "11.1.5",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "expr": "sum(\n  rate(\n    nginx_ingress_controller_requests{status!~\"[4-5].*\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__range]\n      )\n   ) by (ingress)\n/ \n(\n  sum(\n    rate(\n      nginx_ingress_controller_requests{ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__range]\n        )\n     ) by (ingress)\n     - \n  (\n  sum(\n    rate(\n      nginx_ingress_controller_requests{status=~\"404|499\", ingress=~\"$ingress\",namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__range]\n        )\n     ) by (ingress)\n  or vector(0)\n  )\n)",
+          "format": "time_series",
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{ingress}}",
+          "refId": "A"
+        }
+      ],
+      "title": "% Success (period)",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "description": "NOTE: This does not work per ingress/namespace\n\nThe total number of connections opened to our ingresses.  If you have a CDN in front of our services, it is not unusual for this to be very low.  If/when we use something like websockets with a persistent connection this can/will be very high.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Connections"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgb(255, 200, 4)",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byType",
+              "options": "time"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 22
+      },
+      "id": 22,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "7.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "expr": "sum(avg_over_time(nginx_ingress_controller_nginx_process_connections{state=~\"active\", state=~\"active\", controller_pod=~\"$pod\"}[$__interval]))",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "Connections",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Connections Open (Controller / Ingress Pod)",
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "description": "NOTE: This does not work per ingress/namespace\n\nThis is the number of new connections opened by the controller",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "New Connections"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byType",
+              "options": "time"
+            },
+            "properties": [
+              {
+                "id": "custom.axisPlacement",
+                "value": "hidden"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "7.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(nginx_ingress_controller_nginx_process_connections{state=~\"active\",  controller_pod=~\"$pod\"}[$__interval]))",
+          "format": "time_series",
+          "interval": "2m",
+          "intervalFactor": 1,
+          "legendFormat": "New Connections",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "New Connections Opened (Controller / Ingress Pod)",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 38
+      },
+      "id": 24,
+      "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "refId": "A"
+        }
+      ],
+      "title": "CPU Intensive / Optional Graphs",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
+      "id": 25,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "7.4.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "expr": "sum(\n  rate(\n    nginx_ingress_controller_requests{status!~\"[4-5].*\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[${__range_s}s]\n      )\n   ) by (ingress)\n/ \n(\n  sum(\n    rate(\n      nginx_ingress_controller_requests{ ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[${__range_s}s]\n        )\n     ) by (ingress)\n     - \n  (\n  sum(\n    rate(\n      nginx_ingress_controller_requests{status=~\"404|499\", controller_class=~\"$controller_class\", ingress=~\"$ingress\",namespace=~\"$namespace\", controller_pod=~\"$pod\"}[${__range_s}s]\n        )\n     ) by (ingress)\n  or vector(0)\n  )\n)",
+          "format": "time_series",
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{ingress}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Percentage of Success (non-2xx) - By Ingress",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
       },
       "fieldConfig": {
         "defaults": {
@@ -782,781 +1956,12 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "Bps",
-          "unitScale": true
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 0,
-        "y": 10
-      },
-      "id": 32,
-      "links": [],
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false,
-          "width": 200
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "sum (irate (nginx_ingress_controller_request_size_sum{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\"}[2m]))",
-          "format": "time_series",
-          "instant": false,
-          "interval": "10s",
-          "intervalFactor": 1,
-          "legendFormat": "Received",
-          "metric": "network",
-          "refId": "A",
-          "step": 10
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "- sum (irate (nginx_ingress_controller_response_size_sum{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\"}[2m]))",
-          "format": "time_series",
-          "hide": false,
-          "interval": "10s",
-          "intervalFactor": 1,
-          "legendFormat": "Sent",
-          "metric": "network",
-          "range": true,
-          "refId": "B",
-          "step": 10
-        }
-      ],
-      "title": "Network I/O pressure",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "bytes",
-          "unitScale": true
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "max - istio-proxy"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#890f02",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "max - master"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#bf1b00",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "max - prometheus"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#bf1b00",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 8,
-        "y": 10
-      },
-      "id": 77,
-      "links": [],
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "lastNotNull"
-          ],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": false,
-          "width": 200
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "expr": "avg(nginx_ingress_controller_nginx_process_resident_memory_bytes{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\"}) ",
-          "format": "time_series",
-          "instant": false,
-          "interval": "10s",
-          "intervalFactor": 1,
-          "legendFormat": "nginx",
-          "metric": "container_memory_usage:sort_desc",
-          "refId": "A",
-          "step": 10
-        }
-      ],
-      "title": "Average Memory Usage",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "fillOpacity": 80,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "lineWidth": 1,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "transparent",
-                "value": null
-              },
-              {
-                "color": "red"
-              }
-            ]
-          },
-          "unit": "none",
-          "unitScale": true
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "max - istio-proxy"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#890f02",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "max - master"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "#bf1b00",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 16,
-        "y": 10
-      },
-      "id": 79,
-      "links": [],
-      "options": {
-        "barRadius": 0,
-        "barWidth": 0.97,
-        "fullHighlight": false,
-        "groupWidth": 0.7,
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "orientation": "auto",
-        "showValue": "auto",
-        "stacking": "none",
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        },
-        "xTickLabelRotation": 0,
-        "xTickLabelSpacing": 0
-      },
-      "pluginVersion": "10.3.3",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "avg (rate (nginx_ingress_controller_nginx_process_cpu_seconds_total{controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\"}[2m])) ",
-          "format": "time_series",
-          "interval": "10s",
-          "intervalFactor": 1,
-          "legendFormat": "nginx",
-          "metric": "container_cpu",
-          "range": true,
-          "refId": "A",
-          "step": 10
-        }
-      ],
-      "title": "Average CPU Usage",
-      "type": "barchart"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "description": "This data is real time, independent of dashboard time range",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unitScale": true
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "ingress"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Ingress"
-              },
-              {
-                "id": "unit",
-                "value": "short"
-              },
-              {
-                "id": "decimals",
-                "value": 2
-              },
-              {
-                "id": "custom.align"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #A"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Requests"
-              },
-              {
-                "id": "unit",
-                "value": "ops"
-              },
-              {
-                "id": "decimals",
-                "value": 2
-              },
-              {
-                "id": "custom.align"
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "rgba(245, 54, 54, 0.9)",
-                      "value": null
-                    },
-                    {
-                      "color": "rgba(237, 129, 40, 0.89)"
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #B"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "Errors"
-              },
-              {
-                "id": "unit",
-                "value": "ops"
-              },
-              {
-                "id": "decimals",
-                "value": 2
-              },
-              {
-                "id": "custom.align"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #C"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "P50 Latency"
-              },
-              {
-                "id": "unit",
-                "value": "dtdurations"
-              },
-              {
-                "id": "custom.align"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #D"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "P90 Latency"
-              },
-              {
-                "id": "unit",
-                "value": "dtdurations"
-              },
-              {
-                "id": "custom.align"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #E"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "P99 Latency"
-              },
-              {
-                "id": "unit",
-                "value": "dtdurations"
-              },
-              {
-                "id": "custom.align"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #F"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "IN"
-              },
-              {
-                "id": "unit",
-                "value": "Bps"
-              },
-              {
-                "id": "decimals",
-                "value": 2
-              },
-              {
-                "id": "custom.align"
-              },
-              {
-                "id": "thresholds",
-                "value": {
-                  "mode": "absolute",
-                  "steps": [
-                    {
-                      "color": "rgba(245, 54, 54, 0.9)",
-                      "value": null
-                    },
-                    {
-                      "color": "rgba(237, 129, 40, 0.89)"
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Time"
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "short"
-              },
-              {
-                "id": "decimals",
-                "value": 2
-              },
-              {
-                "id": "custom.align"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value #G"
-            },
-            "properties": [
-              {
-                "id": "displayName",
-                "value": "OUT"
-              },
-              {
-                "id": "unit",
-                "value": "Bps"
-              },
-              {
-                "id": "decimals",
-                "value": 2
-              },
-              {
-                "id": "custom.align"
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 16
-      },
-      "hideTimeOverride": false,
-      "id": 75,
-      "links": [],
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true
-      },
-      "pluginVersion": "10.3.3",
-      "repeatDirection": "h",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.50, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",namespace=~\"$exported_namespace\"}[2m])) by (le, ingress))",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "intervalFactor": 1,
-          "legendFormat": "{{ ingress }}",
-          "refId": "C"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.90, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",namespace=~\"$exported_namespace\"}[2m])) by (le, ingress))",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "intervalFactor": 1,
-          "legendFormat": "{{ ingress }}",
-          "refId": "D"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",namespace=~\"$exported_namespace\"}[2m])) by (le, ingress))",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "intervalFactor": 1,
-          "legendFormat": "{{ destination_service }}",
-          "refId": "E"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "expr": "sum(irate(nginx_ingress_controller_request_size_sum{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",exported_namespace=~\"$exported_namespace\"}[2m])) by (ingress)",
-          "format": "table",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "intervalFactor": 1,
-          "legendFormat": "{{ ingress }}",
-          "refId": "F"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "expr": "sum(irate(nginx_ingress_controller_response_size_sum{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",exported_namespace=~\"$exported_namespace\"}[2m])) by (ingress)",
-          "format": "table",
-          "instant": true,
-          "intervalFactor": 1,
-          "legendFormat": "{{ ingress }}",
-          "refId": "G"
-        }
-      ],
-      "title": "Ingress Percentile Response Times and Transfer Rates",
-      "transformations": [
-        {
-          "id": "merge",
-          "options": {
-            "reducers": []
-          }
-        }
-      ],
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "auto",
+            "showPoints": "never",
             "spanNulls": false,
             "stacking": {
               "group": "A",
@@ -1566,13 +1971,13 @@
               "mode": "off"
             }
           },
+          "links": [],
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1580,24 +1985,25 @@
               }
             ]
           },
-          "unit": "s",
-          "unitScale": true
+          "unit": "s"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 7,
-        "w": 12,
+        "h": 13,
+        "w": 24,
         "x": 0,
-        "y": 24
+        "y": 48
       },
-      "hideTimeOverride": false,
-      "id": 91,
-      "links": [],
+      "id": 16,
       "options": {
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
+          "calcs": [
+            "mean",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
           "placement": "bottom",
           "showLegend": true
         },
@@ -1606,198 +2012,70 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "8.3.4",
-      "repeatDirection": "h",
+      "pluginVersion": "7.4.3",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "P5DCFC7561CCDE821"
           },
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "histogram_quantile(0.80, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",namespace=~\"$exported_namespace\"}[2m])) by (le))",
+          "expr": "histogram_quantile(0.99, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{status!=\"404\",status!=\"500\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[5m])) by (le, ingress))",
           "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "P80",
-          "refId": "C"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "histogram_quantile(0.90, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",namespace=~\"$exported_namespace\"}[2m])) by (le))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "intervalFactor": 1,
-          "legendFormat": "P90",
-          "refId": "D"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "histogram_quantile(0.99, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",namespace=~\"$exported_namespace\"}[2m])) by (le))",
-          "format": "time_series",
-          "hide": false,
-          "instant": false,
-          "interval": "",
-          "intervalFactor": 1,
-          "legendFormat": "P99",
-          "refId": "E"
-        }
-      ],
-      "title": "Ingress Percentile Response Times (Ingress Namespaces)",
-      "type": "timeseries"
-    },
-    {
-      "cards": {},
-      "color": {
-        "cardColor": "#b4ff00",
-        "colorScale": "sqrt",
-        "colorScheme": "interpolateWarm",
-        "exponent": 0.5,
-        "mode": "spectrum"
-      },
-      "dataFormat": "tsbuckets",
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
-      },
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "custom": {
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "scaleDistribution": {
-              "type": "linear"
-            }
-          },
-          "unitScale": true
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 12,
-        "x": 12,
-        "y": 24
-      },
-      "heatmap": {},
-      "hideZeroBuckets": false,
-      "highlightCards": true,
-      "id": 89,
-      "legend": {
-        "show": true
-      },
-      "options": {
-        "calculate": false,
-        "calculation": {},
-        "cellGap": 2,
-        "cellValues": {},
-        "color": {
-          "exponent": 0.5,
-          "fill": "#b4ff00",
-          "mode": "scheme",
-          "reverse": false,
-          "scale": "exponential",
-          "scheme": "Warm",
-          "steps": 128
-        },
-        "exemplars": {
-          "color": "rgba(255,0,255,0.7)"
-        },
-        "filterValues": {
-          "le": 1e-9
-        },
-        "legend": {
-          "show": true
-        },
-        "rowsFrame": {
-          "layout": "auto"
-        },
-        "showValue": "never",
-        "tooltip": {
-          "mode": "single",
-          "showColorScale": false,
-          "yHistogram": true
-        },
-        "yAxis": {
-          "axisPlacement": "left",
-          "reverse": false,
-          "unit": "s"
-        }
-      },
-      "pluginVersion": "10.3.3",
-      "reverseYBuckets": false,
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "exemplar": true,
-          "expr": "sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{ingress!=\"\",controller_pod=~\"$controller\",controller_class=~\"$controller_class\",controller_namespace=~\"$namespace\",ingress=~\"$ingress\",namespace=~\"$exported_namespace\"}[2m])) by (le)",
-          "format": "heatmap",
-          "interval": "",
-          "legendFormat": "{{le}}",
-          "range": true,
+          "legendFormat": "p99 {{ ingress }}",
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "expr": "histogram_quantile(0.95, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{status!=\"404\",status!=\"500\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[5m])) by (le, ingress))",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "p95 {{ ingress }}",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "expr": "histogram_quantile(0.90, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{status!=\"404\",status!=\"500\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[5m])) by (le, ingress))",
+          "format": "time_series",
+          "intervalFactor": 1,
+          "legendFormat": "p90 {{ ingress }}",
+          "refId": "C"
         }
       ],
-      "title": "Ingress Request Latency Heatmap (Ingress Namespaces)",
-      "tooltip": {
-        "show": true,
-        "showHistogram": true
-      },
-      "type": "heatmap",
-      "xAxis": {
-        "show": true
-      },
-      "yAxis": {
-        "format": "s",
-        "logBase": 1,
-        "show": true
-      },
-      "yBucketBound": "auto"
+      "title": "Latency (per ingress)",
+      "type": "timeseries"
     }
   ],
-  "refresh": "10m",
+  "refresh": "1m",
   "schemaVersion": 39,
   "tags": [
-    "nginx"
+    "ingress",
+    "nginx",
+    "networking",
+    "services",
+    "k8s"
   ],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": true,
-          "text": "Prometheus",
-          "value": "Prometheus"
+          "selected": false,
+          "text": "Thanos",
+          "value": "P5DCFC7561CCDE821"
         },
-        "hide": 0,
+        "hide": 2,
         "includeAll": false,
-        "label": "datasource",
         "multi": false,
-        "name": "DS_PROMETHEUS",
+        "name": "datasource",
         "options": [],
         "query": "prometheus",
+        "queryValue": "",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -1806,82 +2084,29 @@
       {
         "allValue": ".*",
         "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "P5DCFC7561CCDE821"
         },
-        "definition": "label_values(nginx_ingress_controller_config_hash,controller_namespace)",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Ingress Controller Namespace",
-        "multi": false,
-        "name": "namespace",
-        "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values(nginx_ingress_controller_config_hash,controller_namespace)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": ".*",
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
-        },
-        "definition": "",
-        "hide": 0,
+        "definition": "label_values(nginx_ingress_controller_config_hash, controller_class) ",
+        "hide": 2,
         "includeAll": true,
         "label": "Controller Class",
-        "multi": false,
+        "multi": true,
         "name": "controller_class",
         "options": [],
-        "query": "label_values(nginx_ingress_controller_config_hash{namespace=~\"$namespace\"}, controller_class) ",
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": ".*",
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
+        "query": {
+          "query": "label_values(nginx_ingress_controller_config_hash, controller_class) ",
+          "refId": "prometheus-controller_class-Variable-Query"
         },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
-        },
-        "definition": "",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Controller",
-        "multi": false,
-        "name": "controller",
-        "options": [],
-        "query": "label_values(nginx_ingress_controller_config_hash{namespace=~\"$namespace\",controller_class=~\"$controller_class\"}, controller_pod) ",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -1895,24 +2120,57 @@
         "allValue": ".*",
         "current": {
           "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P5DCFC7561CCDE821"
+        },
+        "definition": "label_values(nginx_ingress_controller_requests{namespace=~\"$namespace\"}, ingress)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Ingress",
+        "multi": true,
+        "name": "ingress",
+        "options": [],
+        "query": {
+          "query": "label_values(nginx_ingress_controller_requests{namespace=~\"$namespace\"}, ingress)",
+          "refId": "prometheus-ingress-Variable-Query"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "current": {
+          "selected": false,
           "text": "infra",
           "value": "infra"
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "P5DCFC7561CCDE821"
         },
-        "definition": "label_values(nginx_ingress_controller_requests{controller_class=~\"$controller_class\"},namespace)",
+        "definition": "label_values(nginx_ingress_controller_requests,namespace)",
         "hide": 0,
         "includeAll": false,
-        "label": "Ingress Namespace",
+        "label": "Namespace",
         "multi": false,
-        "name": "exported_namespace",
+        "name": "namespace",
         "options": [],
         "query": {
-          "qryType": 1,
-          "query": "label_values(nginx_ingress_controller_requests{controller_class=~\"$controller_class\"},namespace)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+          "query": "label_values(nginx_ingress_controller_requests,namespace)",
+          "refId": "prometheus-namespace-Variable-Query"
         },
         "refresh": 1,
         "regex": "",
@@ -1924,27 +2182,29 @@
         "useTags": false
       },
       {
-        "allValue": ".*",
         "current": {
-          "selected": false,
-          "text": "grafana",
-          "value": "grafana"
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "P5DCFC7561CCDE821"
         },
-        "definition": "label_values(nginx_ingress_controller_requests{namespace=~\"$exported_namespace\", controller_class=~\"$controller_class\", controller_pod=~\"$controller\"},ingress)",
+        "definition": "label_values(nginx_ingress_controller_config_hash, controller_pod) ",
         "hide": 0,
         "includeAll": true,
-        "label": "Ingress",
-        "multi": false,
-        "name": "ingress",
+        "label": "Controller Pod",
+        "multi": true,
+        "name": "pod",
         "options": [],
         "query": {
-          "qryType": 1,
-          "query": "label_values(nginx_ingress_controller_requests{namespace=~\"$exported_namespace\", controller_class=~\"$controller_class\", controller_pod=~\"$controller\"},ingress)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+          "query": "label_values(nginx_ingress_controller_config_hash, controller_pod) ",
+          "refId": "prometheus-controller_pod-Variable-Query"
         },
         "refresh": 1,
         "regex": "",
@@ -1958,18 +2218,15 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-2d",
     "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
-      "5s",
       "10s",
       "30s",
       "1m",
-      "2m",
       "5m",
-      "10m",
       "15m",
       "30m",
       "1h",
@@ -1978,7 +2235,6 @@
     ],
     "time_options": [
       "5m",
-      "10m",
       "15m",
       "1h",
       "6h",
@@ -1989,9 +2245,9 @@
       "30d"
     ]
   },
-  "timezone": "browser",
-  "title": "NGINX Ingress controller",
-  "uid": "nginx",
+  "timezone": "",
+  "title": "Kubernetes Nginx Ingress Prometheus NextGen",
+  "uid": "k8s-nginx-ingress-prometheus-ng",
   "version": 1,
   "weekStart": ""
 }
