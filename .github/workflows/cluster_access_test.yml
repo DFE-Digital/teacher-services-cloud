@@ -1,0 +1,83 @@
+name: Cluster Access Smoke Test
+description: Cluster Access Smoke Test
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0/5 * * * *"
+
+jobs:
+  smoke-test:
+    name: smoke-test
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+
+    environment:
+      name: ${{ matrix.environment }}
+
+    strategy:
+      max-parallel: 1
+      matrix:
+        environment: [platform-test, test, production]
+
+    steps:
+      - name: AZ Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Install kubectl
+        uses: DFE-Digital/github-actions/set-kubectl@master
+
+      - name: Set kubelogin environment
+        uses: DFE-Digital/github-actions/set-kubelogin-environment@master
+        with:
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+
+      - name: Set up cluster environment variables
+        shell: bash
+        run: |
+          case ${{ matrix.environment }} in
+            platform-test)
+              echo "cluster_rg=s189t01-tsc-pt-rg" >> $GITHUB_ENV
+              echo "cluster_name=s189t01-tsc-platform-test-aks" >> $GITHUB_ENV
+              ;;
+            test)
+              echo "cluster_rg=s189t01-tsc-ts-rg" >> $GITHUB_ENV
+              echo "cluster_name=s189t01-tsc-test-aks" >> $GITHUB_ENV
+              ;;
+            production)
+              echo "cluster_rg=s189p01-tsc-pd-rg" >> $GITHUB_ENV
+              echo "cluster_name=s189p01-tsc-production-aks" >> $GITHUB_ENV
+              ;;
+            *)
+              echo "unknown cluster"
+              ;;
+            esac
+
+      - name: K8 setup
+        shell: bash
+        run: |
+          az aks get-credentials --overwrite-existing -g ${{ env.cluster_rg }} -n ${{ env.cluster_name }}
+          kubelogin convert-kubeconfig -l spn
+
+      - name: k8S-run-test-command
+        shell: bash
+        run: |
+          kubectl get nodes
+
+      - name: Notify Slack channel on job failure
+        if: ${{ failure() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_USERNAME: CI Deployment
+          SLACK_TITLE: Cluster Access Smoke Test FAILED for cluster ${{ env.cluster_name }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          SLACK_COLOR: failure
+          SLACK_FOOTER: Sent from Cluster Access Smoke Test job in cluster_access_test workflow
