@@ -25,7 +25,7 @@ and will email and page the TS infra team on failure.
 
 An AKS cluster authentication smoke test runs on a [GitHub Workflow](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/.github/workflows/cluster_access_test.yml) initiated via crontab schedule every 5 mins, accessing all clusters.
 It authenticates to Azure via OIDC and runs a simple k8s command to verify all is well.
-If the script fails it triggers a Slack webhook to the [#infra-alert-public channel](https://app.slack.com/client/T50RK42V7/C08ND0YCYCA).
+If the script fails it triggers a Slack webhook to the #infra-alert-public channel
 
 ## Prometheus
 
