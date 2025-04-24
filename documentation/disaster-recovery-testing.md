@@ -12,7 +12,7 @@ This document covers the Disaster Recovery testing procedure for applications ho
     - Deploy selected env
         - e.g. https://github.com/DFE-Digital/apply-for-teacher-training/blob/main/.github/workflows/deploy-v2.yml
     - *Backup postgres database to Azure storage* [required for scenario 1 above]
-        - using https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/.github/workflows/backup-db.yml
+        - Find the backup db workflow in the repo - It can be named **Database backup** or **Database backup and restore**
     - *Restore database from Azure storage* [required for scenario 1 above]
         - using https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/.github/workflows/postgres-restore.yml
     - *Restore database from point in time to new database server* [required for scenario 2 above]
