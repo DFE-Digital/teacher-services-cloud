@@ -77,7 +77,7 @@ jobs:
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_USERNAME: CI Deployment
-          SLACK_TITLE: Cluster Access Smoke Test FAILED for cluster ${{ env.cluster_name }}
+          SLACK_TITLE: "Cluster Access Smoke Test FAILED for cluster ${{ env.cluster_name }}"
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
           SLACK_COLOR: failure
           SLACK_FOOTER: Sent from Cluster Access Smoke Test job in cluster_access_test workflow
