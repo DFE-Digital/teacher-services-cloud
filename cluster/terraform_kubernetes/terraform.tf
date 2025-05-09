@@ -5,6 +5,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "3.116.0"
     }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "2.45.0"
+    }
     environment = {
       source  = "EppO/environment"
       version = "1.3.5"
@@ -31,6 +35,9 @@ terraform {
 provider "azurerm" {
   features {}
   skip_provider_registration = true
+}
+
+provider "azuread" {
 }
 
 data "azurerm_kubernetes_cluster" "main" {

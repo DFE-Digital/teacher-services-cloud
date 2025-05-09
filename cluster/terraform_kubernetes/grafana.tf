@@ -8,6 +8,16 @@ data "azurerm_key_vault_secret" "grafana_admin_password" {
   key_vault_id = data.azurerm_key_vault.key_vault.id
 }
 
+# Add data sources for Azure AD application details
+data "azurerm_key_vault_secret" "grafana_client_id" {
+  name         = "GF-AZURE-CLIENT-ID"
+  key_vault_id = data.azurerm_key_vault.key_vault.id
+}
+
+data "azurerm_key_vault_secret" "grafana_client_secret" {
+  name         = "GRAFANA-AZURE-CLIENT-ID-SECRET"
+  key_vault_id = data.azurerm_key_vault.key_vault.id
+}
 
 resource "kubernetes_config_map" "grafana_datasources" {
   metadata {
@@ -19,7 +29,6 @@ resource "kubernetes_config_map" "grafana_datasources" {
     "datasources.yaml" = file("${path.module}/config/prometheus/datasources.yaml")
   }
 }
-
 
 resource "kubernetes_deployment" "grafana_deployment" {
   metadata {
@@ -68,16 +77,26 @@ resource "kubernetes_deployment" "grafana_deployment" {
             container_port = 3000
           }
           env {
-            name  = "GF_SECURITY_ADMIN_USER"
-            value = data.azurerm_key_vault_secret.grafana_admin_user.value
+            name = "GF_SECURITY_ADMIN_USER"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.grafana_admin_credentials.metadata[0].name
+                key  = "admin-user"
+              }
+            }
           }
           env {
-            name  = "GF_SECURITY_ADMIN_PASSWORD"
-            value = data.azurerm_key_vault_secret.grafana_admin_password.value
+            name = "GF_SECURITY_ADMIN_PASSWORD"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.grafana_admin_credentials.metadata[0].name
+                key  = "admin-password"
+              }
+            }
           }
           env {
             name  = "GF_AUTH_ANONYMOUS_ENABLED"
-            value = "true"
+            value = "false"
           }
           env {
             name  = "GF_AUTH_ANONYMOUS_ORG_NAME"
@@ -86,6 +105,91 @@ resource "kubernetes_deployment" "grafana_deployment" {
           env {
             name  = "GF_AUTH_ANONYMOUS_ORG_ROLE"
             value = "Viewer"
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_ENABLED"
+            value = "true"
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_CLIENT_ID"
+            value = data.azurerm_key_vault_secret.grafana_client_id.value
+          }
+          env {
+            name = "GF_AUTH_AZUREAD_CLIENT_SECRET"
+            value_from {
+              secret_key_ref {
+                name = kubernetes_secret.grafana_azure_credentials.metadata[0].name
+                key  = "client-secret"
+              }
+            }
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_CLIENT_AUTHENTICATION"
+            value = "client_secret_post"
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_TENANT_ID"
+            value = data.azurerm_client_config.current.tenant_id
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_AUTH_URL"
+            value = "https://login.microsoftonline.com/${data.azurerm_client_config.current.tenant_id}/oauth2/v2.0/authorize"
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_TOKEN_URL"
+            value = "https://login.microsoftonline.com/${data.azurerm_client_config.current.tenant_id}/oauth2/v2.0/token"
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_ROLE_ATTRIBUTE_PATH"
+            value = "contains(roles, 'Admin') && 'Admin' || contains(roles, 'Editor') && 'Editor' || 'Viewer'"
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_ALLOW_SIGN_UP"
+            value = "true"
+          }
+          env {
+            name  = "GF_SERVER_ROOT_URL"
+            value = "https://grafana.${module.cluster_data.ingress_domain}"
+          }
+          env {
+            name  = "GF_SERVER_SERVE_FROM_SUB_PATH"
+            value = "true"
+          }
+          env {
+            name  = "GF_AUTH_DISABLE_LOGIN_FORM"
+            value = "true"
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_ROLE_ATTRIBUTE_STRICT"
+            value = "false"
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_ALLOW_ASSIGN_GRAFANA_ADMIN"
+            value = "true"
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_SKIP_ORG_ROLE_SYNC"
+            value = "false"
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_USE_PKCE"
+            value = "true"
+          }
+          env {
+            name  = "GF_ALLOW_ASSIGN_GRAFANA_ADMIN"
+            value = "true"
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_NAME"
+            value = "Azure AD"
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_AUTO_LOGIN"
+            value = "false"
+          }
+          env {
+            name  = "GF_AUTH_AZUREAD_ALLOWED_ORGANIZATIONS"
+            value = data.azurerm_client_config.current.tenant_id
           }
           resources {
             limits = {
@@ -112,9 +216,13 @@ resource "kubernetes_deployment" "grafana_deployment" {
           }
 
           volume_mount {
-
             name       = "grafana-dashboards"
             mount_path = "/var/lib/grafana/dashboards"
+          }
+          volume_mount {
+            name       = "azure-credentials"
+            mount_path = "/var/run/secrets/azure"
+            read_only  = true
           }
         }
         volume {
@@ -139,7 +247,12 @@ resource "kubernetes_deployment" "grafana_deployment" {
             name = kubernetes_config_map.grafana_dashboards.metadata[0].name
           }
         }
-
+        volume {
+          name = "azure-credentials"
+          secret {
+            secret_name = kubernetes_secret.grafana_azure_credentials.metadata[0].name
+          }
+        }
       }
     }
   }
@@ -205,5 +318,29 @@ resource "kubernetes_ingress_v1" "grafana_ingress" {
         }
       }
     }
+  }
+}
+
+# Update the Kubernetes secret to use the key vault secret
+resource "kubernetes_secret" "grafana_azure_credentials" {
+  metadata {
+    name      = "grafana-azure-credentials"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
+  }
+
+  data = {
+    "client-secret" = data.azurerm_key_vault_secret.grafana_client_secret.value
+  }
+}
+
+resource "kubernetes_secret" "grafana_admin_credentials" {
+  metadata {
+    name      = "grafana-admin-credentials"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
+  }
+
+  data = {
+    "admin-user"     = data.azurerm_key_vault_secret.grafana_admin_user.value
+    "admin-password" = data.azurerm_key_vault_secret.grafana_admin_password.value
   }
 }
