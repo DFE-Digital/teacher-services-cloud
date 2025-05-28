@@ -114,6 +114,29 @@ It is possible to support multiple domains and subdomains, and create a redirect
 
 Use the environment_domains module [redirect_rules variable](https://github.com/DFE-Digital/terraform-modules/blob/1d9f7202cb981499ed5a86bd4bdf655013a74743/domains/environment_domains/variables.tf#L46).
 
+## Rate limiting
+A global rate limit of requests allowed per source IP address should be set for each environment.
+
+We can set per 1 minute or 5 minute interval, but unless there's a good reason it's best to set over 5 minutes.
+
+This will require some discussion with the app team, and the request profile may not be well understood to start with. If so, a relatively high limit can be set initially e.g. 1000+ requests per 5 minute interval.
+
+Use the environment_domains module [rate_limit variable](https://github.com/DFE-Digital/terraform-modules/blob/e2e9c46a89a79d3b5e53ab6cd2c98df44ca56a60/domains/environment_domains/variables.tf#L66).
+
+```
+"rate_limit": [
+      {
+        "agent": "all",
+        "priority": 100,
+        "duration": 5,
+        "limit": 1000,
+        "selector": "Host",
+        "operator": "GreaterThanOrEqual",
+        "match_values": "0"
+      }
+    ]
+```
+
 ## Pin all versions
 The infrastructure code should pin the versions of all components to avoid receiving different versions. The build must be predictable between environments and over time. We should upgrade versions frequently, but only when it is desired and fully tested.
 
