@@ -25,6 +25,8 @@ on:
   schedule:
     - cron: "0 4 * * *" # 04:00 UTC
     # change the backup time as required by the application
+permissions:
+  id-token: write
 
 env:
   SERVICE_NAME: #SERVICE_NAME#
@@ -46,15 +48,16 @@ jobs:
 
     - uses: azure/login@v2
       with:
-        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
 
     - name: Set environment variables
       run: |
         source global_config/${DEPLOY_ENV}.sh
         tf_vars_file=${TF_VARS_PATH}/${DEPLOY_ENV}.tfvars.json
         echo "CLUSTER=$(jq -r '.cluster' ${tf_vars_file})" >> $GITHUB_ENV
+        echo "NAMESPACE=$(jq -r '.namespace' ${tf_vars_file})" >> $GITHUB_ENV
         echo "RESOURCE_GROUP_NAME=${AZURE_RESOURCE_PREFIX}-${SERVICE_SHORT}-${CONFIG_SHORT}-rg" >> $GITHUB_ENV
         echo "STORAGE_ACCOUNT_NAME=${AZURE_RESOURCE_PREFIX}${SERVICE_SHORT}dbbkp${CONFIG_SHORT}sa" >> $GITHUB_ENV
         TODAY=$(date +"%F")
@@ -75,6 +78,7 @@ jobs:
         storage-account: ${{ env.STORAGE_ACCOUNT_NAME }}
         resource-group: ${{ env.RESOURCE_GROUP_NAME }}
         app-name: #SERVICE_NAME#-${{ env.DEPLOY_ENV }}
+        namespace: ${{ env.NAMESPACE }}
         cluster: ${{ env.CLUSTER }}
         azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
         azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}

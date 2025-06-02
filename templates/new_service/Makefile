@@ -88,8 +88,8 @@ deploy-arm-resources: arm-deployment ## Validate ARM resource deployment. Usage:
 validate-arm-resources: set-what-if arm-deployment ## Validate ARM resource deployment. Usage: make domains validate-arm-resources
 
 domains-infra-init: domains composed-variables set-azure-account
-	rm -rf terraform/domains/infrastructure/vendor/modules/aks
-	git clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git terraform/domains/infrastructure/vendor/modules/aks
+	rm -rf terraform/domains/infrastructure/vendor/modules/domains
+	git clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git terraform/domains/infrastructure/vendor/modules/domains
 
 	terraform -chdir=terraform/domains/infrastructure init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
@@ -103,8 +103,8 @@ domains-infra-apply: domains domains-infra-init  ## Terraform apply for DNS infr
 	terraform -chdir=terraform/domains/infrastructure apply -var-file config/zones.tfvars.json ${AUTO_APPROVE}
 
 domains-init: domains composed-variables set-azure-account
-	rm -rf terraform/domains/environment_domains/vendor/modules/aks
-	git clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git terraform/domains/environment_domains/vendor/modules/aks
+	rm -rf terraform/domains/environment_domains/vendor/modules/domains
+	git clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git terraform/domains/environment_domains/vendor/modules/domains
 
 	terraform -chdir=terraform/domains/environment_domains init -upgrade -reconfigure \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
