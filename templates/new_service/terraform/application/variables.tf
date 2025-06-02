@@ -78,5 +78,9 @@ variable "send_traffic_to_maintenance_page" {
 locals {
   postgres_ssl_mode = var.enable_postgres_ssl ? "require" : "disable"
 
-  external_url = try(var.external_url, module.web_application.url)
 }
+
+variable "enable_logit" { default = true }
+
+
+

@@ -4,6 +4,6 @@ output "url" {
 
 output "external_urls" {
   value = [
-    local.external_url
+    module.web_application.url
   ]
 }

@@ -41,6 +41,9 @@ jobs:
       DOCKER_REPOSITORY: #DOCKER_REPOSITORY#
     outputs:
       docker-image-tag: ${{ steps.build-image.outputs.tag }}
+    permissions:
+      packages: write
+      pull-requests: write
     runs-on: ubuntu-latest
 
     steps:
