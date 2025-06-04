@@ -75,7 +75,6 @@ Set `azure_enable_monitoring` to true in the domains/infrastructure module to en
 
 ### Pods
 Pods CPU, memory, restarts... are monitored using prometheus. To enable it follow:
-- [Enable prometheus scraping](https://github.com/DFE-Digital/terraform-modules/blob/main/aks/application/tfdocs.md#input_enable_prometheus_monitoring) on *each* deployment you want to monitor
 - Create a webhook slack app in the [Teacher services cloud Slack app](slack-webhook-integration.md) or reuse one if it has the desired channel
 - If using a new webhook, create a secret in the Teacher services cloud keyvault (*s189t01-tsc-ts-kv* or *s189p01-tsc-pd-kv*). It must be named *SLACK-WEBHOOK-XXX* where XXX is a service like ATT or an area like CPD.
 - If using a new webhook, add the secret name to [alertmanager_slack_receiver_list](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config)
@@ -86,6 +85,10 @@ Pods CPU, memory, restarts... are monitored using prometheus. To enable it follo
     },
   ```
   If the receiver is not specified, SLACK_WEBHOOK_GENERIC will be used to alert the infra channel.
+
+### Custom prometheus monitoring
+If any of the deployments serve custom prometheus metrics on a /metrics endpoint, then you can enable scraping for that deployment
+- [Enable prometheus scraping](https://github.com/DFE-Digital/terraform-modules/blob/main/aks/application/tfdocs.md#input_enable_prometheus_monitoring) on *each* deployment you want to monitor
 
 ### Workflows
 Get notified of workflow failures on a Slack channel.
