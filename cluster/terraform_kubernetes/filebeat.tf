@@ -124,7 +124,7 @@ resource "kubernetes_daemonset" "filebeat" {
           resources {
             limits = {
               cpu    = "200m"
-              memory = "200Mi"
+              memory = "300Mi"
             }
             requests = {
               cpu    = "100m"
