@@ -10,6 +10,7 @@ groups:
       description: "The rate of container restart has been above ${instance.max_crash_count}  in the last 5 minutes (current value: {{ $value }})"
     labels:
       severity: high
+      cluster: ${cluster_long}
       app: ${instance.app_name}
       %{ if instance.receiver != null }receiver: ${instance.receiver}%{ endif }
 
