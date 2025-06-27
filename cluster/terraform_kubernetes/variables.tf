@@ -35,6 +35,11 @@ variable "statuscake_alerts" {
   default = {}
 }
 
+variable "statuscake_ssl_alerts" {
+  type    = map(any)
+  default = {}
+}
+
 variable "clone_cluster" {
   type    = bool
   default = false
