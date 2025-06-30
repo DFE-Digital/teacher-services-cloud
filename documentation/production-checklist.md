@@ -124,7 +124,21 @@ We can set per 1 minute or 5 minute interval, but unless there's a good reason i
 
 This will require some discussion with the app team, and the request profile may not be well understood to start with. If so, a relatively high limit can be set initially e.g. 1000+ requests per 5 minute interval.
 
-Use the environment_domains module [rate_limit variable](https://github.com/DFE-Digital/terraform-modules/blob/e2e9c46a89a79d3b5e53ab6cd2c98df44ca56a60/domains/environment_domains/variables.tf#L66).
+Use the environment_domains module [rate limit terraform](https://github.com/DFE-Digital/terraform-modules/blob/main/domains/environment_domains/rate_limit.tf).
+
+Rate limit rules can be added via
+
+1. set rate_limit_max as the max number of requests in a 5 minute period.
+- This creates a block rule that will limit any source IP that goes above var.rate_limit_max in a 5 minute period.
+
+2. set aks_allow to true
+- If the service recieves a high number of requests originating from other services in our AKS clusters, then setting aks_allow will allow all traffic from AKS. This is only required if a general rate_limit rule is in place.
+
+3. set block_ip to true.
+- creates a block rule that will limit all traffic from a particular source IP. It is created disabled with a dummy IP address. It can then be updated manually if the need to quickly block an IP occurs.
+
+4. create custom rules using rate_limit
+- for custom rules not covered by the above, they can be added to the rate_limit list.
 
 ```
 "rate_limit": [
