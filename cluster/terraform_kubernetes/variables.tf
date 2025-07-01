@@ -317,6 +317,7 @@ locals {
   slack_secret_names = [for s in data.azurerm_key_vault_secrets.main.names : s if startswith(s, "SLACK-WEBHOOK")]
 
   app_alert_rules_variables = {
+    cluster_long = local.cluster_name
     apps = [for instance, settings in var.alertable_apps : {
       namespace       = split("/", instance)[0]
       app_name        = split("/", instance)[1]
