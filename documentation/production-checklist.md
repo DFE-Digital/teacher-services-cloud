@@ -50,11 +50,17 @@ Ask the infra team for help with these steps:
 - Get the dev team contact group id from the URL
 - Obtain an existing API key or request a new one. Ideally there should be one per service or at least one per area.
 - Create a secret "STATUSCAKE-API-TOKEN" in the "inf" keyvault, with the API key as value. The statuscake provider is configured to get the token from `module.infrastructure_secrets.map.STATUSCAKE-API-TOKEN`.
-- Fill in `enable_monitoring`, `external_url` and `statuscake_contact_groups` variables in the environment *tfvars.json* file. Example:
+- Fill in `enable_monitoring`, `external_url`, `statuscake_contact_groups` and `content_matchers` variables in the environment *tfvars.json* file. The `content_matchers` is an optional variable that can be added to ensure not just uptime but also correctness of content returned. Example:
   ```json
   "enable_monitoring" : true,
   "external_url": "https://calculate-teacher-pay.education.gov.uk/healthcheck",
-  "statuscake_contact_groups": [195955]
+  "statuscake_contact_groups": [195955],
+  "content_matchers": [
+    {
+      "matcher": "CONTAINS_STRING",
+      "content": "create a jobseeker account"
+    }
+  ]
   ```
 - For production, add the infra team contact group id: `282453`
 
