@@ -180,3 +180,26 @@ action-group: set-azure-account # make production action-group ACTION_GROUP_EMAI
 	$(if $(ACTION_GROUP_EMAIL), , $(error Please specify a notification email for the action group))
 	az group create -l uksouth -g ${RESOURCE_PREFIX}-${SERVICE_SHORT}-mn-rg --tags "Product=${SERVICE_NAME}"
 	az monitor action-group create -n ${RESOURCE_PREFIX}-${SERVICE_SHORT} -g ${RESOURCE_PREFIX}-${SERVICE_SHORT}-mn-rg --action email ${RESOURCE_PREFIX}-${SERVICE_SHORT}-email ${ACTION_GROUP_EMAIL}
+
+airbyte-init: cluster-composed-variables set-azure-account
+	rm -rf airbyte/terraform/vendor/modules/aks
+	git -c advice.detachedHead=false clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git airbyte/terraform/vendor/modules/aks
+
+	terraform -chdir=airbyte/terraform init -reconfigure -upgrade \
+		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
+		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
+		-backend-config=key=${ENVIRONMENT}_airbyte.tfstate
+
+	$(eval export TF_VAR_environment=${ENVIRONMENT})
+	$(eval export TF_VAR_resource_group_name=${RESOURCE_GROUP_NAME})
+	$(eval export TF_VAR_resource_prefix=${RESOURCE_PREFIX})
+	$(eval export TF_VAR_config=${CONFIG})
+
+airbyte-plan: airbyte-init
+	terraform -chdir=airbyte/terraform plan -var-file config/${CONFIG}.tfvars.json
+
+airbyte-apply: airbyte-init
+	terraform -chdir=airbyte/terraform apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
+
+airbyte-destroy: airbyte-init
+	terraform -chdir=airbyte/terraform destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
