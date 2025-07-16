@@ -6,6 +6,9 @@ on:
         branches:
             - 2381-aks-spike-image-pull-using-ghcr
 
+permissions:
+  packages: write
+
 jobs:
     mirror:
         runs-on: ubuntu-latest
