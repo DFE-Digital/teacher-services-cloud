@@ -1,0 +1,28 @@
+name: Mirror DockerHub Images to GHCR
+
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            - 2381-aks-spike-image-pull-using-ghcr
+
+jobs:
+    mirror:
+        runs-on: ubuntu-latest
+
+            steps:
+                - name: Log in to GHCR
+                  uses: docker/login-action@v3
+                  with:
+                  registry: ghcr.io
+                  username: ${{ github.repository_owner }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+                - name: Pull image from DockerHub
+                  run: docker pull postgres:14-alpine
+
+                - name: Tag image for GHCR
+                  run: docker tag postgres:14-alpine ghcr.io/dfe-digital/teacher-services-cloud:postgres-14-alpine
+
+                - name: Push image to GHCR
+                  run: docker push ghcr.io/dfe-digital/teacher-services-cloud:postgres-14-alpine
