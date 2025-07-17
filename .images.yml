@@ -7,7 +7,7 @@ airbyte/workload-api-server:1.5.1 airbyte-workload-api-server-1.5.1
 airbyte/workload-launcher:1.5.1 airbyte-workload-launcher-1.5.1
 alpine:3.20.1 alpine-3.20.1
 grafana/grafana:11.1.5 grafana-11.1.5
-mendhak/http-https-echo:31 mendhak-http-https-echo:31
+mendhak/http-https-echo:31 mendhak-http-https-echo-31
 nginxinc/nginx-unprivileged:1.27.3-alpine3.20 nginx-unprivileged:1.27.3-alpine3.20
 nginx:latest nginx-latest
 postgis/postgis:14-3.2 postgis-14-3.3
