@@ -16,6 +16,9 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
+          - name: Checkout code
+            uses: actions/checkout@v4
+
           - name: Log in to GHCR
             uses: docker/login-action@v3
             with:
@@ -23,17 +26,14 @@ jobs:
               username: github-actions
               password: ${{ secrets.GITHUB_TOKEN }}
 
-          - name: Pull image from DockerHub
-            run: docker pull postgres:14-alpine
-
-          - name: Tag image for GHCR
-            run: docker tag postgres:14-alpine ghcr.io/dfe-digital/teacher-services-cloud:postgres-14-alpine
-
-          - name: Debug Info
+          - name: Mirror images from lookup file
             run: |
-              echo "Actor: ${{ github.actor }}"
-              echo "Repository: ${{ github.repository }}"
-              echo "Repository Owner: ${{ github.repository_owner }}"
-
-          - name: Push image to GHCR
-            run: docker push ghcr.io/dfe-digital/teacher-services-cloud:postgres-14-alpine
+              while read -r src_img dst_img; do
+                [ -z "$src_img" ] && continue
+                echo "Pulling $src_img"
+                docker pull "$src_img"
+                echo "Tagging $src_img as $dst_img"
+                docker tag "$src_img" "$dst_img"
+                echo "Pushing $dst_img"
+                docker push "$dst_img"
+              done < .images.yaml
