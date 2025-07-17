@@ -32,8 +32,8 @@ jobs:
                 [ -z "$src_img" ] && continue
                 echo "Pulling $src_img"
                 docker pull "$src_img"
-                echo "Tagging $src_img as ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
-                docker tag "$src_img" "ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
-                echo "Pushing ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
-                docker push "ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
+                echo "Tagging $src_img as ghcr.io/dfe-digital/teacher-services-cloud$dst_img"
+                docker tag "$src_img" "ghcr.io/dfe-digital/teacher-services-cloud$dst_img"
+                echo "Pushing ghcr.io/dfe-digital/teacher-services-cloud$dst_img"
+                docker push "ghcr.io/dfe-digital/teacher-services-cloud$dst_img"
               done < .images.yml
