@@ -1,2 +1,9 @@
-postgres:14-alpine :postgres-14-alpine
-redis:7-alpine :redis-7-alpine
+postgres:14-alpine postgres-14-alpine
+redis:7-alpine redis-7-alpine
+airbyte/connector-builder-server:1.5.1 airbyte-connector-builder-server:1.5.1
+airbyte/cron:1.5.1 airbyte-cron:1.5.1
+airbyte/server:1.5.1 airbyte-server:1.5.1
+airbyte/webapp:1.5.1 airbyte-webapp:1.5.1
+airbyte/worker:1.5.1 airbyte-worker:1.5.1
+airbyte/workload-api-server:1.5.1 airbyte-workload-api-server:1.5.1
+airbyte/workload-launcher:1.5.1 airbyte-workload-launcher:1.5.1
