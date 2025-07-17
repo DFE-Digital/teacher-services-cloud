@@ -35,5 +35,5 @@ jobs:
                 echo "Tagging $src_img as $dst_img"
                 docker tag "$src_img" "$dst_img"
                 echo "Pushing $dst_img"
-                docker push "$dst_img"
+                docker push "ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
               done < .images.yml
