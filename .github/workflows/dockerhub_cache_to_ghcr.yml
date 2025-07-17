@@ -36,4 +36,4 @@ jobs:
                 docker tag "$src_img" "$dst_img"
                 echo "Pushing $dst_img"
                 docker push "$dst_img"
-              done < images.yml
+              done < .images.yml
