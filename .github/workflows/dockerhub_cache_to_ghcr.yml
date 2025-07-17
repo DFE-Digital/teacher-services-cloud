@@ -29,5 +29,11 @@ jobs:
           - name: Tag image for GHCR
             run: docker tag postgres:14-alpine ghcr.io/dfe-digital/teacher-services-cloud:postgres-14-alpine
 
+          - name: Debug Info
+            run: |
+              echo "Actor: ${{ github.actor }}"
+              echo "Repository: ${{ github.repository }}"
+              echo "Repository Owner: ${{ github.repository_owner }}"
+
           - name: Push image to GHCR
             run: docker push ghcr.io/dfe-digital/teacher-services-cloud:postgres-14-alpine
