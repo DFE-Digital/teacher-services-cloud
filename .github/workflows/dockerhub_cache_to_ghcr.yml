@@ -20,7 +20,7 @@ jobs:
             uses: docker/login-action@v3
             with:
               registry: ghcr.io
-              username: ${{ github.actor }}
+              username: github-actions
               password: ${{ secrets.GITHUB_TOKEN }}
 
           - name: Pull image from DockerHub
