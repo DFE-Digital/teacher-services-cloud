@@ -15,17 +15,21 @@ TZ=Europe/London
 #   'pending' state then a new domain validation token is requested and the DNS
 #   TXT record set is updated with the new token.
 # Usage:
-#   ./afd-domain-scan.sh [-s <subscription name>]
+#   ./afd-domain-scan.sh [-s <subscription name>] [-r <resource group>]
 #      -s       <subscription name>      (optional) Azure Subscription
+#      -r       <resource group>         (optional) Resource Group to filter
 #
 #   If you do not specify the subscription name, the script will prompt you to
 #   select one based on the current logged in Azure user.
 ################################################################################
 
-while getopts "s:" opt; do
+while getopts "s:r:" opt; do
   case $opt in
     s)
       AZ_SUBSCRIPTION_SCOPE=$OPTARG
+      ;;
+    r)
+      RESOURCE_GROUP_FILTER=$OPTARG
       ;;
     *)
       ;;
@@ -81,9 +85,22 @@ AFD_LIST=$(
   jq -rc '.[] | { "name": .name, "resourceGroup": .resourceGroup }'
 )
 
+# Debug: Show total AFDs found
+AFD_COUNT=$(echo "$AFD_LIST" | wc -l | tr -d ' ')
+echo "  Found $AFD_COUNT Azure Front Door(s) total"
+
+if [ -n "$RESOURCE_GROUP_FILTER" ]; then
+  echo "  Filtering for resource group: $RESOURCE_GROUP_FILTER"
+fi
+
 for AZURE_FRONT_DOOR in $AFD_LIST; do
   RESOURCE_GROUP=$(echo "$AZURE_FRONT_DOOR" | jq -rc '.resourceGroup')
   AFD_NAME=$(echo "$AZURE_FRONT_DOOR" | jq -rc '.name')
+
+  # Skip if resource group filter is set and doesn't match
+  if [ -n "$RESOURCE_GROUP_FILTER" ] && [ "$RESOURCE_GROUP" != "$RESOURCE_GROUP_FILTER" ]; then
+    continue
+  fi
 
   echo "  🚪 Azure Front Door $AFD_NAME in Resource Group $RESOURCE_GROUP..."
 
