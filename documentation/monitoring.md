@@ -98,6 +98,9 @@ Beyond 30days - thanos down samples the data. `5m down sample` stores samples fo
 ### Auto down sample
 This option is used by grafana when during charting/visualisation. Where the charts are over a long period of time grafana adopts the most appropriate down sampling for data.
 
+### Thanos logging-level
+This is currently set to "info" for all 3 thanos components, but can be amended to any of "--log.level=error|warn|info|debug" in code in [thanos.tf](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/thanos.tf)
+
 ## Grafana
 
 Grafana provides a visual interface for monitoring logs and metric.
