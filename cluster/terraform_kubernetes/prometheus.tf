@@ -172,7 +172,7 @@ resource "kubernetes_deployment" "prometheus" {
 
           args = [
             "sidecar",
-            "--log.level=debug",
+            "--log.level=info",
             "--tsdb.path=/prometheus",
             "--prometheus.url=http://127.0.0.1:9090",
             "--objstore.config-file=/config/thanos.yaml",

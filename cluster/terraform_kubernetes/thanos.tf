@@ -97,7 +97,7 @@ resource "kubernetes_deployment" "thanos-querier" {
 
           args = [
             "query",
-            "--log.level=debug",
+            "--log.level=info",
             "--query.replica-label=replica",
             "--store=dns+thanos-store-gateway:10901",
           ]
@@ -212,7 +212,7 @@ resource "kubernetes_deployment" "thanos-store-gateway" {
 
           args = [
             "store",
-            "--log.level=debug",
+            "--log.level=info",
             "--data-dir=/data",
             "--objstore.config-file=/config/thanos.yaml",
             "--index-cache-size=500MB",
@@ -332,7 +332,7 @@ resource "kubernetes_deployment" "thanos-compactor" {
 
           args = [
             "compact",
-            "--log.level=debug",
+            "--log.level=info",
             "--data-dir=/data",
             "--objstore.config-file=/config/thanos.yaml",
             "--retention.resolution-raw=${var.thanos_retention_raw}",
