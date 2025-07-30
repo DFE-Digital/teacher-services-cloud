@@ -147,6 +147,33 @@ scrape_configs:
       regex: nginx_ingress_controller_.*_bucket
       target_label: nodename
       replacement: ''
+    
+    # Drop the orphan_ingress metric entirely
+    - source_labels: [__name__]
+      regex: nginx_ingress_controller_orphan_ingress
+      action: drop
+    
+    # For non-histogram metrics (count, sum, requests), drop high-cardinality labels
+    - source_labels: [__name__]
+      regex: nginx_ingress_controller_(request_size_count|request_size_sum|request_duration_seconds_count|bytes_sent_sum|requests)
+      target_label: instance
+      replacement: ''
+    - source_labels: [__name__]
+      regex: nginx_ingress_controller_(request_size_count|request_size_sum|request_duration_seconds_count|bytes_sent_sum|requests)
+      target_label: kubernetes_pod_name
+      replacement: ''
+    - source_labels: [__name__]
+      regex: nginx_ingress_controller_(request_size_count|request_size_sum|request_duration_seconds_count|bytes_sent_sum|requests)
+      target_label: pod_template_hash
+      replacement: ''
+    - source_labels: [__name__]
+      regex: nginx_ingress_controller_(request_size_count|request_size_sum|request_duration_seconds_count|bytes_sent_sum|requests)
+      target_label: controller_pod
+      replacement: ''
+    - source_labels: [__name__]
+      regex: nginx_ingress_controller_(request_size_count|request_size_sum|request_duration_seconds_count|bytes_sent_sum|requests)
+      target_label: nodename
+      replacement: ''
 # Scrape config for kube-state-metrics.
   - job_name: 'kube-state-metrics'
     static_configs:
