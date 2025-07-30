@@ -15,6 +15,7 @@ templates/new_service/terraform/application/vendor/
 
 # terraform modules
 cluster/terraform_kubernetes/vendor/modules/aks
+airbyte/terraform/vendor/modules/aks
 custom_domains/terraform/infrastructure/vendor/
 
 # macOS files
