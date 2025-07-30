@@ -19,21 +19,20 @@
           "uid": "P5DCFC7561CCDE821"
         },
         "enable": true,
-        "expr": "sum(changes(nginx_ingress_controller_config_last_reload_successful_timestamp_seconds{instance!=\"unknown\",namespace=~\"$namespace\"}[30s])) by (controller_pod)",
+        "expr": "sum(changes(nginx_ingress_controller_config_last_reload_successful_timestamp_seconds{instance!=\"unknown\",namespace=~\"$namespace\"}[30s]))",
         "hide": false,
         "iconColor": "rgba(255, 96, 96, 1)",
         "limit": 100,
         "name": "Config Reloads",
         "showIn": 0,
         "step": "30s",
-        "tagKeys": "controller_pod",
         "tags": [],
         "titleFormat": "Config Reloaded",
         "type": "tags"
       }
     ]
   },
-  "description": "Nginx Ingress Controller via Prometheus Metrics Dashboard created for DevOps Nirvana @ https://github.com/DevOps-Nirvana",
+  "description": "Nginx Ingress Controller via Prometheus Metrics Dashboard - Updated for reduced cardinality",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "gnetId": 14314,
@@ -136,7 +135,7 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "(sum(\n  rate(\n    nginx_ingress_controller_requests{status!~\"[4-5].*\", controller_class=~\"$controller_class\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[${__range_s}s]\n      )\n   )   \n/ \n(\n  sum(\n    rate(\n      nginx_ingress_controller_requests{ controller_class=~\"$controller_class\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[${__range_s}s]\n        )\n     ) - \n  (\n  sum(\n    rate(\n      nginx_ingress_controller_requests{status=~\"404|499\", controller_class=~\"$controller_class\", ingress=~\"$ingress\",namespace=~\"$namespace\", controller_pod=~\"$pod\"}[${__range_s}s]\n        )\n     ) \n  or vector(0)\n  )\n)) * 100",
+          "expr": "(sum(\n  rate(\n    nginx_ingress_controller_requests{status!~\"[4-5].*\", controller_class=~\"$controller_class\", ingress=~\"$ingress\", namespace=~\"$namespace\"}[${__range_s}s]\n      )\n   )   \n/ \n(\n  sum(\n    rate(\n      nginx_ingress_controller_requests{ controller_class=~\"$controller_class\", ingress=~\"$ingress\", namespace=~\"$namespace\"}[${__range_s}s]\n        )\n     ) - \n  (\n  sum(\n    rate(\n      nginx_ingress_controller_requests{status=~\"404|499\", controller_class=~\"$controller_class\", ingress=~\"$ingress\",namespace=~\"$namespace\"}[${__range_s}s]\n        )\n     ) \n  or vector(0)\n  )\n)) * 100",
           "format": "time_series",
           "interval": "5m",
           "intervalFactor": 1,
@@ -218,7 +217,7 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_requests{ ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval]))",
+          "expr": "sum(increase(nginx_ingress_controller_requests{ ingress=~\"$ingress\", namespace=~\"$namespace\"}[$__interval]))",
           "format": "time_series",
           "interval": "5m",
           "intervalFactor": 1,
@@ -300,7 +299,7 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_requests{status=~\"(1|2).*\",  ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval])) or vector(0)",
+          "expr": "sum(increase(nginx_ingress_controller_requests{status=~\"(1|2).*\",  ingress=~\"$ingress\", namespace=~\"$namespace\"}[$__interval])) or vector(0)",
           "format": "time_series",
           "interval": "5m",
           "intervalFactor": 1,
@@ -383,7 +382,7 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_requests{status=~\"3.*\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval])) or vector(0)",
+          "expr": "sum(increase(nginx_ingress_controller_requests{status=~\"3.*\", ingress=~\"$ingress\", namespace=~\"$namespace\"}[$__interval])) or vector(0)",
           "format": "time_series",
           "interval": "5m",
           "intervalFactor": 1,
@@ -466,7 +465,7 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_requests{status=~\"4.*\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval])) or vector(0)",
+          "expr": "sum(increase(nginx_ingress_controller_requests{status=~\"4.*\", ingress=~\"$ingress\", namespace=~\"$namespace\"}[$__interval])) or vector(0)",
           "format": "time_series",
           "interval": "5m",
           "intervalFactor": 1,
@@ -549,7 +548,7 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_requests{status=~\"5.*\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval])) or vector(0)",
+          "expr": "sum(increase(nginx_ingress_controller_requests{status=~\"5.*\", ingress=~\"$ingress\", namespace=~\"$namespace\"}[$__interval])) or vector(0)",
           "format": "time_series",
           "interval": "5m",
           "intervalFactor": 1,
@@ -651,7 +650,7 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_requests{ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval])) by (status)",
+          "expr": "sum(increase(nginx_ingress_controller_requests{ingress=~\"$ingress\", namespace=~\"$namespace\"}[$__interval])) by (status)",
           "format": "time_series",
           "interval": "2m",
           "intervalFactor": 1,
@@ -843,7 +842,7 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_requests{ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval])) by (status)",
+          "expr": "sum(increase(nginx_ingress_controller_requests{ingress=~\"$ingress\", namespace=~\"$namespace\"}[$__interval])) by (status)",
           "format": "time_series",
           "interval": "2m",
           "intervalFactor": 1,
@@ -957,7 +956,7 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_requests{ ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__interval]))",
+          "expr": "sum(increase(nginx_ingress_controller_requests{ ingress=~\"$ingress\", namespace=~\"$namespace\"}[$__interval]))",
           "format": "time_series",
           "interval": "5m",
           "intervalFactor": 1,
@@ -1238,7 +1237,7 @@
             "type": "prometheus",
             "uid": "P5DCFC7561CCDE821"
           },
-          "expr": "histogram_quantile(\n  0.99,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\",\n        controller_pod=~\"$pod\"\n      }[$__interval]\n    )\n  )\n)",
+          "expr": "histogram_quantile(\n  0.99,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\"\n      }[$__interval]\n    )\n  )\n)",
           "format": "time_series",
           "interval": "5m",
           "intervalFactor": 1,
@@ -1250,7 +1249,7 @@
             "type": "prometheus",
             "uid": "P5DCFC7561CCDE821"
           },
-          "expr": "histogram_quantile(\n  0.95,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\",\n        controller_pod=~\"$pod\"\n      }[$__interval]\n    )\n  )\n)",
+          "expr": "histogram_quantile(\n  0.95,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\"\n      }[$__interval]\n    )\n  )\n)",
           "format": "time_series",
           "hide": false,
           "interval": "5m",
@@ -1263,7 +1262,7 @@
             "type": "prometheus",
             "uid": "P5DCFC7561CCDE821"
           },
-          "expr": "histogram_quantile(\n  0.9,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\",\n        controller_pod=~\"$pod\"\n      }[$__interval]\n    )\n  )\n)",
+          "expr": "histogram_quantile(\n  0.9,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\"\n      }[$__interval]\n    )\n  )\n)",
           "format": "time_series",
           "hide": false,
           "interval": "5m",
@@ -1276,7 +1275,7 @@
             "type": "prometheus",
             "uid": "P5DCFC7561CCDE821"
           },
-          "expr": "histogram_quantile(\n  0.5,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\",\n        controller_pod=~\"$pod\"\n      }[$__interval]\n    )\n  )\n)",
+          "expr": "histogram_quantile(\n  0.5,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\"\n      }[$__interval]\n    )\n  )\n)",
           "format": "time_series",
           "hide": false,
           "interval": "5m",
@@ -1289,7 +1288,7 @@
             "type": "prometheus",
             "uid": "P5DCFC7561CCDE821"
           },
-          "expr": "histogram_quantile(\n  0.75,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\",\n        controller_pod=~\"$pod\"\n      }[$__interval]\n    )\n  )\n)",
+          "expr": "histogram_quantile(\n  0.75,\n  sum by (le)(\n    rate(\n      nginx_ingress_controller_request_duration_seconds_bucket{\n        status!=\"404|500|304|499\",\n        ingress=~\"$ingress\",\n        namespace=~\"$namespace\"\n      }[$__interval]\n    )\n  )\n)",
           "format": "time_series",
           "hide": false,
           "interval": "5m",
@@ -1302,7 +1301,7 @@
             "type": "prometheus",
             "uid": "P5DCFC7561CCDE821"
           },
-          "expr": "(\n\n(sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"0.01\"\n}[$__interval]))\n* 0.01)\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"0.1\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"0.01\"\n}[$__interval])))\n* 0.1)\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"1\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"0.1\"\n}[$__interval])))\n* 1)\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"10\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"1\"\n}[$__interval])))\n* 10 )\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"30\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"10\"\n}[$__interval])))\n* 30 )\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"60\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"30\"\n}[$__interval])))\n* 60 )\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"+Inf\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"60\"\n}[$__interval])))\n* 120 )\n\n) / \n\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    controller_pod=~\"$pod\",\n    le=\"+Inf\"\n}[$__interval]))\n",
+          "expr": "(\n\n(sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    le=\"0.01\"\n}[$__interval]))\n* 0.01)\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    le=\"0.1\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    le=\"0.01\"\n}[$__interval])))\n* 0.1)\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    le=\"1\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    le=\"0.1\"\n}[$__interval])))\n* 1)\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    le=\"10\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    le=\"1\"\n}[$__interval])))\n* 10 )\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    le=\"30\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    le=\"10\"\n}[$__interval])))\n* 30 )\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    le=\"60\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    le=\"30\"\n}[$__interval])))\n* 60 )\n\n+\n\n((sum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    le=\"+Inf\"\n}[$__interval]))\n-\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    le=\"60\"\n}[$__interval])))\n* 120 )\n\n) / \n\nsum(increase(nginx_ingress_controller_request_duration_seconds_bucket{\n    status!=\"404|500|304\",\n    ingress=~\"$ingress\",\n    namespace=~\"$namespace\",\n    le=\"+Inf\"\n}[$__interval]))\n",
           "format": "time_series",
           "hide": false,
           "interval": "5m",
@@ -1533,7 +1532,7 @@
             "type": "prometheus",
             "uid": "P5DCFC7561CCDE821"
           },
-          "expr": "sum(\n  rate(\n    nginx_ingress_controller_requests{status!~\"[4-5].*\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__range]\n      )\n   ) by (ingress)\n/ \n(\n  sum(\n    rate(\n      nginx_ingress_controller_requests{ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__range]\n        )\n     ) by (ingress)\n     - \n  (\n  sum(\n    rate(\n      nginx_ingress_controller_requests{status=~\"404|499\", ingress=~\"$ingress\",namespace=~\"$namespace\", controller_pod=~\"$pod\"}[$__range]\n        )\n     ) by (ingress)\n  or vector(0)\n  )\n)",
+          "expr": "sum(\n  rate(\n    nginx_ingress_controller_requests{status!~\"[4-5].*\", ingress=~\"$ingress\", namespace=~\"$namespace\"}[$__range]\n      )\n   ) by (ingress)\n/ \n(\n  sum(\n    rate(\n      nginx_ingress_controller_requests{ingress=~\"$ingress\", namespace=~\"$namespace\"}[$__range]\n        )\n     ) by (ingress)\n     - \n  (\n  sum(\n    rate(\n      nginx_ingress_controller_requests{status=~\"404|499\", ingress=~\"$ingress\",namespace=~\"$namespace\"}[$__range]\n        )\n     ) by (ingress)\n  or vector(0)\n  )\n)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -1549,7 +1548,7 @@
         "type": "prometheus",
         "uid": "P5DCFC7561CCDE821"
       },
-      "description": "NOTE: This does not work per ingress/namespace\n\nThe total number of connections opened to our ingresses.  If you have a CDN in front of our services, it is not unusual for this to be very low.  If/when we use something like websockets with a persistent connection this can/will be very high.",
+      "description": "NOTE: This panel shows aggregated connections across all controller pods since pod-level labels have been removed for cardinality reduction.\n\nThe total number of connections opened to our ingresses.  If you have a CDN in front of our services, it is not unusual for this to be very low.  If/when we use something like websockets with a persistent connection this can/will be very high.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1660,14 +1659,14 @@
             "type": "prometheus",
             "uid": "P5DCFC7561CCDE821"
           },
-          "expr": "sum(avg_over_time(nginx_ingress_controller_nginx_process_connections{state=~\"active\", state=~\"active\", controller_pod=~\"$pod\"}[$__interval]))",
+          "expr": "sum(avg_over_time(nginx_ingress_controller_nginx_process_connections{state=~\"active\"}[$__interval]))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "Connections",
           "refId": "A"
         }
       ],
-      "title": "Total Connections Open (Controller / Ingress Pod)",
+      "title": "Total Connections Open (All Controllers)",
       "type": "timeseries"
     },
     {
@@ -1675,7 +1674,7 @@
         "type": "prometheus",
         "uid": "P5DCFC7561CCDE821"
       },
-      "description": "NOTE: This does not work per ingress/namespace\n\nThis is the number of new connections opened by the controller",
+      "description": "NOTE: This panel shows aggregated new connections across all controller pods since pod-level labels have been removed for cardinality reduction.\n\nThis is the number of new connections opened by the controller",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1787,7 +1786,7 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_nginx_process_connections{state=~\"active\",  controller_pod=~\"$pod\"}[$__interval]))",
+          "expr": "sum(increase(nginx_ingress_controller_nginx_process_connections{state=~\"active\"}[$__interval]))",
           "format": "time_series",
           "interval": "2m",
           "intervalFactor": 1,
@@ -1796,7 +1795,7 @@
           "refId": "A"
         }
       ],
-      "title": "New Connections Opened (Controller / Ingress Pod)",
+      "title": "New Connections Opened (All Controllers)",
       "type": "timeseries"
     },
     {
@@ -1918,7 +1917,7 @@
             "type": "prometheus",
             "uid": "P5DCFC7561CCDE821"
           },
-          "expr": "sum(\n  rate(\n    nginx_ingress_controller_requests{status!~\"[4-5].*\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[${__range_s}s]\n      )\n   ) by (ingress)\n/ \n(\n  sum(\n    rate(\n      nginx_ingress_controller_requests{ ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[${__range_s}s]\n        )\n     ) by (ingress)\n     - \n  (\n  sum(\n    rate(\n      nginx_ingress_controller_requests{status=~\"404|499\", controller_class=~\"$controller_class\", ingress=~\"$ingress\",namespace=~\"$namespace\", controller_pod=~\"$pod\"}[${__range_s}s]\n        )\n     ) by (ingress)\n  or vector(0)\n  )\n)",
+          "expr": "sum(\n  rate(\n    nginx_ingress_controller_requests{status!~\"[4-5].*\", ingress=~\"$ingress\", namespace=~\"$namespace\"}[${__range_s}s]\n      )\n   ) by (ingress)\n/ \n(\n  sum(\n    rate(\n      nginx_ingress_controller_requests{ ingress=~\"$ingress\", namespace=~\"$namespace\"}[${__range_s}s]\n        )\n     ) by (ingress)\n     - \n  (\n  sum(\n    rate(\n      nginx_ingress_controller_requests{status=~\"404|499\", controller_class=~\"$controller_class\", ingress=~\"$ingress\",namespace=~\"$namespace\"}[${__range_s}s]\n        )\n     ) by (ingress)\n  or vector(0)\n  )\n)",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
@@ -2019,7 +2018,7 @@
             "type": "prometheus",
             "uid": "P5DCFC7561CCDE821"
           },
-          "expr": "histogram_quantile(0.99, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{status!=\"404\",status!=\"500\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[5m])) by (le, ingress))",
+          "expr": "histogram_quantile(0.99, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{status!=\"404\",status!=\"500\", ingress=~\"$ingress\", namespace=~\"$namespace\"}[5m])) by (le, ingress))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "p99 {{ ingress }}",
@@ -2030,7 +2029,7 @@
             "type": "prometheus",
             "uid": "P5DCFC7561CCDE821"
           },
-          "expr": "histogram_quantile(0.95, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{status!=\"404\",status!=\"500\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[5m])) by (le, ingress))",
+          "expr": "histogram_quantile(0.95, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{status!=\"404\",status!=\"500\", ingress=~\"$ingress\", namespace=~\"$namespace\"}[5m])) by (le, ingress))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "p95 {{ ingress }}",
@@ -2041,7 +2040,7 @@
             "type": "prometheus",
             "uid": "P5DCFC7561CCDE821"
           },
-          "expr": "histogram_quantile(0.90, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{status!=\"404\",status!=\"500\", ingress=~\"$ingress\", namespace=~\"$namespace\", controller_pod=~\"$pod\"}[5m])) by (le, ingress))",
+          "expr": "histogram_quantile(0.90, sum(rate(nginx_ingress_controller_request_duration_seconds_bucket{status!=\"404\",status!=\"500\", ingress=~\"$ingress\", namespace=~\"$namespace\"}[5m])) by (le, ingress))",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "p90 {{ ingress }}",
@@ -2180,40 +2179,6 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
-      },
-      {
-        "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "P5DCFC7561CCDE821"
-        },
-        "definition": "label_values(nginx_ingress_controller_config_hash, controller_pod) ",
-        "hide": 0,
-        "includeAll": true,
-        "label": "Controller Pod",
-        "multi": true,
-        "name": "pod",
-        "options": [],
-        "query": {
-          "query": "label_values(nginx_ingress_controller_config_hash, controller_pod) ",
-          "refId": "prometheus-controller_pod-Variable-Query"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 1,
-        "tagValuesQuery": "",
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
       }
     ]
   },
@@ -2246,8 +2211,8 @@
     ]
   },
   "timezone": "",
-  "title": "Kubernetes Nginx Ingress Prometheus NextGen",
-  "uid": "k8s-nginx-ingress-prometheus-ng",
+  "title": "Kubernetes Nginx Ingress Prometheus NextGen - Reduced Cardinality",
+  "uid": "k8s-nginx-ingress-prometheus-ng-reduced",
   "version": 1,
   "weekStart": ""
 }
