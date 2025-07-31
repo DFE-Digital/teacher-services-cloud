@@ -310,21 +310,26 @@ resource "kubernetes_deployment" "thanos-compactor" {
       }
 
       spec {
+        security_context {
+          fs_group = 1001
+        }
 
         container {
           image = "quay.io/thanos/thanos:${var.thanos_version}"
+          #image = "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.5-alpine3.21"
           name  = "thanos-compactor"
 
           security_context {
             run_as_user  = 1001
             run_as_group = 1001
+
             capabilities {
               drop = ["ALL"]
             }
             allow_privilege_escalation = false
             privileged                 = false
-            run_as_non_root            = true
-            read_only_root_filesystem  = true
+            run_as_non_root            = false
+            read_only_root_filesystem  = false
             seccomp_profile {
               type = "RuntimeDefault"
             }
@@ -392,12 +397,64 @@ resource "kubernetes_deployment" "thanos-compactor" {
 
         volume {
           name = "thanos-data-volume"
-          empty_dir {}
+          persistent_volume_claim {
+            claim_name = kubernetes_persistent_volume.thanos2.id
+          }
         }
 
       }
     }
   }
+}
+
+resource "kubernetes_persistent_volume_claim" "thanos" {
+  metadata {
+    name = "thanos-data-compact-2"
+    namespace = "monitoring"
+  }
+  spec {
+    access_modes = ["ReadWriteOnce"]
+    resources {
+      requests = {
+        storage = "200Gi"
+      }
+    }
+    storage_class_name = "default"
+  }
+}
+
+
+resource "kubernetes_persistent_volume" "thanos2" {
+  metadata {
+    name = "thanos-data-compact-2"
+  }
+  spec {
+    capacity = {
+      storage = "200Gi"
+    }
+    claim_ref {
+      name = "thanos-data-compact-2"
+      namespace = "monitoring"
+    }
+    access_modes = ["ReadWriteOnce"]
+    persistent_volume_reclaim_policy = "Delete"
+    storage_class_name = "default"
+    persistent_volume_source {
+      csi {
+        driver = "disk.csi.azure.com"
+        volume_handle = azurerm_managed_disk.example.id
+      }
+    }
+  }
+}
+
+resource "azurerm_managed_disk" "example" {
+  name                 = "thanos-data-compact-disk"
+  location             = data.azurerm_resource_group.resource_group.location
+  resource_group_name  = "s189t01-tsc-aks-nodes-test-rg"
+  storage_account_type = "StandardSSD_ZRS"
+  create_option        = "Empty"
+  disk_size_gb         = "200"
 }
 
 data "azurerm_key_vault_secret" "thanos_auth" {
