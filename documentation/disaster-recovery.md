@@ -10,12 +10,17 @@ This document covers the most critical scenarios and should be used in case of a
 
 In this scenario, the [Azure Postgres flexible server](https://portal.azure.com/?feature.msaljs=true#browse/Microsoft.DBforPostgreSQL%2FflexibleServers) and the database it contains have been completely lost.
 
-As the point-in-time and snapshot backups created by the Azure Postgres service may not be available if it's been deleted or if there is an Azure region issue, the Postgres server will have to be recreated and the database restored from the nightly github workflow scheduled database backups. These backups are stored in [Azure storage accounts](https://portal.azure.com/?feature.msaljs=true#browse/Microsoft.Storage%2FStorageAccounts) and kept for 7 days.
+There are two main options for recovery.
+1. Recover the deleted server from the Azure backups. These can be used to recover a dropped Azure Database for PostgreSQL flexible server resource within five days from the time of server deletion. Note that Microsoft do not guarantee this will work as there are other factors involved. See https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/how-to-restore-dropped-server
+2. Recreate the Postgres server via terraform, and then restore from the nightly github workflow scheduled database backups. These backups are stored in [Azure storage accounts](https://portal.azure.com/?feature.msaljs=true#browse/Microsoft.Storage%2FStorageAccounts) and kept for 7 days.
+
+Option 1 should be attempted first, as it can recover very close to the point of server loss, minimising any potential data loss. Option 2 would be used if the first option fails to work.
 
 The objectives are:
 
-- Recreate the lost postgres database server
-- Restore data from nightly backup stored in Azure
+- Recover the deleted server from the Azure backups (option 1)
+- Recreate the lost postgres database server (option 2)
+- Restore data from nightly backup stored in Azure (option 2)
 
 ### Start the incident process (if not already in progress)
 Follow the [incident playbook](https://tech-docs.teacherservices.cloud/operating-a-service/incident-playbook.html) and contact the relevant stakeholders as described in [create-an-incident-slack-channel-and-inform-the-stakeholders-comms-lead](https://tech-docs.teacherservices.cloud/operating-a-service/incident-playbook.html#4-create-an-incident-slack-channel-and-inform-the-stakeholders-comms-lead).
@@ -39,7 +44,16 @@ Note that the available temp route can be seen on the completed maintenance work
 
 ### Recreate the lost postgres database server
 
-Run the deploy workflow to recreate the missing postgres database.
+#### Option 1. Recover from Azure backups
+
+Run the restore-deleted-postgres workflow to recreate the missing postgres database.
+- provide the environment, server name to be restored and restore point in time in UTC. e.g. 2024-07-24T06:00:00. This should be at least 10 minutes after the server was deleted.
+
+#### Option 2. Recreate via terraform and restore from scheduled offline backup
+
+Run the deploy workflow to recreate the missing postgres database as detailed below.
+
+- Check and delete any postgres diagnostics remaining for the deleted instance in https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/diagnosticsLogs as the later deploy to rebuild postgres will fail if it remains. e.g. search using subscription s189-teacher-services-cloud-test and resource group s189t01-ittms-stg-pg and look for enabled Diagnostic settings.
 
 As the maintenance page has been enabled, you will need to:
 1. create a branch from main
@@ -50,6 +64,7 @@ As the maintenance page has been enabled, you will need to:
 Note that the deploy workflow my fail on steps after the postgres server creation e.g. smoke tests or database migrations. This is expected due to the enabling of maintenance page. You can confirm the server is available via a healthcheck url that checks the database status (if your service has one), or via the azure portal. The healthcheck url will need to use the temp route.
 
 ### Restore the data from previous backup in Azure storage
+This step isn't required if using the restore-deleted-postgres workflow i.e. option 1 in the previous step.
 Run the *Restore database from Azure storage* workflow.
 
 ### Validate app

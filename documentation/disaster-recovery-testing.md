@@ -13,6 +13,8 @@ This document covers the Disaster Recovery testing procedure for applications ho
         - e.g. https://github.com/DFE-Digital/apply-for-teacher-training/blob/main/.github/workflows/deploy-v2.yml
     - *Backup postgres database to Azure storage* [required for scenario 1 above]
         - using https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/.github/workflows/backup-db.yml
+    - *Recover deleted postgres database server* [required for scenario 1 above]
+        - using https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/.github/workflows/restore-deleted-postgres.yml
     - *Restore database from Azure storage* [required for scenario 1 above]
         - using https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service/.github/workflows/postgres-restore.yml
     - *Restore database from point in time to new database server* [required for scenario 2 above]
@@ -48,7 +50,6 @@ Note that you must have a previously created backup on azure storage before star
 - Delete the existing postgres database
     - manually delete via UI https://portal.azure.com/#browse/Microsoft.DBforPostgreSQL%2FflexibleServers
 - Confirm it's deleted
-- Check and delete any postgres diagnostics remaining for the deleted instance in https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/diagnosticsLogs as the later deploy to rebuild postgres will fail if it remains. e.g. search using subscription s189-teacher-services-cloud-test and resource group s189t01-ittms-stg-pg and look for enabled Diagnostic settings.
 
 Follow the disaster recovery instructions.
 
