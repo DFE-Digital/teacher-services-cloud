@@ -12,6 +12,8 @@ permissions:
   packages: write
   id-token: write
 
+
+
 jobs:
     mirror:
         runs-on: ubuntu-latest
@@ -23,7 +25,7 @@ jobs:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
               JSON:   |
                       '{"Application": ${{ GITHUB_ACTION_REPOSITORY}},
-                      "Status":"Starting",
+                      "Status":"RANDOMWORD",
                       "Action":${{ GITHUB_WORKFLOW }},
                       "Environment": ${{ GITHUB_ENV }},
                       "Version": "1" }'
