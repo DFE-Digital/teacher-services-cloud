@@ -21,6 +21,7 @@ jobs:
         environment: development
         steps:
           - name: SendToLogit - Workflow Started
+            if: false
             uses: DFE-Digital/github-actions/SendToLogit@master
             with:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
@@ -30,6 +31,17 @@ jobs:
                       "Action": "${{ github.repository }}",
                       "Environment": "${{ github.env }}",
                       "Version": "1" }'
+
+          - name: Debug Logit API Key and JSON
+            run: |
+              echo "LOGIT_API_KEY is set: [${{ secrets.LOGIT_API_KEY != '' }}]"
+              echo "JSON payload:"
+              echo '${{ toJson({
+                Application: github.repository,
+                Status: "RANDOMWORD",
+                Action: github.repository,
+                Environment: github.env,
+                Version: "1" }) }}'
 
           - name: Checkout code
             uses: actions/checkout@v4
