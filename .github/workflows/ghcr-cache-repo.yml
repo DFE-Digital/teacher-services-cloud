@@ -8,9 +8,6 @@ on:
       branches:
         - 2366-spike-logging-workflow-runs
 
-env:
-  ENVIRONMENT: development
-
 permissions:
   contents: read
   packages: write
@@ -21,7 +18,7 @@ permissions:
 jobs:
     mirror:
         runs-on: ubuntu-latest
-
+        environment: development
         steps:
           - name: SendToLogit - Workflow Started
             uses: DFE-Digital/github-actions/SendToLogit@master
