@@ -55,8 +55,8 @@ jobs:
             with:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
               JSON:   |
-                      '{"Application": ${{ GITHUB.ACTION_REPOSITORY}},
-                      "Status":"Completed - ${{ job.status }}",
-                      "Action":${{ GITHUB.WORKFLOW }},
-                      "Environment": ${{ GITHUB.ENV }},
-                      "Version": "1" }'
+                      {"Application": "${{ GITHUB.ACTION_REPOSITORY}}",
+                      "Status": "Completed - ${{ job.status }}",
+                      "Action": "${{ GITHUB.WORKFLOW }}",
+                      "Environment": "${{ GITHUB.ENV }}",
+                      "Version": "1" }
