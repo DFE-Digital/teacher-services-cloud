@@ -25,10 +25,10 @@ jobs:
             with:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
               JSON:   |
-                      '{"Application": ${{ GITHUB_WORKFLOW}},
+                      '{"Application": ${{ GITHUB.ACTION_REPOSITORY}},
                       "Status":"RANDOMWORD",
-                      "Action":${{ GITHUB_WORKFLOW }},
-                      "Environment": ${{ GITHUB_ENV }},
+                      "Action":${{ GITHUB.WORKFLOW }},
+                      "Environment": ${{ GITHUB.ENV }},
                       "Version": "1" }'
 
           - name: Checkout code
@@ -58,8 +58,8 @@ jobs:
             with:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
               JSON:   |
-                      '{"Application": ${{ GITHUB_WORKFLOW }},
+                      '{"Application": ${{ GITHUB.ACTION_REPOSITORY}},
                       "Status":"Completed - ${{ job.status }}",
-                      "Action":${{ GITHUB_WORKFLOW }},
-                      "Environment": ${{ GITHUB_ENV }},
+                      "Action":${{ GITHUB.WORKFLOW }},
+                      "Environment": ${{ GITHUB.ENV }},
                       "Version": "1" }'
