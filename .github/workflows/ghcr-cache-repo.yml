@@ -23,7 +23,6 @@ jobs:
           MY_ENV: development
         steps:
           - name: SendToLogit - Workflow Started
-            if: false
             uses: DFE-Digital/github-actions/SendToLogit@master
             with:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
