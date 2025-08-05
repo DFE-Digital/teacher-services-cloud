@@ -19,6 +19,8 @@ jobs:
     mirror:
         runs-on: ubuntu-latest
         environment: development
+        env:
+          MY_ENV: development
         steps:
           - name: SendToLogit - Workflow Started
             if: false
@@ -29,7 +31,7 @@ jobs:
                       '{"Application": "${{ github.repository}}",
                       "Status":"Starting - ${{ job.status }}",
                       "Action": "${{ github.repository }}",
-                      "Environment": "${{ env.environment }}",
+                      "Environment": "${{ env.MY_ENV }}",
                       "Version": "1" }'
 
           - name: Debug Logit API Key and JSON
@@ -65,5 +67,5 @@ jobs:
                       '{"Application": "${{ github.repository }}",
                       "Status": "Completed - ${{ job.status }}",
                       "Action": "${{ github.workflow }}",
-                      "Environment": "${{ env.environment }}",
+                      "Environment": "${{ env.MY_ENV }}",
                       "Version": "1" }'
