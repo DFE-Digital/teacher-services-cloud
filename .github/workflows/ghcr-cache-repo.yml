@@ -27,9 +27,9 @@ jobs:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
               JSON:   |
                       '{"Application": "${{ github.repository}}",
-                      "Status":"RANDOMWORD",
+                      "Status":"Starting - ${{ job.status }}",
                       "Action": "${{ github.repository }}",
-                      "Environment": "${{ github.env }}",
+                      "Environment": "${{ env.environment }}",
                       "Version": "1" }'
 
           - name: Debug Logit API Key and JSON
@@ -65,5 +65,5 @@ jobs:
                       '{"Application": "${{ github.repository }}",
                       "Status": "Completed - ${{ job.status }}",
                       "Action": "${{ github.workflow }}",
-                      "Environment": "${{ github.env }}",
+                      "Environment": "${{ env.environment }}",
                       "Version": "1" }'
