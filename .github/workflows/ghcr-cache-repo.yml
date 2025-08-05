@@ -33,7 +33,8 @@ jobs:
                       "Version": "1" }'
 
           - name: Debug Logit API Key and JSON
-            run: echo "LOGIT_API_KEY starts with: ${LOGIT_API_KEY:0:5}"
+            run: |
+              echo "LOGIT_API_KEY starts with: ${LOGIT_API_KEY:0:5}"
             env:
               LOGIT_API_KEY: ${{ secrets.LOGIT_API_KEY }}
 
