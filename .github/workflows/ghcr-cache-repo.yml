@@ -25,7 +25,7 @@ jobs:
             with:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
               JSON:   |
-                      '{"Application": ${{ GITHUB_ACTION_REPOSITORY}},
+                      '{"Application": ${{ GITHUB_WORKFLOW}},
                       "Status":"RANDOMWORD",
                       "Action":${{ GITHUB_WORKFLOW }},
                       "Environment": ${{ GITHUB_ENV }},
@@ -58,7 +58,7 @@ jobs:
             with:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
               JSON:   |
-                      '{"Application": ${{ GITHUB_ACTION_REPOSITORY}},
+                      '{"Application": ${{ GITHUB_WORKFLOW }},
                       "Status":"Completed - ${{ job.status }}",
                       "Action":${{ GITHUB_WORKFLOW }},
                       "Environment": ${{ GITHUB_ENV }},
