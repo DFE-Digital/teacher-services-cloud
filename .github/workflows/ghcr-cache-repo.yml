@@ -55,7 +55,7 @@ jobs:
                 echo "Tagging nginxinc/nginx-unprivileged:1.27.3-alpine3.20 as ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
                 docker tag nginxinc/nginx-unprivileged:1.27.3-alpine3.20 ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20
                 echo "Pushing ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
-                docker push "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
+                docker push -q "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
 
           - name: SendToLogit - Workflow Completed
             uses: DFE-Digital/github-actions/SendToLogit@master
