@@ -15,6 +15,17 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
+          - name: Tests
+            uses: DFE-Digital/github-actions/SendToLogit@master
+            with:
+              LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
+              JSON:   |
+                      '{"Application": ${{ GITHUB_ACTION_REPOSITORY}},
+                      "Status":"Starting",
+                      "Action":${{ GITHUB_WORKFLOW }},
+                      "Environment": ${{ GITHUB_ENV }},
+                      "Version": "1" }'
+
           - name: Checkout code
             uses: actions/checkout@v4
 
@@ -36,3 +47,14 @@ jobs:
                 echo "Pushing ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
                 docker push "ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
               done < .ghcr_cache_images.yml
+
+          - name: Tests
+            uses: DFE-Digital/github-actions/SendToLogit@master
+            with:
+              LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
+              JSON:   |
+                      '{"Application": ${{ GITHUB_ACTION_REPOSITORY}},
+                      "Status":"Completed - ${{ job.status }}",
+                      "Action":${{ GITHUB_WORKFLOW }},
+                      "Environment": ${{ GITHUB_ENV }},
+                      "Version": "1" }'
