@@ -20,7 +20,7 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-          - name: Tests
+          - name: SendToLogit - Workflow Started
             uses: DFE-Digital/github-actions/SendToLogit@master
             with:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
@@ -43,17 +43,14 @@ jobs:
 
           - name: Mirror images from lookup file
             run: |
-              while read -r src_img dst_img; do
-                [ -z "$src_img" ] && continue
-                echo "Pulling $src_img"
-                docker pull "$src_img"
-                echo "Tagging $src_img as ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
-                docker tag "$src_img" "ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
-                echo "Pushing ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
-                docker push "ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
-              done < .ghcr_cache_images.yml
+                echo "Pulling image nginxinc/nginx-unprivileged:1.27.3-alpine3.20"
+                docker pull "nginxinc/nginx-unprivileged:1.27.3-alpine3.20"
+                echo "Tagging nginxinc/nginx-unprivileged:1.27.3-alpine3.20 as ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
+                docker tag "nginxinc/nginx-unprivileged:1.27.3-alpine3.20 ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
+                echo "Pushing ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
+                docker push "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
 
-          - name: Tests
+          - name: SendToLogit - Workflow Completed
             uses: DFE-Digital/github-actions/SendToLogit@master
             with:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
