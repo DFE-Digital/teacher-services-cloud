@@ -8,7 +8,8 @@ on:
       branches:
         - 2366-spike-logging-workflow-runs
 
-env: development
+env:
+  ENVIRONMENT: development
 
 permissions:
   contents: read
