@@ -1,0 +1,21 @@
+# Maintenance Configuration File
+# Copy this to maint-config.txt and update values as needed
+
+# Main maintenance message displayed to users
+MAINTENANCE_MESSAGE="We are currently performing scheduled maintenance to improve the service"
+
+# Estimated return time (HTML format)
+# Leave empty to hide this section
+ESTIMATED_RETURN="<p class='govuk-body'>We expect the service to be available again by <strong>3:00pm on 15 January 2025</strong>.</p>"
+
+# Status page link (HTML format)
+# Leave empty to hide this section
+STATUS_PAGE="<p class='govuk-body'>For updates, please check our <a href='https://status.education.gov.uk' class='govuk-link'>status page</a>.</p>"
+
+# Contact information (will be formatted as list items)
+CONTACT_EMAIL="support@education.gov.uk"
+CONTACT_PHONE="0800 123 456"
+
+# Optional: Additional contact methods
+CONTACT_SLACK=""
+CONTACT_TEAMS=""
