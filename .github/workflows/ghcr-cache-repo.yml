@@ -48,7 +48,35 @@ jobs:
                 },
                 "user": {
                         "name": "${{ github.actor }}"
-                }
+                }                "source": "message",
+                "log": {
+                        "level": "info"
+                },
+                "host": {
+                        "name": "github.com"
+                },
+                "logtype": "custom",
+                "version": "1",
+                "event": {
+                        "category": "ci",
+                        "type": "pipeline",
+                        "action": "step_start",
+                        "outcome": "success"
+                },
+                "user": {
+                        "name": "${{ github.actor }}"
+                },
+                "git": {
+                        "branch": "${{ github.ref }}",
+                        "commit": {
+                                "id": "${{ github.sha }}",
+                                "message": "$COMMIT_MESSAGE"
+                        },
+                        "repository": {
+                                "name": "${{ github.repository }}"
+                        }
+                },
+                "message": "Step 'Run Tests' started"
               }'
             env:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
