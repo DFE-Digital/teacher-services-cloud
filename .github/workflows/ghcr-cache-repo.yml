@@ -66,17 +66,16 @@ jobs:
                 "user": {
                         "name": "${{ github.actor }}"
                 },
-                "git": {
-                        "branch": "${{ github.ref }}",
-                        "commit": {
-                                "id": "${{ github.sha }}",
-                                "message": "$COMMIT_MESSAGE"
-                        },
-                        "repository": {
-                                "name": "${{ github.repository }}"
-                        }
+                "ci": {
+                        "pipeline_id": "${{ github.run_id }}",
+                        "pipeline_name": "ci.yml",
+                        "job_name": "${{ github.job }}",
+                        "workflow_name": "CI Pipeline",
+                        "execution_id": "${{ github.run_id }}"
                 },
-                "message": "Step 'Run Tests' started"
+                "ecs": {
+                        "version": "8.11.0"
+                }
               }'
             env:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
