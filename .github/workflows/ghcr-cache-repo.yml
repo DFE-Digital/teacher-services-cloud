@@ -62,6 +62,8 @@ jobs:
                       "Status": "Completed - ${{ job.status }}",
                       "Action": "${{ github.workflow }}",
                       "Environment": "${{ env.MY_ENV }}",
+                      "source": "message",
+                      "target": "github"
                       "logtype": "custom",
                       "message": "UNIQUEPSENIOR"
                       "Version": "1" }'
