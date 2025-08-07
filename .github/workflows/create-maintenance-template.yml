@@ -191,8 +191,8 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: maintenance-template-${{ steps.setup.outputs.version }}
-          name: Maintenance Template ${{ steps.setup.outputs.version }}
+          tag_name: maintenance-templates-${{ steps.setup.outputs.version }}
+          name: Maintenance Templates ${{ steps.setup.outputs.version }}
           body_path: release_notes.md
           draft: false
           prerelease: ${{ github.event_name != 'workflow_dispatch' }}
@@ -205,12 +205,12 @@ jobs:
         if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push'
         run: |
           # Delete existing latest tag if it exists
-          git tag -d maintenance-template-latest || true
-          git push origin :refs/tags/maintenance-template-latest || true
+          git tag -d maintenance-templates-latest || true
+          git push origin :refs/tags/maintenance-templates-latest || true
           
           # Create new latest tag
-          git tag maintenance-template-latest
-          git push origin maintenance-template-latest
+          git tag maintenance-templates-latest
+          git push origin maintenance-templates-latest
 
       - name: Store template location for services
         run: |
@@ -218,8 +218,8 @@ jobs:
           cat > template-location.json << EOF
           {
             "version": "${{ steps.setup.outputs.version }}",
-            "archive_url": "https://github.com/${{ github.repository }}/releases/download/maintenance-template-${{ steps.setup.outputs.version }}/${{ steps.setup.outputs.archive_name }}",
-            "sha256_url": "https://github.com/${{ github.repository }}/releases/download/maintenance-template-${{ steps.setup.outputs.version }}/${{ steps.setup.outputs.archive_name }}.sha256",
+            "archive_url": "https://github.com/${{ github.repository }}/releases/download/maintenance-templates-${{ steps.setup.outputs.version }}/${{ steps.setup.outputs.archive_name }}",
+            "sha256_url": "https://github.com/${{ github.repository }}/releases/download/maintenance-templates-${{ steps.setup.outputs.version }}/${{ steps.setup.outputs.archive_name }}.sha256",
             "created_at": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
             "commit_sha": "${{ github.sha }}"
           }
@@ -250,8 +250,8 @@ jobs:
           
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Download URLs" >> $GITHUB_STEP_SUMMARY
-          echo "- Archive: https://github.com/${{ github.repository }}/releases/download/maintenance-template-${{ steps.setup.outputs.version }}/${{ steps.setup.outputs.archive_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Checksum: https://github.com/${{ github.repository }}/releases/download/maintenance-template-${{ steps.setup.outputs.version }}/${{ steps.setup.outputs.archive_name }}.sha256" >> $GITHUB_STEP_SUMMARY
+          echo "- Archive: https://github.com/${{ github.repository }}/releases/download/maintenance-templates-${{ steps.setup.outputs.version }}/${{ steps.setup.outputs.archive_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Checksum: https://github.com/${{ github.repository }}/releases/download/maintenance-templates-${{ steps.setup.outputs.version }}/${{ steps.setup.outputs.archive_name }}.sha256" >> $GITHUB_STEP_SUMMARY
 
   # Optional: Notify other services about the new template
   notify-services:
