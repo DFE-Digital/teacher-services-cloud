@@ -24,7 +24,8 @@ Makefile
 - Add namespace to the airbyte_namespaces variable in the appropriate cluster json tfvars file e.g. airbyte/terraform/config/test.tfvars.json
 - run make as below
 - Note that the airbyte ui account will be set to the account you use on first login. So, immediately after initial build you should log in using the password secret and the infra email. To change it after initial login appears to require contacting airbyte support, so make sure you use the correct initial email.
-- a single airbyte API application will be created. The client_id and client_secret are randomly created and kept in the kubernetes secret airbyte-auth-secrets. Decode with base64 for the true values, which can then be used by the services to connect to the airbyte api (stored as key vault secrets)
+- a single airbyte API application will be created. The client_id and client_secret are randomly created and kept in the kubernetes secret airbyte-auth-secrets. Decode with base64 for the true values which can then be used by the services to connect to the airbyte api (stored as key vault secrets)
+- a single workspace is created initially. To separate services and environments within the same namespace, we wouldn't give the default workspace to services. Instead create extra workspaces as required. Two scripts have been created to do this, list-workspaces.sh and create-workspaces.sh. You must export some local variables before running, see the scripts for details.
 
 ### Airbyte Build
 

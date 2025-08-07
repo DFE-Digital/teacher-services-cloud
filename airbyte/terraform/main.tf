@@ -56,7 +56,6 @@ resource "kubernetes_secret" "airbyte_secret" {
 
 }
 
-
 # Had to separate the data from the secret, as airbye auth creates a jwt token that breaks the service if removed
 # Works with force=true although I'm not convinced I'm using this the way it should
 # i.e. the base secret shouldn't be created in this terraform
@@ -68,7 +67,6 @@ resource "kubernetes_secret_v1_data" "airbyte_secret_data" {
     namespace = "${each.key}"
   }
   data = {
-#    instance-admin-email = data.azurerm_key_vault_secret.airbyte_user["${each.key}"].value
     instance-admin-password = data.azurerm_key_vault_secret.airbyte_pass["${each.key}"].value
     instance-admin-client-id = random_password.client-id["${each.key}"].result
     instance-admin-client-secret = random_password.client-secret["${each.key}"].result

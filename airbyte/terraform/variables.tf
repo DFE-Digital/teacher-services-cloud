@@ -33,6 +33,36 @@ variable "airbyte_namespaces" {
   default     = []
 }
 
+variable "azure_storage_mb" {
+  type    = number
+  default = 32768
+}
+
+variable "azure_storage_tier" {
+  type        = string
+  description = "Tier of storage used by the PostgreSQL Flexible Server. Possible values are P4, P6, P10, P15, P20, P30, P40, P50, P60, P70, P80. Defaults to Premium if not specified. The storage tier available depends on the azure_storage_mb value, see https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server#storage_tier-defaults-based-on-storage_mb for details."
+  default     = null
+  validation {
+    condition     = var.azure_storage_tier == null ? true : contains(["P4", "P6", "P10", "P15", "P20", "P30", "P40", "P50", "P60", "P70", "P80"], var.azure_storage_tier)
+    error_message = "The azure_storage_tier must be one of: P4, P6, P10, P15, P20, P30, P40, P50, P60, P70, P80"
+  }
+}
+
+variable "azure_sku_name" {
+  type    = string
+  default = "B_Standard_B1ms"
+}
+
+# variable "cluster_configuration_map" {
+#   type = object({
+#     resource_group_name = string,
+#     resource_prefix     = string,
+#     dns_zone_prefix     = optional(string),
+#     cpu_min             = number
+#   })
+#   description = "Configuration map for the cluster"
+# }
+
 locals {
   cluster_name = (
     var.cip_tenant ?
