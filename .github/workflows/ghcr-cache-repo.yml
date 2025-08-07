@@ -24,7 +24,6 @@ jobs:
         steps:
           - name: SendToLogit - Workflow Started
             shell: bash
-            id: send
             run: |
               curl -i  \
                  -H "ApiKey: ${{ secrets.LOGIT_API_KEY }}" \
@@ -68,7 +67,6 @@ jobs:
           - name: SendToLogit - Workflow Completed
             if: false
             shell: bash
-            id: send
             run: |
               curl -i  \
                  -H "ApiKey: ${{ secrets.LOGIT_API_KEY }}" \
