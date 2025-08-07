@@ -69,5 +69,5 @@ jobs:
                 "message": "UNIQUEPSENIOR",
                 "Version": "1"
                 }'
-            with:
+            env:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
