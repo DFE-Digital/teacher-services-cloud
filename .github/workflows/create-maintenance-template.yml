@@ -1,0 +1,274 @@
+name: Create Maintenance Template Archive
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'templates/new_service/maintenance_page/**'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag for the template archive'
+        required: false
+        default: 'latest'
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  create-template-archive:
+    name: Create and Release Maintenance Template
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up environment
+        id: setup
+        run: |
+          # Determine version/tag
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ inputs.release_tag }}" ]; then
+            VERSION="${{ inputs.release_tag }}"
+          else
+            # Generate version based on date and commit
+            VERSION="v$(date +%Y%m%d)-$(git rev-parse --short HEAD)"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          
+          # Set archive name
+          ARCHIVE_NAME="maintenance-template-${VERSION}.tar.gz"
+          echo "archive_name=${ARCHIVE_NAME}" >> $GITHUB_OUTPUT
+          
+          echo "Version: ${VERSION}"
+          echo "Archive name: ${ARCHIVE_NAME}"
+
+      - name: Create template archive
+        run: |
+          echo "Creating maintenance template archive..."
+          
+          # Create a temporary directory for the archive
+          mkdir -p temp-archive/maintenance-template
+          
+          # Copy ONLY the core template files (not manifests or scripts - those stay in service repos)
+          cp templates/new_service/maintenance_page/Dockerfile temp-archive/maintenance-template/
+          cp templates/new_service/maintenance_page/nginx.conf temp-archive/maintenance-template/
+          cp -r templates/new_service/maintenance_page/html temp-archive/maintenance-template/
+          
+          # Create metadata file
+          cat > temp-archive/maintenance-template/TEMPLATE_INFO.md << EOF
+          # Maintenance Page Template
+          
+          Version: ${{ steps.setup.outputs.version }}
+          Created: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          Source: teacher-services-cloud
+          
+          ## Contents
+          
+          This archive contains the centralized maintenance page templates:
+          
+          - **Dockerfile**: Container definition for the maintenance page
+          - **nginx.conf**: Nginx configuration for serving the maintenance page
+          - **html/**: HTML templates and assets
+            - index.html: Main maintenance page template with placeholders
+            - assets/: Static assets (images, fonts)
+            - stylesheets/: CSS files
+          
+          ## NOT Included (Service-Specific)
+          
+          The following remain in each service repository:
+          
+          - **manifests/**: Service-specific Kubernetes manifests
+          - **scripts/**: Service-specific deployment scripts
+          
+          ## Placeholders
+          
+          The following placeholders in the templates will be replaced during deployment:
+          
+          - #SERVICE_NAME#: Technical service name
+          - #SERVICE_PRETTY#: Human-readable service name
+          - #MAINTENANCE_MESSAGE#: Custom maintenance message
+          - #ESTIMATED_RETURN#: Estimated return time (optional)
+          - #STATUS_PAGE#: Status page URL (optional)
+          - #CONTACT_INFO#: Contact email (optional)
+          - #DOCKER_REPOSITORY#: Docker repository URL
+          - #MAINTENANCE_IMAGE_TAG#: Docker image tag
+          
+          ## Usage
+          
+          These templates are automatically fetched and customized by the maintenance-v2 GitHub action.
+          
+          For manual usage:
+          1. Extract the archive to your maintenance_page directory
+          2. Customize the placeholders according to your service
+          3. Build and deploy the maintenance page
+          EOF
+          
+          # Create the tar.gz archive
+          cd temp-archive
+          tar -czf "../${{ steps.setup.outputs.archive_name }}" maintenance-template/
+          cd ..
+          
+          # Calculate checksums
+          sha256sum "${{ steps.setup.outputs.archive_name }}" > "${{ steps.setup.outputs.archive_name }}.sha256"
+          
+          echo "Archive created successfully"
+          ls -lh "${{ steps.setup.outputs.archive_name }}"*
+
+      - name: Create release notes
+        id: release_notes
+        run: |
+          cat > release_notes.md << EOF
+          # Maintenance Template ${{ steps.setup.outputs.version }}
+          
+          ## 📦 Archive Contents
+          
+          This release contains the centralized maintenance page templates from the teacher-services-cloud repository.
+          
+          ### What's Included
+          
+          - Docker configuration for maintenance page container
+          - Nginx web server configuration
+          - HTML templates with GOV.UK Design System styling
+          
+          **Note**: Kubernetes manifests and deployment scripts remain in individual service repositories
+          
+          ### Download
+          
+          - **Archive**: \`${{ steps.setup.outputs.archive_name }}\`
+          - **SHA256 Checksum**: \`${{ steps.setup.outputs.archive_name }}.sha256\`
+          
+          ### Usage
+          
+          #### Automated (Recommended)
+          
+          The maintenance-v2 GitHub action automatically fetches and uses these templates:
+          
+          \`\`\`yaml
+          - name: Enable maintenance mode
+            uses: DFE-Digital/github-actions/maintenance-v2@main
+            with:
+              template-ref: "${{ steps.setup.outputs.version }}"
+              # ... other configuration
+          \`\`\`
+          
+          #### Manual
+          
+          1. Download and extract the archive
+          2. Copy contents to your \`maintenance_page/\` directory
+          3. Configure using \`maint-config.txt\`
+          4. Deploy using your standard deployment process
+          
+          ### Recent Changes
+          
+          EOF
+          
+          # Add recent commit messages related to maintenance templates
+          echo "Recent commits affecting maintenance templates:" >> release_notes.md
+          echo "" >> release_notes.md
+          git log --oneline -n 10 --pretty="- %s (%h)" -- templates/new_service/maintenance_page/ >> release_notes.md || echo "- No recent changes" >> release_notes.md
+          
+          echo "" >> release_notes.md
+          echo "---" >> release_notes.md
+          echo "*Generated on $(date -u +"%Y-%m-%d %H:%M:%S UTC")*" >> release_notes.md
+
+      - name: Upload archive as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: maintenance-template-${{ steps.setup.outputs.version }}
+          path: |
+            ${{ steps.setup.outputs.archive_name }}
+            ${{ steps.setup.outputs.archive_name }}.sha256
+          retention-days: 90
+
+      - name: Create GitHub Release
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: maintenance-template-${{ steps.setup.outputs.version }}
+          name: Maintenance Template ${{ steps.setup.outputs.version }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: ${{ github.event_name != 'workflow_dispatch' }}
+          files: |
+            ${{ steps.setup.outputs.archive_name }}
+            ${{ steps.setup.outputs.archive_name }}.sha256
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update latest tag
+        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && github.event_name == 'push'
+        run: |
+          # Delete existing latest tag if it exists
+          git tag -d maintenance-template-latest || true
+          git push origin :refs/tags/maintenance-template-latest || true
+          
+          # Create new latest tag
+          git tag maintenance-template-latest
+          git push origin maintenance-template-latest
+
+      - name: Store template location for services
+        run: |
+          # Create a simple JSON file with template location info
+          cat > template-location.json << EOF
+          {
+            "version": "${{ steps.setup.outputs.version }}",
+            "archive_url": "https://github.com/${{ github.repository }}/releases/download/maintenance-template-${{ steps.setup.outputs.version }}/${{ steps.setup.outputs.archive_name }}",
+            "sha256_url": "https://github.com/${{ github.repository }}/releases/download/maintenance-template-${{ steps.setup.outputs.version }}/${{ steps.setup.outputs.archive_name }}.sha256",
+            "created_at": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")",
+            "commit_sha": "${{ github.sha }}"
+          }
+          EOF
+          
+          echo "Template location info:"
+          cat template-location.json
+
+      - name: Summary
+        run: |
+          echo "## 📦 Maintenance Template Archive Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Version** | ${{ steps.setup.outputs.version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Archive** | ${{ steps.setup.outputs.archive_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Size** | $(du -h ${{ steps.setup.outputs.archive_name }} | cut -f1) |" >> $GITHUB_STEP_SUMMARY
+          echo "| **SHA256** | $(cut -d' ' -f1 ${{ steps.setup.outputs.archive_name }}.sha256) |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "### Trigger" >> $GITHUB_STEP_SUMMARY
+            echo "Templates were modified in commit ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### Manual Trigger" >> $GITHUB_STEP_SUMMARY
+            echo "Workflow was manually triggered with tag: ${{ inputs.release_tag }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Download URLs" >> $GITHUB_STEP_SUMMARY
+          echo "- Archive: https://github.com/${{ github.repository }}/releases/download/maintenance-template-${{ steps.setup.outputs.version }}/${{ steps.setup.outputs.archive_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Checksum: https://github.com/${{ github.repository }}/releases/download/maintenance-template-${{ steps.setup.outputs.version }}/${{ steps.setup.outputs.archive_name }}.sha256" >> $GITHUB_STEP_SUMMARY
+
+  # Optional: Notify other services about the new template
+  notify-services:
+    name: Notify Services
+    runs-on: ubuntu-latest
+    needs: create-template-archive
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    
+    steps:
+      - name: Trigger dependent workflows
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: maintenance-template-updated
+          client-payload: |
+            {
+              "commit_sha": "${{ github.sha }}",
+              "repository": "${{ github.repository }}",
+              "triggered_by": "${{ github.actor }}"
+            }
