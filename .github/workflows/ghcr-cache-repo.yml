@@ -67,7 +67,7 @@ jobs:
                   "commit": {
                   "id": "${{ github.sha }}",
                   "message": "$(git log -1 --pretty=%B)"
-            },
+              },
                 "repository": {
                     "name": "${{ github.repository }}"
                   },
