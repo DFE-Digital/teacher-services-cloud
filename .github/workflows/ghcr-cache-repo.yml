@@ -58,18 +58,11 @@ jobs:
             id: send
             run: |
               curl -i  \
-                   -H "ApiKey: ${{inputs.LOGIT-API-KEY}}"  \
+                   -H "ApiKey: ${{secrets.LOGIT-API-KEY}}"  \
                    -H "Content-Type: application/json"  \
-                   -H "LogType: ${{inputs.logtype}}"  \
+                   -H "LogType: custom"  \
                    https://api-uk1.logit.io/v2  \
-                   -d ${{inputs.JSON }}
-            with:
-              LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
-              JSON:   |
-                      '{"Application": "${{ github.repository }}",
-                      "Status": "Completed - ${{ job.status }}",
-                      "Action": "${{ github.workflow }}",
-                      "Environment": "${{ env.MY_ENV }}",
+                   -d '{}'
                       "source": "message",
                       "target": "github",
                       "logtype": "custom",
