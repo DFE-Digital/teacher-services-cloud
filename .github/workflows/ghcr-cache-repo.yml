@@ -34,12 +34,6 @@ jobs:
                       "Environment": "${{ env.MY_ENV }}",
                       "Version": "1" }'
 
-          - name: Debug Logit API Key and JSON
-            run: |
-              echo "LOGIT_API_KEY starts with: ${LOGIT_API_KEY:0:15}"
-            env:
-              LOGIT_API_KEY: ${{ secrets.LOGIT_API_KEY }}
-
           - name: Checkout code
             uses: actions/checkout@v4
 
