@@ -23,16 +23,28 @@ jobs:
           MY_ENV: development
         steps:
           - name: SendToLogit - Workflow Started
-            if: false
-            uses: DFE-Digital/github-actions/SendToLogit@master
-            with:
+            shell: bash
+            id: send
+            run: |
+              curl -i  \
+                 -H "ApiKey: ${{ secrets.LOGIT_API_KEY }}" \
+                 -H "Content-Type: application/json" \
+                 -H "LogType: custom" \
+                https://api-uk1.logit.io/v2 \
+                -d '{
+                "source": "message",
+                "target": "github",
+                "logtype": "custom",
+                "Version": "1",
+                "event": {
+                  "category": "ci"
+                  },
+                "ecs": {
+                  "version": "8.11.0"
+                  }
+                }'
+            env:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
-              JSON:   |
-                      '{"Application": "${{ github.repository}}",
-                      "Status":"Starting - ${{ job.status }}",
-                      "Action": "${{ github.repository }}",
-                      "Environment": "${{ env.MY_ENV }}",
-                      "Version": "1" }'
 
           - name: Checkout code
             uses: actions/checkout@v4
@@ -54,6 +66,7 @@ jobs:
                 docker push -q "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
 
           - name: SendToLogit - Workflow Completed
+            if: false
             shell: bash
             id: send
             run: |
