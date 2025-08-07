@@ -54,7 +54,15 @@ jobs:
                 docker push -q "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
 
           - name: SendToLogit - Workflow Completed
-            uses: DFE-Digital/github-actions/SendToLogit@master
+            shell: bash
+            id: send
+            run: |
+              curl -i  \
+                   -H "ApiKey: ${{inputs.LOGIT-API-KEY}}"  \
+                   -H "Content-Type: application/json"  \
+                   -H "LogType: ${{inputs.logtype}}"  \
+                   https://api-uk1.logit.io/v2  \
+                   -d ${{inputs.JSON }}
             with:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
               JSON:   |
