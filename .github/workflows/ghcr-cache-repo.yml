@@ -33,39 +33,43 @@ jobs:
                 -d '{
                 "source": "message",
                 "log": {
-                "level": "info"
-               },
+                        "level": "info"
+                },
                 "host": {
-                    "name": "github.com"
+                        "name": "github.com"
                 },
                 "logtype": "custom",
-                "Version": "1",
-                "log": {
-                  "level": "info"
-               },
+                "version": "1",
                 "event": {
-                  "category": "ci",
-                  "type": "pipeline",
-                  "action": "step_start",
-                  "outcome": "success"
-                  },
+                        "category": "ci",
+                        "type": "pipeline",
+                        "action": "step_start",
+                        "outcome": "success"
+                },
                 "user": {
-                  "name": "${{ github.actor }}"
+                        "name": "${{ github.actor }}"
                 },
                 "ci": {
-                  "pipeline_id": "${{ github.run_id }}",
-                  "pipeline_name": "ci.yml",
-                  "job_name": "${{ github.job }}",
-                  "workflow_name": "CI Pipeline",
-                  "execution_id": "${{ github.run_id }}"
+                        "pipeline_id": "${{ github.run_id }}",
+                        "pipeline_name": "ci.yml",
+                        "job_name": "${{ github.job }}",
+                        "workflow_name": "CI Pipeline",
+                        "execution_id": "${{ github.run_id }}"
                 },
                 "ecs": {
-                  "version": "8.11.0"
-                  },
-               "repository": {
-                    "name": "${{ github.repository }}"
-                  },
-                "message": "Step 'Run Tests' started",
+                        "version": "8.11.0"
+                },
+                "git": {
+                        "branch": "${{ github.ref }}",
+                        "commit": {
+                                "id": "${{ github.sha }}",
+                                "message": "$COMMIT_MESSAGE"
+                        },
+                        "repository": {
+                                "name": "${{ github.repository }}"
+                        }
+                },
+                "message": "Step 'Run Tests' started"
                 }'
             env:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
