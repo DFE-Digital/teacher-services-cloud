@@ -66,13 +66,7 @@ jobs:
                 "source": "message",
                 "target": "github",
                 "logtype": "custom",
-                "Version": "1",
-                \"ci\": {
-                \"pipeline_id\": \"${{ github.run_id }}\",
-                \"pipeline_name\": \"ci.yml\",
-                \"job_name\": \"${{ github.job }}\",
-                \"workflow_name\": \"CI Pipeline\",
-                \"execution_id\": \"${{ github.run_id }}
+                "Version": "1"
                 }'
             env:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
