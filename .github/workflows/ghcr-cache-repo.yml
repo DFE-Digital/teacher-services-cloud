@@ -62,13 +62,15 @@ jobs:
                 "ecs": {
                   "version": "8.11.0"
                   },
+
                 "git": {
                   "branch": "${{ github.ref }}",
                   "commit": {
-                  "id": "${{ github.sha }}",
-                  "message": "$(git log -1 --pretty=%B)"
-              },
-                "repository": {
+                    "id": "${{ github.sha }}",
+                    "message": "$(git log -1 --pretty=%B)"
+                  },
+                },
+               "repository": {
                     "name": "${{ github.repository }}"
                   },
                 "message": "Step 'Run Tests' started",
