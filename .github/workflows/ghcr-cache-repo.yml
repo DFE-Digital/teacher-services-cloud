@@ -63,7 +63,7 @@ jobs:
                       "Action": "${{ github.workflow }}",
                       "Environment": "${{ env.MY_ENV }}",
                       "source": "message",
-                      "target": "github"
+                      "target": "github",
                       "logtype": "custom",
                       "message": "UNIQUEPSENIOR"
                       "Version": "1" }'
