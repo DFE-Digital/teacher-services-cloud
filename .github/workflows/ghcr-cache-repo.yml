@@ -32,9 +32,6 @@ jobs:
                 https://api-uk1.logit.io/v2 \
                 -d '{
                 "source": "message",
-                "labels": {
-                        "workflow-purpose": "deployment"
-                },
                 "log": {
                         "level": "info"
                 },
