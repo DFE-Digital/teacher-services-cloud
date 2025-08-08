@@ -69,7 +69,7 @@ jobs:
                                 "name": "${{ github.repository }}"
                         }
                 },
-                "message": "Step 'Run Tests' started"
+                "message": "Step started"
                },
             env:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
