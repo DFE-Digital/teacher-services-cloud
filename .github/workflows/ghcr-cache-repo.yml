@@ -39,16 +39,6 @@ jobs:
                         "name": "github.com"
                 },
                 "logtype": "custom",
-                "version": "1",
-                "event": {
-                        "category": "ci",
-                        "type": "pipeline",
-                        "action": "step_start",
-                        "outcome": "success"
-                },
-                "user": {
-                        "name": "${{ github.actor }}"
-                },
                 "ci": {
                         "pipeline_id": "${{ github.run_id }}",
                         "pipeline_name": "ci.yml",
