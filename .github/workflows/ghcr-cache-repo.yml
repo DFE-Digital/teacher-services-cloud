@@ -31,16 +31,9 @@ jobs:
                  -H "LogType: custom" \
                 https://api-uk1.logit.io/v2 \
                 -d '{
-                "source": "message",
-                "log": {
-                        "level": "info"
-                },
-                "host": {
-                        "name": "github.com"
-                },
                 "logtype": "custom",
                 "message": "Step started"
-               },
+               }'
             env:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
 
