@@ -71,7 +71,10 @@ jobs:
                                 "name": "${{ github.repository }}"
                         }
                 },
-                "message": "Step started"
+                "message": "Step started",
+                "url": {
+                  "original": "$github_server_url/$github_repository/actions/runs/${{ github.run_id }}"
+                  }
                }'
             env:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
