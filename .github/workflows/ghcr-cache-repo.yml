@@ -39,16 +39,6 @@ jobs:
                         "name": "github.com"
                 },
                 "logtype": "custom",
-                "ci": {
-                        "pipeline_id": "${{ github.run_id }}",
-                        "pipeline_name": "ci.yml",
-                        "job_name": "${{ github.job }}",
-                        "workflow_name": "CI Pipeline",
-                        "execution_id": "${{ github.run_id }}"
-                },
-                "ecs": {
-                        "version": "8.11.0"
-                },
                 "git": {
                         "branch": "${{ github.ref }}",
                         "commit": {
