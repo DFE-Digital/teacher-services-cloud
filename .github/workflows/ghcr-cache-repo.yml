@@ -33,7 +33,7 @@ jobs:
                 -d '{
                 "source": "message",
                 "labels": {
-                        "level": "info"
+                        "workflow-purpose": "deployment"
                 },
                 "log": {
                         "level": "info"
