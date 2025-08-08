@@ -60,7 +60,8 @@ jobs:
                 },
                 "message": "Step started",
                   "url": {
-                  "original": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    "original": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                  }
                 }' > payload_base.json
 
 
