@@ -51,9 +51,8 @@ jobs:
                 },
                 "ci": {
                         "pipeline_id": "${{ github.run_id }}",
-                        "pipeline_name": "ci.yml",
                         "job_name": "${{ github.job }}",
-                        "workflow_name": "CI Pipeline",
+                        "workflow_name": "${{ github.workflow }}",
                         "execution_id": "${{ github.run_id }}"
                 },
                 "ecs": {
