@@ -44,10 +44,11 @@ jobs:
                   "run_id": "${{ github.run_id }}"
                 },
                 "git": {
-                "branch": "${{ github.ref }}",
-                "commit": {
-                  "id": "${{ github.sha }}",
-                 "message": "${{ github.event.head_commit.message }}"
+                  "branch": "${{ github.ref }}",
+                  "commit": {
+                    "id": "${{ github.sha }}",
+                    "message": "${{ github.event.head_commit.message }}"
+                  }
                 },
                 "repository": {
                   "name": "${{ github.repository }}"
