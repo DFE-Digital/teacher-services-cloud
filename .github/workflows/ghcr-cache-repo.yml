@@ -57,7 +57,6 @@ jobs:
           - name: SendToLogit - Workflow Started
             shell: bash
             run: |
-              JSON_PAYLOAD=$(cat ../Logit-json-payload.json)
               curl -i  \
                  -H "ApiKey: ${{ secrets.LOGIT_API_KEY }}" \
                  -H "Content-Type: application/json" \
