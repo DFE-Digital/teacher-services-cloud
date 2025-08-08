@@ -25,7 +25,7 @@ jobs:
 
           - name: build base Logit json payload
             run: |
-              cat > payload.json <<'JSON'
+              cat > payload_base.json <<'JSON'
               {
                 "labels": { "workflow-purpose": "deployment" },
                 "host": { "name": "github.com" },
@@ -68,7 +68,7 @@ jobs:
                 --arg url  "${URL}" \
                 --arg status  "${{ job.status }}" '
                 .[0] * {
-                 "@timestamp": $step_timestamp,
+                 "@step_timestamp": $step_timestamp,
                  "message": $step_name,
                  "url": {
                    "original": $url
