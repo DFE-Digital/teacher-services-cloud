@@ -62,7 +62,7 @@ jobs:
                   "url": {
                     "original": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
                   }
-                }' > payload_base.json
+                } > payload_base.json
 
 
           - name: SendToLogit - Workflow Started
