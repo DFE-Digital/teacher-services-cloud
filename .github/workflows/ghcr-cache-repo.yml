@@ -39,16 +39,6 @@ jobs:
                         "name": "github.com"
                 },
                 "logtype": "custom",
-                "git": {
-                        "branch": "${{ github.ref }}",
-                        "commit": {
-                                "id": "${{ github.sha }}",
-                                "message": "$COMMIT_MESSAGE"
-                        },
-                        "repository": {
-                                "name": "${{ github.repository }}"
-                        }
-                },
                 "message": "Step started"
                },
             env:
