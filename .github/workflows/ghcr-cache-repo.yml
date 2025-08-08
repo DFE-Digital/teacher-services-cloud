@@ -23,9 +23,6 @@ jobs:
           MY_ENV: development
         steps:
 
-          - name: fail step
-            run: false
-
           - name: SendToLogit - Workflow Started
             shell: bash
             run: |
@@ -93,6 +90,9 @@ jobs:
                 docker tag nginxinc/nginx-unprivileged:1.27.3-alpine3.20 ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20
                 echo "Pushing ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
                 docker push -q "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
+
+          - name: fail step
+            run: false
 
           - name: SendToLogit - Workflow Completed
             if: false
