@@ -31,7 +31,44 @@ jobs:
                  -H "LogType: custom" \
                 https://api-uk1.logit.io/v2 \
                 -d '{
+                "source": "message",
+                "log": {
+                        "level": "info"
+                },
+                "host": {
+                        "name": "github.com"
+                },
                 "logtype": "custom",
+                "version": "1",
+                "event": {
+                        "category": "ci",
+                        "type": "pipeline",
+                        "action": "step_start",
+                        "outcome": "success"
+                },
+                "user": {
+                        "name": "${{ github.actor }}"
+                },
+                "ci": {
+                        "pipeline_id": "${{ github.run_id }}",
+                        "pipeline_name": "ci.yml",
+                        "job_name": "${{ github.job }}",
+                        "workflow_name": "CI Pipeline",
+                        "execution_id": "${{ github.run_id }}"
+                },
+                "ecs": {
+                        "version": "8.11.0"
+                },
+                "git": {
+                        "branch": "${{ github.ref }}",
+                        "commit": {
+                                "id": "${{ github.sha }}",
+                                "message": "$COMMIT_MESSAGE"
+                        },
+                        "repository": {
+                                "name": "${{ github.repository }}"
+                        }
+                },
                 "message": "Step started"
                }'
             env:
