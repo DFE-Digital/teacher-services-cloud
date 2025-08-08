@@ -86,6 +86,9 @@ jobs:
               username: github-actions
               password: ${{ secrets.GITHUB_TOKEN }}
 
+          - name: fail step
+            run: false
+
           - name: Mirror images from lookup file
             run: |
                 echo "Pulling image nginxinc/nginx-unprivileged:1.27.3-alpine3.20"
