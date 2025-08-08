@@ -32,6 +32,9 @@ jobs:
                 https://api-uk1.logit.io/v2 \
                 -d '{
                 "source": "message",
+                "labels": {
+                        "workflow-purpose": "deployment",
+                },
                 "log": {
                         "level": "info"
                 },
@@ -43,8 +46,8 @@ jobs:
                 "event": {
                         "category": "ci",
                         "type": "pipeline",
-                        "action": "step_start",
-                        "outcome": "success"
+                        "action": "$${{ github.action}}",
+                        "outcome": ${{ job.status }}"
                 },
                 "user": {
                         "name": "${{ github.actor }}"
