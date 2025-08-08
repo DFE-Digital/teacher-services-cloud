@@ -23,52 +23,58 @@ jobs:
           MY_ENV: development
         steps:
 
+          - name: build base Logit json payload
+            run: |
+              jq -n \
+               {
+                "labels": {
+                  "workflow-purpose": "deployment"
+                },
+                "host": {
+                  "name": "github.com"
+                },
+                "logtype": "custom",
+                "event": {
+                   "category": "ci",
+                   "type": "pipeline",
+                   "action": "$${{ github.action}}",
+                   "outcome": "${{ job.status }}"
+                },
+                "user": {
+                   "name": "${{ github.actor }}"
+                 },
+                "ci": {
+                   "pipeline_id": "${{ github.run_id }}",
+                    "job_name": "${{ github.job }}",
+                     "workflow_name": "${{ github.workflow }}",
+                     "run_id": " ${{ github.run_id }} "
+                },
+                "git": {
+                  "branch": "${{ github.ref }}",
+                  "commit": {
+                  "id": "${{ github.sha }}",
+                  "message": "${{ github.event.head_commit.message }}"
+                },
+                "repository": {
+                  "name": "${{ github.repository }}"
+                },
+                "message": "Step started",
+                  "url": {
+                  "original": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                }, > payload_base.json
+
+
           - name: SendToLogit - Workflow Started
             shell: bash
             run: |
+              JSON_PAYLOAD=$(cat ../Logit-json-payload.json)
               curl -i  \
                  -H "ApiKey: ${{ secrets.LOGIT_API_KEY }}" \
                  -H "Content-Type: application/json" \
                  -H "LogType: custom" \
                 https://api-uk1.logit.io/v2 \
-                -d '{
-                "labels": {
-                        "workflow-purpose": "deployment"
-                },
-                "host": {
-                        "name": "github.com"
-                },
-                "logtype": "custom",
-                "event": {
-                        "category": "ci",
-                        "type": "pipeline",
-                        "action": "$${{ github.action}}",
-                        "outcome": "${{ job.status }}"
-                },
-                "user": {
-                        "name": "${{ github.actor }}"
-                },
-                "ci": {
-                        "pipeline_id": "${{ github.run_id }}",
-                        "job_name": "${{ github.job }}",
-                        "workflow_name": "${{ github.workflow }}",
-                        "run_id": " ${{ github.run_id }} "
-                },
-                "git": {
-                        "branch": "${{ github.ref }}",
-                        "commit": {
-                                "id": "${{ github.sha }}",
-                                "message": "${{ github.event.head_commit.message }}"
-                        },
-                        "repository": {
-                                "name": "${{ github.repository }}"
-                        }
-                },
-                "message": "Step started",
-                "url": {
-                  "original": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                  }
-               }'
+                -d @payload_base.json
+
             env:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
 
@@ -95,7 +101,6 @@ jobs:
             run: false
 
           - name: SendToLogit - Workflow Completed
-            if: false
             shell: bash
             run: |
               curl -i  \
@@ -103,13 +108,6 @@ jobs:
                  -H "Content-Type: application/json" \
                  -H "LogType: custom" \
                 https://api-uk1.logit.io/v2 \
-                -d '{
-                "source": "message",
-                "target": "github",
-                "logtype": "custom",
-                "Version": "1",
-                "event": {
-                  "category": "ci"
-                }'
+                -d @payload_base.json
             env:
               LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
