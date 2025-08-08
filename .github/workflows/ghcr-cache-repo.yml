@@ -22,6 +22,10 @@ jobs:
         env:
           MY_ENV: development
         steps:
+
+          - name: fail step
+            run: false
+            
           - name: SendToLogit - Workflow Started
             shell: bash
             run: |
@@ -79,9 +83,6 @@ jobs:
               registry: ghcr.io
               username: github-actions
               password: ${{ secrets.GITHUB_TOKEN }}
-
-          - name: fail step
-            run: false
 
           - name: Mirror images from lookup file
             run: |
