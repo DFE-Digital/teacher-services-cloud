@@ -31,7 +31,7 @@ jobs:
                  -H "LogType: custom" \
                 https://api-uk1.logit.io/v2 \
                 -d '{
-                "source": "message"
+                "source": "message",
                 "labels": {
                         "level": "info"
                 },
