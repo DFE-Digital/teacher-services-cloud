@@ -81,7 +81,7 @@ jobs:
                 }' payload_base.json > payload.json
 
               curl -i  \
-                 -H "Authorization: ApiKey $LOGIT_API_KEY" \
+                 -H ApiKey $LOGIT_API_KEY" \
                  -H "Content-Type: application/json" \
                  -H "LogType: custom" \
                  --data-binary @payload.json \
