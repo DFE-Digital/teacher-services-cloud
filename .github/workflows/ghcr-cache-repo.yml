@@ -129,13 +129,13 @@ jobs:
                     "outcome": $status,
                     "action": $step_name
                   }
-                }' payload_base.json > payload.json
+                }' payload_base.json > payload2.json
 
               curl -i  \
                  -H "ApiKey: ${{ env.LOGIT_API_KEY }}" \
                  -H "Content-Type: application/json" \
                  -H "LogType: custom" \
                  https://api-uk1.logit.io/v2 \
-                 --data-binary @payload.json
+                 --data-binary @payload2.json
 
 
