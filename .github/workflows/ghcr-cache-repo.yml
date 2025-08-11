@@ -78,7 +78,7 @@ jobs:
                     "outcome": $status,
                     "action": $step_name
                   }
-                }'  ${{ GITHUB_WORKSPACE }}/payload_base.json >> payload.json
+                }'  $GITHUB_WORKSPACE/payload_base.json >> payload.json
 
               curl -i  \
                  -H "ApiKey: ${{ env.LOGIT_API_KEY }}" \
@@ -129,7 +129,7 @@ jobs:
                     "outcome": $status,
                     "action": $step_name
                   }
-                }' ${{ GITHUB_WORKSPACE }}/payload_base.json >> payload2.json
+                }' $GITHUB_WORKSPACE/payload_base.json >> payload2.json
 
               curl -i  \
                  -H "ApiKey: ${{ env.LOGIT_API_KEY }}" \
