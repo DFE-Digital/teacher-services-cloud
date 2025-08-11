@@ -106,6 +106,10 @@ jobs:
                 echo "Pushing ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
                 docker push -q "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
 
+          - name: fail step
+            shell: echo "fail step"
+            if: false # This step is intentionally set to fail to test the logging functionality
+
           - name: SendToLogit - Workflow Completed
             shell: bash
             env:
