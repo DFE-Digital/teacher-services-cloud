@@ -107,7 +107,7 @@ jobs:
                 docker push -q "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
 
           - name: fail step
-            run: echo "fail step"
+            run: exit 1
             if: false # This step is intentionally set to fail to test the logging functionality
 
           - name: SendToLogit - Workflow Completed
