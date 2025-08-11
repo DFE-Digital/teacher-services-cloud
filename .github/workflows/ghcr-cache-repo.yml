@@ -108,7 +108,6 @@ jobs:
 
           - name: fail step
             run: exit 1
-            if: false # This step is intentionally set to fail to test the logging functionality
 
           - name: SendToLogit - Workflow Completed
             shell: bash
