@@ -108,9 +108,6 @@ jobs:
                 echo "Pushing ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
                 docker push -q "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
 
-          - name: fail step
-            run: false
-
           - name: SendToLogit - Workflow Completed
             shell: bash
             env:
