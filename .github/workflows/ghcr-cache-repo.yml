@@ -23,6 +23,9 @@ jobs:
           MY_ENV: development
         steps:
 
+          - name: Checkout code
+            uses: actions/checkout@v4
+
           - name: build base Logit json payload
             run: |
               cat > payload_base.json <<'JSON'
@@ -86,10 +89,6 @@ jobs:
                  -H "LogType: custom" \
                  https://api-uk1.logit.io/v2 \
                  --data-binary @payload.json
-
-
-          - name: Checkout code
-            uses: actions/checkout@v4
 
           - name: Log in to GHCR
             uses: docker/login-action@v3
