@@ -68,7 +68,7 @@ jobs:
                 --arg step_name "${STEP_NAME}" \
                 --arg url "${URL}" \
                 --arg status "${{ job.status }}" '
-                .[0] * {
+                (.[0] // {}) * {
                  "@timestamp": $step_timestamp,
                  "message": $step_name,
                  "url": {
@@ -78,10 +78,10 @@ jobs:
                     "outcome": $status,
                     "action": $step_name
                   }
-                }'  $GITHUB_WORKSPACE/payload_base.json >> payload.json
+                }'  $GITHUB_WORKSPACE/payload_base.json > payload.json
 
               curl -i  \
-                 -H "ApiKey: ${{ env.LOGIT_API_KEY }}" \
+                 -H "ApiKey: $LOGIT_API_KEY" \
                  -H "Content-Type: application/json" \
                  -H "LogType: custom" \
                  https://api-uk1.logit.io/v2 \
@@ -119,7 +119,7 @@ jobs:
                 --arg step_name "${STEP_NAME}" \
                 --arg url "${URL}" \
                 --arg status "${{ job.status }}" '
-                .[0] * {
+                (.[0] // {}) * {
                  "@timestamp": $step_timestamp,
                  "message": $step_name,
                  "url": {
@@ -129,10 +129,10 @@ jobs:
                     "outcome": $status,
                     "action": $step_name
                   }
-                }' $GITHUB_WORKSPACE/payload_base.json >> payload2.json
+                }' $GITHUB_WORKSPACE/payload_base.json > payload2.json
 
               curl -i  \
-                 -H "ApiKey: ${{ env.LOGIT_API_KEY }}" \
+                 -H "ApiKey: $LOGIT_API_KEY" \
                  -H "Content-Type: application/json" \
                  -H "LogType: custom" \
                  https://api-uk1.logit.io/v2 \
