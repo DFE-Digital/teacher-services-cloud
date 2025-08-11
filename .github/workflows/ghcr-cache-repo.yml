@@ -84,7 +84,7 @@ jobs:
                  -H ApiKey: $LOGIT_API_KEY \
                  -H "Content-Type: application/json" \
                  -H "LogType: custom" \
-                 https://api-uk1.logit.io/v2
+                 https://api-uk1.logit.io/v2 \
                  --data-binary @payload.json
 
 
@@ -135,7 +135,7 @@ jobs:
                  -H ApiKey: $LOGIT_API_KEY \
                  -H "Content-Type: application/json" \
                  -H "LogType: custom" \
-                 https://api-uk1.logit.io/v2
+                 https://api-uk1.logit.io/v2 \
                  --data-binary @payload.json
 
 
