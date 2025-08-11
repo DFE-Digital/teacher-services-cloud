@@ -112,12 +112,30 @@ jobs:
             shell: bash
             env:
               STEP_NAME: "WorkflowCompleted"
-              LOGIT-API-KEY: ${{secrets.LOGIT_API_KEY}}
+              LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
+              URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             run: |
+              jq -s \
+                --arg step_timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+                --arg step_name "${STEP_NAME}" \
+                --arg url "${URL}" \
+                --arg status "${{ job.status }}" '
+                .[0] * {
+                 "@timestamp": $step_timestamp,
+                 "message": $step_name,
+                 "url": {
+                   "original": $url
+                  },
+                 "event": {
+                    "outcome": $status,
+                    "action": $step_name
+                  }
+                }' payload_base.json > payload.json
+
               curl -i  \
-                 -H "ApiKey: ${{ secrets.LOGIT_API_KEY }}" \
+                 -H ApiKey: $LOGIT_API_KEY \
                  -H "Content-Type: application/json" \
                  -H "LogType: custom" \
-                https://api-uk1.logit.io/v2 \
-                -d @payload_base.json
+                 --data-binary @payload.json \
+                 https://api-uk1.logit.io/v2
 
