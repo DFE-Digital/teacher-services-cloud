@@ -26,39 +26,6 @@ jobs:
           - name: Checkout code
             uses: actions/checkout@v4
 
-          - name: build base Logit json payload
-            run: |
-              cat > payload_base.json <<'JSON'
-              {
-                "labels": { "workflow-purpose": "deployment" },
-                "host": { "name": "github.com" },
-                "logtype": "custom",
-                "event": {
-                  "category": "ci",
-                  "type": "pipeline",
-                  "action": "${{ github.action }}",
-                  "outcome": "${{ job.status }}"
-                },
-                "user": { "name": "${{ github.actor }}" },
-                "ci": {
-                  "pipeline_id": "${{ github.run_id }}",
-                  "job_name": "${{ github.job }}",
-                  "workflow_name": "${{ github.workflow }}",
-                  "run_id": "${{ github.run_id }}"
-                },
-                "git": {
-                  "branch": "${{ github.ref }}",
-                  "commit": {
-                    "id": "${{ github.sha }}",
-                    "message": "${{ github.event.head_commit.message }}"
-                  }
-                },
-                "repository": {
-                  "name": "${{ github.repository }}"
-                }
-              }
-              JSON
-
           - name: SendToLogit - Workflow Started
             shell: bash
             env:
@@ -66,6 +33,7 @@ jobs:
               LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
               URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             run: |
+              BASE="$GITHUB_WORKSPACE/.github/logit-base-workflow.json"
               jq -s \
                 --arg step_timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
                 --arg step_name "${STEP_NAME}" \
@@ -81,7 +49,7 @@ jobs:
                     "outcome": $status,
                     "action": $step_name
                   }
-                }'  $GITHUB_WORKSPACE/payload_base.json > payload.json
+                }'  $BASE > payload.json
 
               curl -i  \
                  -H "ApiKey: $LOGIT_API_KEY" \
@@ -113,6 +81,7 @@ jobs:
               LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
               URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             run: |
+              BASE="$GITHUB_WORKSPACE/.github/logit-base-workflow.json"
               jq -s \
                 --arg step_timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
                 --arg step_name "${STEP_NAME}" \
@@ -128,7 +97,7 @@ jobs:
                     "outcome": $status,
                     "action": $step_name
                   }
-                }' $GITHUB_WORKSPACE/payload_base.json > payload2.json
+                }' $BASE > payload2.json
 
               curl -i  \
                  -H "ApiKey: $LOGIT_API_KEY" \
