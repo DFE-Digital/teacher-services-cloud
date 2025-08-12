@@ -107,10 +107,10 @@ jobs:
                 echo "Pushing ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
                 docker push -q "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
 
-          - name: fail the workflow
-            run: |
-              echo "This workflow is only for testing purposes and should not be run in production."
-              exit 1
+#          - name: fail the workflow
+#            run: |
+#              echo "This workflow is only for testing purposes and should not be run in production."
+#              exit 1
 
           - name: SendToLogit - Workflow Completed
             shell: bash
