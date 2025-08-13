@@ -113,10 +113,10 @@ jobs:
               echo "This workflow is only for testing purposes and should not be run in production."
               exit 1
 
-          - name: SendToLogit - Workflow Completed
+          - name: SendToLogit - Workflow Completed Success
             shell: bash
             env:
-              STEP_NAME: "WorkflowCompleted"
+              STEP_NAME: "WorkflowCompletedSuccess"
               LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
               URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
             run: |
@@ -146,8 +146,8 @@ jobs:
                  --data-binary @payload2.json
 
 
-          - name: SendToLogit - Workflow Completed
-            if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+          - name: SendToLogit - Workflow Failed
+            if: ${{ always() && failure() || github.event.workflow_run.conclusion == 'failure' }}
             shell: bash
             env:
               STEP_NAME: "WorkflowFailed"
