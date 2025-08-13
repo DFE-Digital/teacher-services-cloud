@@ -111,7 +111,6 @@ jobs:
           - name: fail the workflow
             run: |
               this wont work
-            continue-on-error: true
 
           - name: SendToLogit - Workflow Completed Success
             shell: bash
