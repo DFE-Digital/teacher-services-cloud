@@ -158,7 +158,7 @@ jobs:
                 --arg step_timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
                 --arg step_name "${STEP_NAME}" \
                 --arg url "${URL}" \
-                --arg conclusion "${{ github.event.workflow_run.conclusion }}" \
+                --arg conclusion "${{ github.event.workflow.run.conclusion }}" \
                 --arg status "${{ job.status }}" '
                 (.[0] // {}) * {
                  "@timestamp": $step_timestamp,
