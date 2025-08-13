@@ -113,6 +113,7 @@ jobs:
               this wont work
 
           - name: SendToLogit - Workflow Completed Success
+            if: false
             shell: bash
             env:
               STEP_NAME: "WorkflowCompletedSuccess"
