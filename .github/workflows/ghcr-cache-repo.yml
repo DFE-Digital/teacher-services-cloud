@@ -145,3 +145,35 @@ jobs:
                  --data-binary @payload2.json
 
 
+          - name: SendToLogit - Workflow Completed
+            if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+            shell: bash
+            env:
+              STEP_NAME: "WorkflowFailed"
+              LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
+              URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            run: |
+              BASE="$GITHUB_WORKSPACE/.github/logit/base-workflow.json"
+              jq -s \
+                --arg step_timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+                --arg step_name "${STEP_NAME}" \
+                --arg url "${URL}" \
+                --arg status "${{ job.status }}" '
+                (.[0] // {}) * {
+                 "@timestamp": $step_timestamp,
+                 "message": $step_name,
+                 "url": {
+                   "original": $url
+                  },
+                 "event": {
+                    "outcome": $status,
+                    "action": $step_name
+                  }
+                }' $GITHUB_WORKSPACE/payload_base.json > payload2.json
+
+              curl -i  \
+                 -H "ApiKey: $LOGIT_API_KEY" \
+                 -H "Content-Type: application/json" \
+                 -H "LogType: custom" \
+                 https://api-uk1.logit.io/v2 \
+                 --data-binary @payload2.json
