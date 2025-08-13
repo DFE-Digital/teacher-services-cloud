@@ -110,8 +110,8 @@ jobs:
 
           - name: fail the workflow
             run: |
-              echo "This workflow is only for testing purposes and should not be run in production."
-              exit 1
+              this wont work
+            continue-on-error: true
 
           - name: SendToLogit - Workflow Completed Success
             shell: bash
