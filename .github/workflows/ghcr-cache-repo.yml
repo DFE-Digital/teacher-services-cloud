@@ -60,6 +60,7 @@ jobs:
               JSON
 
           - name: SendToLogit - Workflow Started
+            if: false
             shell: bash
             env:
               STEP_NAME: "WorkflowStarted"
