@@ -41,10 +41,10 @@ jobs:
                 },
                 "user": { "name": "${{ github.actor }}" },
                 "ci": {
-                  "pipeline_id": ${{ github.run_id }} { "type": "integer" },
+                  "pipeline_id": { ${{ github.run_id }}, "type": "integer" },
                   "job_name": "${{ github.job }}",
                   "workflow_name": "${{ github.workflow }}",
-                  "run_id": ${{ github.run_id }} { "type": "integer" },
+                  "run_id": { ${{ github.run_id }}, "type": "integer" },
                 },
                 "git": {
                   "branch": "${{ github.ref }}",
