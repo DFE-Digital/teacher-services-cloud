@@ -147,7 +147,7 @@ jobs:
 
 
           - name: SendToLogit - Workflow Failed
-            if: ${{ always() && failure() || github.event.workflow_run.conclusion == 'failure' }}
+            if: ${{ failure() }}
             shell: bash
             env:
               STEP_NAME: "WorkflowFailed"
