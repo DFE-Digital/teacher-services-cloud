@@ -37,7 +37,6 @@ jobs:
                   "category": "ci",
                   "type": "pipeline",
                   "action": "${{ github.action }}",
-                  "outcome": "${{ job.status }}",
                   "environment": "${{ env.MY_ENV }}"
                 },
                 "user": { "name": "${{ github.actor }}" },
