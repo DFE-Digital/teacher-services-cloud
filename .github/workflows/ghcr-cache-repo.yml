@@ -171,7 +171,7 @@ jobs:
                  "event": {
                     "outcome": "$status",
                     "action": "$step_name",
-                    "conclusion": "conclusion"
+                    "conclusion": "$conclusion"
                   }
                 }' $GITHUB_WORKSPACE/payload_base.json > payload2.json
 
