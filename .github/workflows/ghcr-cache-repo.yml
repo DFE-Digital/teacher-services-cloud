@@ -127,7 +127,7 @@ jobs:
             if: ${{ always() }}
             shell: bash
             env:
-              STEP_NAME: "WorkflowCompleted"
+              STEP_NAME: "WorkflowCompleted - ${{ job.status }}"
               LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
               URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
               CONCLUSION: "${{ github.event.workflow.run.conclusion }}"
