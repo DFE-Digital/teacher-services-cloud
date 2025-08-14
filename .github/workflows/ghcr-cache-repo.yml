@@ -135,7 +135,7 @@ jobs:
               LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
               URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
               CONCLUSION: "${{ github.event.workflow.run.conclusion }}"
-              STATUS: "failure"  
+              STATUS: "success"  
               FAIL_EXIT_CODE: "${{ env.FAIL_EXIT_CODE }}"                # from earlier failing step(s)
               FAILED_STEP: "${{ env.FAILED_STEP }}"
             run: |
