@@ -142,6 +142,8 @@ jobs:
               BASE="$GITHUB_WORKSPACE/.github/logit/base-workflow.json"
               TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
+              STATUS="failure"
+
               if [ "${STATUS}" = "failure" ]; then
                 # Failure branch — include first failing step and its exit code
                 jq -s \
@@ -167,7 +169,7 @@ jobs:
                     }
                   }' "$GITHUB_WORKSPACE/payload_base.json" > payload2.json
                 exit 1
-                
+
               else
                 # Success branch — no failure details
                 jq -s \
