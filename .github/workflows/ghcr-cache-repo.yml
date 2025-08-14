@@ -166,7 +166,6 @@ jobs:
                       }
                     }
                   }' "$GITHUB_WORKSPACE/payload_base.json" > payload2.json
-                exit 1
 
               else
                 # Success branch — no failure details
@@ -194,3 +193,7 @@ jobs:
                 -H "LogType: custom" \
                 https://api-uk1.logit.io/v2 \
                 --data-binary @payload2.json
+
+              if [ "${STATUS}" = "failure" ]; then
+                exit 1
+                }
