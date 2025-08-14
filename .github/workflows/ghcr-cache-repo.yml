@@ -2,6 +2,15 @@ name: Mirror DockerHub Images to GHCR
 
 on:
     workflow_dispatch:
+      inputs:
+        status:
+          description: 'Set the status of the workflow run'
+          required: true
+          default: 'failure'  # Default to failure, can be overridden in the UI
+          type: choice
+          options:
+            - success
+            - failure
     schedule:
       - cron: "0 6 * * 0"  # Weekly on Sundays at 06:00 UTC
     push:
@@ -66,7 +75,7 @@ jobs:
               STEP_NAME: "WorkflowStarted"
               LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
               URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-              STATUS: "${{ job.status }}"
+              STATUS: "${{ github.event_name == 'workflow_dispatch' && github.event.inputs.status || job.status }}"
             run: |
               BASE="$GITHUB_WORKSPACE/.github/logit/base-workflow.json"
               TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -135,7 +144,7 @@ jobs:
               LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
               URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
               CONCLUSION: "${{ github.event.workflow.run.conclusion }}"
-              STATUS: "success"  ##<===TOGGLE HERE FOR STATUS OUTCOME!
+              STATUS: ${{ input.STATUS }}
               FAIL_EXIT_CODE: "${{ env.FAIL_EXIT_CODE }}"                # from earlier failing step(s)
               FAILED_STEP: "${{ env.FAILED_STEP }}"
             run: |
