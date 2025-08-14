@@ -135,14 +135,12 @@ jobs:
               LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
               URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
               CONCLUSION: "${{ github.event.workflow.run.conclusion }}"
-              STATUS: "${{ job.status }}"
+              STATUS: "failure"
               FAIL_EXIT_CODE: "${{ env.FAIL_EXIT_CODE }}"                # from earlier failing step(s)
               FAILED_STEP: "${{ env.FAILED_STEP }}"
             run: |
               BASE="$GITHUB_WORKSPACE/.github/logit/base-workflow.json"
               TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-
-              STATUS="failure"
 
               if [ "${STATUS}" = "failure" ]; then
                 # Failure branch — include first failing step and its exit code
