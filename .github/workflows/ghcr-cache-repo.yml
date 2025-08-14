@@ -113,7 +113,6 @@ jobs:
           - name: failing step  # This step is intentionally failing to test the failure handling
             run: |
                 set +e
-                exit 1  # FAIL THE STEP
                 ec=$?
                 # Persist first failure details for later steps
                 if [ $ec -ne 0 ] && [ -z "${FAIL_EXIT_CODE:-}" ]; then
@@ -121,7 +120,8 @@ jobs:
                   echo "FAILED_STEP=build"  >> "$GITHUB_ENV"
                 fi
                 exit $ec
-
+                exit 1  # FAIL THE STEP
+                
           - name: SendToLogit - Workflow Completed
             if: ${{ always() }}
             shell: bash
