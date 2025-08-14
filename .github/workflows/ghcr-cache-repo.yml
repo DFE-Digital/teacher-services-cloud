@@ -66,13 +66,14 @@ jobs:
               STEP_NAME: "WorkflowStarted"
               LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
               URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              STATUS: "${{ job.status }}"
             run: |
               BASE="$GITHUB_WORKSPACE/.github/logit/base-workflow.json"
               jq -s \
                 --arg step_timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-                --arg step_name "${{ env.STEP_NAME }}" \
+                --arg step_name "${STEP_NAME}" \
                 --arg url "${URL}" \
-                --arg status "${{ job.status }}" '
+                --arg status "${STATUS}" '
                 (.[0] // {}) * {
                  "@timestamp": $step_timestamp,
                  "message": $step_name,
@@ -119,13 +120,14 @@ jobs:
               STEP_NAME: "WorkflowCompletedSuccess"
               LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
               URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              STATUS: "${{ job.status }}"
             run: |
               BASE="$GITHUB_WORKSPACE/.github/logit/base-workflow.json"
               jq -s \
                 --arg step_timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-                --arg step_name "${{ env.STEP_NAME }}" \
+                --arg step_name "${STEP_NAME}" \
                 --arg url "${URL}" \
-                --arg status "${{ job.status }}" '
+                --arg status "${STATUS}" '
                 (.[0] // {}) * {
                  "@timestamp": $step_timestamp,
                  "message": $step_name,
@@ -153,14 +155,16 @@ jobs:
               STEP_NAME: "WorkflowFailed"
               LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
               URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              CONCLUSION: "${{ github.event.workflow.run.conclusion }}"
+              STATUS: "${{ job.status }}"
             run: |
               BASE="$GITHUB_WORKSPACE/.github/logit/base-workflow.json"
               jq -s \
                 --arg step_timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-                --arg step_name "${{ env.STEP_NAME }}" \
+                --arg step_name "${STEP_NAME}" \
                 --arg url "${URL}" \
-                --arg conclusion "${{ github.event.workflow.run.conclusion }}"  \
-                --arg status "${{ job.status }}" '
+                --arg conclusion "${CONCLUSION}"  \
+                --arg status "${STATUS}" '
                 (.[0] // {}) * {
                  "@timestamp": $step_timestamp,
                  "message": $step_name,
