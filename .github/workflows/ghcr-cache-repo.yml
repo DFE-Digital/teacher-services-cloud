@@ -110,18 +110,23 @@ jobs:
                 echo "Pushing ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
                 docker push -q "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
 
-          - name: failing step  # This step is intentionally failing to test the failure handling
+          - id: failing
+            name: Failing step (captures exit code)
+            continue-on-error: true            # let later steps run
+            shell: bash
             run: |
-                set +e
-                ec=$?
-                # Persist first failure details for later steps
-                if [ $ec -ne 0 ] && [ -z "${FAIL_EXIT_CODE:-}" ]; then
-                  echo "FAIL_EXIT_CODE=$ec" >> "$GITHUB_ENV"
-                  echo "FAILED_STEP=build"  >> "$GITHUB_ENV"
-                fi
-                exit $ec
-                exit 1  # FAIL THE STEP
-                
+              set +e                            # don't bail before we capture $?
+              # --- simulate a failure (replace with your real command) ---
+              bash -c 'exit 1'
+              ec=$?                             # capture the exit code of the failing command
+
+              # expose for later steps
+              echo "exit_code=$ec" >> "$GITHUB_OUTPUT"     # step output (preferred)
+              echo "FAIL_EXIT_CODE=$ec" >> "$GITHUB_ENV"   # optional env
+              echo "FAILED_STEP=failing" >> "$GITHUB_ENV"
+
+              exit $ec                          # still mark this step as failed
+
           - name: SendToLogit - Workflow Completed
             if: ${{ always() }}
             shell: bash
