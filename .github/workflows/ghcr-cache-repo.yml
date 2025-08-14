@@ -196,4 +196,5 @@ jobs:
 
               if [ "${STATUS}" = "failure" ]; then
                 exit 1
+              fi
                 }
