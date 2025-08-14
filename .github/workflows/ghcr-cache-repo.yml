@@ -117,7 +117,7 @@ jobs:
             run: |
               set +e                            # don't bail before we capture $?
               # --- simulate a failure (replace with your real command) ---
-              bash -c 'exit 1'
+              bash -c 'exit 127'
               ec=$?                             # capture the exit code of the failing command
 
               # expose for later steps
@@ -195,6 +195,6 @@ jobs:
                 --data-binary @payload2.json
 
               if [ "${STATUS}" = "failure" ]; then
-                exit 1
+                exit ${FAIL_EXIT_CODE:-1}  # Use the captured exit code from the failing step
               fi
                 }
