@@ -166,7 +166,7 @@ jobs:
                       }
                     }
                   }' "$GITHUB_WORKSPACE/payload_base.json" > payload2.json
-                exit_code="${FAIL_EXIT_CODE:-1}"  # ensure exit_code is set for failure
+                exit "${FAIL_EXIT_CODE:-1}"  # ensure exit_code is set for failure
 
               else
                 # Success branch — no failure details
