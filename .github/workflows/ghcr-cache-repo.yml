@@ -111,6 +111,7 @@ jobs:
                 docker push -q "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
 
           - name: failing step  # This step is intentionally failing to test the failure handling
+            continue-on-error: true
             run: |
                 set +e
                 exit 1  # FAIL THE STEP
