@@ -69,8 +69,9 @@ jobs:
               STATUS: "${{ job.status }}"
             run: |
               BASE="$GITHUB_WORKSPACE/.github/logit/base-workflow.json"
+              TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
               jq -s \
-                --arg step_timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+                --arg step_timestamp "$TS" \
                 --arg step_name "${STEP_NAME}" \
                 --arg url "${URL}" \
                 --arg status "${STATUS}" '
@@ -109,78 +110,81 @@ jobs:
                 echo "Pushing ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
                 docker push -q "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
 
-          - name: fail the workflow
+          - name: failing step  # This step is intentionally failing to test the failure handling
             run: |
-              this wont work
+                set +e
+                exit 1  # FAIL THE STEP
+                ec=$?
+                # Persist first failure details for later steps
+                if [ $ec -ne 0 ] && [ -z "${FAIL_EXIT_CODE:-}" ]; then
+                  echo "FAIL_EXIT_CODE=$ec" >> "$GITHUB_ENV"
+                  echo "FAILED_STEP=build"  >> "$GITHUB_ENV"
+                fi
+                exit $ec
 
-          - name: SendToLogit - Workflow Completed Success
-            if: false
+          - name: SendToLogit - Workflow Completed
+            if: ${{ always() }}
             shell: bash
             env:
-              STEP_NAME: "WorkflowCompletedSuccess"
-              LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
-              URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-              STATUS: "${{ job.status }}"
-            run: |
-              BASE="$GITHUB_WORKSPACE/.github/logit/base-workflow.json"
-              jq -s \
-                --arg step_timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-                --arg step_name "${STEP_NAME}" \
-                --arg url "${URL}" \
-                --arg status "${STATUS}" '
-                (.[0] // {}) * {
-                 "@timestamp": $step_timestamp,
-                 "message": $step_name,
-                 "url": {
-                   "original": $url
-                  },
-                 "event": {
-                    "outcome": $status,
-                    "action": $step_name
-                  }
-                }' $GITHUB_WORKSPACE/payload_base.json > payload2.json
-
-              curl -i  \
-                 -H "ApiKey: $LOGIT_API_KEY" \
-                 -H "Content-Type: application/json" \
-                 -H "LogType: custom" \
-                 https://api-uk1.logit.io/v2 \
-                 --data-binary @payload2.json
-
-
-          - name: SendToLogit - Workflow Failed
-            if: ${{ failure() }}
-            shell: bash
-            env:
-              STEP_NAME: "WorkflowFailed"
+              STEP_NAME: "WorkflowCompleted"
               LOGIT_API_KEY: ${{secrets.LOGIT_API_KEY}}
               URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
               CONCLUSION: "${{ github.event.workflow.run.conclusion }}"
               STATUS: "${{ job.status }}"
+              FAIL_EXIT_CODE: "${{ env.FAIL_EXIT_CODE }}"                # from earlier failing step(s)
+              FAILED_STEP: "${{ env.FAILED_STEP }}"
             run: |
               BASE="$GITHUB_WORKSPACE/.github/logit/base-workflow.json"
-              jq -s \
-                --arg step_timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-                --arg step_name "${STEP_NAME}" \
-                --arg url "${URL}" \
-                --arg conclusion "${CONCLUSION}"  \
-                --arg status "${STATUS}" '
-                (.[0] // {}) * {
-                 "@timestamp": $step_timestamp,
-                 "message": $step_name,
-                 "url": {
-                   "original": $url
-                  },
-                 "event": {
-                    "outcome": $status,
-                    "action": $step_name,
-                    "conclusion": $conclusion
-                  }
-                }' $GITHUB_WORKSPACE/payload_base.json > payload2.json
+              TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-              curl -i  \
-                 -H "ApiKey: $LOGIT_API_KEY" \
-                 -H "Content-Type: application/json" \
-                 -H "LogType: custom" \
-                 https://api-uk1.logit.io/v2 \
-                 --data-binary @payload2.json
+              if [ "${STATUS}" = "failure" ]; then
+                # Failure branch — include first failing step and its exit code
+                jq -s \
+                  --arg step_timestamp "$TS" \
+                  --arg step_name "${STEP_NAME}" \
+                  --arg url "${URL}" \
+                  --arg conclusion "${CONCLUSION:-failure}" \
+                  --arg status "${STATUS}" \
+                  --arg failed_step "${FAILED_STEP:-unknown}" \
+                  --arg exit_code "${FAIL_EXIT_CODE:-unknown}" '
+                  (.[0] // {}) * {
+                    "@timestamp": $step_timestamp,
+                    "message": $step_name,
+                    "url": { "original": $url },
+                    "event": {
+                      "outcome": $status,
+                      "action": $step_name,
+                      "conclusion": $conclusion,
+                      "failure": {
+                        "step": $failed_step,
+                        "exit_code": $exit_code
+                      }
+                    }
+                  }' "$GITHUB_WORKSPACE/payload_base.json" > payload2.json
+
+              else
+                # Success branch — no failure details
+                jq -s \
+                  --arg step_timestamp "$TS" \
+                  --arg step_name "${STEP_NAME}" \
+                  --arg url "${URL}" \
+                  --arg conclusion "${CONCLUSION:-success}" \
+                  --arg status "${STATUS}" '
+                  (.[0] // {}) * {
+                    "@timestamp": $step_timestamp,
+                    "message": $step_name,
+                    "url": { "original": $url },
+                    "event": {
+                      "outcome": $status,
+                      "action": $step_name,
+                      "conclusion": $conclusion
+                    }
+                  }' "$GITHUB_WORKSPACE/payload_base.json" > payload2.json
+              fi
+
+              curl -i \
+                -H "ApiKey: $LOGIT_API_KEY" \
+                -H "Content-Type: application/json" \
+                -H "LogType: custom" \
+                https://api-uk1.logit.io/v2 \
+                --data-binary @payload2.json
