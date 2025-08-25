@@ -1,0 +1,89 @@
+name: AFD Domain Certificate Renewal
+
+on:
+  workflow_dispatch:
+    inputs:
+      resource_group:
+        description: 'Optional: Resource Group to filter (leave empty for all)'
+        required: false
+        type: string
+  schedule:
+    # Run every Sunday at 2:00 AM UTC
+    - cron: "0 2 * * 0"
+
+jobs:
+  renew-certificates:
+    name: Renew AFD Domain Certificates
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    permissions:
+      id-token: write # Required for OIDC authentication to Azure
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          
+      - name: Set Azure Subscription Context
+        shell: bash
+        run: |
+          # Set the subscription context
+          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          echo "Using subscription: $(az account show --query name -o tsv)"
+
+      - name: Run AFD Domain Scan Script
+        shell: bash
+        run: |
+          # Make script executable
+          chmod +x scripts/afd-domain-scan.sh
+          
+          # Get the current subscription name for the script
+          SUBSCRIPTION_NAME=$(az account show --query name -o tsv)
+          echo "Current subscription: $SUBSCRIPTION_NAME"
+          
+          # Run the script with the current subscription
+          # The -s flag specifies the subscription name
+          # The -r flag can be used to filter by resource group if provided
+          if [ -n "${{ github.event.inputs.resource_group }}" ]; then
+            echo "Running AFD domain scan for resource group: ${{ github.event.inputs.resource_group }}"
+            ./scripts/afd-domain-scan.sh -s "$SUBSCRIPTION_NAME" -r "${{ github.event.inputs.resource_group }}"
+          else
+            echo "Running AFD domain scan for all resource groups in subscription: $SUBSCRIPTION_NAME"
+            ./scripts/afd-domain-scan.sh -s "$SUBSCRIPTION_NAME"
+          fi
+
+      - name: Create Summary
+        if: always()
+        shell: bash
+        run: |
+          echo "## AFD Domain Certificate Renewal Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date -Idate)" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** production" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ github.event.inputs.resource_group }}" ]; then
+            echo "**Resource Group Filter:** ${{ github.event.inputs.resource_group }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Resource Group Filter:** None (all resource groups)" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The AFD domain scan has completed. Check the job logs for detailed information about any domains that were renewed." >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify Slack channel on job failure
+        if: ${{ failure() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_USERNAME: CI Deployment
+          SLACK_TITLE: "AFD Domain Certificate Renewal FAILED"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          SLACK_COLOR: failure
+          SLACK_FOOTER: Sent from AFD Domain Certificate Renewal job in afd-domain-renewal workflow
+          SLACK_MESSAGE: |
+            The weekly AFD domain certificate renewal scan has failed for production.
+            Please check the workflow logs for more details.
+            Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
