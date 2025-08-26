@@ -192,41 +192,62 @@ for AZURE_FRONT_DOOR in $AFD_LIST; do
         RECORD_SET_NAME_TMP="_dnsauth.${RECORD_SET_NAME_TMP}"
         RECORD_SET_NAME=${RECORD_SET_NAME_TMP/%./}
 
-        # Get the existing record to determine if we need to do anything
-        RECORD_SET_CURRENT_TOKEN=$(
+        # Check if the DNS record exists
+        echo "           Checking DNS Record for validation token"
+        RECORD_EXISTS=$(
           az network dns record-set txt show \
             --zone-name "$DOMAIN_DNS_ZONE_NAME" \
             --name "$RECORD_SET_NAME" \
             --output json \
-            --subscription "$AZ_SUBSCRIPTION_SCOPE"  \
-            --resource-group "$RESOURCE_GROUP" |
-          jq -rc '.TXTRecords[0].value[0]'
+            --subscription "$AZ_SUBSCRIPTION_SCOPE" \
+            --resource-group "$RESOURCE_GROUP" 2>/dev/null
         )
 
-        echo "           Checking DNS Record for validation token"
-        echo "           - Old value: $RECORD_SET_CURRENT_TOKEN"
-        echo "           + New value: $DOMAIN_TOKEN"
-        echo
-
-        if [ "$RECORD_SET_CURRENT_TOKEN" != "$DOMAIN_TOKEN" ]; then
-          echo "           Your DNS TXT Record will be automatically updated."
-
-          # Update the DNS record with the validation token
+        if [ -z "$RECORD_EXISTS" ]; then
+          # Record doesn't exist - create it
+          echo "           DNS TXT Record does not exist. Creating new record..."
+          echo "           + New value: $DOMAIN_TOKEN"
+          
           RECORD_SET_STATE=$(
-            az network dns record-set txt update \
+            az network dns record-set txt create \
               --zone-name "$DOMAIN_DNS_ZONE_NAME" \
               --name "$RECORD_SET_NAME" \
-              --set "txtRecords[0].value[0]=$DOMAIN_TOKEN" \
+              --value "$DOMAIN_TOKEN" \
               --output json \
-              --subscription "$AZ_SUBSCRIPTION_SCOPE"  \
+              --subscription "$AZ_SUBSCRIPTION_SCOPE" \
               --resource-group "$RESOURCE_GROUP" |
             jq -rc '.provisioningState'
           )
-
+          
           echo
-          echo "           DNS Record update: $RECORD_SET_STATE"
+          echo "           DNS Record creation: $RECORD_SET_STATE"
         else
-          echo "           Your DNS Record has already been updated. Nothing to do."
+          # Record exists - check if it needs updating
+          RECORD_SET_CURRENT_TOKEN=$(echo "$RECORD_EXISTS" | jq -rc '.TXTRecords[0].value[0]')
+          echo "           - Old value: $RECORD_SET_CURRENT_TOKEN"
+          echo "           + New value: $DOMAIN_TOKEN"
+          echo
+          
+          if [ "$RECORD_SET_CURRENT_TOKEN" != "$DOMAIN_TOKEN" ]; then
+            echo "           Your DNS TXT Record will be automatically updated."
+            
+            # Update the DNS record with the validation token
+            RECORD_SET_STATE=$(
+              az network dns record-set txt update \
+                --zone-name "$DOMAIN_DNS_ZONE_NAME" \
+                --name "$RECORD_SET_NAME" \
+                --set "txtRecords[0].value[0]=$DOMAIN_TOKEN" \
+                --output json \
+                --subscription "$AZ_SUBSCRIPTION_SCOPE" \
+                --resource-group "$RESOURCE_GROUP" |
+              jq -rc '.provisioningState'
+            )
+            
+            echo
+            echo "           DNS Record update: $RECORD_SET_STATE"
+          else
+            echo "           Your DNS Record has already been updated. Nothing to do."
+          fi
         fi
       fi
     done
