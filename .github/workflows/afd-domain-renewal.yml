@@ -52,20 +52,13 @@ jobs:
           SUBSCRIPTION_NAME=$(az account show --query name -o tsv)
           echo "Current subscription: $SUBSCRIPTION_NAME"
           
-          # Run the script with appropriate parameters
+          # Run the script with the current subscription
+          # The -s flag specifies the subscription name
+          # The -r flag can be used to filter by resource group if provided
           if [ -n "${{ github.event.inputs.resource_group }}" ]; then
-            # Manual trigger with specific resource group
             echo "Running AFD domain scan for resource group: ${{ github.event.inputs.resource_group }}"
             ./scripts/afd-domain-scan.sh -s "$SUBSCRIPTION_NAME" -r "${{ github.event.inputs.resource_group }}"
-          elif [ "${{ github.event_name }}" == "push" ]; then
-            # Push trigger - limit to a safe test resource group for safety
-            # TEMPORARY: Change this to your preferred test resource group
-            TEST_RG="s189p01-tsc-pd-rg"
-            echo "PUSH TRIGGER DETECTED - Testing mode"
-            echo "Running AFD domain scan for test resource group: $TEST_RG"
-            ./scripts/afd-domain-scan.sh -s "$SUBSCRIPTION_NAME" -r "$TEST_RG"
           else
-            # Schedule trigger or manual trigger without resource group
             echo "Running AFD domain scan for all resource groups in subscription: $SUBSCRIPTION_NAME"
             ./scripts/afd-domain-scan.sh -s "$SUBSCRIPTION_NAME"
           fi

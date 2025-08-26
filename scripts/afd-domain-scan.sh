@@ -182,15 +182,17 @@ for AZURE_FRONT_DOOR in $AFD_LIST; do
             --ids "$DOMAIN_DNS_ZONE_ID" \
             --output json \
             --only-show-errors |
-          jq -rc '{ "name": .name, "etag": .etag }'
+          jq -rc '{ "name": .name, "etag": .etag, "resourceGroup": .resourceGroup }'
         )
 
         # Handle subdomains by extracting the primary DNS Zone name
         # from the domain name to determine the validation record name
         DOMAIN_DNS_ZONE_NAME=$(echo "$DOMAIN_DNS_ZONE" | jq -rc '.name')
+        DOMAIN_DNS_ZONE_RG=$(echo "$DOMAIN_DNS_ZONE" | jq -rc '.resourceGroup')
         RECORD_SET_NAME_TMP=${DOMAIN_NAME//${DOMAIN_DNS_ZONE_NAME}/}
         RECORD_SET_NAME_TMP="_dnsauth.${RECORD_SET_NAME_TMP}"
         RECORD_SET_NAME=${RECORD_SET_NAME_TMP/%./}
+        
 
         # Check if the DNS record exists
         echo "           Checking DNS Record for validation token"
@@ -200,7 +202,7 @@ for AZURE_FRONT_DOOR in $AFD_LIST; do
             --name "$RECORD_SET_NAME" \
             --output json \
             --subscription "$AZ_SUBSCRIPTION_SCOPE" \
-            --resource-group "$RESOURCE_GROUP" 2>/dev/null
+            --resource-group "$DOMAIN_DNS_ZONE_RG" 2>/dev/null
         )
 
         if [ -z "$RECORD_EXISTS" ]; then
@@ -215,7 +217,7 @@ for AZURE_FRONT_DOOR in $AFD_LIST; do
               --value "$DOMAIN_TOKEN" \
               --output json \
               --subscription "$AZ_SUBSCRIPTION_SCOPE" \
-              --resource-group "$RESOURCE_GROUP" |
+              --resource-group "$DOMAIN_DNS_ZONE_RG" |
             jq -rc '.provisioningState'
           )
           
@@ -239,7 +241,7 @@ for AZURE_FRONT_DOOR in $AFD_LIST; do
                 --set "txtRecords[0].value[0]=$DOMAIN_TOKEN" \
                 --output json \
                 --subscription "$AZ_SUBSCRIPTION_SCOPE" \
-                --resource-group "$RESOURCE_GROUP" |
+                --resource-group "$DOMAIN_DNS_ZONE_RG" |
               jq -rc '.provisioningState'
             )
             
