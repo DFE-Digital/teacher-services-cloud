@@ -57,6 +57,12 @@ variable "ingress_nginx_version" {
   default     = "4.11.0"
 }
 
+variable "ingress_nginx_memory" {
+  description = "memory limit for nginx pods"
+  type        = string
+  default     = "512Mi"
+}
+
 variable "enable_lowpriority_app" {
   type    = bool
   default = false
