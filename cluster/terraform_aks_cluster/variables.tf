@@ -37,6 +37,11 @@ variable "enable_azure_RBAC_clone" {
   default     = true
   description = "Enable Azure AD RBAC on the clone cluster"
 }
+variable "outbound_ports_allocated" {
+  type        = number
+  default     = 0
+  description = "Outbound ports allocated"
+}
 
 locals {
   backing_services_resource_group_name = "${var.resource_prefix}-tsc-${var.environment}-bs-rg"
