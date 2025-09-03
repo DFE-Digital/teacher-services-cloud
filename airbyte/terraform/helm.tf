@@ -57,6 +57,11 @@ resource "helm_release" "airbyte" {
     type  = "auto"
   }
   set {
+    name  = "global.jobs.kube.nodeSelector.teacherservices\\.cloud/node_pool"
+    value = "applications"
+    type  = "string"
+  }
+  set {
     name  = "global.auth.enabled"
     value = "true"
     type  = "auto"
@@ -96,13 +101,12 @@ resource "helm_release" "airbyte" {
     value = "7"
     type  = "auto"
   }
-
   set {
     name  = "global.storage.type"
     value = "Azure"
     type  = "string"
   }
-  # default for all below is "airbyte-storage"
+  # default for all storage below is "airbyte-storage"
   set {
     name  = "global.storage.bucket.log"
     value = "airbyte-bucket"
@@ -163,5 +167,314 @@ resource "helm_release" "airbyte" {
     value = "DATABASE_PASSWORD"
     type  = "string"
   }
-
+  # deployment settings below
+  # name                   cpu requests  cpu limits   mem requests   mem limit
+  # webapp                    100m          500m          100Mi          100Mi
+  # server                    200m          600m          750Mi         1500Mi
+  # worker                    200m          600m          500Mi         1500Mi
+  # workload-launcher         200m          600m          750Mi         1500Mi
+  # temporal                  200m          500m          200Mi          500Mi
+  # cron                      200m          600m          400Mi         1000Mi
+  # connector-builder-server  200m          600m          300Mi          500Mi
+  # workload-api-server       200m          600m          350Mi         1000Mi
+  # total                    1500m         4600m         3350Mi         7600Mi
+  #
+  # token                     100m          200m           64Mi          256Mi
+  # jobs                      250m             2          256Mi            2Gi
+  #
+  set {
+    name  = "webapp.resources.limits.cpu"
+    value = "500m"
+    type  = "string"
+  }
+  set {
+    name  = "webapp.resources.limits.memory"
+    value = "100Mi"
+    type  = "string"
+  }
+  set {
+    name  = "webapp.resources.requests.cpu"
+    value = "100m"
+    type  = "string"
+  }
+  set {
+    name  = "webapp.resources.requests.memory"
+    value = "100Mi"
+    type  = "string"
+  }
+  set {
+    name  = "webapp.nodeSelector.teacherservices\\.cloud/node_pool"
+    value = "applications"
+    type  = "string"
+  }
+  set {
+    name  = "webapp.image.repository"
+    value = "ghcr.io/dfe-digital/teacher-services-cloud"
+    type  = "string"
+  }
+  set {
+    name  = "webapp.image.tag"
+    value = "airbyte-webapp-1.5.1"
+    type  = "string"
+  }
+  set {
+    name  = "server.resources.limits.cpu"
+    value = "600m"
+    type  = "string"
+  }
+  set {
+    name  = "server.resources.limits.memory"
+    value = "1500Mi"
+    type  = "string"
+  }
+  set {
+    name  = "server.resources.requests.cpu"
+    value = "200m"
+    type  = "string"
+  }
+  set {
+    name  = "server.resources.requests.memory"
+    value = "750Mi"
+    type  = "string"
+  }
+  set {
+    name  = "server.nodeSelector.teacherservices\\.cloud/node_pool"
+    value = "applications"
+    type  = "string"
+  }
+  set {
+    name  = "server.image.repository"
+    value = "ghcr.io/dfe-digital/teacher-services-cloud"
+    type  = "string"
+  }
+  set {
+    name  = "server.image.tag"
+    value = "airbyte-server-1.5.1"
+    type  = "string"
+  }
+  set {
+    name  = "worker.resources.limits.cpu"
+    value = "600m"
+    type  = "string"
+  }
+  set {
+    name  = "worker.resources.limits.memory"
+    value = "1500Mi"
+    type  = "string"
+  }
+  set {
+    name  = "worker.resources.requests.cpu"
+    value = "200m"
+    type  = "string"
+  }
+  set {
+    name  = "worker.resources.requests.memory"
+    value = "500Mi"
+    type  = "string"
+  }
+  set {
+    name  = "worker.nodeSelector.teacherservices\\.cloud/node_pool"
+    value = "applications"
+    type  = "string"
+  }
+  set {
+    name  = "worker.image.repository"
+    value = "ghcr.io/dfe-digital/teacher-services-cloud"
+    type  = "string"
+  }
+  set {
+    name  = "worker.image.tag"
+    value = "airbyte-worker-1.5.1"
+    type  = "string"
+  }
+  set {
+    name  = "workload-launcher.resources.limits.cpu"
+    value = "600m"
+    type  = "string"
+  }
+  set {
+    name  = "workload-launcher.resources.limits.memory"
+    value = "1500Mi"
+    type  = "string"
+  }
+  set {
+    name  = "workload-launcher.resources.requests.cpu"
+    value = "200m"
+    type  = "string"
+  }
+  set {
+    name  = "workload-launcher.resources.requests.memory"
+    value = "750Mi"
+    type  = "string"
+  }
+  set {
+    name  = "workload-launcher.nodeSelector.teacherservices\\.cloud/node_pool"
+    value = "applications"
+    type  = "string"
+  }
+  set {
+    name  = "workload-launcher.image.repository"
+    value = "ghcr.io/dfe-digital/teacher-services-cloud"
+    type  = "string"
+  }
+  set {
+    name  = "workload-launcher.image.tag"
+    value = "airbyte-workload-launcher-1.5.1"
+    type  = "string"
+  }
+  set {
+    name  = "temporal.resources.limits.cpu"
+    value = "500m"
+    type  = "string"
+  }
+  set {
+    name  = "temporal.resources.limits.memory"
+    value = "500Mi"
+    type  = "string"
+  }
+  set {
+    name  = "temporal.resources.requests.cpu"
+    value = "200m"
+    type  = "string"
+  }
+  set {
+    name  = "temporal.resources.requests.memory"
+    value = "200Mi"
+    type  = "string"
+  }
+  set {
+    name  = "temporal.nodeSelector.teacherservices\\.cloud/node_pool"
+    value = "applications"
+    type  = "string"
+  }
+  set {
+    name  = "temporal.image.repository"
+    value = "ghcr.io/dfe-digital/teacher-services-cloud"
+    type  = "string"
+  }
+  set {
+    name  = "temporal.image.tag"
+    value = "temporalio-auto-setup-1.26"
+    type  = "string"
+  }
+  set {
+    name  = "cron.resources.limits.cpu"
+    value = "600m"
+    type  = "string"
+  }
+  set {
+    name  = "cron.resources.limits.memory"
+    value = "1000Mi"
+    type  = "string"
+  }
+  set {
+    name  = "cron.resources.requests.cpu"
+    value = "200m"
+    type  = "string"
+  }
+  set {
+    name  = "cron.resources.requests.memory"
+    value = "400Mi"
+    type  = "string"
+  }
+  set {
+    name  = "cron.nodeSelector.teacherservices\\.cloud/node_pool"
+    value = "applications"
+    type  = "string"
+  }
+  set {
+    name  = "cron.image.repository"
+    value = "ghcr.io/dfe-digital/teacher-services-cloud"
+    type  = "string"
+  }
+  set {
+    name  = "cron.image.tag"
+    value = "airbyte-cron-1.5.1"
+    type  = "string"
+  }
+  set {
+    name  = "connector-builder-server.resources.limits.cpu"
+    value = "600m"
+    type  = "string"
+  }
+  set {
+    name  = "connector-builder-server.resources.limits.memory"
+    value = "500Mi"
+    type  = "string"
+  }
+  set {
+    name  = "connector-builder-server.resources.requests.cpu"
+    value = "200m"
+    type  = "string"
+  }
+  set {
+    name  = "connector-builder-server.resources.requests.memory"
+    value = "300Mi"
+    type  = "string"
+  }
+  set {
+    name  = "connector-builder-server.nodeSelector.teacherservices\\.cloud/node_pool"
+    value = "applications"
+    type  = "string"
+  }
+  set {
+    name  = "connector-builder-server.image.repository"
+    value = "ghcr.io/dfe-digital/teacher-services-cloud"
+    type  = "string"
+  }
+  set {
+    name  = "connector-builder-server.image.tag"
+    value = "airbyte-connector-builder-server-1.5.1"
+    type  = "string"
+  }
+  set {
+    name  = "workload-api-server.resources.limits.cpu"
+    value = "600m"
+    type  = "string"
+  }
+  set {
+    name  = "workload-api-server.resources.limits.memory"
+    value = "1000Mi"
+    type  = "string"
+  }
+  set {
+    name  = "workload-api-server.resources.requests.cpu"
+    value = "200m"
+    type  = "string"
+  }
+  set {
+    name  = "workload-api-server.resources.requests.memory"
+    value = "350Mi"
+    type  = "string"
+  }
+  set {
+    name  = "workload-api-server.nodeSelector.teacherservices\\.cloud/node_pool"
+    value = "applications"
+    type  = "string"
+  }
+  set {
+    name  = "workload-api-server.image.repository"
+    value = "ghcr.io/dfe-digital/teacher-services-cloud"
+    type  = "string"
+  }
+  set {
+    name  = "workload-api-server.image.tag"
+    value = "airbyte-workload-api-server-1.5.1"
+    type  = "string"
+  }
+  set {
+    name  = "airbyte-bootloader.nodeSelector.teacherservices\\.cloud/node_pool"
+    value = "applications"
+    type  = "string"
+  }
+  set {
+    name  = "airbyte-bootloader.image.repository"
+    value = "ghcr.io/dfe-digital/teacher-services-cloud"
+    type  = "string"
+  }
+  set {
+    name  = "airbyte-bootloader.image.tag"
+    value = "airbyte-bootloader-1.5.1"
+    type  = "string"
+  }
 }

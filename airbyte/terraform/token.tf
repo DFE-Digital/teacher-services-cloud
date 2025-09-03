@@ -47,9 +47,13 @@ for_each = toset(var.airbyte_namespaces)
       spec {
 
         service_account_name = "airbyte-admin"
+        node_selector = {
+          "teacherservices.cloud/node_pool" = "applications"
+          "kubernetes.io/os"                = "linux"
+        }
 
         container {
-          image = "ghcr.io/dfe-digital/k6-client:airbyte-token5"
+          image = "ghcr.io/dfe-digital/teacher-services-cloud:airbyte-token"
           name  = "airbyte-token"
           security_context {
             run_as_user  = 1000
@@ -73,11 +77,11 @@ for_each = toset(var.airbyte_namespaces)
 
           resources {
             limits = {
-              cpu    = "0.2"
+              cpu    = "200m"
               memory = "256Mi"
             }
             requests = {
-              cpu    = "0.1"
+              cpu    = "100m"
               memory = "64Mi"
             }
           }
