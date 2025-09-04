@@ -108,7 +108,7 @@ resource "kubernetes_daemonset" "filebeat" {
         }
 
         container {
-          image = "docker.elastic.co/beats/filebeat-oss:${var.filebeat_version}"
+          image = "${var.tsc_package_repo}:${var.filebeat_image}-${var.filebeat_version}"
           name  = "filebeat"
 
           args = [
