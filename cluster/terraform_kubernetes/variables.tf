@@ -213,9 +213,25 @@ variable "node_exporter_version" {
   type    = string
   default = "v1.8.2"
 }
+
+variable "node_exporter_image" {
+  type    = string
+  default = "node-exporter"
+}
+
 variable "filebeat_version" {
   type    = string
   default = "8.12.2"
+}
+
+variable "filebeat_image" {
+  type    = string
+  default = "filebeat-oss"
+}
+
+variable "tsc_package_repo" {
+  type    = string
+  default = "ghcr.io/dfe-digital/teacher-services-cloud"
 }
 
 variable "reloader_version" {
