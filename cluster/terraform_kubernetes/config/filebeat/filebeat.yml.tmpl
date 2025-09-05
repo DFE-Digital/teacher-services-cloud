@@ -22,12 +22,18 @@ processors:
       - agent.id
       - agent.name
       - agent.version
+      - agent.type
       - ecs.version
       - container.runtime
+      - container.id
+      - host.name
       - kubernetes.pod.uid
       - kubernetes.namespace_uid
+      - kubernetes.pod-template-hash
+      - kubernetes.namespace_labels.kubernetes_io/metadata_name
       - log.offset
-      - input
+      - log.file.path
+
 output.logstash:
   hosts: ["${BEATS_URL}"]
   loadbalance: true
