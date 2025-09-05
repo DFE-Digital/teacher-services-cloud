@@ -30,7 +30,7 @@ resource "kubernetes_daemonset" "node-exporter" {
       spec {
 
         container {
-          image = "prom/node-exporter:${var.node_exporter_version}"
+          image = "${var.tsc_package_repo}:${var.node_exporter_image}-${var.node_exporter_version}"
           name  = "node-exporter"
 
           args = [

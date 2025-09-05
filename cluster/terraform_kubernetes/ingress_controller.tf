@@ -104,7 +104,7 @@ resource "helm_release" "ingress-nginx" {
   }
   set {
     name  = "controller.resources.limits.memory"
-    value = "512Mi"
+    value = var.ingress_nginx_memory
     type  = "string"
   }
 
