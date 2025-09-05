@@ -33,7 +33,6 @@ processors:
       - kubernetes.namespace_labels.kubernetes_io/metadata_name
       - log.offset
       - log.file.path
-      - tags
 
 output.logstash:
   hosts: ["${BEATS_URL}"]
