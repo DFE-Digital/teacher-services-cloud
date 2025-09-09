@@ -1,0 +1,114 @@
+name: Destroy Dev Clusters
+
+on:
+  schedule:
+    # Run every Friday at 6 PM UTC
+    - cron: "0 18 * * 5"
+
+jobs:
+  destroy-dev-clusters:
+    name: Destroy Development Clusters
+    runs-on: ubuntu-latest
+    environment: development
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set environment variables
+        run: |
+          echo "ACTION_DESCRIPTION=Destroying dev clusters for weekend cost savings" >> $GITHUB_ENV
+
+          # Set development subscription details
+          echo "DEV_SUBSCRIPTION=s189-teacher-services-cloud-development" >> $GITHUB_ENV
+          echo "DEV_RESOURCE_PREFIX=s189d01" >> $GITHUB_ENV
+          echo "CONFIG=development" >> $GITHUB_ENV
+          echo "CONFIG_SHORT=dv" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Azure Login
+        uses: Azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Install kubectl
+        uses: DFE-Digital/github-actions/set-kubectl@master
+
+      - name: Set kubelogin environment
+        uses: DFE-Digital/github-actions/set-kubelogin-environment@master
+        with:
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.4
+          terraform_wrapper: false
+
+      - name: Set ARM environment variables
+        uses: DFE-Digital/github-actions/set-arm-environment-variables@master
+        with:
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+
+      - name: Destroy dev clusters via Terraform
+        run: |
+          echo "${{ env.ACTION_DESCRIPTION }}"
+
+          # Define all possible clusters
+          CLUSTERS="cluster1 cluster2 cluster3 cluster4 cluster5 cluster6"
+
+          # Process each cluster
+          for CLUSTER in $CLUSTERS; do
+            echo ""
+            echo "Processing environment: $CLUSTER"
+            echo "  Destroying cluster for environment: $CLUSTER..."
+
+            # Run terraform destroy via Makefile
+            echo "  Running: make ci development terraform-destroy ENVIRONMENT=$CLUSTER"
+
+            # Execute the destroy command - will do nothing if cluster doesn't exist
+            if make ci development terraform-destroy ENVIRONMENT=$CLUSTER; then
+              echo "  Successfully completed terraform destroy for environment: $CLUSTER"
+            else
+              echo "  ERROR: Failed to destroy cluster for environment: $CLUSTER"
+              # Continue with other clusters even if one fails
+            fi
+          done
+
+          echo ""
+          echo "Cluster destruction operation completed!"
+        shell: bash
+
+      - name: Notify Slack channel on job failure
+        if: ${{ failure() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_USERNAME: CI Deployment
+          SLACK_TITLE: "Development cluster destruction operation failed!"
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+          SLACK_COLOR: failure
+          SLACK_FOOTER: Sent from destroy-dev-clusters job in destroy-dev-clusters workflow
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Cluster Destruction Summary"
+          echo "- **Subscription**: ${{ env.DEV_SUBSCRIPTION }}"
+          echo "- **Clusters attempted**: cluster1, cluster2, cluster3, cluster4, cluster5, cluster6"
+          echo "- **Status**: ${{ job.status }}"
+
+          echo ""
+          echo "For manual cluster management:"
+          echo "- Create cluster: make development terraform-apply ENVIRONMENT=clusterN"
+          echo "- Destroy cluster: make development terraform-destroy ENVIRONMENT=clusterN"
+          echo "- Check status: Use Azure CLI or Azure Portal"
+        shell: bash
