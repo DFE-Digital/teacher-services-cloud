@@ -14,6 +14,27 @@ filebeat.autodiscover:
             enabled: false
           deployment: true
 
+# Global processors run AFTER enrichment and after all inputs
+processors:
+  - drop_fields:
+      fields:
+      - agent.ephemeral_id
+      - agent.id
+      - agent.name
+      - agent.version
+      - agent.type
+      - ecs.version
+      - container.runtime
+      - container.id
+      - host.name
+      - kubernetes.pod.uid
+      - kubernetes.namespace_uid
+      - kubernetes.labels
+      - kubernetes.namespace_labels.kubernetes_io/metadata_name
+      - log.offset
+      - log.file.path
+      - input.type
+
 output.logstash:
   hosts: ["${BEATS_URL}"]
   loadbalance: true
