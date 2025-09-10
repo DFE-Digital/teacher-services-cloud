@@ -29,10 +29,11 @@ processors:
       - host.name
       - kubernetes.pod.uid
       - kubernetes.namespace_uid
-      - kubernetes.labels.pod-template-hash
+      - kubernetes.labels
       - kubernetes.namespace_labels.kubernetes_io/metadata_name
       - log.offset
       - log.file.path
+      - input.type
 output.logstash:
   hosts: ["${BEATS_URL}"]
   loadbalance: true
