@@ -52,7 +52,8 @@ resource "azurerm_kubernetes_cluster" "main" {
     load_balancer_sku = "standard"
 
     load_balancer_profile {
-      outbound_ip_address_ids = [azurerm_public_ip.egress-public-ip.id]
+      outbound_ip_address_ids  = [azurerm_public_ip.egress-public-ip.id]
+      outbound_ports_allocated = var.outbound_ports_allocated
     }
   }
 
