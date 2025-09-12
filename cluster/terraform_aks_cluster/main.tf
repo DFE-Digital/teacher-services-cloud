@@ -73,6 +73,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
   vnet_subnet_id        = azurerm_subnet.aks-subnet.id
   zones                 = local.uk_south_availability_zones
   node_labels           = try(each.value.node_labels, {})
+  scale_down_mode       = "Deallocate"
 
   timeouts {
     create = "180m"
@@ -143,6 +144,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools_clone" {
   vnet_subnet_id        = azurerm_subnet.aks-subnet-clone[0].id
   zones                 = local.uk_south_availability_zones
   node_labels           = try(each.value.node_labels, {})
+  scale_down_mode       = "Deallocate"
 }
 
 resource "azurerm_public_ip" "egress-public-ip" {

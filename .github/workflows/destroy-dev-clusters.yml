@@ -1,0 +1,220 @@
+name: Destroy Dev Clusters
+
+on:
+  schedule:
+    # Run every Friday at 6 PM UTC
+    - cron: '0 18 * * 5'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'destroy'
+        type: choice
+        options:
+          - destroy
+          - dry-run
+      environment_filter:
+        description: 'Environment filter (leave empty for all dev clusters)'
+        required: false
+        type: string
+
+jobs:
+  destroy-dev-clusters:
+    name: Destroy Development Clusters
+    runs-on: ubuntu-latest
+    environment: development
+    permissions:
+      id-token: write
+      contents: read
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set environment variables
+      run: |
+        case "${{ inputs.action || 'destroy' }}" in
+          destroy)
+            echo "ACTION_DESCRIPTION=Destroying dev clusters for weekend cost savings" >> $GITHUB_ENV
+            echo "DRY_RUN=false" >> $GITHUB_ENV
+            ;;
+          dry-run)
+            echo "ACTION_DESCRIPTION=Dry run - showing what clusters would be destroyed" >> $GITHUB_ENV
+            echo "DRY_RUN=true" >> $GITHUB_ENV
+            ;;
+        esac
+        
+        # Set development subscription details
+        echo "DEV_SUBSCRIPTION=s189-teacher-services-cloud-development" >> $GITHUB_ENV
+        echo "DEV_RESOURCE_PREFIX=s189d01" >> $GITHUB_ENV
+        echo "CONFIG=development" >> $GITHUB_ENV
+        echo "CONFIG_SHORT=dv" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Azure Login
+      uses: Azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Install kubectl
+      uses: DFE-Digital/github-actions/set-kubectl@master
+
+    - name: Set kubelogin environment
+      uses: DFE-Digital/github-actions/set-kubelogin-environment@master
+      with:
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+
+    - name: Set Azure subscription
+      run: |
+        az account set --subscription ${{ env.DEV_SUBSCRIPTION }}
+        echo "Current subscription:"
+        az account show --output table
+      shell: bash
+
+    - name: Discover dev clusters
+      id: discover-clusters
+      run: |
+        echo "Discovering AKS clusters in development subscription..."
+        
+        # Get all AKS clusters in development subscription
+        CLUSTERS=$(az aks list \
+          --subscription ${{ env.DEV_SUBSCRIPTION }} \
+          --query "[?starts_with(name, '${{ env.DEV_RESOURCE_PREFIX }}-tsc-') && ends_with(name, '-aks') && contains(name, 'cluster')].{name:name, resourceGroup:resourceGroup}" \
+          --output json)
+        
+        echo "Found clusters:"
+        echo "$CLUSTERS" | jq -r '.[] | "- \(.name) in \(.resourceGroup)"'
+        
+        # Extract environment names from cluster names
+        # Pattern: s189d01-tsc-cluster1-aks -> cluster1
+        ENVIRONMENTS=""
+        SKIPPED_CLUSTERS=""
+        for cluster in $(echo "$CLUSTERS" | jq -r '.[].name'); do
+          # Extract the environment name (e.g., cluster1, cluster2, etc.)
+          ENV_NAME=$(echo "$cluster" | sed -n 's/^.*-tsc-\(cluster[0-9]\+\)-aks$/\1/p')
+          if [ -n "$ENV_NAME" ]; then
+              ENVIRONMENTS="$ENVIRONMENTS $ENV_NAME"
+              echo "  Environment: $ENV_NAME from cluster: $cluster"
+          fi
+        done
+        
+        # Trim leading/trailing spaces and store
+        ENVIRONMENTS=$(echo "$ENVIRONMENTS" | xargs)
+        SKIPPED_CLUSTERS=$(echo "$SKIPPED_CLUSTERS" | xargs)
+        echo "environments=$ENVIRONMENTS" >> $GITHUB_OUTPUT
+        echo "skipped_clusters=$SKIPPED_CLUSTERS" >> $GITHUB_OUTPUT
+        
+        # Count clusters found
+        CLUSTER_COUNT=$(echo "$CLUSTERS" | jq 'length')
+        echo "cluster_count=$CLUSTER_COUNT" >> $GITHUB_OUTPUT
+        
+        if [ "$CLUSTER_COUNT" -eq 0 ]; then
+          echo "WARNING: No development clusters found matching pattern"
+          exit 0
+        fi
+        
+        echo "Summary: Found $CLUSTER_COUNT cluster(s)"
+        echo "Environments to process: $ENVIRONMENTS"
+        if [ -n "$SKIPPED_CLUSTERS" ]; then
+          echo "Environments skipped (exceptions): $SKIPPED_CLUSTERS"
+        fi
+      shell: bash
+
+    - name: Setup Terraform
+      if: steps.discover-clusters.outputs.cluster_count > 0
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.6.4
+        terraform_wrapper: false
+
+    - name: Set ARM environment variables
+      if: steps.discover-clusters.outputs.cluster_count > 0
+      uses: DFE-Digital/github-actions/set-arm-environment-variables@master
+      with:
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+
+    - name: Destroy dev clusters via Terraform
+      if: steps.discover-clusters.outputs.cluster_count > 0
+      run: |
+        echo "${{ env.ACTION_DESCRIPTION }}"
+        ENVIRONMENTS="${{ steps.discover-clusters.outputs.environments }}"
+        
+        if [ -z "$ENVIRONMENTS" ]; then
+          echo "WARNING: No environments to process"
+          exit 0
+        fi
+        
+        # Process each environment
+        for ENV_NAME in $ENVIRONMENTS; do
+          echo ""
+          echo "Processing environment: $ENV_NAME"
+          
+          if [ "${{ env.DRY_RUN }}" == "true" ]; then
+            echo "  [DRY RUN] Would destroy cluster for environment: $ENV_NAME"
+            echo "  Command that would run: make ci development terraform-destroy ENVIRONMENT=$ENV_NAME"
+          else
+            echo "  Destroying cluster for environment: $ENV_NAME..."
+            
+            # Set up environment variables for Makefile
+            export ENVIRONMENT=$ENV_NAME
+            export CI=true
+            export AUTO_APPROVE=-auto-approve
+            export SKIP_AZURE_LOGIN=true
+            
+            # Run terraform destroy via Makefile
+            echo "  Running: make ci development terraform-destroy ENVIRONMENT=$ENV_NAME"
+            
+            # Execute the destroy command
+            if make ci development terraform-destroy ENVIRONMENT=$ENV_NAME; then
+              echo "  Successfully destroyed cluster for environment: $ENV_NAME"
+            else
+              echo "  ERROR: Failed to destroy cluster for environment: $ENV_NAME"
+              # Continue with other clusters even if one fails
+            fi
+          fi
+        done
+        
+        echo ""
+        echo "Cluster destruction operation completed!"
+      shell: bash
+
+    - name: Notify Slack channel on job failure
+      if: ${{ failure() }}
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_USERNAME: CI Deployment
+        SLACK_TITLE: "Development cluster destruction operation failed!"
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+        SLACK_COLOR: failure
+        SLACK_FOOTER: Sent from destroy-dev-clusters job in destroy-dev-clusters workflow
+
+    - name: Summary
+      if: always()
+      run: |
+        echo "## Cluster Destruction Summary"
+        echo "- **Action**: ${{ inputs.action || 'destroy' }}"
+        echo "- **Subscription**: ${{ env.DEV_SUBSCRIPTION }}"
+        echo "- **Clusters processed**: ${{ steps.discover-clusters.outputs.cluster_count }}"
+        echo "- **Environments**: ${{ steps.discover-clusters.outputs.environments }}"
+        if [ -n "${{ steps.discover-clusters.outputs.skipped_clusters }}" ]; then
+          echo "- **Skipped (exceptions)**: ${{ steps.discover-clusters.outputs.skipped_clusters }}"
+        fi
+        echo "- **Status**: ${{ job.status }}"
+        
+        if [ "${{ env.DRY_RUN }}" == "true" ]; then
+          echo "- **Mode**: Dry run (no changes made)"
+        fi
+        
+        echo ""
+        echo "For manual cluster management:"
+        echo "- Create cluster: make development terraform-apply ENVIRONMENT=clusterN"
+        echo "- Destroy cluster: make development terraform-destroy ENVIRONMENT=clusterN"
+        echo "- Check status: Use Azure CLI or Azure Portal"
+      shell: bash
