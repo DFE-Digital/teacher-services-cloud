@@ -1,0 +1,176 @@
+name: Service Infrastructure Validation Template
+
+# This is a template workflow for services to validate their infrastructure
+# Copy this file to your service repository and customize as needed
+
+on:
+  schedule:
+    # Run daily at 3 AM UTC (4 AM BST / 3 AM GMT)
+    # Adjust the time to avoid conflicts with other scheduled jobs
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to validate'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - development
+          - test
+          - production
+      terraform_ref:
+        description: 'Git ref to use for terraform code (branch/tag/SHA)'
+        required: false
+        default: 'main'
+        type: string
+
+env:
+  # Update these values for your service
+  SERVICE_NAME: your-service-name
+  TERRAFORM_DIR: terraform/application  # Path to your terraform directory
+
+jobs:
+  validate-infrastructure:
+    name: Validate ${{ github.event_name == 'schedule' && 'Production' || inputs.environment }} Infrastructure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Determine environment and ref
+        id: config
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+            echo "terraform_ref=main" >> $GITHUB_OUTPUT
+          else
+            echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT
+            echo "terraform_ref=${{ inputs.terraform_ref }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.config.outputs.terraform_ref }}
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.5.7  # Update to match your service's terraform version
+          terraform_wrapper: false
+
+      - name: Validate infrastructure using central action
+        id: validate
+        # Option 1: Use the central action from teacher-services-cloud
+        # uses: DFE-Digital/teacher-services-cloud/.github/actions/validate-infra@main
+        # Option 2: Or implement your own validation logic here
+        run: |
+          set +e
+          cd ${{ env.TERRAFORM_DIR }}
+
+          # Initialize terraform
+          terraform init -backend=true
+
+          # Run plan with detailed exit code
+          terraform plan -detailed-exitcode -var-file=config/${{ steps.config.outputs.environment }}.tfvars.json
+          EXIT_CODE=$?
+
+          # Handle exit codes
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "✅ No infrastructure drift detected"
+            echo "drift_detected=false" >> $GITHUB_OUTPUT
+          elif [ $EXIT_CODE -eq 2 ]; then
+            echo "⚠️ Infrastructure drift detected!"
+            echo "drift_detected=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Error running terraform plan"
+            exit 1
+          fi
+
+      - name: Send Slack notification on drift
+        if: steps.validate.outputs.drift_detected == 'true'
+        uses: slackapi/slack-github-action@v1.26.0
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK }}
+          payload: |
+            {
+              "channel": "#${{ env.SERVICE_NAME }}-alerts",
+              "username": "Infrastructure Validator",
+              "icon_emoji": ":warning:",
+              "attachments": [
+                {
+                  "color": "warning",
+                  "title": "Infrastructure Drift Detected - ${{ env.SERVICE_NAME }}",
+                  "text": "Environment: ${{ steps.config.outputs.environment }}",
+                  "fields": [
+                    {
+                      "title": "Action Required",
+                      "value": "Review the terraform plan and apply changes if intended",
+                      "short": false
+                    },
+                    {
+                      "title": "Workflow Run",
+                      "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>",
+                      "short": false
+                    }
+                  ],
+                  "footer": "GitHub Actions",
+                  "ts": "${{ github.run_id }}"
+                }
+              ]
+            }
+
+      - name: Create or update drift issue
+        if: steps.validate.outputs.drift_detected == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `Infrastructure Drift: ${{ env.SERVICE_NAME }} - ${{ steps.config.outputs.environment }}`;
+            const labels = ['infrastructure-drift', 'automation', '${{ steps.config.outputs.environment }}'];
+
+            // Check for existing open issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: labels.join(',')
+            });
+
+            const body = `## Infrastructure Drift Detected
+
+            **Service:** ${{ env.SERVICE_NAME }}
+            **Environment:** ${{ steps.config.outputs.environment }}
+            **Date:** ${new Date().toISOString()}
+            **Workflow:** [View Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            ### Action Required
+            1. Review the terraform plan output
+            2. If changes are expected, apply them
+            3. If unexpected, investigate the cause
+            4. Close this issue once resolved
+
+            ---
+            *Automatically generated by scheduled validation*`;
+
+            if (issues.data.length > 0) {
+              // Update existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issues.data[0].number,
+                body: `Drift still detected on ${new Date().toISOString()}\n\n[View Latest Run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})`
+              });
+            } else {
+              // Create new issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: labels
+              });
+            }
