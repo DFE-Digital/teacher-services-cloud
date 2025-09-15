@@ -58,8 +58,11 @@ terraform-init: composed-variables set-azure-account
 	$(eval export TF_VAR_service_short=${SERVICE_SHORT})
 	$(eval export TF_VAR_docker_image=${DOCKER_REPOSITORY}:${DOCKER_IMAGE_TAG})
 
+set-detailed-exitcode:
+	$(eval DETAILED_EXITCODE=-detailed-exitcode)
+
 terraform-plan: terraform-init
-	terraform -chdir=terraform/application plan -var-file "config/${CONFIG}.tfvars.json"
+	terraform -chdir=terraform/application plan -var-file "config/${CONFIG}.tfvars.json" ${DETAILED_EXITCODE}
 
 terraform-apply: terraform-init
 	terraform -chdir=terraform/application apply -var-file "config/${CONFIG}.tfvars.json" ${AUTO_APPROVE}
