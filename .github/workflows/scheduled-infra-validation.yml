@@ -1,128 +1,47 @@
 name: Scheduled Infrastructure Validation
 
 on:
+  push:
+    branches:
+      - 2462-spike-scheduled-terraform-plan-validation
   schedule:
     # Run daily at 2 AM UTC (3 AM BST / 2 AM GMT)
-    - cron: '0 2 * * *'
+    - cron: "0 2 * * *"
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Environment to validate'
+        description: "Environment to validate"
         required: false
-        default: 'production'
+        default: "production"
         type: choice
         options:
           - test
           - platform-test
           - production
       terraform_ref:
-        description: 'Git ref to use for terraform code (branch/tag/SHA)'
+        description: "Git ref to use for terraform code (branch/tag/SHA)"
         required: false
-        default: 'main'
+        default: "main"
         type: string
 
 jobs:
-  validate-production:
-    name: Validate Production Infrastructure
+  validate:
+    name: Validate ${{ github.event_name == 'schedule' && 'Production' || inputs.environment || 'Production' }} Infrastructure
     runs-on: ubuntu-latest
-    # Only run scheduled validation for production
-    # Manual runs can specify the environment
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-
-    steps:
-      - name: Determine environment
-        id: env
-        run: |
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            echo "environment=production" >> $GITHUB_OUTPUT
-            echo "terraform_ref=main" >> $GITHUB_OUTPUT
-          else
-            echo "environment=${{ inputs.environment }}" >> $GITHUB_OUTPUT
-            echo "terraform_ref=${{ inputs.terraform_ref }}" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Validate infrastructure
-        uses: DFE-Digital/github-actions/validate-infra@main
-        with:
-          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
-          environment: ${{ steps.env.outputs.environment }}
-          terraform_main_ref: ${{ steps.env.outputs.terraform_ref }}
-          slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
-          slack_channel: '#infrastructure-alerts'
-
-      - name: Create issue on drift detection
-        if: steps.validate.outputs.drift_detected == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const title = `Infrastructure Drift Detected in ${{ steps.env.outputs.environment }}`;
-            const body = `## Infrastructure Drift Detected
-
-            **Environment:** ${{ steps.env.outputs.environment }}
-            **Date:** ${new Date().toISOString()}
-            **Workflow Run:** [View Details](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
-
-            ### Summary
-            Infrastructure drift has been detected during the scheduled validation.
-
-            ### Action Required
-            1. Review the terraform plan output in the workflow run
-            2. Determine if the changes are expected
-            3. If expected, apply the changes using the deployment workflow
-            4. If unexpected, investigate the cause of the drift
-
-            ### Plan Output Summary
-            \`\`\`
-            ${{ steps.validate.outputs.changes_summary }}
-            \`\`\`
-
-            ---
-            *This issue was automatically created by the scheduled infrastructure validation workflow.*`;
-
-            // Check if an open issue already exists
-            const issues = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              labels: 'infrastructure-drift'
-            });
-
-            const existingIssue = issues.data.find(issue =>
-              issue.title.includes('Infrastructure Drift Detected') &&
-              issue.title.includes('${{ steps.env.outputs.environment }}')
-            );
-
-            if (existingIssue) {
-              // Comment on existing issue
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: existingIssue.number,
-                body: `### Update: ${new Date().toISOString()}\n\nDrift still detected. Please review and address.\n\n[View Latest Run](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})`
-              });
-            } else {
-              // Create new issue
-              await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: title,
-                body: body,
-                labels: ['infrastructure-drift', 'automation']
-              });
-            }
-
-  # Optional: Validate other environments on manual trigger
-  validate-other:
-    name: Validate ${{ inputs.environment }} Infrastructure
-    runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && inputs.environment != 'production'
+    environment:
+      name: ${{ github.event_name == 'schedule' && 'production' || inputs.environment || 'production' }}
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Validate infrastructure
-        uses: DFE-Digital/github-actions/validate-infra@main
+        id: validate
+        uses: DFE-Digital/github-actions/validate-infra@2462-spike-scheduled-terraform-plan-validation
         with:
-          azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
-          environment: ${{ inputs.environment }}
-          terraform_main_ref: ${{ inputs.terraform_ref }}
-          slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
-          slack_channel: '#infrastructure-alerts'
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          environment: ${{ github.event_name == 'schedule' && 'production' || inputs.environment || 'production' }}
+          terraform-main-ref: ${{ github.event_name == 'schedule' && 'main' || inputs.terraform_ref || 'main' }}
+          slack-webhook: ${{ secrets.SLACK_WEBHOOK }}

@@ -79,11 +79,11 @@ jobs:
           # 2 = Changes detected (drift)
 
           if [ $EXIT_CODE -eq 0 ]; then
-            echo "✅ No infrastructure drift detected"
+            echo "No infrastructure drift detected"
             echo "drift_detected=false" >> $GITHUB_OUTPUT
             exit 0
           elif [ $EXIT_CODE -eq 2 ]; then
-            echo "⚠️ Infrastructure drift detected!"
+            echo "Infrastructure drift detected!"
             echo "drift_detected=true" >> $GITHUB_OUTPUT
 
             # Capture plan output for issue creation
@@ -93,7 +93,7 @@ jobs:
             echo "$PLAN_SUMMARY" >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
           else
-            echo "❌ Error running terraform plan"
+            echo "Error running terraform plan"
             echo "drift_detected=error" >> $GITHUB_OUTPUT
             exit 1
           fi
