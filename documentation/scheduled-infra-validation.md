@@ -8,7 +8,7 @@ The scheduled infrastructure validation system runs automated terraform plan che
 
 ### 1. GitHub Action: `validate-infra`
 
-Location: `.github/actions/validate-infra/action.yml`
+Location: [DFE-Digital/github-actions/validate-infra](https://github.com/DFE-Digital/github-actions/tree/main/validate-infra)
 
 A reusable GitHub Action that:
 - Runs `terraform plan` with `-detailed-exitcode` flag
@@ -127,7 +127,7 @@ Services can adopt this pattern by:
 
 1. **Option 1**: Use the central action
    ```yaml
-   uses: DFE-Digital/teacher-services-cloud/.github/actions/validate-infra@main
+   uses: DFE-Digital/github-actions/validate-infra@main
    ```
 
 2. **Option 2**: Copy and customize the template

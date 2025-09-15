@@ -42,7 +42,7 @@ jobs:
           fi
 
       - name: Validate infrastructure
-        uses: DFE-Digital/teacher-services-cloud/.github/actions/validate-infra@main
+        uses: DFE-Digital/github-actions/validate-infra@main
         with:
           azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
           environment: ${{ steps.env.outputs.environment }}
@@ -119,7 +119,7 @@ jobs:
 
     steps:
       - name: Validate infrastructure
-        uses: DFE-Digital/teacher-services-cloud/.github/actions/validate-infra@main
+        uses: DFE-Digital/github-actions/validate-infra@main
         with:
           azure_credentials: ${{ secrets.AZURE_CREDENTIALS }}
           environment: ${{ inputs.environment }}

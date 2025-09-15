@@ -65,8 +65,8 @@ jobs:
 
       - name: Validate infrastructure using central action
         id: validate
-        # Option 1: Use the central action from teacher-services-cloud
-        # uses: DFE-Digital/teacher-services-cloud/.github/actions/validate-infra@main
+        # Option 1: Use the central action from github-actions repository
+        # uses: DFE-Digital/github-actions/validate-infra@main
         # Option 2: Or implement your own validation logic here
         run: |
           set +e
