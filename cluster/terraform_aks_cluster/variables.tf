@@ -43,6 +43,12 @@ variable "outbound_ports_allocated" {
   description = "Outbound ports allocated"
 }
 
+variable "outbound_ports_threshold" {
+  type        = number
+  default     = 900
+  description = "Outbound ports threshold for monitor alert"
+}
+
 locals {
   backing_services_resource_group_name = "${var.resource_prefix}-tsc-${var.environment}-bs-rg"
   cluster_name = (

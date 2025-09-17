@@ -69,7 +69,7 @@ resource "azurerm_monitor_metric_alert" "high_port_usage" {
     metric_name      = "UsedSnatPorts"
     aggregation      = "Average"
     operator         = "GreaterThan"
-    threshold        = 900
+    threshold        = var.outbound_ports_threshold
     dimension {
       name     = "BackendIPAddress"
       operator = "Include"
