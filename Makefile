@@ -58,7 +58,7 @@ terraform-aks-cluster-init: cluster-composed-variables set-azure-account
 	$(eval export TF_VAR_managed_identity_name=${MANAGE_IDENTITY_NAME})
 
 terraform-aks-cluster-plan: terraform-aks-cluster-init
-	terraform -chdir=cluster/terraform_aks_cluster plan -var-file config/${CONFIG}.tfvars.json
+	terraform -chdir=cluster/terraform_aks_cluster plan -var-file config/${CONFIG}.tfvars.json ${DETAILED_EXITCODE}
 
 terraform-aks-cluster-apply: terraform-aks-cluster-init
 	terraform -chdir=cluster/terraform_aks_cluster apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
@@ -81,7 +81,7 @@ terraform-kubernetes-init: cluster-composed-variables set-azure-account
 	$(eval export TF_VAR_config=${CONFIG})
 
 terraform-kubernetes-plan: terraform-kubernetes-init
-	terraform -chdir=cluster/terraform_kubernetes plan -var-file config/${CONFIG}.tfvars.json
+	terraform -chdir=cluster/terraform_kubernetes plan -var-file config/${CONFIG}.tfvars.json ${DETAILED_EXITCODE}
 
 terraform-kubernetes-apply: terraform-kubernetes-init
 	terraform -chdir=cluster/terraform_kubernetes apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
@@ -99,6 +99,10 @@ terraform-destroy: terraform-init terraform-kubernetes-destroy terraform-aks-clu
 
 set-what-if:
 	$(eval WHAT_IF=--what-if)
+
+
+set-detailed-exitcode:
+	$(eval DETAILED_EXITCODE=-detailed-exitcode)
 
 check-auto-approve:
 	$(if $(AUTO_APPROVE), , $(error can only run with AUTO_APPROVE))
@@ -139,7 +143,7 @@ domains-infra-init: domains-composed-variables set-azure-account
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME}
 
 domains-infra-plan: domains-infra-init
-	terraform -chdir=custom_domains/terraform/infrastructure plan -var-file config/${CONFIG}.tfvars.json
+	terraform -chdir=custom_domains/terraform/infrastructure plan -var-file config/${CONFIG}.tfvars.json ${DETAILED_EXITCODE}
 
 domains-infra-apply: domains-infra-init
 	terraform -chdir=custom_domains/terraform/infrastructure apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
