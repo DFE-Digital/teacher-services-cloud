@@ -310,6 +310,9 @@ resource "kubernetes_deployment" "thanos-compactor" {
       }
 
       spec {
+        security_context {
+          fs_group = 1001
+        }
 
         container {
           image = "quay.io/thanos/thanos:${var.thanos_version}"
@@ -318,6 +321,7 @@ resource "kubernetes_deployment" "thanos-compactor" {
           security_context {
             run_as_user  = 1001
             run_as_group = 1001
+
             capabilities {
               drop = ["ALL"]
             }
@@ -392,12 +396,66 @@ resource "kubernetes_deployment" "thanos-compactor" {
 
         volume {
           name = "thanos-data-volume"
-          empty_dir {}
+          persistent_volume_claim {
+            claim_name = kubernetes_persistent_volume.thanos.id
+          }
         }
 
       }
     }
   }
+}
+
+resource "kubernetes_persistent_volume_claim" "thanos" {
+  metadata {
+    name      = "thanos-data-compact"
+    namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
+  }
+  spec {
+    access_modes = ["ReadWriteOnce"]
+    resources {
+      requests = {
+        storage = "${var.thanos_compactor_disk}Gi"
+      }
+    }
+    storage_class_name = "default"
+  }
+}
+
+
+resource "kubernetes_persistent_volume" "thanos" {
+  metadata {
+    name = "thanos-data-compact"
+  }
+  spec {
+    capacity = {
+      storage = "${var.thanos_compactor_disk}Gi"
+    }
+    claim_ref {
+      name      = "thanos-data-compact"
+      namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
+    }
+    access_modes                     = ["ReadWriteOnce"]
+    persistent_volume_reclaim_policy = "Delete"
+    storage_class_name               = "default"
+    persistent_volume_source {
+      csi {
+        driver        = "disk.csi.azure.com"
+        volume_handle = azurerm_managed_disk.thanos_disk.id
+      }
+    }
+  }
+}
+
+resource "azurerm_managed_disk" "thanos_disk" {
+  name                 = "${var.resource_prefix}-tsc-${var.environment}-disk"
+  location             = data.azurerm_resource_group.resource_group.location
+  resource_group_name  = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-rg"
+  storage_account_type = "StandardSSD_ZRS"
+  create_option        = "Empty"
+  disk_size_gb         = var.thanos_compactor_disk
+
+  lifecycle { ignore_changes = [tags] }
 }
 
 data "azurerm_key_vault_secret" "thanos_auth" {

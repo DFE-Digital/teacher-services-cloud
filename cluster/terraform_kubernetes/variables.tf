@@ -160,6 +160,12 @@ variable "thanos_compactor_mem" {
   default     = "1Gi"
 }
 
+variable "thanos_compactor_disk" {
+  type        = number
+  description = "Thanos compactor disk size"
+  default     = "16"
+}
+
 variable "thanos_store_mem" {
   type        = string
   description = "Thanos store gateway memory limit"
