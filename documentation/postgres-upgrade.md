@@ -43,6 +43,15 @@ A review app can be deployed directly with the target Postgres version. Review a
 
 Follow this process for each environment. Start with the lowest environments first, and leave enough time between each environment upgrade to allow testing.
 
+### Database checks
+Connect to the database using konduit, and check which tables have been analyzed using the queries below
+```sql
+select relname, last_autoanalyze, last_analyze FROM pg_stat_user_tables group by 1, 2, 3 order by 2, 3 desc;
+select relname, n_live_tup, n_dead_tup from pg_stat_user_tables group by 1, 2, 3 order by 2, 3 asc;
+```
+After upgrade these stats will be reset to 0.
+While auto analyze will eventually run against heavily modified tables, it will be best to manually analyze tables after the upgrade.
+
 ### Raise a PR with the new version for the target environment
 - this will be merged AFTER the upgrade has been completed
 
@@ -86,6 +95,7 @@ or
 ### Analyse the database
 - Azure recommend running analyse against the database
 - After the major version upgrade is complete, we recommend running the ANALYZE command in each database to refresh the pg_statistic table. Missing or stale statistics can lead to bad query plans, which in turn might degrade performance and take up excessive memory.
+- using the list of table stats taken before the upgrade, analyze selected tables manually using ANALYZE table_name;
 
 ### Start the application
 - kubectl -n namespace deployment/service-env[-worker] --scale replicas=n
