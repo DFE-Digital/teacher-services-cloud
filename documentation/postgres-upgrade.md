@@ -65,7 +65,7 @@ While auto analyze will eventually run against heavily modified tables, it will 
 - enable using the maintenance page workflow
 
 ### Shutdown the application (web and worker)
-- kubectl -n namespace deployment/service-env[-worker] --scale replicas=0
+- kubectl -n namespace scale deployment/service-env[-worker] replicas 0
 
 or
 - make env show-service
@@ -98,7 +98,7 @@ or
 - using the list of table stats taken before the upgrade, analyze selected tables manually using ANALYZE table_name;
 
 ### Start the application
-- kubectl -n namespace deployment/service-env[-worker] --scale replicas=n
+- kubectl -n namespace scale deployment/service-env[-worker] replicas 1 (match number pre scale down)
 
 or
 - make env scale-app REPLICAS=n
