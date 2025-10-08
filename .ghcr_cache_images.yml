@@ -8,3 +8,7 @@ postgres:15-alpine postgres-15-alpine
 postgres:16-alpine postgres-16-alpine
 postgres:17-alpine postgres-17-alpine
 redis:6-alpine redis-6-alpine
+postgis/postgis:14-3.2 postgis-14-3.2
+postgis/postgis:14-3.3 postgis-14-3.3
+postgis/postgis:14-3.4 postgis-14-3.4
+postgis/postgis:14-3.5 postgis-14-3.5
