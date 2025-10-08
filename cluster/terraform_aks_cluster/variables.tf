@@ -10,7 +10,7 @@ variable "managed_identity_name" {
 }
 variable "ci_collection_interval" {
   type        = string
-  default     = "5m"
+  default     = "10m"
   description = "Container Insights data collection interval"
 }
 
