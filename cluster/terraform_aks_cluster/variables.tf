@@ -49,6 +49,12 @@ variable "outbound_ports_threshold" {
   description = "Outbound ports threshold for monitor alert"
 }
 
+variable "second_egress_ip" {
+  type        = bool
+  default     = false
+  description = "Allocate a second egress public IP for the cluster"
+}
+
 locals {
   backing_services_resource_group_name = "${var.resource_prefix}-tsc-${var.environment}-bs-rg"
   cluster_name = (

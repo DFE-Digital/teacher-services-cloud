@@ -155,6 +155,17 @@ resource "azurerm_public_ip" "egress-public-ip" {
   lifecycle { ignore_changes = [tags] }
 }
 
+resource "azurerm_public_ip" "egress-public-ip2" {
+  count               = var.second_egress_ip ? 1 : 0
+  name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-egress-pip2"
+  location            = data.azurerm_resource_group.cluster.location
+  resource_group_name = data.azurerm_resource_group.cluster.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
+
+  lifecycle { ignore_changes = [tags] }
+}
+
 resource "azurerm_public_ip" "egress-public-ip-clone" {
   count               = var.clone_cluster ? 1 : 0
   name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-clone-egress-pip"
