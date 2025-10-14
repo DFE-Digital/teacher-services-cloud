@@ -20,16 +20,16 @@ help() {
    echo
 
    echo "Syntax:"
-   echo "   konduit [-a|-c|-h|-x|-i file-name|-p postgres-var|-r redis-var|-s server-name|-t timeout|-n namespace] app-name -- command [args]"
+   echo "   konduit [-a|-c|-h|-q|-x|-i file-name|-p postgres-var|-r redis-var|-s server-name|-t timeout|-n namespace] app-name -- command [args]"
    echo "      Connect to the default database for app-name"
    echo
-   echo "or konduit [-a|-c|-h|-x|-i file-name|-p postgres-var|-r redis-var|-s server-name|-t timeout|-n namespace] -b db-name app-name -- command [args]"
+   echo "or konduit [-a|-c|-h|-q|-x|-i file-name|-p postgres-var|-r redis-var|-s server-name|-t timeout|-n namespace] -b db-name app-name -- command [args]"
    echo "      Connect to database 'db-name' using URL and credentials from app-name"
    echo
-   echo "or konduit [-a|-c|-h|-x|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] -u 'db-url' app-name -- command [args]"
+   echo "or konduit [-a|-c|-h|-q|-x|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] -u 'db-url' app-name -- command [args]"
    echo "      Connect to database URL 'db-url' using app-name as tunnel"
    echo
-   echo "or konduit [-a|-c|-h|-x|-i file-name|-r redis-var|-t timeout|-n namespace] -d keyvault-db-name -k key-vault app-name -- command [args]"
+   echo "or konduit [-a|-c|-h|-q|-x|-i file-name|-r redis-var|-t timeout|-n namespace] -d keyvault-db-name -k key-vault app-name -- command [args]"
    echo "      Connect to a specific database from app-name"
    echo "      Requires a secret containing the DB URL in the specified Azure KV,"
    echo "      with name {keyvault-db-name}-database-url"
@@ -48,6 +48,7 @@ help() {
    echo "   -n namespace      Namespace where the app can be found. Required in case the user doesn't have cluster admin access."
    echo "   -p postgres-var   Variable for postgres [defaults to DATABASE_URL if not set]"
    echo "                     Only valid for commands psql, pg_dump or pg_restore"
+   echo "   -q                Quiet mode. Do not echo informational messages"
    echo "   -r redis-var      Variable for redis cache [defaults to REDIS_URL if not set]"
    echo "                     Only valid for command redis-cli"
    echo "   -s server-name    Override server name. Postgres only, used to access PTR server. Hostname without .postgres.database.azure.com suffix."
@@ -121,6 +122,11 @@ init_setup() {
    # Set default Postgres var if not set
    if [ -z "${Postgres:-}" ]; then
       Postgres="DATABASE_URL"
+   fi
+
+   # Set default Quiet var if not set
+   if [ -z "${Quiet:-}" ]; then
+      Quiet="False"
    fi
 
    # Get the deployment namespace
@@ -215,11 +221,15 @@ init_setup() {
 }
 EOF
 )
-      echo "Using app ${INSTANCE} to connect to database for ${OLDINST}"
-      echo ${PODJSON} | kubectl -n ${NAMESPACE} create -f -
+      if [ "${Quiet}" != "True" ]; then
+         echo "Using app ${INSTANCE} to connect to database for ${OLDINST}"
+      fi
+      echo ${PODJSON} | kubectl -n ${NAMESPACE} create -f - >/dev/null
       sleep 5
    else
-      echo "Using app ${INSTANCE} to connect to database"
+      if [ "${Quiet}" != "True" ]; then
+         echo "Using app ${INSTANCE} to connect to database"
+      fi
    fi
 }
 
@@ -227,7 +237,7 @@ check_instance() {
    # make sure it's LC
    INSTANCE=$(echo "${INSTANCE}" | tr '[:upper:]' '[:lower:]')
    # Lets check the container exists and we can connect to it first
-   if ! kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- echo; then
+   if ! kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- echo > /dev/null; then
       echo "Error: Container does not exist or connection cannot be established"
       exit 1
    fi
@@ -390,7 +400,7 @@ cleanup() {
 }
 
 # Get the options
-while getopts "ahcxd:i:k:r:n:p:s:t:u:b:" option; do
+while getopts "ahcxqd:i:k:r:n:p:s:t:u:b:" option; do
    case $option in
    a)
       AKS="True"
@@ -415,6 +425,9 @@ while getopts "ahcxd:i:k:r:n:p:s:t:u:b:" option; do
       ;;
    p)
       Postgres=$OPTARG
+      ;;
+   q)
+      Quiet="True"
       ;;
    r)
       Redis=$OPTARG
@@ -462,7 +475,7 @@ OTHERARGS=${*:-}
 ### Main
 ###
 
-trap 'echo Running cleanup...;cleanup >/dev/null 2>&1 || true' EXIT SIGHUP SIGTERM
+trap 'cleanup >/dev/null 2>&1 || true' EXIT SIGHUP SIGTERM
 init_setup
 check_instance
 set_ports
