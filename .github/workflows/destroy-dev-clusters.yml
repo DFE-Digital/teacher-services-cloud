@@ -4,6 +4,23 @@ on:
   schedule:
     # Run every Friday at 6 PM UTC
     - cron: "0 18 * * 5"
+<<<<<<< HEAD
+=======
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Action to perform"
+        required: true
+        default: "destroy"
+        type: choice
+        options:
+          - destroy
+          - dry-run
+      environment_filter:
+        description: "Environment filter (leave empty for all dev clusters)"
+        required: false
+        type: string
+>>>>>>> 1f5c517 (Add destroy-dev-clusters workflows)
 
 jobs:
   destroy-dev-clusters:
@@ -20,7 +37,20 @@ jobs:
 
       - name: Set environment variables
         run: |
+<<<<<<< HEAD
           echo "ACTION_DESCRIPTION=Destroying dev clusters for weekend cost savings" >> $GITHUB_ENV
+=======
+          case "${{ inputs.action || 'destroy' }}" in
+            destroy)
+              echo "ACTION_DESCRIPTION=Destroying dev clusters for weekend cost savings" >> $GITHUB_ENV
+              echo "DRY_RUN=false" >> $GITHUB_ENV
+              ;;
+            dry-run)
+              echo "ACTION_DESCRIPTION=Dry run - showing what clusters would be destroyed" >> $GITHUB_ENV
+              echo "DRY_RUN=true" >> $GITHUB_ENV
+              ;;
+          esac
+>>>>>>> 1f5c517 (Add destroy-dev-clusters workflows)
 
           # Set development subscription details
           echo "DEV_SUBSCRIPTION=s189-teacher-services-cloud-development" >> $GITHUB_ENV
@@ -70,6 +100,7 @@ jobs:
           for CLUSTER in $CLUSTERS; do
             echo ""
             echo "Processing environment: $CLUSTER"
+<<<<<<< HEAD
             echo "  Destroying cluster for environment: $CLUSTER..."
 
             # Run terraform destroy via Makefile
@@ -81,6 +112,31 @@ jobs:
             else
               echo "  ERROR: Failed to destroy cluster for environment: $CLUSTER"
               # Continue with other clusters even if one fails
+=======
+
+            if [ "${{ env.DRY_RUN }}" == "true" ]; then
+              echo "  [DRY RUN] Would destroy cluster for environment: $CLUSTER"
+              echo "  Command that would run: make ci development terraform-destroy ENVIRONMENT=$CLUSTER"
+            else
+              echo "  Destroying cluster for environment: $CLUSTER..."
+
+              # Set up environment variables for Makefile
+              export ENVIRONMENT=$CLUSTER
+              export CI=true
+              export AUTO_APPROVE=-auto-approve
+              export SKIP_AZURE_LOGIN=true
+
+              # Run terraform destroy via Makefile
+              echo "  Running: make ci development terraform-destroy ENVIRONMENT=$CLUSTER"
+
+              # Execute the destroy command - will do nothing if cluster doesn't exist
+              if make ci development terraform-destroy ENVIRONMENT=$CLUSTER; then
+                echo "  Successfully completed terraform destroy for environment: $CLUSTER"
+              else
+                echo "  ERROR: Failed to destroy cluster for environment: $CLUSTER"
+                # Continue with other clusters even if one fails
+              fi
+>>>>>>> 1f5c517 (Add destroy-dev-clusters workflows)
             fi
           done
 
@@ -102,10 +158,21 @@ jobs:
         if: always()
         run: |
           echo "## Cluster Destruction Summary"
+<<<<<<< HEAD
+=======
+          echo "- **Action**: ${{ inputs.action || 'destroy' }}"
+>>>>>>> 1f5c517 (Add destroy-dev-clusters workflows)
           echo "- **Subscription**: ${{ env.DEV_SUBSCRIPTION }}"
           echo "- **Clusters attempted**: cluster1, cluster2, cluster3, cluster4, cluster5, cluster6"
           echo "- **Status**: ${{ job.status }}"
 
+<<<<<<< HEAD
+=======
+          if [ "${{ env.DRY_RUN }}" == "true" ]; then
+          echo "- **Mode**: Dry run (no changes made)"
+          fi
+
+>>>>>>> 1f5c517 (Add destroy-dev-clusters workflows)
           echo ""
           echo "For manual cluster management:"
           echo "- Create cluster: make development terraform-apply ENVIRONMENT=clusterN"
