@@ -15,7 +15,7 @@
       }
     ]
   },
-  "description": "Service Requests Dashboard - Shows HTTP request counts grouped by status (2xx, 4xx, 5xx) for each service",
+  "description": "Service Requests Dashboard - Shows HTTP request counts grouped as Success/OK (1xx+2xx+3xx), Client Errors (4xx), and Server Errors (5xx) for user services",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -43,41 +43,11 @@
         "type": "prometheus",
         "uid": "P5DCFC7561CCDE821"
       },
-      "description": "Total requests across all services grouped by HTTP status code",
+      "description": "Total requests across user services grouped by status: Success/OK (1xx+2xx+3xx), Client Errors (4xx), Server Errors (5xx)",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
@@ -94,8 +64,8 @@
         "overrides": [
           {
             "matcher": {
-              "id": "byRegexp",
-              "options": "/2.*/"
+              "id": "byName",
+              "options": "Success/OK"
             },
             "properties": [
               {
@@ -109,14 +79,14 @@
           },
           {
             "matcher": {
-              "id": "byRegexp",
-              "options": "/4.*/"
+              "id": "byName",
+              "options": "Client Errors (4xx)"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "yellow",
+                  "fixedColor": "orange",
                   "mode": "fixed"
                 }
               }
@@ -124,8 +94,8 @@
           },
           {
             "matcher": {
-              "id": "byRegexp",
-              "options": "/5.*/"
+              "id": "byName",
+              "options": "Server Errors (5xx)"
             },
             "properties": [
               {
@@ -147,16 +117,17 @@
       },
       "id": 1,
       "options": {
-        "legend": {
-          "calcs": ["lastNotNull", "mean"],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
+        "displayMode": "gradient",
+        "minVizWidth": 0,
+        "minVizHeight": 10,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "values": false,
+          "calcs": ["lastNotNull"],
+          "fields": ""
         },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
+        "showUnfilled": true,
+        "text": {}
       },
       "pluginVersion": "9.0.0",
       "targets": [
@@ -166,14 +137,36 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(rate(nginx_ingress_controller_requests{namespace!=\"\"}[$__rate_interval])) by (status)",
-          "legendFormat": "HTTP {{status}}",
+          "expr": "sum(rate(nginx_ingress_controller_requests{namespace!=\"\", ingress!~\"grafana|alertmanager|prometheus|thanos|http-echo|simple\", status=~\"[123]..\"}[$__rate_interval]))",
+          "legendFormat": "Success/OK",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(nginx_ingress_controller_requests{namespace!=\"\", ingress!~\"grafana|alertmanager|prometheus|thanos|http-echo|simple\", status=~\"4..\"}[$__rate_interval]))",
+          "legendFormat": "Client Errors (4xx)",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(nginx_ingress_controller_requests{namespace!=\"\", ingress!~\"grafana|alertmanager|prometheus|thanos|http-echo|simple\", status=~\"5..\"}[$__rate_interval]))",
+          "legendFormat": "Server Errors (5xx)",
+          "range": true,
+          "refId": "C"
         }
       ],
-      "title": "All Services - Requests by Status Code",
-      "type": "timeseries"
+      "title": "All User Services - Requests by Status Group",
+      "type": "bargauge"
     },
     {
       "collapsed": false,
@@ -197,41 +190,11 @@
         "type": "prometheus",
         "uid": "P5DCFC7561CCDE821"
       },
-      "description": "HTTP requests per service/ingress grouped by status code (2xx=success, 4xx=client errors, 5xx=server errors)",
+      "description": "HTTP requests per service grouped by status: Success/OK (1xx+2xx+3xx), Client Errors (4xx), Server Errors (5xx)",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "tooltip": false,
-              "viz": false,
-              "legend": false
-            },
-            "lineInterpolation": "linear",
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
+            "mode": "thresholds"
           },
           "mappings": [],
           "thresholds": {
@@ -248,8 +211,8 @@
         "overrides": [
           {
             "matcher": {
-              "id": "byRegexp",
-              "options": "/2.*/"
+              "id": "byName",
+              "options": "Success/OK"
             },
             "properties": [
               {
@@ -263,14 +226,14 @@
           },
           {
             "matcher": {
-              "id": "byRegexp",
-              "options": "/4.*/"
+              "id": "byName",
+              "options": "Client Errors (4xx)"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "yellow",
+                  "fixedColor": "orange",
                   "mode": "fixed"
                 }
               }
@@ -278,8 +241,8 @@
           },
           {
             "matcher": {
-              "id": "byRegexp",
-              "options": "/5.*/"
+              "id": "byName",
+              "options": "Server Errors (5xx)"
             },
             "properties": [
               {
@@ -301,16 +264,17 @@
       },
       "id": 2,
       "options": {
-        "legend": {
+        "displayMode": "gradient",
+        "minVizWidth": 0,
+        "minVizHeight": 10,
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "values": false,
           "calcs": ["lastNotNull"],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
+          "fields": ""
         },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
+        "showUnfilled": true,
+        "text": {}
       },
       "repeat": "service",
       "repeatDirection": "h",
@@ -322,14 +286,36 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(rate(nginx_ingress_controller_requests{ingress=\"$service\"}[$__rate_interval])) by (status)",
-          "legendFormat": "{{status}}",
+          "expr": "sum(rate(nginx_ingress_controller_requests{ingress=\"$service\", status=~\"[123]..\"}[$__rate_interval]))",
+          "legendFormat": "Success/OK",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(nginx_ingress_controller_requests{ingress=\"$service\", status=~\"4..\"}[$__rate_interval]))",
+          "legendFormat": "Client Errors (4xx)",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(nginx_ingress_controller_requests{ingress=\"$service\", status=~\"5..\"}[$__rate_interval]))",
+          "legendFormat": "Server Errors (5xx)",
+          "range": true,
+          "refId": "C"
         }
       ],
       "title": "$service",
-      "type": "timeseries"
+      "type": "bargauge"
     }
   ],
   "refresh": "30s",
@@ -359,7 +345,7 @@
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
-        "regex": "",
+        "regex": "/^(?!.*(grafana|alertmanager|prometheus|thanos|http-echo|simple)).*$/",
         "skipUrlSync": false,
         "sort": 1,
         "type": "query"
