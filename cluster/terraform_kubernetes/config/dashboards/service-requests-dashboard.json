@@ -26,7 +26,7 @@
         "type": "prometheus",
         "uid": "P5DCFC7561CCDE821"
       },
-      "description": "HTTP request rate grouped by status: Success/OK (1xx+2xx+3xx), Client Errors (4xx), Server Errors (5xx)",
+      "description": "HTTP request rate grouped by status: Success (2xx), Client Errors (4xx), Server Errors (5xx). Excludes redirects (3xx) to avoid double-counting.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -48,7 +48,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "Success/OK"
+              "options": "Success (2xx)"
             },
             "properties": [
               {
@@ -123,8 +123,8 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(rate(nginx_ingress_controller_requests{namespace=~\"$namespace\", ingress=\"$service\", status=~\"[123]..\"}[$__rate_interval]))",
-          "legendFormat": "Success/OK",
+          "expr": "sum(rate(nginx_ingress_controller_requests{service=\"$service\", status=~\"2..\"}[$__rate_interval]))",
+          "legendFormat": "Success (2xx)",
           "range": true,
           "refId": "A"
         },
@@ -134,7 +134,7 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(rate(nginx_ingress_controller_requests{namespace=~\"$namespace\", ingress=\"$service\", status=~\"4..\"}[$__rate_interval]))",
+          "expr": "sum(rate(nginx_ingress_controller_requests{service=\"$service\", status=~\"4..\"}[$__rate_interval]))",
           "legendFormat": "4xx",
           "range": true,
           "refId": "B"
@@ -145,7 +145,7 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(rate(nginx_ingress_controller_requests{namespace=~\"$namespace\", ingress=\"$service\", status=~\"5..\"}[$__rate_interval]))",
+          "expr": "sum(rate(nginx_ingress_controller_requests{service=\"$service\", status=~\"5..\"}[$__rate_interval]))",
           "legendFormat": "5xx",
           "range": true,
           "refId": "C"
@@ -176,45 +176,14 @@
           "type": "prometheus",
           "uid": "P5DCFC7561CCDE821"
         },
-        "definition": "label_values(nginx_ingress_controller_requests{ingress!~\"grafana|alertmanager|prometheus|thanos|http-echo|simple\"}, ingress)",
+        "definition": "label_values(nginx_ingress_controller_requests{service=~\"(apply|publish|register|find-a-lost-trn|teach|track-and-pay|claim-additional-payments-for-teaching|get-into-teaching-app|get-school-experience|cpd-ec2|cpd-ecf|npq-registration|trs|teaching-vacancies)-(qa|staging|test|development).*\",service!~\".*-(postgres|redis|worker|cache|queue).*\"}, service)",
         "hide": 0,
         "includeAll": true,
         "multi": true,
         "name": "service",
         "options": [],
         "query": {
-          "query": "label_values(nginx_ingress_controller_requests{ingress!~\"grafana|alertmanager|prometheus|thanos|http-echo|simple\"}, ingress)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 1,
-        "type": "query"
-      },
-      {
-        "allValue": ".*",
-        "current": {
-          "selected": true,
-          "text": [
-            "All"
-          ],
-          "value": [
-            "$__all"
-          ]
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "P5DCFC7561CCDE821"
-        },
-        "definition": "label_values(nginx_ingress_controller_requests{ingress!~\"grafana|alertmanager|prometheus|thanos|http-echo|simple\"}, namespace)",
-        "hide": 0,
-        "includeAll": true,
-        "multi": true,
-        "name": "namespace",
-        "options": [],
-        "query": {
-          "query": "label_values(nginx_ingress_controller_requests{ingress!~\"grafana|alertmanager|prometheus|thanos|http-echo|simple\"}, namespace)",
+          "query": "label_values(nginx_ingress_controller_requests{service=~\"(apply|publish|register|find-a-lost-trn|teach|track-and-pay|claim-additional-payments-for-teaching|get-into-teaching-app|get-school-experience|cpd-ec2|cpd-ecf|npq-registration|trs|teaching-vacancies)-(qa|staging|test|development).*\",service!~\".*-(postgres|redis|worker|cache|queue).*\"}, service)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
