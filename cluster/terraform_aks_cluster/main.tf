@@ -161,7 +161,7 @@ resource "azurerm_public_ip" "egress-public-ip" {
 }
 
 resource "azurerm_public_ip" "egress-public-ip2" {
-  count               = var.second_egress_ip ? 1 : 0
+  count               = var.second_egress_ip || var.create_prod_egress_ip ? 1 : 0
   name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-egress-pip2"
   location            = data.azurerm_resource_group.cluster.location
   resource_group_name = data.azurerm_resource_group.cluster.name
