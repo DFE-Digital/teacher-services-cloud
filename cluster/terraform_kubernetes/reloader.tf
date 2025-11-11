@@ -18,7 +18,7 @@ resource "kubernetes_cluster_role" "reloader" {
 
   rule {
     api_groups = ["batch"]
-    resources  = ["cronjobs"]
+    resources  = ["cronjobs", "jobs"]
     verbs      = ["list", "get", "watch"]
   }
 
@@ -93,7 +93,7 @@ resource "kubernetes_deployment" "reloader" {
 
         container {
           name  = "reloader"
-          image = "stakater/reloader:v${var.reloader_version}"
+          image = "ghcr.io/dfe-digital/teacher-services-cloud:reloader-${var.reloader_version}"
 
           args = ["--reload-strategy=annotations"]
 
