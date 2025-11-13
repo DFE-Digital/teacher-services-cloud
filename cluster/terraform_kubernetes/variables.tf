@@ -243,7 +243,7 @@ variable "tsc_package_repo" {
 variable "reloader_version" {
   type        = string
   description = "Version of the Reloader container image to use"
-  default     = "1.0.69"
+  default     = "1.4.8"
 }
 
 variable "reloader_app_cpu" {
