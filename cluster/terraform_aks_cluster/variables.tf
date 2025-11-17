@@ -55,12 +55,6 @@ variable "second_egress_ip" {
   description = "Allocate a second egress public IP for the cluster"
 }
 
-variable "create_prod_egress_ip" {
-  type        = bool
-  default     = false
-  description = "Create a second egress public IP for the cluster"
-}
-
 locals {
   backing_services_resource_group_name = "${var.resource_prefix}-tsc-${var.environment}-bs-rg"
   cluster_name = (
