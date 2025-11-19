@@ -217,7 +217,7 @@ variable "alertmanager_app_mem" {
 }
 variable "node_exporter_version" {
   type    = string
-  default = "v1.8.2"
+  default = "v1.9.1"
 }
 
 variable "node_exporter_image" {
