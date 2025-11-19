@@ -48,7 +48,7 @@ resource "kubernetes_deployment" "alertmanager" {
 
       spec {
         container {
-          image = "prom/alertmanager:${var.alertmanager_image_version}"
+          image = "${var.tsc_package_repo}:${var.alertmanager_image}-${var.alertmanager_image_version}"
           name  = "alertmanager"
 
           args = [
