@@ -203,7 +203,12 @@ variable "cluster_short" {
 
 variable "alertmanager_image_version" {
   type    = string
-  default = "v0.27.0"
+  default = "v0.28.1"
+}
+
+variable "alertmanager_image" {
+  type    = string
+  default = "alertmanager"
 }
 
 variable "alertmanager_app_cpu" {

@@ -13,3 +13,4 @@ postgis/postgis:14-3.3 postgis-14-3.3
 postgis/postgis:14-3.4 postgis-14-3.4
 postgis/postgis:14-3.5 postgis-14-3.5
 stakater/reloader:v1.4.8 reloader-1.4.8
+prom/alertmanager:v0.28.1 alertmanager-v0.28.1
