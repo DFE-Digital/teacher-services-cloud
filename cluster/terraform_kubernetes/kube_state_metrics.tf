@@ -87,7 +87,19 @@ resource "kubernetes_deployment" "kube_state_metrics" {
 
         container {
           name  = "kube-state-metrics"
-          image = "registry.k8s.io/kube-state-metrics/kube-state-metrics:v${var.kube_state_metrics_version}"
+          image = "${var.tsc_package_repo}:kube-state-metrics-v${var.kube_state_metrics_version}"
+          security_context {
+            run_as_user  = 65534
+            run_as_group = 65534
+            capabilities {
+              drop = ["ALL"]
+            }
+            allow_privilege_escalation = false
+            privileged                 = false
+            run_as_non_root            = true
+            read_only_root_filesystem  = true
+          }
+
           port {
             name           = "http-metrics"
             container_port = 8080
