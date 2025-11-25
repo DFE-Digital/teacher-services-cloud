@@ -232,7 +232,7 @@ variable "node_exporter_image" {
 
 variable "filebeat_version" {
   type    = string
-  default = "8.12.2"
+  default = "9.1.6"
 }
 
 variable "filebeat_image" {
