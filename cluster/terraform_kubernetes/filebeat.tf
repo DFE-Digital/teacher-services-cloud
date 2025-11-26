@@ -118,6 +118,14 @@ resource "kubernetes_daemonset" "filebeat" {
           ]
 
           security_context {
+
+            capabilities {
+              drop = ["ALL"]
+            }
+            allow_privilege_escalation = false
+            privileged                 = false
+            run_as_non_root            = false
+            read_only_root_filesystem  = false
             run_as_user = 0
           }
 
