@@ -139,7 +139,12 @@ variable "prometheus_app_cpu" {
 
 variable "thanos_version" {
   type    = string
-  default = "v0.36.1"
+  default = "v0.39.2"
+}
+
+variable "thanos_image" {
+  type    = string
+  default = "thanos"
 }
 
 variable "thanos_app_mem" {
