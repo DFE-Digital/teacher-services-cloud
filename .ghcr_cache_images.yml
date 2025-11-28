@@ -17,4 +17,5 @@ prom/alertmanager:v0.28.1 alertmanager-v0.28.1
 quay.io/thanos/thanos:v0.36.1 thanos-v0.36.1
 prom/prometheus:v2.54.1 prometheus-v2.54.1
 grafana/grafana:11.1.5  grafana-11.1.5
+registry.k8s.io/ingress-nginx/controller:v1.13.4 nginx-controller-v1.13.4
 registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0 kube-state-metrics-v2.15.0
