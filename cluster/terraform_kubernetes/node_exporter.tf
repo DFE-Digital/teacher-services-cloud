@@ -32,6 +32,17 @@ resource "kubernetes_daemonset" "node-exporter" {
         container {
           image = "${var.tsc_package_repo}:${var.node_exporter_image}-${var.node_exporter_version}"
           name  = "node-exporter"
+          security_context {
+            run_as_user  = 65534
+            run_as_group = 65534
+            capabilities {
+              drop = ["ALL"]
+            }
+            allow_privilege_escalation = false
+            privileged                 = false
+            run_as_non_root            = true
+            read_only_root_filesystem  = true
+          }
 
           args = [
             "--path.sysfs=/host/sys",
