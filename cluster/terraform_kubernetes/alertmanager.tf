@@ -51,6 +51,18 @@ resource "kubernetes_deployment" "alertmanager" {
           image = "${var.tsc_package_repo}:${var.alertmanager_image}-${var.alertmanager_image_version}"
           name  = "alertmanager"
 
+          security_context {
+            run_as_user  = 65534
+            run_as_group = 65534
+            capabilities {
+              drop = ["ALL"]
+            }
+            allow_privilege_escalation = false
+            privileged                 = false
+            run_as_non_root            = true
+            read_only_root_filesystem  = true
+          }
+
           args = [
             "--config.file=/etc/alertmanager/config.yml",
             "--storage.path=/alertmanager",

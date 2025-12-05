@@ -85,7 +85,7 @@ variable "grafana_limit_mem" {
 
 variable "grafana_version" {
   type    = string
-  default = "11.1.5"
+  default = "11.6.5"
 }
 
 variable "lowpriority_app_cpu" {
