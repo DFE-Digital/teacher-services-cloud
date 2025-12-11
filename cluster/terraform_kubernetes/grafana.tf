@@ -58,7 +58,7 @@ resource "kubernetes_deployment" "grafana_deployment" {
       spec {
         container {
           name  = "grafana"
-          image = "grafana/grafana:${var.grafana_version}"
+          image = "${var.tsc_package_repo}:grafana-${var.grafana_version}"
           security_context {
             run_as_user  = 1000
             run_as_group = 3000
