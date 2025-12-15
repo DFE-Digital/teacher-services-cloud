@@ -31,6 +31,11 @@ As of 02/08/2025 there are several terraform issues with Postgres upgrades.
     - Confirm the target upgrade version
     - advise the process, and arrange dates and any outage windows
     - advise of any pre work
+- Ensure DB backup & restore workflows are working
+- Ensure Konduit db connection utility is installed locally:-
+
+  ```make bin/konduit.sh```
+
 
 ## Review apps
 
@@ -45,7 +50,12 @@ Follow this process for each environment. Start with the lowest environments fir
 
 ### Database checks
 Connect to the database using konduit, and check which tables have been analyzed using the queries below
-```sql
+
+```
+bin/konduit.sh -n [namespace] -x [k8s deployment name] -- psql
+```
+```
+sql
 select relname, last_autoanalyze, last_analyze FROM pg_stat_user_tables group by 1, 2, 3 order by 2, 3 desc;
 select relname, n_live_tup, n_dead_tup from pg_stat_user_tables group by 1, 2, 3 order by 2, 3 asc;
 ```
@@ -56,7 +66,7 @@ While auto analyze will eventually run against heavily modified tables, it will 
 - this will be merged AFTER the upgrade has been completed
 
 ### Block deployments
-- set PR approvers to 6 (or any other method that stops merging to main)
+- set PR approvers to 6 -see Settings/Branches/BranchProtectionRules  (or any other method that stops merging to main)
 
 ### Enable Postgres server logs
 - make env enable-pglogs
@@ -65,7 +75,8 @@ While auto analyze will eventually run against heavily modified tables, it will 
 - enable using the maintenance page workflow
 
 ### Shutdown the application (web and worker)
-- kubectl -n namespace scale deployment/service-env[-worker] replicas 0
+- kubectl -n namespace scale deployment/service-[worker]-envt --replicas=0
+- kubectl -n namespace scale deployment/service-[app]-envt --replicas=0
 
 or
 - make env show-service
@@ -98,7 +109,8 @@ or
 - using the list of table stats taken before the upgrade, analyze selected tables manually using ANALYZE table_name;
 
 ### Start the application
-- kubectl -n namespace scale deployment/service-env[-worker] replicas 1 (match number pre scale down)
+- kubectl -n namespace scale deployment/service-[worker]-envt --replicas=1 (match number pre scale down)
+- kubectl -n namespace scale deployment/service-[-app]-envt --replicas=1 (match number pre scale down)
 
 or
 - make env scale-app REPLICAS=n
@@ -109,15 +121,15 @@ or
 - access via the temp route
 - if not ok, follow the rollback procedure
 
-### Disable the maitenance page
+### Disable the maintenance page
 - disable using the maintenance page workflow
+
+### Unblock deployments
+- reset PR approvers to 1
 
 ### Merge PR with the new server version
 - run deploy-plan from the PR branch before merge to ensure Postgres will not be changed
 - do not run any other PR's before this one, otherwise postgres will be downgraded
-
-### Unblock deployments
-- reset PR approvers to 1
 
 ### Disable server logs
 - make env disable-pglogs (any existing logs will remain within the existing retention period)
