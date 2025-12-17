@@ -22,19 +22,6 @@
   "links": [],
   "panels": [
     {
-      "collapsed": false,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 17,
-      "panels": [],
-      "title": "Nginx Controller",
-      "type": "row"
-    },
-    {
       "datasource": {
         "type": "prometheus",
         "uid": "P5DCFC7561CCDE821"
@@ -42,141 +29,40 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Time"
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
             },
-            "properties": []
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value"
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
             },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "0": {
-                        "color": "dark-red",
-                        "index": 0,
-                        "text": "CONTROLLER DOWN"
-                      }
-                    },
-                    "type": "value"
-                  },
-                  {
-                    "options": {
-                      "match": "null+nan",
-                      "result": {
-                        "color": "dark-red",
-                        "index": 1,
-                        "text": "NO DATA / MISCONFIG"
-                      }
-                    },
-                    "type": "special"
-                  },
-                  {
-                    "options": {
-                      "pattern": "^[1-9]\\d*(\\.\\d+)?$",
-                      "result": {
-                        "color": "green",
-                        "index": 2,
-                        "text": "CONTROLLER ACTIVE"
-                      }
-                    },
-                    "type": "regex"
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 3,
-        "x": 0,
-        "y": 1
-      },
-      "id": 23,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "11.6.5",
-      "targets": [
-        {
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum by (namespace) (\n  kube_pod_status_ready{\n    namespace=\"default\",\n    condition=\"true\"\n  }\n)",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "__auto",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Controller Health",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
             },
-            "includeByName": {},
-            "indexByName": {
-              "Time": 2,
-              "Value": 1,
-              "namespace": 0
-            },
-            "renameByName": {}
-          }
-        }
-      ],
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P5DCFC7561CCDE821"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -195,694 +81,46 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 3,
-        "w": 6,
-        "x": 3,
-        "y": 1
-      },
-      "id": 18,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "11.6.5",
-      "targets": [
-        {
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum(rate(nginx_ingress_controller_requests{namespace=\"infra\"}[2m]))",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "__auto",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "NGINX Controller – Requests (total)",
-      "type": "gauge"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P5DCFC7561CCDE821"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "namespace"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 125
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "ingress"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 488
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value"
-            },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "0": {
-                        "color": "orange",
-                        "index": 0,
-                        "text": "NO TRAFFIC"
-                      }
-                    },
-                    "type": "value"
-                  },
-                  {
-                    "options": {
-                      "pattern": "^[1-9][0-9]*$|^[0-9]*\\.[0-9]+$",
-                      "result": {
-                        "color": "green",
-                        "index": 1,
-                        "text": "WORKING"
-                      }
-                    },
-                    "type": "regex"
-                  }
-                ]
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-text"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "service"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 190
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 18,
+        "h": 8,
+        "w": 12,
         "x": 0,
-        "y": 4
+        "y": 0
       },
-      "id": 22,
+      "id": 25,
       "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
         },
-        "showHeader": true,
-        "sortBy": []
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "11.6.5",
       "targets": [
         {
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum by (namespace, ingress, service) (\n  rate(\n    nginx_ingress_controller_requests{\n      namespace=\"infra\"\n    }[5m]\n  )\n)\n",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "__auto",
-          "range": false,
           "refId": "A"
         }
       ],
-      "title": "Nginx- traffic received?",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true
-            },
-            "includeByName": {},
-            "indexByName": {
-              "Time": 4,
-              "Value": 3,
-              "ingress": 1,
-              "namespace": 0,
-              "service": 2
-            },
-            "renameByName": {}
-          }
-        }
-      ],
-      "type": "table"
+      "title": "Panel Title",
+      "type": "timeseries"
     },
     {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P5DCFC7561CCDE821"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "namespace"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 116
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "service"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 127
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "ingress"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 358
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "host"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 375
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value"
-            },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "0": {
-                        "color": "orange",
-                        "index": 0,
-                        "text": "NO TRAFFIC"
-                      },
-                      "1": {
-                        "color": "green",
-                        "index": 1,
-                        "text": "HEALTHY"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-text"
-                }
-              }
-            ]
-          }
-        ]
-      },
+      "collapsed": false,
       "gridPos": {
-        "h": 3,
-        "w": 10,
+        "h": 1,
+        "w": 24,
         "x": 0,
         "y": 8
       },
-      "id": 19,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true,
-        "sortBy": []
-      },
-      "pluginVersion": "11.6.5",
-      "targets": [
-        {
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum by (namespace, ingress, service, host)(\n  rate(nginx_ingress_controller_requests{namespace=\"infra\"}[5m])\n)\n",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "__auto",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Per-Ingress Traffic",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "host": true
-            },
-            "includeByName": {},
-            "indexByName": {
-              "Time": 4,
-              "Value": 5,
-              "host": 3,
-              "ingress": 1,
-              "namespace": 0,
-              "service": 2
-            },
-            "renameByName": {}
-          }
-        }
-      ],
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P5DCFC7561CCDE821"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "namespace"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 112
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "ingress"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 498
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "status"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 64
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value"
-            },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "0": {
-                        "color": "orange",
-                        "index": 0,
-                        "text": "NO TRAFFIC"
-                      },
-                      "1": {
-                        "color": "green",
-                        "index": 1,
-                        "text": "ACTIVE"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-text"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 3,
-        "w": 17,
-        "x": 0,
-        "y": 11
-      },
-      "id": 20,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true,
-        "sortBy": []
-      },
-      "pluginVersion": "11.6.5",
-      "targets": [
-        {
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "sum by (namespace, ingress, service, status)(\n  rate(nginx_ingress_controller_requests{namespace=\"infra\"}[5m])\n)",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "__auto",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Ingress HTTP status codes",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true
-            },
-            "includeByName": {},
-            "indexByName": {
-              "Time": 4,
-              "Value": 5,
-              "ingress": 1,
-              "namespace": 0,
-              "service": 3,
-              "status": 2
-            },
-            "renameByName": {}
-          }
-        }
-      ],
-      "type": "table"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "P5DCFC7561CCDE821"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "inspect": false
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green"
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "namespace"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 155
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "service"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 109
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "ingress"
-            },
-            "properties": [
-              {
-                "id": "custom.width",
-                "value": 480
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Value"
-            },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "options": {
-                      "NaN": {
-                        "color": "orange",
-                        "index": 0,
-                        "text": "NO TRAFFIC"
-                      }
-                    },
-                    "type": "value"
-                  }
-                ]
-              },
-              {
-                "id": "custom.cellOptions",
-                "value": {
-                  "type": "color-text"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 18,
-        "x": 0,
-        "y": 14
-      },
-      "id": 21,
-      "options": {
-        "cellHeight": "sm",
-        "footer": {
-          "countRows": false,
-          "fields": "",
-          "reducer": [
-            "sum"
-          ],
-          "show": false
-        },
-        "showHeader": true,
-        "sortBy": []
-      },
-      "pluginVersion": "11.6.5",
-      "targets": [
-        {
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "histogram_quantile(\n  0.95,\n  sum by (le, namespace, ingress, service)(\n    rate(nginx_ingress_controller_request_duration_seconds_bucket{namespace=\"infra\"}[5m])\n  )\n)\n",
-          "format": "table",
-          "instant": true,
-          "legendFormat": "__auto",
-          "range": false,
-          "refId": "A"
-        }
-      ],
-      "title": "Ingress Latency",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true
-            },
-            "includeByName": {},
-            "indexByName": {
-              "Time": 4,
-              "Value": 3,
-              "ingress": 1,
-              "namespace": 0,
-              "service": 2
-            },
-            "renameByName": {}
-          }
-        }
-      ],
-      "type": "table"
+      "id": 24,
+      "panels": [],
+      "title": "Service Health Summary",
+      "type": "row"
     },
     {
       "collapsed": true,
@@ -890,7 +128,871 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 9
+      },
+      "id": 17,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Time"
+                },
+                "properties": []
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "options": {
+                          "0": {
+                            "color": "dark-red",
+                            "index": 0,
+                            "text": "CONTROLLER DOWN"
+                          }
+                        },
+                        "type": "value"
+                      },
+                      {
+                        "options": {
+                          "match": "null+nan",
+                          "result": {
+                            "color": "dark-red",
+                            "index": 1,
+                            "text": "NO DATA / MISCONFIG"
+                          }
+                        },
+                        "type": "special"
+                      },
+                      {
+                        "options": {
+                          "pattern": "^[1-9]\\d*(\\.\\d+)?$",
+                          "result": {
+                            "color": "green",
+                            "index": 2,
+                            "text": "CONTROLLER ACTIVE"
+                          }
+                        },
+                        "type": "regex"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 3,
+            "x": 0,
+            "y": 1
+          },
+          "id": 23,
+          "options": {
+            "minVizHeight": 75,
+            "minVizWidth": 75,
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true,
+            "sizing": "auto"
+          },
+          "pluginVersion": "11.6.5",
+          "targets": [
+            {
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (namespace) (\n  kube_pod_status_ready{\n    namespace=\"default\",\n    condition=\"true\"\n  }\n)",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "Controller Health",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "includeByName": {},
+                "indexByName": {
+                  "Time": 2,
+                  "Value": 1,
+                  "namespace": 0
+                },
+                "renameByName": {}
+              }
+            }
+          ],
+          "type": "gauge"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 6,
+            "x": 3,
+            "y": 1
+          },
+          "id": 18,
+          "options": {
+            "minVizHeight": 75,
+            "minVizWidth": 75,
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "showThresholdLabels": false,
+            "showThresholdMarkers": true,
+            "sizing": "auto"
+          },
+          "pluginVersion": "11.6.5",
+          "targets": [
+            {
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum(rate(nginx_ingress_controller_requests{namespace=~\"$namespace\"}[2m]))",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "NGINX Controller – Requests (total)",
+          "type": "gauge"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "namespace"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 125
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "ingress"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 488
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "options": {
+                          "0": {
+                            "color": "orange",
+                            "index": 0,
+                            "text": "NO TRAFFIC"
+                          }
+                        },
+                        "type": "value"
+                      },
+                      {
+                        "options": {
+                          "pattern": "^[1-9][0-9]*$|^[0-9]*\\.[0-9]+$",
+                          "result": {
+                            "color": "green",
+                            "index": 1,
+                            "text": "WORKING"
+                          }
+                        },
+                        "type": "regex"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-text"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "service"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 190
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 18,
+            "x": 0,
+            "y": 18
+          },
+          "id": 22,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "11.6.5",
+          "targets": [
+            {
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (namespace, ingress, service) (\n  rate(\n    nginx_ingress_controller_requests{\n      namespace=~\"$namespace\"\n    }[5m]\n  )\n)\n",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "Nginx- traffic received?",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "includeByName": {},
+                "indexByName": {
+                  "Time": 4,
+                  "Value": 3,
+                  "ingress": 1,
+                  "namespace": 0,
+                  "service": 2
+                },
+                "renameByName": {}
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "namespace"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 116
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "service"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 127
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "ingress"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 358
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "host"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 375
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "options": {
+                          "0": {
+                            "color": "orange",
+                            "index": 0,
+                            "text": "NO TRAFFIC"
+                          },
+                          "1": {
+                            "color": "green",
+                            "index": 1,
+                            "text": "HEALTHY"
+                          }
+                        },
+                        "type": "value"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-text"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 10,
+            "x": 0,
+            "y": 22
+          },
+          "id": 19,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "11.6.5",
+          "targets": [
+            {
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (namespace, ingress, service, host)(\n  rate(nginx_ingress_controller_requests{namespace=~\"$namespace\"}[5m])\n)\n",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "Per-Ingress Traffic",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "host": true
+                },
+                "includeByName": {},
+                "indexByName": {
+                  "Time": 4,
+                  "Value": 5,
+                  "host": 3,
+                  "ingress": 1,
+                  "namespace": 0,
+                  "service": 2
+                },
+                "renameByName": {}
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "namespace"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 112
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "ingress"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 498
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "status"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 64
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "options": {
+                          "0": {
+                            "color": "orange",
+                            "index": 0,
+                            "text": "NO TRAFFIC"
+                          },
+                          "1": {
+                            "color": "green",
+                            "index": 1,
+                            "text": "ACTIVE"
+                          }
+                        },
+                        "type": "value"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-text"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 17,
+            "x": 0,
+            "y": 25
+          },
+          "id": 20,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "11.6.5",
+          "targets": [
+            {
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "sum by (namespace, ingress, service, status)(\n  rate(nginx_ingress_controller_requests{namespace=~\"$namespace\"}[5m])\n)",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "Ingress HTTP status codes",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "includeByName": {},
+                "indexByName": {
+                  "Time": 4,
+                  "Value": 5,
+                  "ingress": 1,
+                  "namespace": 0,
+                  "service": 3,
+                  "status": 2
+                },
+                "renameByName": {}
+              }
+            }
+          ],
+          "type": "table"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "custom": {
+                "align": "auto",
+                "cellOptions": {
+                  "type": "auto"
+                },
+                "inspect": false
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "red",
+                    "value": 80
+                  }
+                ]
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "namespace"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 155
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "service"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 109
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "ingress"
+                },
+                "properties": [
+                  {
+                    "id": "custom.width",
+                    "value": 480
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Value"
+                },
+                "properties": [
+                  {
+                    "id": "mappings",
+                    "value": [
+                      {
+                        "options": {
+                          "NaN": {
+                            "color": "orange",
+                            "index": 0,
+                            "text": "NO TRAFFIC"
+                          }
+                        },
+                        "type": "value"
+                      }
+                    ]
+                  },
+                  {
+                    "id": "custom.cellOptions",
+                    "value": {
+                      "type": "color-text"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 18,
+            "x": 0,
+            "y": 28
+          },
+          "id": 21,
+          "options": {
+            "cellHeight": "sm",
+            "footer": {
+              "countRows": false,
+              "fields": "",
+              "reducer": [
+                "sum"
+              ],
+              "show": false
+            },
+            "showHeader": true,
+            "sortBy": []
+          },
+          "pluginVersion": "11.6.5",
+          "targets": [
+            {
+              "editorMode": "code",
+              "exemplar": false,
+              "expr": "histogram_quantile(\n  0.95,\n  sum by (le, namespace, ingress, service)(\n    rate(nginx_ingress_controller_request_duration_seconds_bucket{namespace=~\"$namespace\"}[5m])\n  )\n)\n",
+              "format": "table",
+              "instant": true,
+              "legendFormat": "__auto",
+              "range": false,
+              "refId": "A"
+            }
+          ],
+          "title": "Ingress Latency",
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true
+                },
+                "includeByName": {},
+                "indexByName": {
+                  "Time": 4,
+                  "Value": 3,
+                  "ingress": 1,
+                  "namespace": 0,
+                  "service": 2
+                },
+                "renameByName": {}
+              }
+            }
+          ],
+          "type": "table"
+        }
+      ],
+      "title": "Nginx Controller",
+      "type": "row"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 10
       },
       "id": 10,
       "panels": [
@@ -994,7 +1096,7 @@
             "h": 4,
             "w": 17,
             "x": 0,
-            "y": 32
+            "y": 2
           },
           "id": 13,
           "options": {
@@ -1015,7 +1117,7 @@
             {
               "editorMode": "code",
               "exemplar": false,
-              "expr": "kube_ingress_info{namespace=\"infra\"}",
+              "expr": "kube_ingress_info{namespace=~\"$namespace\"}",
               "format": "table",
               "instant": true,
               "legendFormat": "__auto",
@@ -1091,7 +1193,7 @@
             "h": 4,
             "w": 17,
             "x": 0,
-            "y": 78
+            "y": 6
           },
           "id": 16,
           "options": {
@@ -1111,7 +1213,7 @@
             {
               "editorMode": "code",
               "exemplar": false,
-              "expr": "kube_ingress_path{namespace=\"infra\"}",
+              "expr": "kube_ingress_path{namespace=~\"$namespace\"}",
               "format": "table",
               "instant": true,
               "legendFormat": "__auto",
@@ -1260,7 +1362,7 @@
             "h": 3,
             "w": 14,
             "x": 0,
-            "y": 82
+            "y": 10
           },
           "id": 14,
           "options": {
@@ -1280,7 +1382,7 @@
             {
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum by (namespace, service) (\n  kube_endpoint_address{namespace=\"infra\", ready=\"true\"}\n)\nor\nsum by (namespace, service) (\n  kube_service_info{namespace=\"infra\"} * 0\n)\n\n",
+              "expr": "sum by (namespace, service) (\n  kube_endpoint_address{namespace=~\"$namespace\", ready=\"true\"}\n)\nor\nsum by (namespace, service) (\n  kube_service_info{namespace=~\"$namespace\"} * 0\n)\n\n",
               "format": "table",
               "instant": true,
               "legendFormat": "__auto",
@@ -1401,7 +1503,7 @@
             "h": 3,
             "w": 20,
             "x": 0,
-            "y": 85
+            "y": 13
           },
           "id": 15,
           "options": {
@@ -1422,7 +1524,7 @@
             {
               "editorMode": "code",
               "exemplar": false,
-              "expr": "kube_ingress_info{namespace=\"infra\"}",
+              "expr": "kube_ingress_info{namespace=~\"$namespace\"}",
               "format": "table",
               "instant": true,
               "legendFormat": "__auto",
@@ -1471,7 +1573,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 11
       },
       "id": 9,
       "panels": [
@@ -1549,7 +1651,7 @@
             "h": 4,
             "w": 11,
             "x": 0,
-            "y": 18
+            "y": 120
           },
           "id": 7,
           "options": {
@@ -1569,7 +1671,7 @@
             {
               "editorMode": "code",
               "exemplar": false,
-              "expr": "kube_service_info{namespace=\"infra\"}",
+              "expr": "kube_service_info{namespace=~\"$namespace\"}",
               "format": "table",
               "instant": true,
               "legendFormat": "__auto",
@@ -1686,7 +1788,7 @@
             "h": 4,
             "w": 13,
             "x": 11,
-            "y": 18
+            "y": 120
           },
           "id": 8,
           "options": {
@@ -1706,7 +1808,7 @@
             {
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum by (namespace, service) (\n  kube_endpoint_address_available{namespace=\"infra\"}\n)\nor on (namespace, service)\n(\n  kube_service_info{namespace=\"infra\"} * 0\n)\n",
+              "expr": "sum by (namespace, service) (\n  kube_endpoint_address_available{namespace=~\"$namespace\"}\n)\nor on (namespace, service)\n(\n  kube_service_info{namespace=~\"$namespace\"} * 0\n)\n",
               "format": "table",
               "instant": true,
               "legendFormat": "__auto",
@@ -1758,7 +1860,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 12
       },
       "id": 11,
       "panels": [
@@ -1799,7 +1901,7 @@
             "h": 4,
             "w": 16,
             "x": 0,
-            "y": 38
+            "y": 125
           },
           "id": 1,
           "options": {
@@ -1823,7 +1925,7 @@
               },
               "editorMode": "code",
               "exemplar": false,
-              "expr": "sum by (namespace, deployment) (\n  kube_deployment_spec_replicas{namespace=\"infra\"}\n)\n",
+              "expr": "sum by (namespace, deployment) (\n  kube_deployment_spec_replicas{namespace=~\"$namespace\"}\n)\n",
               "format": "table",
               "instant": true,
               "legendFormat": "__auto",
@@ -1893,7 +1995,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 13
       },
       "id": 12,
       "panels": [
@@ -1934,7 +2036,7 @@
             "h": 4,
             "w": 9,
             "x": 0,
-            "y": 39
+            "y": 147
           },
           "id": 2,
           "options": {
@@ -1954,7 +2056,7 @@
             {
               "editorMode": "code",
               "exemplar": false,
-              "expr": "(\n  sum by (namespace, deployment) (\n    kube_deployment_status_replicas_ready\n{\n      namespace=\"infra\"\n    }\n  )\n)\nor\non (namespace, deployment)\n(\n  kube_deployment_spec_replicas{\n    namespace=\"infra\"\n  } * 0\n)\n",
+              "expr": "(\n  sum by (namespace, deployment) (\n    kube_deployment_status_replicas_ready\n{\n      namespace=~\"$namespace\"\n    }\n  )\n)\nor\non (namespace, deployment)\n(\n  kube_deployment_spec_replicas{\n      namespace=~\"$namespace\"\n  } * 0\n)\n",
               "format": "table",
               "instant": true,
               "legendFormat": "__auto",
@@ -2015,7 +2117,7 @@
             "h": 4,
             "w": 3,
             "x": 10,
-            "y": 39
+            "y": 147
           },
           "id": 3,
           "options": {
@@ -2038,7 +2140,7 @@
             {
               "editorMode": "code",
               "exemplar": false,
-              "expr": "kube_deployment_spec_replicas{namespace=\"infra\"}\n-\nkube_deployment_status_replicas_ready{namespace=\"infra\"}\n",
+              "expr": "kube_deployment_spec_replicas{namespace=~\"$namespace\"}\n-\nkube_deployment_status_replicas_ready{namespace=~\"$namespace\"}\n",
               "format": "table",
               "instant": true,
               "legendFormat": "__auto",
@@ -2099,7 +2201,7 @@
             "h": 5,
             "w": 21,
             "x": 0,
-            "y": 43
+            "y": 151
           },
           "id": 5,
           "options": {
@@ -2120,7 +2222,7 @@
             {
               "editorMode": "code",
               "exemplar": false,
-              "expr": "kube_pod_container_status_waiting_reason{\n  namespace=\"infra\",\n  reason=~\"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|RunContainerError\"\n}\n",
+              "expr": "kube_pod_container_status_waiting_reason{\n  namespace=~\"$namespace\",\n  reason=~\"CrashLoopBackOff|ImagePullBackOff|ErrImagePull|CreateContainerConfigError|RunContainerError\"\n}\n",
               "format": "table",
               "instant": true,
               "legendFormat": "__auto",
@@ -2274,7 +2376,7 @@
             "h": 8,
             "w": 23,
             "x": 0,
-            "y": 48
+            "y": 156
           },
           "id": 6,
           "options": {
@@ -2295,7 +2397,7 @@
             {
               "editorMode": "code",
               "exemplar": false,
-              "expr": "kube_pod_container_info{\n  namespace=\"infra\"\n}",
+              "expr": "kube_pod_container_info{\n  namespace=~\"$namespace\"\n}",
               "format": "table",
               "instant": true,
               "legendFormat": "__auto",
@@ -2353,7 +2455,30 @@
   "schemaVersion": 41,
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "allowCustomValue": false,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "definition": "label_values(kube_pod_info{node=~\"aks-apps1-.*\", namespace!=\"default\", namespace!=\"kube-system\", namespace!=\"gatekeeper-system\", namespace!=\"monitoring\"},namespace)",
+        "includeAll": true,
+        "label": "namespace",
+        "multi": true,
+        "name": "namespace",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(kube_pod_info{node=~\"aks-apps1-.*\", namespace!=\"default\", namespace!=\"kube-system\", namespace!=\"gatekeeper-system\", namespace!=\"monitoring\"},namespace)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "sort": 1,
+        "type": "query"
+      }
+    ]
   },
   "time": {
     "from": "now-5m",
@@ -2363,5 +2488,5 @@
   "timezone": "browser",
   "title": "2527-v7-service-status-dashboard",
   "uid": "af75t00q1sb28c",
-  "version": 86
+  "version": 106
 }
