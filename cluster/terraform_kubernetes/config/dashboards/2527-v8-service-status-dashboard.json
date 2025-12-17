@@ -1546,7 +1546,7 @@
         {
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum by (namespace, service) (\n  kube_endpoint_address_available{namespace=~\"$namespace\"}\n)\nor on (namespace, service)\n(\n  kube_service_info{namespace=~\"$namespace\"} * 0\n)\n",
+          "expr": "sum by (namespace, service) (\n  kube_endpoint_address{namespace=\"$namespace\", ready=\"true\"}\n)\n",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -2254,5 +2254,5 @@
   "timezone": "browser",
   "title": "2527-v7-service-status-dashboard",
   "uid": "af75t00q1sb28c",
-  "version": 116
+  "version": 117
 }
