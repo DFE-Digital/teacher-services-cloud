@@ -51,9 +51,18 @@ Run the restore-deleted-postgres workflow to recreate the missing postgres datab
 
 #### Option 2. Recreate via terraform and restore from scheduled offline backup
 
-Run the deploy workflow to recreate the missing postgres database as detailed below.
+##### Check Monitor Diagnostics
+- Check and delete any postgres diagnostics remaining for the deleted instance in https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/diagnosticsLogs as the later deploy to rebuild postgres will fail if it remains. e.g. search using subscription s189-teacher-services-cloud-test and resource group s189t01-ittms-stg-pg and look for enabled Diagnostic settings. To do this select the `subscription` & `resource group` from the dropdown filter and select `Azure database for PostgresSQL flexible server` from the `resource type`. If the postgres flexible server has `Diagnostic Status` of `Enabled` then select the server, choose `edit setting`, and delete. Note the diagnostic setting name will end with -diagnostics.
+If you don't see the s189 subscription check you don't have it excluded in your default subscription filter at https://portal.azure.com/#settings/directory
+- Azure Monitor Diagnostics can be viewed using the CLI command. The CLI command requires a resource id which can be obtained via the portal.
+  - Goto to the portal and navigate to the database `Overview`
+  - Click on `JSON View`.
+  - Copy the `Resource Id` shown on the top.
+  - `az monitor diagnostic-settings list --resource <resource-id>`
 
-- Check and delete any postgres diagnostics remaining for the deleted instance in https://portal.azure.com/#view/Microsoft_Azure_Monitoring/AzureMonitoringBrowseBlade/~/diagnosticsLogs as the later deploy to rebuild postgres will fail if it remains. e.g. search using subscription s189-teacher-services-cloud-test and resource group s189t01-ittms-stg-pg and look for enabled Diagnostic settings.
+
+##### Run Workflow
+Run the deploy workflow to recreate the missing postgres database as detailed below.
 
 As the maintenance page has been enabled, you will need to:
 1. create a branch from main
@@ -61,7 +70,7 @@ As the maintenance page has been enabled, you will need to:
 1. push the branch to github (no need to create a PR)
 1. run the deploy workflow using your branch
 
-Note that the deploy workflow my fail on steps after the postgres server creation e.g. smoke tests or database migrations. This is expected due to the enabling of maintenance page. You can confirm the server is available via a healthcheck url that checks the database status (if your service has one), or via the azure portal. The healthcheck url will need to use the temp route.
+Note: The deploy workflow may fail on steps after the postgres server creation e.g. smoke tests or database migrations. This is expected due to the enabling of maintenance page. You can confirm the server is available via a healthcheck url that checks the database status (if your service has one), or via the azure portal. The healthcheck url will need to use the temp route.
 
 ### Restore the data from previous backup in Azure storage
 This step isn't required if using the restore-deleted-postgres workflow i.e. option 1 in the previous step.
