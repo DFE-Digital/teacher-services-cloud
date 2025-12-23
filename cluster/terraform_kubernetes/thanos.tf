@@ -100,7 +100,7 @@ resource "kubernetes_deployment" "thanos-querier" {
             "query",
             "--log.level=info",
             "--query.replica-label=replica",
-            "--endpoint=dnssrv+_grpc._tcp.thanos-store-gateway.monitoring.svc.cluster.local",
+            "--endpoint=dns+thanos-store-gateway.monitoring.svc.cluster.local:10901",
           ]
 
           liveness_probe {
