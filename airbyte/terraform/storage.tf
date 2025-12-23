@@ -1,7 +1,9 @@
 resource "azurerm_storage_account" "airbyte" {
   for_each = toset(var.airbyte_namespaces)
 
-  name                            = length(each.key) > 1 ? "${var.resource_prefix}${replace(each.key, "-", "")}absa" : replace(each.key, "-", "")
+#short_policy_name_prefix = substr(replace(local.endpoint_zone_name, "-", ""), 0, 10)
+
+  name                            = length(each.key) > 1 ? "${var.resource_prefix}${substr(replace(each.key, "-", ""), 0, 10)}absa" : replace(each.key, "-", "")
   location                        = "uksouth"
   resource_group_name             = var.resource_group_name
   account_tier                    = "Standard"

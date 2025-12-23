@@ -105,12 +105,7 @@ resource "helm_release" "airbyte" {
   # request to add to workerPod and server
   set {
     name  = "global.env_vars.JOB_HISTORY_RETENTION_IN_DAYS"
-    value = "true"
-    type  = "auto"
-  }
-  set {
-    name  = "global.env_vars.JOB_HISTORY_RETENTION_IN_DAYS"
-    value = "7"
+    value = "30"
     type  = "auto"
   }
   set {
