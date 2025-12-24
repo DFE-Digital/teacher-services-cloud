@@ -78,8 +78,9 @@ resource "kubernetes_deployment" "thanos-querier" {
       spec {
 
         container {
-          image = "quay.io/thanos/thanos:${var.thanos_version}"
+          image = "${var.tsc_package_repo}:${var.thanos_image}-${var.thanos_version}"
           name  = "thanos-querier"
+
           security_context {
             run_as_user  = 1001
             run_as_group = 1001
@@ -99,7 +100,7 @@ resource "kubernetes_deployment" "thanos-querier" {
             "query",
             "--log.level=info",
             "--query.replica-label=replica",
-            "--store=dns+thanos-store-gateway:10901",
+            "--endpoint=dns+thanos-store-gateway.monitoring.svc.cluster.local:10901",
           ]
 
           liveness_probe {
@@ -137,11 +138,12 @@ resource "kubernetes_deployment" "thanos-querier" {
             }
           }
         }
-
       }
     }
   }
 }
+
+
 
 resource "kubernetes_service" "thanos-querier" {
 
@@ -193,7 +195,7 @@ resource "kubernetes_deployment" "thanos-store-gateway" {
       spec {
 
         container {
-          image = "quay.io/thanos/thanos:${var.thanos_version}"
+          image = "${var.tsc_package_repo}:${var.thanos_image}-${var.thanos_version}"
           name  = "thanos-store-gateway"
           security_context {
             run_as_user  = 1001
@@ -315,7 +317,7 @@ resource "kubernetes_deployment" "thanos-compactor" {
         }
 
         container {
-          image = "quay.io/thanos/thanos:${var.thanos_version}"
+          image = "${var.tsc_package_repo}:${var.thanos_image}-${var.thanos_version}"
           name  = "thanos-compactor"
 
           security_context {
