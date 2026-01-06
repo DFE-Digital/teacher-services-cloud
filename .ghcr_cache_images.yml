@@ -16,6 +16,7 @@ stakater/reloader:v1.4.8 reloader-1.4.8
 prom/alertmanager:v0.28.1 alertmanager-v0.28.1
 quay.io/thanos/thanos:v0.36.1 thanos-v0.36.1
 prom/prometheus:v2.54.1 prometheus-v2.54.1
+prom/prometheus:v3.5.0 prometheus-v3.5.0
 grafana/grafana:11.1.5  grafana-11.1.5
 grafana/grafana:11.6.5  grafana-11.6.5
 registry.k8s.io/ingress-nginx/controller:v1.13.4 nginx-controller-v1.13.4
