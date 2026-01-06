@@ -1,5 +1,5 @@
 resource "helm_release" "nginx_ingress" {
-  name       = "ingress-nginx"
+  name       = "nginx-ingress"
   repository = "https://helm.nginx.com/stable"
   chart      = "nginx-ingress"
   version    = "2.4.1" # var.ingress_nginx_version
@@ -100,8 +100,8 @@ resource "helm_release" "nginx_ingress" {
   }
   set {
     name  = "prometheus.port"
-    value = "10254"
-    type  = "string"
+    value = 10254
+    type  = "auto"
   }
   set {
     name  = "controller.pod.annotations.prometheus\\.io/port"
@@ -111,7 +111,7 @@ resource "helm_release" "nginx_ingress" {
   set {
     name  = "controller.pod.annotations.prometheus\\.io/scrape"
     value = "true"
-    type  = "auto"
+    type  = "string"
   }
   set {
     name  = "controller.pod.annotations.prometheus\\.io/path"
@@ -172,22 +172,22 @@ resource "helm_release" "nginx_ingress" {
   set {
     name  = "controller.securityContext.allowPrivilegeEscalation"
     value = "false"
-    type  = "string"
+    type  = "auto"
   }
   set {
     name  = "controller.securityContext.privileged"
     value = "false"
-    type  = "string"
+    type  = "auto"
   }
   set {
     name  = "controller.securityContext.runAsNonRoot"
     value = "true"
-    type  = "string"
+    type  = "auto"
   }
   set {
     name  = "controller.securityContext.readOnlyRootFilesystem"
     value = "true"
-    type  = "string"
+    type  = "auto"
   }
   set {
     name  = "controller.securityContext.seccompProfile.type"
