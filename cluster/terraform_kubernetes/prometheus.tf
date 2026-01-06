@@ -87,7 +87,7 @@ resource "kubernetes_deployment" "prometheus" {
 
       spec {
         container {
-          image = "prom/prometheus:${var.prometheus_version}"
+          image = "${var.tsc_package_repo}:prometheus-${var.prometheus_version}"
           name  = "prometheus"
 
           security_context {
