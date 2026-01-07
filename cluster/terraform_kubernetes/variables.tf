@@ -116,7 +116,7 @@ data "environment_variables" "github_actions" {
 
 variable "prometheus_version" {
   type    = string
-  default = "v2.54.1"
+  default = "v3.5.0"
 }
 
 variable "prometheus_tsdb_retention_time" {
