@@ -54,7 +54,7 @@ variable "welcome_app_hostnames" {
 variable "ingress_nginx_version" {
   description = "Version of the ingress-nginx helm chart to use"
   type        = string
-  default     = "4.11.0"
+  default     = "4.13.4"
 }
 
 variable "ingress_nginx_memory" {
@@ -116,7 +116,7 @@ data "environment_variables" "github_actions" {
 
 variable "prometheus_version" {
   type    = string
-  default = "v2.54.1"
+  default = "v3.5.0"
 }
 
 variable "prometheus_tsdb_retention_time" {
@@ -139,7 +139,12 @@ variable "prometheus_app_cpu" {
 
 variable "thanos_version" {
   type    = string
-  default = "v0.36.1"
+  default = "v0.39.2"
+}
+
+variable "thanos_image" {
+  type    = string
+  default = "thanos"
 }
 
 variable "thanos_app_mem" {
@@ -232,7 +237,7 @@ variable "node_exporter_image" {
 
 variable "filebeat_version" {
   type    = string
-  default = "9.1.6"
+  default = "8.19.9"
 }
 
 variable "filebeat_image" {

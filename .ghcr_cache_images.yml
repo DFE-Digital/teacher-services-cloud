@@ -1,5 +1,5 @@
 prom/node-exporter:v1.9.1 node-exporter-v1.9.1
-docker.elastic.co/beats/filebeat-oss:9.1.6 filebeat-oss-9.1.6
+docker.elastic.co/beats/filebeat-oss:8.19.9 filebeat-oss-8.19.9
 nginxinc/nginx-unprivileged:1.27.3-alpine3.20 nginx-unprivileged-1.27.3-alpine3.20
 nginxinc/nginx-unprivileged:1.27.5-alpine3.21 nginx-unprivileged-1.27.5-alpine3.21
 postgres:13-alpine postgres-13-alpine
@@ -16,7 +16,9 @@ stakater/reloader:v1.4.8 reloader-1.4.8
 prom/alertmanager:v0.28.1 alertmanager-v0.28.1
 quay.io/thanos/thanos:v0.36.1 thanos-v0.36.1
 prom/prometheus:v2.54.1 prometheus-v2.54.1
+prom/prometheus:v3.5.0 prometheus-v3.5.0
 grafana/grafana:11.1.5  grafana-11.1.5
 grafana/grafana:11.6.5  grafana-11.6.5
 registry.k8s.io/ingress-nginx/controller:v1.13.4 nginx-controller-v1.13.4
 registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0 kube-state-metrics-v2.15.0
+quay.io/thanos/thanos:v0.39.2 thanos-v0.39.2

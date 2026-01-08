@@ -6,12 +6,7 @@ filebeat.autodiscover:
               equals:
                 kubernetes.annotations.logit.io/send: "true"
             config:
-              - type: filestream
-                id: filestream-kubernetes-$${data.kubernetes.container.id}
-                take_over: true
-                prospector.scanner.symlinks: true
-                parsers:
-                  - container: ~
+              - type: container
                 paths:
                   - "/var/log/containers/*-$${data.kubernetes.container.id}.log"
         add_resource_metadata:
