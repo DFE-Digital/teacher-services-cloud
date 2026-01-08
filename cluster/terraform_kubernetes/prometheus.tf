@@ -167,7 +167,7 @@ resource "kubernetes_deployment" "prometheus" {
         }
 
         container {
-          image = "quay.io/thanos/thanos:${var.thanos_version}"
+          image = "${var.tsc_package_repo}:thanos-${var.thanos_version}"
           name  = "thanos"
 
           args = [
