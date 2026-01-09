@@ -1,0 +1,892 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 11,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 21,
+        "x": 0,
+        "y": 0
+      },
+      "id": 6,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.5",
+      "targets": [
+        {
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "count by (ingress) (\n  kube_ingress_info{namespace=\"infra\"}\n)",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "kube_ingress_path{namespace=\"infra\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by (endpoint, namespace) (\n  kube_endpoint_address{namespace=\"infra\", ready=\"true\"}\n)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "C"
+        }
+      ],
+      "title": "Services",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "mode": "columns"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "endpoint",
+            "renamePattern": "service_name"
+          }
+        },
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "service_name",
+            "mode": "outerTabular"
+          }
+        },
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "ingress",
+            "mode": "inner"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time 1": true,
+              "Time 2": true,
+              "Value #B": false,
+              "Value #C": false,
+              "__name__": true,
+              "cluster": true,
+              "host": true,
+              "instance": true,
+              "job": true,
+              "namespace 1": false,
+              "namespace 2": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time 1": 6,
+              "Time 2": 12,
+              "Value #B": 4,
+              "Value #C": 5,
+              "__name__": 7,
+              "cluster": 10,
+              "host": 8,
+              "ingress": 0,
+              "instance": 9,
+              "job": 11,
+              "namespace 1": 3,
+              "namespace 2": 13,
+              "service_name": 1,
+              "service_port": 2
+            },
+            "renameByName": {
+              "Value #B": "desired replicas",
+              "Value #C": "ready_endpoints"
+            }
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {}
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 5,
+      "panels": [],
+      "title": "Ingress",
+      "type": "row"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "id": 3,
+      "panels": [],
+      "title": "Pods",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "owner_name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 236
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "id": 4,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": []
+      },
+      "pluginVersion": "11.6.5",
+      "targets": [
+        {
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "kube_pod_owner{\n  namespace=\"infra\",\n  owner_is_controller=\"true\",\n  owner_kind=\"ReplicaSet\"\n}",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "kube_pod_container_status_ready{namespace=\"infra\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "kube_pod_container_status_restarts_total{namespace=\"infra\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by (namespace, pod) (\n  rate(container_cpu_usage_seconds_total{\n    namespace=\"infra\",\n    cpu=\"total\"\n  }[5m])\n)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "sum by (namespace, pod) (\n  container_memory_working_set_bytes{namespace=\"infra\"}\n) / 1024 / 1024",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "E"
+        }
+      ],
+      "title": "Pods",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "namespace",
+            "mode": "inner"
+          }
+        },
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "pod",
+            "mode": "inner"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time 1": true,
+              "Time 2": true,
+              "Time 3": true,
+              "Time 4": true,
+              "Time 5": true,
+              "__name__ 1": true,
+              "__name__ 2": true,
+              "__name__ 3": true,
+              "agentpool 1": true,
+              "agentpool 2": true,
+              "beta_kubernetes_io_arch 1": true,
+              "beta_kubernetes_io_arch 2": true,
+              "beta_kubernetes_io_instance_type 1": true,
+              "beta_kubernetes_io_instance_type 2": true,
+              "beta_kubernetes_io_os 1": true,
+              "beta_kubernetes_io_os 2": true,
+              "cluster 1": true,
+              "cluster 2": true,
+              "cluster 3": true,
+              "cluster 4": true,
+              "cluster 5": true,
+              "container 1": false,
+              "container 2": true,
+              "container 3": true,
+              "container 4": true,
+              "cpu": true,
+              "failure_domain_beta_kubernetes_io_region 1": true,
+              "failure_domain_beta_kubernetes_io_region 2": true,
+              "failure_domain_beta_kubernetes_io_zone 1": true,
+              "failure_domain_beta_kubernetes_io_zone 2": true,
+              "id 1": true,
+              "id 2": true,
+              "image 1": true,
+              "image 2": true,
+              "instance 1": true,
+              "instance 2": true,
+              "instance 3": true,
+              "instance 4": true,
+              "instance 5": true,
+              "job 1": true,
+              "job 2": true,
+              "job 3": true,
+              "job 4": true,
+              "job 5": true,
+              "kubernetes_azure_com_agentpool 1": true,
+              "kubernetes_azure_com_agentpool 2": true,
+              "kubernetes_azure_com_cluster 1": true,
+              "kubernetes_azure_com_cluster 2": true,
+              "kubernetes_azure_com_consolidated_additional_properties 1": true,
+              "kubernetes_azure_com_consolidated_additional_properties 2": true,
+              "kubernetes_azure_com_kubelet_identity_client_id 1": true,
+              "kubernetes_azure_com_kubelet_identity_client_id 2": true,
+              "kubernetes_azure_com_kubelet_serving_ca 1": true,
+              "kubernetes_azure_com_kubelet_serving_ca 2": true,
+              "kubernetes_azure_com_localdns_state 1": true,
+              "kubernetes_azure_com_localdns_state 2": true,
+              "kubernetes_azure_com_mode 1": true,
+              "kubernetes_azure_com_mode 2": true,
+              "kubernetes_azure_com_node_image_version 1": true,
+              "kubernetes_azure_com_node_image_version 2": true,
+              "kubernetes_azure_com_nodepool_type 1": true,
+              "kubernetes_azure_com_nodepool_type 2": true,
+              "kubernetes_azure_com_os_sku 1": true,
+              "kubernetes_azure_com_os_sku 2": true,
+              "kubernetes_azure_com_os_sku_effective 1": true,
+              "kubernetes_azure_com_os_sku_effective 2": true,
+              "kubernetes_azure_com_os_sku_requested 1": true,
+              "kubernetes_azure_com_os_sku_requested 2": true,
+              "kubernetes_azure_com_role 1": true,
+              "kubernetes_azure_com_role 2": true,
+              "kubernetes_azure_com_sku_cpu 1": true,
+              "kubernetes_azure_com_sku_cpu 2": true,
+              "kubernetes_azure_com_sku_memory 1": true,
+              "kubernetes_azure_com_sku_memory 2": true,
+              "kubernetes_azure_com_storageprofile 1": true,
+              "kubernetes_azure_com_storageprofile 2": true,
+              "kubernetes_azure_com_storagetier 1": true,
+              "kubernetes_azure_com_storagetier 2": true,
+              "kubernetes_io_arch 1": true,
+              "kubernetes_io_arch 2": true,
+              "kubernetes_io_hostname 1": true,
+              "kubernetes_io_hostname 2": true,
+              "kubernetes_io_os 1": true,
+              "kubernetes_io_os 2": true,
+              "name 1": true,
+              "name 2": true,
+              "node_kubernetes_io_instance_type 1": true,
+              "node_kubernetes_io_instance_type 2": true,
+              "owner_is_controller": true,
+              "owner_kind": true,
+              "pod 1": true,
+              "pod 2": true,
+              "pod 3": true,
+              "pod 4": true,
+              "pod 5": true,
+              "storageprofile 1": true,
+              "storageprofile 2": true,
+              "storagetier 1": true,
+              "storagetier 2": true,
+              "teacherservices_cloud_node_pool 1": true,
+              "teacherservices_cloud_node_pool 2": true,
+              "topology_disk_csi_azure_com_zone 1": true,
+              "topology_disk_csi_azure_com_zone 2": true,
+              "topology_kubernetes_io_region 1": true,
+              "topology_kubernetes_io_region 2": true,
+              "topology_kubernetes_io_zone 1": true,
+              "topology_kubernetes_io_zone 2": true,
+              "uid 1": true,
+              "uid 2": true,
+              "uid 3": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time 1": 8,
+              "Time 2": 17,
+              "Time 3": 24,
+              "Time 4": 31,
+              "Time 5": 33,
+              "Value #A": 3,
+              "Value #B": 4,
+              "Value #C": 5,
+              "Value #D": 6,
+              "Value #E": 7,
+              "__name__ 1": 13,
+              "__name__ 2": 18,
+              "__name__ 3": 25,
+              "cluster 1": 9,
+              "cluster 2": 19,
+              "cluster 3": 26,
+              "container 1": 2,
+              "container 2": 35,
+              "instance 1": 10,
+              "instance 2": 20,
+              "instance 3": 27,
+              "job 1": 11,
+              "job 2": 21,
+              "job 3": 28,
+              "namespace": 0,
+              "owner_is_controller": 12,
+              "owner_kind": 14,
+              "owner_name": 1,
+              "pod 1": 15,
+              "pod 2": 22,
+              "pod 3": 29,
+              "pod 4": 32,
+              "pod 5": 34,
+              "uid 1": 16,
+              "uid 2": 23,
+              "uid 3": 30
+            },
+            "renameByName": {
+              "Value #A": "owner_is_controller",
+              "Value #B": "status_ready",
+              "Value #C": "restarts_total",
+              "Value #D": "cpu_usage_seconds_total",
+              "Value #E": "memory_bytes",
+              "container 1": "container"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "id": 2,
+      "panels": [],
+      "title": "Deployments",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "P5DCFC7561CCDE821"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsIso"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "replicas"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 98
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "age (hrs)"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "replicas_ready"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "status_replicas"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 19,
+        "x": 0,
+        "y": 18
+      },
+      "id": 1,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true
+      },
+      "pluginVersion": "11.6.5",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "kube_deployment_spec_replicas{namespace=\"infra\"}",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "kube_deployment_status_replicas_ready{namespace=\"infra\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "kube_deployment_status_replicas_available{namespace=\"infra\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "kube_deployment_status_replicas_unavailable{namespace=\"infra\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "D"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "(time() - kube_deployment_created{namespace=\"infra\"}) / 3600",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "E"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P5DCFC7561CCDE821"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "kube_deployment_status_replicas{namespace=\"infra\"}",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "F"
+        }
+      ],
+      "title": "Deployments",
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "namespace",
+            "mode": "inner"
+          }
+        },
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "deployment",
+            "mode": "inner"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time 2": true,
+              "Time 3": true,
+              "Time 4": true,
+              "Time 5": true,
+              "Time 6": true,
+              "Value #A": false,
+              "__name__ 1": true,
+              "__name__ 2": true,
+              "__name__ 3": true,
+              "__name__ 4": true,
+              "__name__ 5": true,
+              "cluster 1": true,
+              "cluster 2": true,
+              "cluster 3": true,
+              "cluster 4": true,
+              "cluster 5": true,
+              "cluster 6": true,
+              "deployment 2": true,
+              "deployment 3": true,
+              "deployment 4": true,
+              "deployment 5": true,
+              "deployment 6": true,
+              "instance 1": true,
+              "instance 2": true,
+              "instance 3": true,
+              "instance 4": true,
+              "instance 5": true,
+              "instance 6": true,
+              "job 1": true,
+              "job 2": true,
+              "job 3": true,
+              "job 4": true,
+              "job 5": true,
+              "job 6": true
+            },
+            "includeByName": {},
+            "indexByName": {
+              "Time 1": 8,
+              "Time 2": 13,
+              "Time 3": 19,
+              "Time 4": 25,
+              "Time 5": 31,
+              "Time 6": 36,
+              "Value #A": 2,
+              "Value #B": 3,
+              "Value #C": 4,
+              "Value #D": 5,
+              "Value #E": 6,
+              "Value #F": 7,
+              "__name__ 1": 9,
+              "__name__ 2": 14,
+              "__name__ 3": 20,
+              "__name__ 4": 26,
+              "__name__ 5": 37,
+              "cluster 1": 10,
+              "cluster 2": 15,
+              "cluster 3": 21,
+              "cluster 4": 27,
+              "cluster 5": 32,
+              "cluster 6": 38,
+              "deployment 1": 1,
+              "deployment 2": 16,
+              "deployment 3": 22,
+              "deployment 4": 28,
+              "deployment 5": 33,
+              "deployment 6": 39,
+              "instance 1": 11,
+              "instance 2": 17,
+              "instance 3": 23,
+              "instance 4": 29,
+              "instance 5": 34,
+              "instance 6": 40,
+              "job 1": 12,
+              "job 2": 18,
+              "job 3": 24,
+              "job 4": 30,
+              "job 5": 35,
+              "job 6": 41,
+              "namespace": 0
+            },
+            "renameByName": {
+              "Time 1": "Time",
+              "Value #A": "replicas",
+              "Value #B": "replicas_ready",
+              "Value #C": "replicas_available",
+              "Value #D": "replicas_unavailable",
+              "Value #E": "age (hrs)",
+              "Value #F": "status_replicas",
+              "deployment 1": "Name"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    }
+  ],
+  "preload": false,
+  "schemaVersion": 41,
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "2527-v3-service-status-dashboard",
+  "uid": "ef66y33vy988wc",
+  "version": 9
+}
