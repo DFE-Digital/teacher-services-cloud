@@ -91,14 +91,21 @@ resource "helm_release" "airbyte" {
     value = "7"
     type  = "auto"
   }
+  # removed below as they have no effect
+  # set {
+  #   name  = "global.env_vars.AIRBYTE_CLEANUP_JOB_ENABLED"
+  #   value = "true"
+  #   type  = "auto"
+  # }
+  # set {
+  #   name  = "global.env_vars.AIRBYTE_CLEANUP_JOB_RETENTION_DAYS"
+  #   value = "7"
+  #   type  = "auto"
+  # }
+  # request to add to workerPod and server
   set {
-    name  = "global.env_vars.AIRBYTE_CLEANUP_JOB_ENABLED"
-    value = "true"
-    type  = "auto"
-  }
-  set {
-    name  = "global.env_vars.AIRBYTE_CLEANUP_JOB_RETENTION_DAYS"
-    value = "7"
+    name  = "global.env_vars.JOB_HISTORY_RETENTION_IN_DAYS"
+    value = "30"
     type  = "auto"
   }
   set {
