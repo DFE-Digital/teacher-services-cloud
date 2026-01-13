@@ -15,7 +15,7 @@ terraform {
     }
     helm = {
       source  = "hashicorp/helm"
-      version = "2.15.0"
+      version = "3.1.1"
     }
     kubernetes = {
       source  = "hashicorp/kubernetes"
@@ -76,11 +76,11 @@ provider "kubernetes" {
 }
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = data.azurerm_kubernetes_cluster.main.kube_config[0].host
     cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.main.kube_config[0].cluster_ca_certificate)
 
-    exec {
+    exec = {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "kubelogin"
       args        = local.kubelogin_args
@@ -90,11 +90,11 @@ provider "helm" {
 
 provider "helm" {
   alias = "clone"
-  kubernetes {
+  kubernetes = {
     host                   = try(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].host, null)
     cluster_ca_certificate = try(base64decode(data.azurerm_kubernetes_cluster.clone[0].kube_config[0].cluster_ca_certificate), null)
 
-    exec {
+    exec = {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "kubelogin"
       args        = local.kubelogin_args
