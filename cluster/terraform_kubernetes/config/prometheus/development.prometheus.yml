@@ -126,55 +126,15 @@ scrape_configs:
       replacement: $1:$2
       target_label: __address__
     metric_relabel_configs:
-    # Drop specific labels from all nginx ingress histogram bucket metrics for cardinality reduction
-    - source_labels: [__name__]
-      regex: nginx_ingress_controller_.*_bucket
-      target_label: instance
-      replacement: ''
-    - source_labels: [__name__]
-      regex: nginx_ingress_controller_.*_bucket
-      target_label: kubernetes_pod_name
-      replacement: ''
-    - source_labels: [__name__]
-      regex: nginx_ingress_controller_.*_bucket
-      target_label: pod_template_hash
-      replacement: ''
-    - source_labels: [__name__]
-      regex: nginx_ingress_controller_.*_bucket
-      target_label: controller_pod
-      replacement: ''
-    - source_labels: [__name__]
-      regex: nginx_ingress_controller_.*_bucket
-      target_label: nodename
-      replacement: ''
-    
     # Drop the orphan_ingress metric entirely
     - source_labels: [__name__]
       regex: nginx_ingress_controller_orphan_ingress
       action: drop
-    
-    # For non-histogram metrics (count, sum, requests), drop high-cardinality labels
-    - source_labels: [__name__]
-      regex: nginx_ingress_controller_(request_size_count|request_size_sum|request_duration_seconds_count|bytes_sent_sum|requests)
-      target_label: instance
-      replacement: ''
-    - source_labels: [__name__]
-      regex: nginx_ingress_controller_(request_size_count|request_size_sum|request_duration_seconds_count|bytes_sent_sum|requests)
-      target_label: kubernetes_pod_name
-      replacement: ''
-    - source_labels: [__name__]
-      regex: nginx_ingress_controller_(request_size_count|request_size_sum|request_duration_seconds_count|bytes_sent_sum|requests)
-      target_label: pod_template_hash
-      replacement: ''
-    - source_labels: [__name__]
-      regex: nginx_ingress_controller_(request_size_count|request_size_sum|request_duration_seconds_count|bytes_sent_sum|requests)
-      target_label: controller_pod
-      replacement: ''
-    - source_labels: [__name__]
-      regex: nginx_ingress_controller_(request_size_count|request_size_sum|request_duration_seconds_count|bytes_sent_sum|requests)
-      target_label: nodename
-      replacement: ''
-    
+
+    # Safe label drops across nginx-ingress metrics
+    - action: labeldrop
+      regex: pod_template_hash|controller_pod|nodename
+
     # Optional: For even more aggressive reduction, drop path label from high-cardinality metrics
     # Uncomment if you don't need per-path metrics
     # - source_labels: [__name__]
