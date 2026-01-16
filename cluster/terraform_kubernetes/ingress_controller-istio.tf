@@ -4,10 +4,8 @@ resource "helm_release" "istio_base" {
   chart      = "base"
   version    = var.istio_version
   namespace  = "istio-system"
-'t meet the specifications of the schema(s) in the following chart(s):
-│ gateway:
-│ - (root): Additional property metrics is not allowed
   create_namespace = true
+
 }
 
 
@@ -21,6 +19,7 @@ resource "helm_release" "istiod" {
   namespace  = "istio-system"
 
   depends_on = [helm_release.istio_base]
+
 }
 
 
@@ -166,11 +165,11 @@ resource "helm_release" "istio_ingress" {
 
   # Enable prometheus metrics and configure scraping
 
- set {
-    name  = "metrics.enabled"
-    value = "true"
-    type  = "auto"
-  }
+# set {
+#    name  = "metrics.enabled"
+#    value = "true"
+#    type  = "auto"
+#  }
 
   set {
     name  = "podAnnotations.prometheus\\.io/scrape"
@@ -219,6 +218,7 @@ resource "helm_release" "istio_ingress" {
     value = "false"
     type  = "string"
   }
+
   set {
     name  = "securityContext.privileged"
     value = "false"
