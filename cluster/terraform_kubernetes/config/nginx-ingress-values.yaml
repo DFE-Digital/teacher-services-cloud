@@ -18,9 +18,9 @@ controller:
     httpPort:
       enable: false
     annotations:
-      beta.kubernetes.io/azure-load-balancer-resource-group: ${azure_resource_group}
-      beta.kubernetes.io/azure-load-balancer-ipv4: ${public_ip_address}
-      beta.kubernetes.io/azure-load-balancer-health-probe-request-path: "/healthz"
+      service.beta.kubernetes.io/azure-load-balancer-resource-group: "${azure_resource_group}"
+      service.beta.kubernetes.io/azure-load-balancer-ipv4: ${public_ip_address}
+      service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: "/healthz"
     externalTrafficPolicy: Local
   config:
     entries:
