@@ -20,6 +20,29 @@ resource "helm_release" "istiod" {
 
   depends_on = [helm_release.istio_base]
 
+  # Enable shipping logs to Logit.io
+  set {
+    name  = "podAnnotations.logit\\.io/send"
+    value = "true"
+    type  = "string"
+  }
+
+  set {
+    name  = "podAnnotations.prometheus\\.io/scrape"
+    value = "true"
+    type  = "string"
+  }
+  set {
+    name  = "podAnnotations.prometheus\\.io/path"
+    value = "/metrics"
+    type  = "string"
+  }
+  set {
+    name  = "podAnnotations.prometheus\\.io/port"
+    value = "10254"
+    type  = "string"
+  }
+
 }
 
 
