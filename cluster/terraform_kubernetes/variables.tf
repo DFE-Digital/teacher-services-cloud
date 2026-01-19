@@ -390,8 +390,13 @@ locals {
 
   # Get value from helm_release attribute to force dependency
   # and make sure the ingress controller is created before the ingresses
-  ingress_class_name = jsondecode(helm_release.ingress-nginx.metadata[0].values)["controller"]["ingressClassResource"]["name"]
+  ingress_class_name = "nginx"# jsondecode(helm_release.ingress-nginx.metadata[0].values)["controller"]["ingressClassResource"]["name"]
 
+  server_snippet = <<-EOT
+  location /metrics {
+            deny all;
+        }
+EOT
   default_welcome_app_hostname = "www.${module.cluster_data.ingress_domain}"
   welcome_app_hostnames        = concat(var.welcome_app_hostnames, [local.default_welcome_app_hostname])
 

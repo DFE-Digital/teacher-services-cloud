@@ -43,6 +43,28 @@ resource "kubernetes_secret_v1" "kube_cert_secret" {
   type = "kubernetes.io/tls"
 }
 
+resource "kubernetes_secret_v1" "kube_cert_secret_monitoring" {
+
+  metadata {
+    name      = kubernetes_secret_v1.kube_cert_secret.metadata[0].name
+    namespace = "monitoring"
+  }
+
+  data = kubernetes_secret_v1.kube_cert_secret.data
+  type = kubernetes_secret_v1.kube_cert_secret.type
+}
+
+resource "kubernetes_secret_v1" "kube_cert_secret_infra" {
+
+  metadata {
+    name      = kubernetes_secret_v1.kube_cert_secret.metadata[0].name
+    namespace = "infra"
+  }
+
+  data = kubernetes_secret_v1.kube_cert_secret.data
+  type = kubernetes_secret_v1.kube_cert_secret.type
+}
+
 resource "kubernetes_secret_v1" "kube_cert_secret_clone" {
   count    = var.clone_cluster ? 1 : 0
   provider = kubernetes.clone

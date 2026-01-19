@@ -146,11 +146,17 @@ resource "kubernetes_ingress_v1" "welcome_app" {
     namespace = local.welcome_app_namespace
   }
   spec {
-    ingress_class_name = local.ingress_class_name
+    ingress_class_name =  "nginx-ingress" # local.ingress_class_name
+    tls {
+      hosts = [each.value]
+      secret_name = "cert-secret"
+    }
     rule {
       host = each.value
       http {
         path {
+          path = "/"
+          path_type = "Prefix"
           backend {
             service {
               name = kubernetes_service.welcome_app.metadata[0].name

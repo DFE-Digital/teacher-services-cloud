@@ -1,0 +1,58 @@
+controller:
+  logLevel: info
+  replicaCount: 1
+  nodeSelector:
+    teacherservices.cloud/node_pool: applications
+  ingressClass:
+    name: "nginx-ingress"
+  defaultTLS:
+    secret: "default/cert-secret"
+  pod:
+    annotations:
+      prometheus.io/port: "10254"
+      prometheus.io/scrape: "true"
+      prometheus.io/path: "/metrics"
+      logit.io/send: "true"
+      fluentbit.io/exclude: "true"
+  service:
+    httpPort:
+      enable: false
+    annotations:
+      service.beta.kubernetes.io/azure-load-balancer-resource-group: "${azure_resource_group}"
+      service.beta.kubernetes.io/azure-load-balancer-ipv4: ${public_ip_address}
+      service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path: "/healthz"
+    externalTrafficPolicy: Local
+  config:
+    entries:
+      client-max-body-size: "50m"
+      proxy-buffer-size: "24k"
+      proxy-busy-buffers-size: "24k"
+      keepalive: "120"
+      use-forwarded-headers: "true"
+      compute-full-forwarded-for: "true"
+    server-snippet: |
+      ${server_snippet}
+  resources:
+    limits:
+      cpu: "500m"
+      memory: ${ingress_nginx_memory}
+  podSecurityContext:
+    allowPrivilegeEscalation: false # not required. that is the default
+    runAsNonRoot: true  # not required. that is the default
+#    runAsUser: 1000 # does not work
+#    runAsGroup: 3000 # does not work
+#    seccompProfile: # not required. does not work
+#      type: RuntimeDefault
+  securityContext:
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+#    runAsUser: 1000 # does not work
+#    runAsGroup: 3000 # does not work
+#    seccompProfile: # not required. does not work
+#      type: RuntimeDefault
+#    capabilities: # set by default
+#      drop:
+#        - ALL
+prometheus:
+  create: true
+  port: 10254
