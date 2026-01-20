@@ -1,3 +1,4 @@
+#CREATE CRD'S
 resource "helm_release" "istio_base" {
   name       = "istio-base"
   repository = "https://istio-release.storage.googleapis.com/charts"
@@ -8,8 +9,25 @@ resource "helm_release" "istio_base" {
 
 }
 
+# CREATE GATEWAY WITH TLS CERTIFICATE
+resource "kubernetes_manifest" "istio_gateway" {
+  manifest = yamldecode(
+    file("${path.module}/config/istio/gateway.yaml")
+  )
 
+    depends_on = [
+    helm_release.istio_base,
+    helm_release.istiod,
+    helm_release.istio_ingress
+  ]
+}
 
+# CREATE VS TO ROUTE TRAFFIC FROM
+resource "kubernetes_manifest" "istio_virtual_service" {
+  manifest = yamldecode(
+    file("${path.module}/config/istio/virtual-service.yaml")
+  )
+}
 
 resource "helm_release" "istiod" {
   name       = "istiod"
@@ -56,7 +74,7 @@ resource "azurerm_public_ip" "ingress-public-ip-istio" {
   allocation_method   = "Static"
   sku                 = "Standard"
 
-  lifecycle { ignore_changes = [tags] }
+  lifecycle { ignore_changes =  [tags] }
 }
 
 
@@ -65,7 +83,7 @@ data "azurerm_resource_group" "resource_group_istio" {
 }
 
 
-
+#CREATES SVC + DEPLOYMENT
 resource "helm_release" "istio_ingress" {
   name       = "istio-ingress"
   repository = "https://istio-release.storage.googleapis.com/charts"
@@ -100,7 +118,7 @@ resource "helm_release" "istio_ingress" {
   #NOT IN ISTEO! - CREATE A K8S SECRET  
   #set {
   #  name  = "service.default-ssl-certificate"
-  #  value = "default/cert-secret"
+  #  value = "istio-ingress/cert-secret"
   #  type  = "string"
   #}
 
@@ -268,7 +286,6 @@ resource "helm_release" "istio_ingress" {
 # }
 
 }
-
 
 
 
