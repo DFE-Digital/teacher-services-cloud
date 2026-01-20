@@ -57,7 +57,7 @@ resource "helm_release" "istiod" {
   }
   set {
     name  = "podAnnotations.prometheus\\.io/port"
-    value = "10254"
+    value = "15014"  ##DIFFERENT PORT FROM NGINX-INGRESS
     type  = "string"
   }
 
@@ -224,7 +224,7 @@ resource "helm_release" "istio_ingress" {
   }
   set {
     name  = "podAnnotations.prometheus\\.io/port"
-    value = "10254"
+    value = "15014" #DIFFERENT POPRT FROM NGINX-INGRESS
     type  = "string"
   }
 
