@@ -1,11 +1,13 @@
 controller:
-  logLevel: info
+  logLevel: debug
   replicaCount: 1
   nodeSelector:
     teacherservices.cloud/node_pool: applications
   ingressClass:
     name: "nginx-ingress"
   defaultTLS:
+    secret: "default/cert-secret"
+  wildcardTLS:
     secret: "default/cert-secret"
   pod:
     annotations:

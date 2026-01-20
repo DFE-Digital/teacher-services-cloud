@@ -147,10 +147,6 @@ resource "kubernetes_ingress_v1" "welcome_app" {
   }
   spec {
     ingress_class_name =  "nginx-ingress" # local.ingress_class_name
-    tls {
-      hosts = [each.value]
-      secret_name = "cert-secret"
-    }
     rule {
       host = each.value
       http {
