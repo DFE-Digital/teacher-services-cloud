@@ -5,7 +5,7 @@ metadata:
   namespace: infra
 spec:
   hosts:
-  - "www.cluster3.development.teacherservices.cloud"     # must match Host header / SNI you test with
+  - "www-istio.cluster3.development.teacherservices.cloud"     # must match Host header / SNI you test with
   gateways:
   - istio-ingress/istio-ingress-gateway   # namespace/name of your Gateway
   http:
@@ -16,4 +16,4 @@ spec:
     - destination:
         host: welcome-app.infra.svc.cluster.local
         port:
-          number: 8080
+          number: 80
