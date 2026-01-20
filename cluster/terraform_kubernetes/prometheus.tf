@@ -281,8 +281,10 @@ resource "kubernetes_secret" "prometheus_basic_auth" {
     namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
+  type = "nginx.org/htpasswd"
+
   data = {
-    auth = data.azurerm_key_vault_secret.prometheus_auth.value
+    htpasswd = data.azurerm_key_vault_secret.prometheus_auth.value
   }
 }
 
@@ -292,15 +294,14 @@ resource "kubernetes_ingress_v1" "prometheus_ingress" {
     name      = "prometheus"
     namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
     annotations = {
-      "nginx.ingress.kubernetes.io/auth-type"   = "basic"
-      "nginx.ingress.kubernetes.io/auth-secret" = kubernetes_secret.prometheus_basic_auth.metadata[0].name
-      "nginx.ingress.kubernetes.io/auth-realm"  = "Authentication Required"
+      "nginx.org/basic-auth-secret" = kubernetes_secret.prometheus_basic_auth.metadata[0].name
+      "nginx.org/basic-auth-realm"  = "Authentication Required"
     }
   }
   spec {
-    ingress_class_name =  "nginx-ingress" # local.ingress_class_name
+    ingress_class_name = "nginx-ingress" # local.ingress_class_name
     tls {
-      hosts = ["prometheus.${module.cluster_data.ingress_domain}"]
+      hosts       = ["prometheus.${module.cluster_data.ingress_domain}"]
       secret_name = "cert-secret"
     }
     rule {

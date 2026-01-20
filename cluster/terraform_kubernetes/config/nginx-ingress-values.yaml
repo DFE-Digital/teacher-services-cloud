@@ -7,6 +7,8 @@ controller:
     name: "nginx-ingress"
   defaultTLS:
     secret: "default/cert-secret"
+  wildcardTLS:
+    secret: "default/cert-secret"
   pod:
     annotations:
       prometheus.io/port: "10254"

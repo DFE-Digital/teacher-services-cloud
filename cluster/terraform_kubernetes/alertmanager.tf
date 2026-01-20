@@ -163,8 +163,10 @@ resource "kubernetes_secret" "alertmanager_basic_auth" {
     namespace = kubernetes_namespace.default_list["monitoring"].metadata[0].name
   }
 
+  type = "nginx.org/htpasswd"
+
   data = {
-    auth = data.azurerm_key_vault_secret.alertmanager_auth.value
+    htpasswd = data.azurerm_key_vault_secret.alertmanager_auth.value
   }
 }
 
@@ -174,13 +176,16 @@ resource "kubernetes_ingress_v1" "alertmanager_ingress" {
     name      = "alertmanager"
     namespace = "monitoring"
     annotations = {
-      "nginx.ingress.kubernetes.io/auth-type"   = "basic"
-      "nginx.ingress.kubernetes.io/auth-secret" = kubernetes_secret.alertmanager_basic_auth.metadata[0].name
-      "nginx.ingress.kubernetes.io/auth-realm"  = "Authentication Required"
+      "nginx.org/basic-auth-secret" = kubernetes_secret.alertmanager_basic_auth.metadata[0].name
+      "nginx.org/basic-auth-realm"  = "Authentication Required"
     }
   }
   spec {
-    ingress_class_name = local.ingress_class_name
+    ingress_class_name = "nginx-ingress"
+    tls {
+      hosts       = ["alertmanager.${module.cluster_data.ingress_domain}"]
+      secret_name = "cert-secret"
+    }
     rule {
       host = "alertmanager.${module.cluster_data.ingress_domain}"
       http {
