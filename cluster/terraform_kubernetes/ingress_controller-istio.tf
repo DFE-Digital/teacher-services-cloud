@@ -114,14 +114,6 @@ resource "helm_release" "istio_ingress" {
     value = "Local"
     type  = "string"
   }
-  #
-  #NOT IN ISTEO! - CREATE A K8S SECRET  
-  #set {
-  #  name  = "service.default-ssl-certificate"
-  #  value = "istio-ingress/cert-secret"
-  #  type  = "string"
-  #}
-
 
   set {
     name  = "service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-health-probe-request-path"
