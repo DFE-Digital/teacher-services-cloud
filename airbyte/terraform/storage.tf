@@ -1,7 +1,9 @@
+# see https://docs.airbyte.com/platform/deploying-airbyte/integrations/storage
+
 resource "azurerm_storage_account" "airbyte" {
   for_each = toset(var.airbyte_namespaces)
 
-  name                            = length(each.key) > 1 ? "${var.resource_prefix}${replace(each.key, "-", "")}absa" : replace(each.key, "-", "")
+  name                            = length(each.key) > 1 ? "${var.resource_prefix}${substr(replace(each.key, "-", ""), 0, 10)}absa" : replace(each.key, "-", "")
   location                        = "uksouth"
   resource_group_name             = var.resource_group_name
   account_tier                    = "Standard"
@@ -36,4 +38,18 @@ resource "azurerm_storage_management_policy" "main" {
       }
     }
   }
+}
+
+resource "kubernetes_secret" "airbyte_config_secrets" {
+  for_each = toset(var.airbyte_namespaces)
+
+  metadata {
+    name      = "airbyte-config-secrets"
+    namespace = "${each.key}"
+  }
+
+  data = {
+    azure-blob-store-connection-string = azurerm_storage_account.airbyte["${each.key}"].primary_connection_string
+  }
+
 }
