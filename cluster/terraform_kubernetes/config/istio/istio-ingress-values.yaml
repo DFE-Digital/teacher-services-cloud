@@ -1,3 +1,5 @@
+# https://github.com/istio/istio/blob/1.28.2/manifests/charts/gateway/values.yaml
+
 # Name allows overriding the release name. Generally this should not be set
 name: ""
 # revision declares which revision this gateway is a part of
@@ -16,12 +18,12 @@ rbac:
 
 serviceAccount:
   # If set, a service account will be created. Otherwise, the default is used
-  create: true
+  create: false
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use.
   # If not set, the release name is used
-  name: ""
+  name: "istio-ingress-gateway"
 
 podAnnotations:
   prometheus.io/port: "15014"
@@ -29,11 +31,10 @@ podAnnotations:
   prometheus.io/path: "/metrics"
   logit.io/send: "true"
   fluentbit.io/exclude: "true"
-
   # EQUIVALENT TO NGINX-CONTROLLER SETTINGS   - controller.config.use-forwarded-headers" &"controller.config.compute-full-forwarded-for"
-#  proxy.istio.io/config: |
-#    gatewayTopology:
-#      numTrustedProxies: 2
+  proxy.istio.io/config: |
+    gatewayTopology:
+      numTrustedProxies: 2
 
 # Define the security context for the pod.
 # If unset, this will be automatically set to the minimum privileges required to bind to port 80 and 443.
