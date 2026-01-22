@@ -1,4 +1,4 @@
-# https://github.com/istio/istio/blob/1.28.2/manifests/charts/istio-control/istio-discovery/values.yaml 
+# https://github.com/istio/istio/blob/1.28.2/manifests/charts/istio-control/istio-discovery/values.yaml
 
 autoscaleEnabled: true
 autoscaleMin: 1
