@@ -5,7 +5,7 @@ name: ""
 # revision declares which revision this gateway is a part of
 revision: ""
 
-# Controls the spec.replicas setting for the Gateway deployment if set.
+# securityControls the spec.replicas setting for the Gateway deployment if set.
 # Otherwise defaults to Kubernetes Deployment default (1).
 replicaCount: 1
 
@@ -23,7 +23,7 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set, the release name is used
-  name: "istio-ingress-gateway"
+  name: "istio-ingress-gateway-sa"
 
 podAnnotations:
   prometheus.io/port: "15014"
