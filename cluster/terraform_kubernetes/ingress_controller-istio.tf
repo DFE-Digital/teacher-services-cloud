@@ -98,6 +98,19 @@ resource "helm_release" "istio_ingress" {
     type  = "string"
   }
 
+}
+
+
+# CREATE AUTH POLICY - PROTECT /metrics ENDPOINT
+resource "kubernetes_manifest" "istio_ingress_auth_policy" {
+  manifest = yamldecode(
+    file("${path.module}/config/istio/authorization-policy.yaml")
+  )
+}
+
+
+
+
   # Enable prometheus metrics and configure scraping
 
 # set {
@@ -107,6 +120,56 @@ resource "helm_release" "istio_ingress" {
 #  }
 
 
+
+
+
+
+
+  # Send X-Forwarded-For HTTP header to keep the client IP for the apps
+  # When used behind front door, it contains the front door backend IP as well
+  # The Host header is replaced by the value of X-Forwarded-Host header. When using front door,
+  # apps will see the external host instead of the ingress host
+#  set {
+#    name  = "controller.config.use-forwarded-headers"
+#    value = "true"
+#    type  = "string"
+#  }
+
+#  set {
+#    name  = "controller.config.compute-full-forwarded-for"
+#    value = "true"
+#    type  = "string"
+#  }
+
+
+
+
+
+#  set {
+#    name  = "controller.automountServiceAccountToken"
+#    value = "false"
+#    type  = "string"
+#  }
+
+
+
+
+  # Set ingress class name so it can be retrieved as an attribute to force dependencies
+#  set {
+#    name  = "controller.ingressClassResource.name"
+#    value = "nginx"
+#    type  = "string"
+
+#  }
+
+
+
+
+
+
+
+
+##### NOT SIMPLE TO MAP TO ISTIO. NO NEED TO MAP ACROSS UNLESS SPECIFIC ISSUES OCCUR DURING TESTING
 
   # Allow POST requests with large body. Prevent error 413: Request entity too large
 #  set {
@@ -137,64 +200,3 @@ resource "helm_release" "istio_ingress" {
 #    value = "120"
 #    type  = "auto"
 #  }
-
-
-
-  # Send X-Forwarded-For HTTP header to keep the client IP for the apps
-  # When used behind front door, it contains the front door backend IP as well
-  # The Host header is replaced by the value of X-Forwarded-Host header. When using front door,
-  # apps will see the external host instead of the ingress host
-#  set {
-#    name  = "controller.config.use-forwarded-headers"
-#    value = "true"
-#    type  = "string"
-#  }
-
-#  set {
-#    name  = "controller.config.compute-full-forwarded-for"
-#    value = "true"
-#    type  = "string"
-#  }
-
-#  set {
-#    name  = "containerSecurityContext.readOnlyRootFilesystem"
-#    value = "true"
-#    type  = "string"
-# }
-
-}
-
-
-
-#  set {
-#    name  = "controller.automountServiceAccountToken"
-#    value = "false"
-#    type  = "string"
-#  }
-
-
-  # Set ingress class name so it can be retrieved as an attribute to force dependencies
-#  set {
-#    name  = "controller.ingressClassResource.name"
-#    value = "nginx"
-#    type  = "string"
-
-#  }
-  # Block access to /metrics endpoint
-#  dynamic "set" {
-#    for_each = var.block_metrics_endpoint ? [1] : []
-
-#    content {
-#      name  = "controller.config.server-snippet"
-#      value = <<-EOT
-#        location /metrics {
-#            deny all;
-#        }
-#      EOT
-#      type  = "string"
-#    }
-#  }
-
-
-
-
