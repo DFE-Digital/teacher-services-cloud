@@ -1,4 +1,4 @@
-#CREATE CRD'S
+#ISTIO BASE - HELM CHART - CRD'S
 resource "helm_release" "istio_base" {
   name       = "istio-base"
   repository = "https://istio-release.storage.googleapis.com/charts"
@@ -13,15 +13,7 @@ resource "helm_release" "istio_base" {
 
 }
 
-
-# CREATE VS TO ROUTE TRAFFIC FROM
-resource "kubernetes_manifest" "istio_virtual_service" {
-  manifest = yamldecode(
-    file("${path.module}/config/istio/virtual-service.yaml")
-  )
-}
-
-
+#ISTIOD - HELM CHART - CONTROL PLANE
 resource "helm_release" "istiod" {
   name       = "istiod"
   repository = "https://istio-release.storage.googleapis.com/charts"
@@ -36,38 +28,7 @@ resource "helm_release" "istiod" {
 
 }
 
-
-
-resource "azurerm_public_ip" "ingress-public-ip-istio" {
-  name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-ingress-pip-istio"
-  location            = data.azurerm_resource_group.resource_group_istio.location
-  resource_group_name = data.azurerm_resource_group.resource_group_istio.name
-  allocation_method   = "Static"
-  sku                 = "Standard"
-
-  lifecycle { ignore_changes =  [tags] }
-}
-
-
-data "azurerm_resource_group" "resource_group_istio" {
-  name = var.resource_group_name
-}
-
-# CREATE K8S GATEWAY WITH TLS CERTIFICATE
-resource "kubernetes_manifest" "istio_gateway" {
-  manifest = yamldecode(
-    file("${path.module}/config/istio/gateway.yaml")
-  )
-
-    depends_on = [
-    helm_release.istio_base,
-    helm_release.istiod,
-    helm_release.istio_ingress
-  ]
-}
-
-
-#CREATES K8S SERVICE + DEPLOYMENT
+#ISTIO INGRESS - HELM CHART - DEPLOYMENT, PODS, SERVICE
 resource "helm_release" "istio_ingress" {
   name       = "istio-ingress-gateway"
   repository = "https://istio-release.storage.googleapis.com/charts"
@@ -78,10 +39,12 @@ resource "helm_release" "istio_ingress" {
   create_namespace = true
   depends_on       = [helm_release.istiod]
 
+  # STATIC VALUES FILE TO LOAD
   values = [
     file("${path.module}/config/istio/istio-ingress-values.yaml")
   ]
 
+  # DYNAMIC VALUES TO OVERRIDE STATIC VALUES FILE
   set {
     name  = "service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-resource-group"
     value = data.azurerm_resource_group.resource_group_istio.name
@@ -100,8 +63,50 @@ resource "helm_release" "istio_ingress" {
 
 }
 
+#ISTIO INGRESS - PUBLIC IP ADDRESS
+resource "azurerm_public_ip" "ingress-public-ip-istio" {
+  name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-ingress-pip-istio"
+  location            = data.azurerm_resource_group.resource_group_istio.location
+  resource_group_name = data.azurerm_resource_group.resource_group_istio.name
+  allocation_method   = "Static"
+  sku                 = "Standard"
 
-# CREATE AUTH POLICY - PROTECT /metrics ENDPOINT
+  lifecycle { ignore_changes =  [tags] }
+}
+
+
+#ISTIO INGRESS - RESOURCE GROUP
+data "azurerm_resource_group" "resource_group_istio" {
+  name = var.resource_group_name
+}
+
+#ISTIO INGRESS - GATEWAY RESOURCE
+resource "kubernetes_manifest" "istio_gateway" {
+  manifest = yamldecode(
+    file("${path.module}/config/istio/gateway.yaml")
+  )
+
+    depends_on = [
+    helm_release.istio_base,
+    helm_release.istiod,
+    helm_release.istio_ingress
+  ]
+}
+
+#ISTIO INGRESS - SERVICE ACCOUNT RESOURCE
+resource "kubernetes_manifest" "istio_service_account" {
+  manifest = yamldecode(
+    file("${path.module}/config/istio/service-account.yaml")
+  )
+
+    depends_on = [
+    helm_release.istio_base,
+    helm_release.istiod,
+    helm_release.istio_ingress
+  ]
+}
+
+#ISTIO INGRESS - AUTH POLICY - PROTECT /metrics ENDPOINT
 resource "kubernetes_manifest" "istio_ingress_auth_policy" {
   manifest = yamldecode(
     file("${path.module}/config/istio/authorization-policy.yaml")
@@ -111,65 +116,8 @@ resource "kubernetes_manifest" "istio_ingress_auth_policy" {
 
 
 
-  # Enable prometheus metrics and configure scraping
 
-# set {
-#    name  = "metrics.enabled"
-#    value = "true"
-#    type  = "auto"
-#  }
-
-
-
-
-
-
-
-  # Send X-Forwarded-For HTTP header to keep the client IP for the apps
-  # When used behind front door, it contains the front door backend IP as well
-  # The Host header is replaced by the value of X-Forwarded-Host header. When using front door,
-  # apps will see the external host instead of the ingress host
-#  set {
-#    name  = "controller.config.use-forwarded-headers"
-#    value = "true"
-#    type  = "string"
-#  }
-
-#  set {
-#    name  = "controller.config.compute-full-forwarded-for"
-#    value = "true"
-#    type  = "string"
-#  }
-
-
-
-
-
-#  set {
-#    name  = "controller.automountServiceAccountToken"
-#    value = "false"
-#    type  = "string"
-#  }
-
-
-
-
-  # Set ingress class name so it can be retrieved as an attribute to force dependencies
-#  set {
-#    name  = "controller.ingressClassResource.name"
-#    value = "nginx"
-#    type  = "string"
-
-#  }
-
-
-
-
-
-
-
-
-##### NOT SIMPLE TO MAP TO ISTIO. NO NEED TO MAP ACROSS UNLESS SPECIFIC ISSUES OCCUR DURING TESTING
+##### OLD NGINX-CONTROLLER SETTINGS - DIFFICULT TO MAP & NOT REQUIRED UNLESS SPECIFIC ISSUES OCCUR DURING TESTING
 
   # Allow POST requests with large body. Prevent error 413: Request entity too large
 #  set {
