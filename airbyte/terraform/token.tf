@@ -1,3 +1,14 @@
+resource "azurerm_federated_identity_credential" "gcp_wif" {
+  for_each = toset(var.airbyte_namespaces)
+
+  name                = "${var.environment}-${each.key}-airbyte"
+  resource_group_name = var.resource_group_name
+  parent_id           = data.azurerm_user_assigned_identity.gcp_wif[each.key].id
+  audience            = ["api://AzureADTokenExchange"]
+  issuer              = data.azurerm_kubernetes_cluster.main.oidc_issuer_url
+  subject             = "system:serviceaccount:${each.key}:airbyte-admin"
+}
+
 resource "kubernetes_service" "airbyte-token" {
 for_each = toset(var.airbyte_namespaces)
 

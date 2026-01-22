@@ -11,11 +11,11 @@ resource "helm_release" "airbyte" {
     kubernetes_secret.airbyte_db_secrets
   ]
 
-  # # The first part of the name with simple dots is the keys path in the values.yml file e.g. global.serviceAccountName.annotations
-  # # The last part is the final key e.g. azure\\.workload\\.identity/client-id
-  # # It may have double escaped dots if the key contains dots e.g. \\.
-  # # The corresponding value is in the "value" argument
-  # # https://github.com/airbytehq/airbyte-platform/blob/main/charts/airbyte/values.yaml
+  # The first part of the name with simple dots is the keys path in the values.yml file e.g. global.serviceAccountName.annotations
+  # The last part is the final key e.g. azure\\.workload\\.identity/client-id
+  # It may have double escaped dots if the key contains dots e.g. \\.
+  # The corresponding value is in the "value" argument
+  # https://github.com/airbytehq/airbyte-platform/blob/main/charts/airbyte/values.yaml
   set {
     name  = "global.serviceAccountName"
     value = "airbyte-admin"
@@ -92,18 +92,13 @@ resource "helm_release" "airbyte" {
     type  = "auto"
   }
   set {
-    name  = "global.env_vars.AIRBYTE_CLEANUP_JOB_ENABLED"
-    value = "true"
-    type  = "auto"
-  }
-  set {
-    name  = "global.env_vars.AIRBYTE_CLEANUP_JOB_RETENTION_DAYS"
-    value = "7"
-    type  = "auto"
-  }
-  set {
     name  = "global.storage.type"
     value = "Azure"
+    type  = "string"
+  }
+  set {
+    name  = "global.storage.secretName"
+    value = "airbyte-config-secrets"
     type  = "string"
   }
   # default for all storage below is "airbyte-storage"
@@ -123,8 +118,8 @@ resource "helm_release" "airbyte" {
     type  = "string"
   }
   set {
-    name  = "global.storage.azure.connectionString"
-    value = azurerm_storage_account.airbyte["${each.key}"].primary_connection_string
+    name  = "global.storage.azure.connectionStringSecretKey"
+    value = "azure-blob-store-connection-string"
     type  = "string"
   }
   set {
