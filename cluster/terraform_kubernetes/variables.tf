@@ -57,6 +57,12 @@ variable "ingress_nginx_version" {
   default     = "4.13.4"
 }
 
+variable "istio_version" {
+  description = "Version of the ingress-nginx helm chart to use with istio"
+  type        = string
+  default     = "1.28.2"
+}
+
 variable "ingress_nginx_memory" {
   description = "memory limit for nginx pods"
   type        = string
