@@ -27,7 +27,7 @@ resource "azurerm_dns_a_record" "cluster_a_record" {
 
 data "kubernetes_service" "istio-ingress-gateway" {
   metadata {
-    name = "istio-ingress-gateway"
+    name      = "istio-ingress-gateway"
     namespace = "istio-ingress"
   }
 

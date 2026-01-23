@@ -1,10 +1,10 @@
 #ISTIO BASE - HELM CHART - CRD'S
 resource "helm_release" "istio_base" {
-  name       = "istio-base"
-  repository = "https://istio-release.storage.googleapis.com/charts"
-  chart      = "base"
-  version    = var.istio_version
-  namespace  = "istio-system"
+  name             = "istio-base"
+  repository       = "https://istio-release.storage.googleapis.com/charts"
+  chart            = "base"
+  version          = var.istio_version
+  namespace        = "istio-system"
   create_namespace = true
 
   values = [
@@ -71,7 +71,7 @@ resource "azurerm_public_ip" "ingress-public-ip-istio" {
   allocation_method   = "Static"
   sku                 = "Standard"
 
-  lifecycle { ignore_changes =  [tags] }
+  lifecycle { ignore_changes = [tags] }
 }
 
 
@@ -86,7 +86,7 @@ resource "kubernetes_manifest" "istio_gateway" {
     file("${path.module}/config/istio/gateway.yaml")
   )
 
-    depends_on = [
+  depends_on = [
     helm_release.istio_base,
     helm_release.istiod,
     helm_release.istio_ingress
@@ -99,7 +99,7 @@ resource "kubernetes_manifest" "istio_service_account" {
     file("${path.module}/config/istio/service-account.yaml")
   )
 
-    depends_on = [
+  depends_on = [
     helm_release.istio_base,
     helm_release.istiod,
     helm_release.istio_ingress
@@ -119,30 +119,30 @@ resource "kubernetes_manifest" "istio_ingress_auth_policy" {
 
 ##### OLD NGINX-CONTROLLER SETTINGS - DIFFICULT TO MAP & NOT REQUIRED UNLESS SPECIFIC ISSUES OCCUR DURING TESTING
 
-  # Allow POST requests with large body. Prevent error 413: Request entity too large
+# Allow POST requests with large body. Prevent error 413: Request entity too large
 #  set {
 #    name  = "controller.config.proxy-body-size"
 #    value = "50m"
 #    type  = "string"
 #  }
 
-  # Sets the size of the buffer used for reading the first part of the response received from the proxied server.
-  # Needs to be larger than the response header or nginx will return an error for the request
-  # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#proxy-buffer-size
+# Sets the size of the buffer used for reading the first part of the response received from the proxied server.
+# Needs to be larger than the response header or nginx will return an error for the request
+# https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#proxy-buffer-size
 #  set {
 #    name  = "controller.config.proxy-buffer-size"
 #    value = "24k"
 #    type  = "string"
 #  }
 
-  # This ConfigMap setting sets the time, in seconds, during which a keep-alive client connection will stay open on the server side
+# This ConfigMap setting sets the time, in seconds, during which a keep-alive client connection will stay open on the server side
 #  set {
 #    name  = "controller.config.keep-alive"
 #    value = "120"
 #    type  = "auto"
 #  }
 
-  # This ConfigMap setting defines a timeout for reading client request header, in seconds
+# This ConfigMap setting defines a timeout for reading client request header, in seconds
 #  set {
 #    name  = "controller.config.client-header-timeout"
 #    value = "120"
