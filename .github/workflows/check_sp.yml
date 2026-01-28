@@ -50,3 +50,26 @@ jobs:
             Please update the secret in the Github ${{ matrix.data.environment }} environment.
             Details on how to do this can be found here: https://github.com/DFE-Digital/teacher-services-cloud/blob/main/documentation/slack-webhook-integration.md
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Notify teams channel on job failure
+        if: fromJson(steps.pwsh_check_expire.outputs.json_data).data.Alert
+        uses: DFE-Digital/github-actions/send-to-teams-channel@master
+        with:
+          teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          title: Check Service Principal
+          service: Teacher Services Cloud
+          message: |
+            The Service Principal *${{ fromJson(steps.pwsh_check_expire.outputs.json_data).data.Application }}*
+            secret *${{ fromJson(steps.pwsh_check_expire.outputs.json_data).data.Name }}* is due to expire in *${{fromJson(steps.pwsh_check_expire.outputs.json_data).data.ExpiresDays}}* days.
+            Please update the secret in the Github ${{ matrix.data.environment }} environment.
+            Details on how to do this can be found here: https://github.com/DFE-Digital/teacher-services-cloud/blob/main/documentation/slack-webhook-integration.md
+
+      - name: Notify teams channel on job success
+        uses: DFE-Digital/github-actions/send-to-teams-channel@master
+        with:
+          teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          title: Check Service Principal
+          service: Teacher Services Cloud
+          status: good
+          message: |
+            No upcoming Service Principal expiry

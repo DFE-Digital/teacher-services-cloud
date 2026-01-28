@@ -98,6 +98,26 @@ jobs:
           SLACK_COLOR: failure
           SLACK_FOOTER: Sent from destroy-dev-clusters job in destroy-dev-clusters workflow
 
+      - name: Notify teams channel on job failure
+        if: ${{ failure() }}
+        uses: DFE-Digital/github-actions/send-to-teams-channel@master
+        with:
+          teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          title: Development cluster weekly cleanup
+          service: Teacher Services Cloud
+          message: |
+            Cluster ${{ env.cluster_name }} destroy failed
+
+      - name: Notify teams channel on job success
+        uses: DFE-Digital/github-actions/send-to-teams-channel@master
+        with:
+          teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          title: Development cluster weekly cleanup
+          service: Teacher Services Cloud
+          status: good
+          message: |
+            Completed successfully
+
       - name: Summary
         if: always()
         run: |

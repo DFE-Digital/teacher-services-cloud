@@ -78,6 +78,16 @@ jobs:
           The terraform validation during cluster update has failed
           Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
 
+    - name: Notify teams channel on job failure
+      if: ${{ failure() && github.ref == 'refs/heads/main' }}
+      uses: DFE-Digital/github-actions/send-to-teams-channel@master
+      with:
+        teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        title: Deploy Cluster
+        service: Teacher Services Cloud
+        message: |
+          terraform validation failed
+
   deploy:
     name: Deploy Cluster
     if: github.ref == 'refs/heads/main'
@@ -122,6 +132,16 @@ jobs:
         SLACK_MESSAGE: |
           The cluster deployment to ${{ matrix.environment }} has failed
           Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
+
+    - name: Notify teams channel on job failure
+      if: ${{ failure() }}
+      uses: DFE-Digital/github-actions/send-to-teams-channel@master
+      with:
+        teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        title: Deploy Cluster
+        service: Teacher Services Cloud
+        message: |
+          The cluster deployment to ${{ matrix.environment }} has failed
 
   update-domains:
     name: Update DNS domains
@@ -170,3 +190,23 @@ jobs:
         SLACK_MESSAGE: |
           The domain update to ${{ matrix.environment }} has failed
           Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
+
+    - name: Notify teams channel on job failure
+      if: ${{ failure() }}
+      uses: DFE-Digital/github-actions/send-to-teams-channel@master
+      with:
+        teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        title: Deploy Cluster
+        service: Teacher Services Cloud
+        message: |
+          The domain update to ${{ matrix.environment }} has failed
+
+    - name: Notify teams channel on workflow success
+      uses: DFE-Digital/github-actions/send-to-teams-channel@master
+      with:
+        teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        title: Deploy Cluster
+        service: Teacher Services Cloud
+        status: good
+        message: |
+          A cluster update has completed successfully

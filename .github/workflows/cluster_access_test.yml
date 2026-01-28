@@ -72,6 +72,16 @@ jobs:
         run: |
           kubectl get nodes
 
+      - name: Notify teams channel on job failure
+        if: ${{ failure() }}
+        uses: DFE-Digital/github-actions/send-to-teams-channel@master
+        with:
+          teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          title: Cluster AD smoke test
+          service: Teacher Services Cloud
+          message: |
+            Cluster Access Smoke Test FAILED for cluster ${{ env.cluster_name }}
+
       - name: Notify Slack channel on job failure
         if: ${{ failure() }}
         uses: rtCamp/action-slack-notify@v2

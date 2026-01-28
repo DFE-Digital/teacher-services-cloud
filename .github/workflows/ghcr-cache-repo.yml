@@ -1,9 +1,9 @@
 name: Mirror DockerHub Images to GHCR
 
 on:
-    workflow_dispatch:
-    schedule:
-      - cron: "0 6 * * 0"  # Weekly on Sundays at 06:00 UTC
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 0"  # Weekly on Sundays at 06:00 UTC
 
 permissions:
   contents: read
@@ -11,28 +11,48 @@ permissions:
   id-token: write
 
 jobs:
-    mirror:
-        runs-on: ubuntu-latest
+  mirror:
+    runs-on: ubuntu-latest
 
-        steps:
-          - name: Checkout code
-            uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-          - name: Log in to GHCR
-            uses: docker/login-action@v3
-            with:
-              registry: ghcr.io
-              username: github-actions
-              password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: github-actions
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-          - name: Mirror images from lookup file
-            run: |
-              while read -r src_img dst_img; do
-                [ -z "$src_img" ] && continue
-                echo "Pulling $src_img"
-                docker pull "$src_img"
-                echo "Tagging $src_img as ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
-                docker tag "$src_img" "ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
-                echo "Pushing ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
-                docker push "ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
-              done < .ghcr_cache_images.yml
+      - name: Mirror images from lookup file
+        run: |
+          while read -r src_img dst_img; do
+            [ -z "$src_img" ] && continue
+            echo "Pulling $src_img"
+            docker pull "$src_img"
+            echo "Tagging $src_img as ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
+            docker tag "$src_img" "ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
+            echo "Pushing ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
+            docker push "ghcr.io/dfe-digital/teacher-services-cloud:$dst_img"
+          done < .ghcr_cache_images.yml
+
+      - name: Notify teams channel on job failure
+        if: ${{ failure() }}
+        uses: DFE-Digital/github-actions/send-to-teams-channel@master
+        with:
+          teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          title: Mirror DockerHub Images to GHCR
+          service: Teacher Services Cloud
+          message: |
+            Workflow failed
+
+      - name: Notify teams channel on job success
+        uses: DFE-Digital/github-actions/send-to-teams-channel@master
+        with:
+          teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          title: Mirror DockerHub Images to GHCR
+          service: Teacher Services Cloud
+          status: good
+          message: |
+            Workflow successful
