@@ -78,6 +78,30 @@ jobs:
           The terraform validation during cluster update has failed
           Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
 
+    - name: Notify teams channel on job success
+      uses: DFE-Digital/github-actions/send-to-teams-channel@2632-github-workflow-alerting-to-teams
+      with:
+        teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL_TESTING }}
+        environment: none
+        title: A Cluster update has occurred
+        status: success
+        minimal: false
+        message: |
+          terraform validation succesful
+          nothing else to do
+
+    - name: Notify teams channel on job failure
+      if: ${{ failure() }}
+      uses: DFE-Digital/github-actions/send-to-teams-channel@2632-github-workflow-alerting-to-teams
+      with:
+        teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL_TESTING }}
+        environment: none
+        title: A Cluster update has occurred
+        status: failure
+        minimal: false
+        message: |
+          terraform validation failed
+
   deploy:
     name: Deploy Cluster
     if: github.ref == 'refs/heads/main'
