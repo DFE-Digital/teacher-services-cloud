@@ -67,16 +67,40 @@ jobs:
         terraform_modules_tag: testing
         terraform_modules_dir: domains
 
-    - name: Send Slack notification on failure
-      if: ${{ failure() && github.ref == 'refs/heads/main' }}
-      uses: rtCamp/action-slack-notify@master
-      env:
-        SLACK_COLOR: '#ef5343'
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        SLACK_TITLE: A Cluster update failure has occurred
-        SLACK_MESSAGE: |
-          The terraform validation during cluster update has failed
-          Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
+    # - name: Send Slack notification on failure
+    #   if: ${{ failure() && github.ref == 'refs/heads/main' }}
+    #   uses: rtCamp/action-slack-notify@master
+    #   env:
+    #     SLACK_COLOR: '#ef5343'
+    #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+    #     SLACK_TITLE: A Cluster update failure has occurred
+    #     SLACK_MESSAGE: |
+    #       The terraform validation during cluster update has failed
+    #       Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
+
+    - name: Notify teams channel on job success
+      uses: DFE-Digital/github-actions/send-to-teams-channel@2632-github-workflow-alerting-to-teams
+      with:
+        teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL_TESTING }}
+        service: Schools Digital AKS
+        title: A Cluster update has occurred
+        status: success
+        minimal: false
+        message: |
+          terraform validation succesful
+          all ok
+
+    - name: Notify teams channel on job failure
+      if: ${{ failure() }}
+      uses: DFE-Digital/github-actions/send-to-teams-channel@2632-github-workflow-alerting-to-teams
+      with:
+        teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL_TESTING }}
+        service: Schools Digital AKS
+        title: A Cluster update has occurred
+        status: failure
+        minimal: false
+        message: |
+          terraform validation failed
 
   deploy:
     name: Deploy Cluster
