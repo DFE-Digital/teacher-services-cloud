@@ -203,3 +203,26 @@ airbyte-apply: airbyte-init
 
 airbyte-destroy: airbyte-init
 	terraform -chdir=airbyte/terraform destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
+
+
+### ISTIO TERRAFORM ###
+
+terraform-istio-init: cluster-composed-variables set-azure-account
+	terraform -chdir=cluster/terraform_istio init -reconfigure -upgrade \
+		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
+		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
+		-backend-config=key=${ENVIRONMENT}_istio.tfstate
+
+	$(eval export TF_VAR_environment=${ENVIRONMENT})
+	$(eval export TF_VAR_resource_group_name=${RESOURCE_GROUP_NAME})
+	$(eval export TF_VAR_resource_prefix=${RESOURCE_PREFIX})
+	$(eval export TF_VAR_config=${CONFIG})
+
+terraform-istio-plan: terraform-istio-init
+	terraform -chdir=cluster/terraform_istio plan -var-file config/${CONFIG}.tfvars.json
+
+terraform-istio-apply: terraform-istio-init
+	terraform -chdir=cluster/terraform_istio apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
+
+terraform-istio-destroy: terraform-istio-init
+	terraform -chdir=cluster/terraform_istio destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}

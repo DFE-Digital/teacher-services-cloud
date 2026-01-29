@@ -22,3 +22,5 @@ resource "helm_release" "istio_base" {
   }
 
 }
+
+
