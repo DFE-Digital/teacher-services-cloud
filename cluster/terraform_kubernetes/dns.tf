@@ -31,10 +31,6 @@ data "kubernetes_service" "istio-ingress-gateway" {
     namespace = "istio-ingress"
   }
 
-  # Wait for the istio-ingress-gatewa controller to be fully configured
-  depends_on = [
-    helm_release.istio_ingress
-  ]
 }
 
 resource "azurerm_dns_a_record" "istio_ingress_gateway_a_record" {

@@ -18,3 +18,7 @@ variable "istio_gateway_pod_memory" {
   type        = string
   default     = "512Mi"
 }
+
+data "environment_variables" "github_actions" {
+  filter = "GITHUB_ACTIONS"
+}

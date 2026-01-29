@@ -14,6 +14,10 @@ terraform {
       source  = "hashicorp/kubernetes"
       version = "2.32.0"
     }
+    environment = {
+      source  = "EppO/environment"
+      version = "1.3.5"
+    }
   }
 
   backend "azurerm" {

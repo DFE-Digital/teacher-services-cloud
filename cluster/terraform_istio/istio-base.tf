@@ -14,7 +14,7 @@ resource "helm_release" "istio_base" {
   cleanup_on_fail = true
 
   values = [
-    file("${path.module}/config/istio-base-values.yaml")
+    file("${path.module}/config/values/istio-base-values.yaml")
   ]
 
   lifecycle {

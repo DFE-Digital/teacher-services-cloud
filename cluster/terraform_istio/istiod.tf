@@ -8,7 +8,7 @@ resource "helm_release" "istiod" {
 
   depends_on = [helm_release.istio_base]
   values = [
-    file("${path.module}/config/istio/values/istiod-values.yaml")
+    file("${path.module}/config/values/istiod-values.yaml")
   ]
 
 }

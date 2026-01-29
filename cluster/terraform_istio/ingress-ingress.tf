@@ -11,7 +11,7 @@ resource "helm_release" "istio_ingress" {
 
   # STATIC VALUES FILE TO LOAD
   values = [
-    file("${path.module}/config/istio/values/istio-ingress-values.yaml")
+    file("${path.module}/config/values/istio-ingress-values.yaml")
   ]
 
   # DYNAMIC VALUES TO OVERRIDE STATIC VALUES FILE
