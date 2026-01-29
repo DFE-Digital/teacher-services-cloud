@@ -18,12 +18,12 @@ rbac:
 
 serviceAccount:
   # If set, a service account will be created. Otherwise, the default is used
-  create: false
+#  create: true
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use.
   # If not set, the release name is used
-  name: "istio-ingress-gateway-sa"
+#  name: "istio-ingress-gateway-sa"
 
 podAnnotations:
   prometheus.io/port: "15014"
@@ -95,12 +95,12 @@ resources:
     memory: 1024Mi
 
 autoscaling:
-  enabled: true
-  minReplicas: 1
-  maxReplicas: 5
-  targetCPUUtilizationPercentage: 80
-  targetMemoryUtilizationPercentage: {}
-  autoscaleBehavior: {}
+  enabled: false
+#  minReplicas: 1
+#  maxReplicas: 5
+#  targetCPUUtilizationPercentage: {}   ##TEMP HASH THIS LINE OUT TO AVOID ERORS IN ISTIO-INGRESS STARTIUP (UNABLE TO GET CPU RESOURCES)
+#  targetMemoryUtilizationPercentage: {}   ##TEMP HASH THIS LINE OUT TO AVOID ERORS IN ISTIO-INGRESS STARTIUP (UNABLE TO GET MEM RESOURCES)
+#  autoscaleBehavior: {}
 
 # Pod environment variables
 env: {}

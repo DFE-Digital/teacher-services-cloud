@@ -55,6 +55,9 @@ resource "kubernetes_secret_v1" "istio-ingress-cert-secret" {
   }
 
   type = "kubernetes.io/tls"
+
+  depends_on       = [helm_release.istio_ingress]
+
 }
 
 resource "kubernetes_secret_v1" "kube_cert_secret_clone" {

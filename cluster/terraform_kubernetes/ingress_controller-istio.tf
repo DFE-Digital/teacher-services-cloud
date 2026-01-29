@@ -8,10 +8,11 @@ resource "helm_release" "istio_base" {
   create_namespace = true
 
   values = [
-    file("${path.module}/config/istio/istio-base-values.yaml")
+    file("${path.module}/config/istio/values/istio-base-values.yaml")
   ]
 
 }
+
 
 #ISTIOD - HELM CHART - CONTROL PLANE
 resource "helm_release" "istiod" {
@@ -23,7 +24,7 @@ resource "helm_release" "istiod" {
 
   depends_on = [helm_release.istio_base]
   values = [
-    file("${path.module}/config/istio/istiod-values.yaml")
+    file("${path.module}/config/istio/values/istiod-values.yaml")
   ]
 
 }
@@ -41,7 +42,7 @@ resource "helm_release" "istio_ingress" {
 
   # STATIC VALUES FILE TO LOAD
   values = [
-    file("${path.module}/config/istio/istio-ingress-values.yaml")
+    file("${path.module}/config/istio/values/istio-ingress-values.yaml")
   ]
 
   # DYNAMIC VALUES TO OVERRIDE STATIC VALUES FILE
@@ -81,37 +82,37 @@ data "azurerm_resource_group" "resource_group_istio" {
 }
 
 #ISTIO INGRESS - GATEWAY RESOURCE
-resource "kubernetes_manifest" "istio_gateway" {
-  manifest = yamldecode(
-    file("${path.module}/config/istio/gateway.yaml")
-  )
+#resource "kubernetes_manifest" "istio_gateway" {
+#  manifest = yamldecode(
+#    file("${path.module}/config/istio/istio-k8s-resources/gateway.yaml")
+#  )
 
-  depends_on = [
-    helm_release.istio_base,
-    helm_release.istiod,
-    helm_release.istio_ingress
-  ]
-}
+#  depends_on = [
+#    helm_release.istio_base,
+#    helm_release.istiod,
+#    helm_release.istio_ingress
+#  ]
+#}
 
 #ISTIO INGRESS - SERVICE ACCOUNT RESOURCE
-resource "kubernetes_manifest" "istio_service_account" {
-  manifest = yamldecode(
-    file("${path.module}/config/istio/service-account.yaml")
-  )
+#resource "kubernetes_manifest" "istio_service_account" {
+#  manifest = yamldecode(
+#    file("${path.module}/config/istio/istio-k8s-resources/service-account.yaml")
+#  )
 
-  depends_on = [
-    helm_release.istio_base,
-    helm_release.istiod,
-    helm_release.istio_ingress
-  ]
-}
+#  depends_on = [
+#    helm_release.istio_base,
+#    helm_release.istiod,
+#    helm_release.istio_ingress
+#  ]
+#}
 
 #ISTIO INGRESS - AUTH POLICY - PROTECT /metrics ENDPOINT
-resource "kubernetes_manifest" "istio_ingress_auth_policy" {
-  manifest = yamldecode(
-    file("${path.module}/config/istio/authorization-policy.yaml")
-  )
-}
+#resource "kubernetes_manifest" "istio_ingress_auth_policy" {
+#  manifest = yamldecode(
+#    file("${path.module}/config/istio/istio-k8s-resources/authorization-policy.yaml")
+#  )
+#}
 
 
 
