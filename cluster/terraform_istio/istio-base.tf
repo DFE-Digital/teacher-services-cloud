@@ -17,10 +17,6 @@ resource "helm_release" "istio_base" {
     file("${path.module}/config/values/istio-base-values.yaml")
   ]
 
-  lifecycle {
-    prevent_destroy = true
-  }
-
 }
 
 

@@ -6,6 +6,12 @@ resource "helm_release" "istio_ingress" {
   version    = var.istio_version
   namespace  = "istio-ingress"
 
+  wait            = true
+  wait_for_jobs   = true
+  timeout         = 600
+  atomic          = true
+  cleanup_on_fail = true
+
   create_namespace = true
   depends_on       = [helm_release.istiod]
 
