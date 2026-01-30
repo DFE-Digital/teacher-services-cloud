@@ -5,7 +5,7 @@ metadata:
   namespace: infra
 spec:
   hosts:
-  - "welcome-app.cluster3.development.teacherservices.cloud"     # must match Host header / SNI you test with
+  - "welcome-app.istio-cluster3.development.teacherservices.cloud"     # must match Host header / SNI you test with
   gateways:
   - istio-ingress/istio-ingress-gateway   # namespace/name of your Gateway
   http:

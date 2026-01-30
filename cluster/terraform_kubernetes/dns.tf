@@ -36,7 +36,7 @@ data "kubernetes_service" "istio-ingress-gateway" {
 resource "azurerm_dns_a_record" "istio_ingress_gateway_a_record" {
   count = var.cluster_dns_zone != null ? 1 : 0
 
-  name                = "welcome-app.${var.environment}"
+  name                = "*.istio-${var.environment}"
   zone_name           = var.cluster_dns_zone
   resource_group_name = var.cluster_dns_resource_group_name
   ttl                 = 300
