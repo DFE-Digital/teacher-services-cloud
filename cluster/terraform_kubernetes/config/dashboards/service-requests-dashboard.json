@@ -195,10 +195,10 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_requests{service=\"$service\", status=\"200\"}[1m]))",
+          "expr": "sum(increase(nginx_ingress_controller_requests{namespace=~\"$namespace\", ingress=~\"$service\", status=\"200\"}[$__interval])) or vector(0)",
           "legendFormat": "200",
           "range": true,
-          "interval": "1m",
+          "interval": "5m",
           "intervalFactor": 1,
           "refId": "A"
         },
@@ -208,10 +208,10 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_requests{service=\"$service\", status=\"301\"}[1m]))",
+          "expr": "sum(increase(nginx_ingress_controller_requests{namespace=~\"$namespace\", ingress=~\"$service\", status=\"301\"}[$__interval])) or vector(0)",
           "legendFormat": "301",
           "range": true,
-          "interval": "1m",
+          "interval": "5m",
           "intervalFactor": 1,
           "refId": "B"
         },
@@ -221,10 +221,10 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_requests{service=\"$service\", status=\"302\"}[1m]))",
+          "expr": "sum(increase(nginx_ingress_controller_requests{namespace=~\"$namespace\", ingress=~\"$service\", status=\"302\"}[$__interval])) or vector(0)",
           "legendFormat": "302",
           "range": true,
-          "interval": "1m",
+          "interval": "5m",
           "intervalFactor": 1,
           "refId": "C"
         },
@@ -234,10 +234,10 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_requests{service=\"$service\", status=\"404\"}[1m]))",
+          "expr": "sum(increase(nginx_ingress_controller_requests{namespace=~\"$namespace\", ingress=~\"$service\", status=\"404\"}[$__interval])) or vector(0)",
           "legendFormat": "404",
           "range": true,
-          "interval": "1m",
+          "interval": "5m",
           "intervalFactor": 1,
           "refId": "D"
         },
@@ -247,10 +247,10 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_requests{service=\"$service\", status=\"500\"}[1m]))",
+          "expr": "sum(increase(nginx_ingress_controller_requests{namespace=~\"$namespace\", ingress=~\"$service\", status=\"500\"}[$__interval])) or vector(0)",
           "legendFormat": "500",
           "range": true,
-          "interval": "1m",
+          "interval": "5m",
           "intervalFactor": 1,
           "refId": "E"
         },
@@ -260,10 +260,10 @@
             "uid": "P5DCFC7561CCDE821"
           },
           "editorMode": "code",
-          "expr": "sum(increase(nginx_ingress_controller_requests{service=\"$service\", status=\"503\"}[1m]))",
+          "expr": "sum(increase(nginx_ingress_controller_requests{namespace=~\"$namespace\", ingress=~\"$service\", status=\"503\"}[$__interval])) or vector(0)",
           "legendFormat": "503",
           "range": true,
-          "interval": "1m",
+          "interval": "5m",
           "intervalFactor": 1,
           "refId": "F"
         }
@@ -281,6 +281,33 @@
       {
         "allValue": ".*",
         "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "P5DCFC7561CCDE821"
+        },
+        "definition": "label_values(nginx_ingress_controller_requests, namespace)",
+        "hide": 0,
+        "includeAll": true,
+        "multi": true,
+        "name": "namespace",
+        "options": [],
+        "query": {
+          "query": "label_values(nginx_ingress_controller_requests, namespace)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": ".*",
+        "current": {
           "selected": true,
           "text": [
             "All"
@@ -293,14 +320,14 @@
           "type": "prometheus",
           "uid": "P5DCFC7561CCDE821"
         },
-        "definition": "label_values(nginx_ingress_controller_requests{service=~\"(apply|publish|register|find-a-lost-trn|teach|track-and-pay|claim-additional-payments-for-teaching|get-into-teaching-app|get-school-experience|cpd-ec2|cpd-ecf|npq-registration|trs|teaching-vacancies)-(qa|staging|test|development).*\",service!~\".*-(postgres|redis|worker|cache|queue).*\"}, service)",
+        "definition": "label_values(nginx_ingress_controller_requests{namespace=~\"$namespace\"}, ingress)",
         "hide": 0,
         "includeAll": true,
         "multi": true,
         "name": "service",
         "options": [],
         "query": {
-          "query": "label_values(nginx_ingress_controller_requests{service=~\"(apply|publish|register|find-a-lost-trn|teach|track-and-pay|claim-additional-payments-for-teaching|get-into-teaching-app|get-school-experience|cpd-ec2|cpd-ecf|npq-registration|trs|teaching-vacancies)-(qa|staging|test|development).*\",service!~\".*-(postgres|redis|worker|cache|queue).*\"}, service)",
+          "query": "label_values(nginx_ingress_controller_requests{namespace=~\"$namespace\"}, ingress)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
