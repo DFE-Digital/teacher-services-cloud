@@ -2,9 +2,6 @@ name: AFD Domain Certificate Renewal
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
   schedule:
     # Run every day at 2:00 AM UTC
     - cron: "0 2 * * *"
@@ -68,3 +65,24 @@ jobs:
             The weekly AFD domain certificate renewal scan has failed for production.
             Please check the workflow logs for more details.
             Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
+
+      - name: Notify teams channel on job failure
+        if: ${{ failure() }}
+        uses: DFE-Digital/github-actions/send-to-teams-channel@master
+        with:
+          teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          title: AFD Domain Certificate Renewal
+          service: Teacher Services Cloud
+          message: |
+            The weekly AFD domain certificate renewal scan has failed for production.
+            Please check the workflow logs for more details.
+
+      - name: Notify teams channel on job success
+        uses: DFE-Digital/github-actions/send-to-teams-channel@master
+        with:
+          teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          title: AFD Domain Certificate Renewal
+          service: Teacher Services Cloud
+          status: good
+          message: |
+            Workflow successful
