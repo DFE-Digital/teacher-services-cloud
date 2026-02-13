@@ -68,7 +68,7 @@ jobs:
 
       - name: Notify teams channel on job failure
         if: ${{ failure() }}
-        uses: DFE-Digital/github-actions/send-to-teams-channel@master
+        uses: DFE-Digital/github-actions/send-to-teams-channel@2632-github-workflow-alerting-to-teams-4
         with:
           teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
           title: AFD Domain Certificate Renewal
@@ -78,7 +78,7 @@ jobs:
             Please check the workflow logs for more details.
 
       - name: Notify teams channel on job success
-        uses: DFE-Digital/github-actions/send-to-teams-channel@master
+        uses: DFE-Digital/github-actions/send-to-teams-channel@2632-github-workflow-alerting-to-teams-4
         with:
           teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
           title: AFD Domain Certificate Renewal

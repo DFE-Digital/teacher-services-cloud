@@ -74,13 +74,25 @@ jobs:
 
       - name: Notify teams channel on job failure
         if: ${{ failure() }}
-        uses: DFE-Digital/github-actions/send-to-teams-channel@master
+        uses: DFE-Digital/github-actions/send-to-teams-channel@2632-github-workflow-alerting-to-teams-4
         with:
           teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
           title: Cluster AD smoke test
           service: Teacher Services Cloud
+          minimal: true
           message: |
             Cluster Access Smoke Test FAILED for cluster ${{ env.cluster_name }}
+
+      - name: Notify teams channel on job success
+        uses: DFE-Digital/github-actions/send-to-teams-channel@2632-github-workflow-alerting-to-teams-4
+        with:
+          teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          title: Cluster AD smoke test
+          service: Teacher Services Cloud
+          status: good
+          minimal: true
+          message: |
+            Cluster Access Smoke Test sucessful for cluster ${{ env.cluster_name }}
 
       - name: Notify Slack channel on job failure
         if: ${{ failure() }}
