@@ -11,12 +11,27 @@ Add a new section to the `environment.tfvars.json` in `cluster/terraform_aks_clu
       "min_count": 3,
       "max_count": 20,
       "vm_size": "Standard_E4ads_v5",
+      "max_surge": 1,
+      "drain_timeout_in_minutes": 15,
+      "node_soak_duration_in_minutes": 5,
       "node_labels": {
         "teacherservices.cloud/node_pool": "applications"
       }
     }
 ```
 
+## Node Pool Upgrade Settings Guidelines
+there are 3 settings:-
+
+| Setting Name                  | Purpose                    | Factors Determining Tuning |
+|-------------------------------|----------------------------|----------------------------|
+| max_surge                     | Extra nodes during upgrade to assist with wokload migration| 1) Node pool size<br>  2) subnet IP headroom<br> 3) PDB strictness<br> 4) autoscaler<br> 5) capacity headroom |
+| drain_timeout_in_minutes      | Max time to complete node drain | 1) Max termination grace<br> 2) pod startup time<br> 3) PDB strictness<br> 4) replicas<br> 5) scheduling/image pull speed |
+| node_soak_duration_in_minutes | Pause between node upgrades | 1) Pod/daemonset startup time<br> 2) ingress stabilisation<br> 3) workload criticality<br> 4) pool size<br> risk appetite |
+
+<br>
+
+## Upgrade
 Run a plan against the environment using `make environment terraform-plan` and confirm the addition of the new node (apps2), and that there are no unexpected removals.
 
 If the changes in the plan are satisfactory, run `make environment terraform-apply` to run the plan and then confirm by typing `yes` at the prompt.
