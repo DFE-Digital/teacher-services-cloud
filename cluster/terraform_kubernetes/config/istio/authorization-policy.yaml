@@ -1,0 +1,14 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-metrics-on-gateway
+  namespace: istio-ingress
+spec:
+  selector:
+    matchLabels:
+      app: istio-ingress-gateway   # match your gateway pod labels
+  action: DENY
+  rules:
+  - to:
+    - operation:
+        paths: ["/metrics", "/metrics/*"]
