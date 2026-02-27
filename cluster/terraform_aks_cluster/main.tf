@@ -40,6 +40,13 @@ resource "azurerm_kubernetes_cluster" "main" {
     vnet_subnet_id       = azurerm_subnet.aks-subnet.id
     zones                = local.uk_south_availability_zones
     orchestrator_version = var.default_node_pool.orchestrator_version
+
+    upgrade_settings {
+      max_surge                     = var.default_node_pool.max_surge
+      drain_timeout_in_minutes      = var.default_node_pool.drain_timeout_in_minutes
+      node_soak_duration_in_minutes = var.default_node_pool.node_soak_duration_in_minutes
+    }
+
   }
 
   identity {
@@ -78,6 +85,12 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
   vnet_subnet_id        = azurerm_subnet.aks-subnet.id
   zones                 = local.uk_south_availability_zones
   node_labels           = try(each.value.node_labels, {})
+
+  upgrade_settings {
+    max_surge                     = var.node_pools.apps1.max_surge
+    drain_timeout_in_minutes      = var.node_pools.apps1.drain_timeout_in_minutes
+    node_soak_duration_in_minutes = var.node_pools.apps1.node_soak_duration_in_minutes
+  }
 
   timeouts {
     create = "180m"
