@@ -49,7 +49,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.6.4
+          terraform_version: 1.14.5
           terraform_wrapper: false
 
       - name: Set ARM environment variables
