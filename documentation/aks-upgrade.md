@@ -42,7 +42,9 @@ Each tfvars.json environment file contains:
 
 - kubernetes_version
 - default_node_pool orchestrator version
+- default node_pool upgrade settings (max_surge, drain_timeout_in_minutes, node_soak_duration_in_minutes)
 - each node pool orchestrator version
+- each node pool's upgrade settings (max_surge, drain_timeout_in_minutes, node_soak_duration_in_minutes)
 
 ### Show cluster kubernetes version
 
@@ -54,6 +56,12 @@ az aks show --resource-group <ResourceGroup> --name <ClusterName> --query kubern
 
 ```
 az aks nodepool list --resource-group <ResourceGroup> --cluster-name <ClusterName> --query "[].{Name:name,k8version:orchestratorVersion}" --output table
+```
+
+### Show  node pool upgrade settings
+
+```
+az aks nodepool show --resource-group <ResourceGroup> --cluster-name  <ClusterName> --name <nodepool-name> --query upgradeSettings
 ```
 
 ### Show available versions
@@ -142,3 +150,10 @@ az aks nodepool get-upgrades --resource-group <ResourceGroup> --cluster-name <Cl
       1. ` kubectl scale deployment <deployment-name> --replicas=0 -n <namespace>  `
       2. Wait for 1 hr
       3. Scale up the replicas one deployment at a time and check.
+7. Node pool upgrade tunables (see tfvars files) allow tuning of the nodes added during upgrades. if these are incorrectly tuned then typically it could fail in one of few ways:-
+   1. max-surge too high: fails to add the surge nodes - due to constraints aks is unable to build out the new upgrade nodes
+   2. max-surge too low: slow/stuck upgrade: aks would have trouble migrating workloads from old nodes to new: errors could be similar to “waiting for pods to evict”, pods stuck in pending state etc
+   3. drainTimeoutInMinutes too low: upgrade would fail completely if insufficient time is allowed for each node to drain properly e.g. pdb condition not met
+   4. drainTimeoutInMinutes too high: upgrade takes ages as any workloads with allowed too much time to drain
+   5. nodeSoakDurationInMinutes too low: potentially any issues that will affect all nodes dont get spotted early in the upgrade as it continues upgrading further nodes before early nodes "settle" - no opportunity to spot errors early and act - high "blast radius"
+   6. nodeSoakDurationInMinutes too high: upgrade takes too long - time wasted in between each node upgrade - low "blast radius"
