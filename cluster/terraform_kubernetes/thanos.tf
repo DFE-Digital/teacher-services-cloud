@@ -13,7 +13,7 @@ resource "azurerm_storage_account" "thanos" {
 resource "azurerm_storage_container" "metrics" {
 
   name                  = "metrics"
-  storage_account_name  = azurerm_storage_account.thanos.name
+  storage_account_id    = azurerm_storage_account.thanos.id
   container_access_type = "private"
 }
 

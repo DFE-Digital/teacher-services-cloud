@@ -17,7 +17,7 @@ resource "azurerm_storage_container" "airbyte" {
   for_each = toset(var.airbyte_namespaces)
 
   name                  = "airbyte-bucket"
-  storage_account_name  = azurerm_storage_account.airbyte["${each.key}"].name
+  storage_account_id  = azurerm_storage_account.airbyte["${each.key}"].id
   container_access_type = "private"
 }
 
