@@ -92,10 +92,10 @@ terraform-kubernetes-destroy: terraform-kubernetes-init
 check-cluster-exists:
 	terraform -chdir=cluster/terraform_aks_cluster output -json | jq -e '.cluster_id' > /dev/null
 
-terraform-init: terraform-aks-cluster-init terraform-kubernetes-init
-terraform-plan: terraform-init terraform-aks-cluster-plan check-cluster-exists terraform-kubernetes-plan
-terraform-apply: terraform-init terraform-aks-cluster-apply terraform-kubernetes-apply
-terraform-destroy: terraform-init terraform-kubernetes-destroy terraform-aks-cluster-destroy
+terraform-init: terraform-aks-cluster-init terraform-api-gateway-init terraform-kubernetes-init
+terraform-plan: terraform-init terraform-aks-cluster-plan check-cluster-exists terraform-api-gateway-plan terraform-kubernetes-plan
+terraform-apply: terraform-init terraform-aks-cluster-apply terraform-api-gateway-apply terraform-kubernetes-apply
+terraform-destroy: terraform-init terraform-kubernetes-destroy terraform-api-gateway-destroy terraform-aks-cluster-destroy
 
 set-what-if:
 	$(eval WHAT_IF=--what-if)
@@ -203,3 +203,25 @@ airbyte-apply: airbyte-init
 
 airbyte-destroy: airbyte-init
 	terraform -chdir=airbyte/terraform destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
+
+### api-gateway TERRAFORM
+
+terraform-api-gateway-init: cluster-composed-variables set-azure-account
+	terraform -chdir=cluster/terraform_api_gateway init -reconfigure -upgrade \
+		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
+		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
+		-backend-config=key=${ENVIRONMENT}_api-gateway.tfstate
+
+	$(eval export TF_VAR_environment=${ENVIRONMENT})
+	$(eval export TF_VAR_resource_group_name=${RESOURCE_GROUP_NAME})
+	$(eval export TF_VAR_resource_prefix=${RESOURCE_PREFIX})
+	$(eval export TF_VAR_config=${CONFIG})
+
+terraform-api-gateway-plan: terraform-api-gateway-init
+	terraform -chdir=cluster/terraform_api_gateway plan -var-file config/${CONFIG}.tfvars.json
+
+terraform-api-gateway-apply: terraform-api-gateway-init
+	terraform -chdir=cluster/terraform_api_gateway apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
+
+terraform-api-gateway-destroy: terraform-api-gateway-init
+	terraform -chdir=cluster/terraform_api_gateway destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
