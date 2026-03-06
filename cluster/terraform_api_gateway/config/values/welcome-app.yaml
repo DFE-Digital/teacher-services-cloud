@@ -1,0 +1,19 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: welcome-app-route
+  namespace: infra
+spec:
+  parentRefs:
+    - name: development-gateway-api
+      namespace: gateway-api
+  hostnames:
+    - "www.cluster3.development.teacherservices.cloud"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: welcome-app
+          port: 80

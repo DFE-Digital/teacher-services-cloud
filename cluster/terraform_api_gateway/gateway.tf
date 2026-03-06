@@ -6,6 +6,12 @@ resource "kubectl_manifest" "gateway_api_crds" {
   yaml_body = data.http.gateway_api_crds.response_body
 }
 
+#K8S GATEWAY CLASS
+resource "kubectl_manifest" "gateway-class" {
+  yaml_body = file("${path.module}/config/values/k8s-gateway-class.yaml")
+}
+
+#K8S GATEWAY
 resource "kubectl_manifest" "gateway" {
-  yaml_body = file("${path.module}/config/values/gateway-class.yaml")
+  yaml_body = file("${path.module}/config/values/k8s-gateway.yaml")
 }
