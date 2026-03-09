@@ -52,20 +52,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "The AFD domain scan has completed. Check the job logs for detailed information about any domains that were renewed." >> $GITHUB_STEP_SUMMARY
 
-      - name: Notify Slack channel on job failure
-        if: ${{ failure() }}
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_USERNAME: CI Deployment
-          SLACK_TITLE: "AFD Domain Certificate Renewal FAILED"
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
-          SLACK_COLOR: failure
-          SLACK_FOOTER: Sent from AFD Domain Certificate Renewal job in afd-domain-renewal workflow
-          SLACK_MESSAGE: |
-            The weekly AFD domain certificate renewal scan has failed for production.
-            Please check the workflow logs for more details.
-            Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
-
       - name: Notify teams channel on job failure
         if: ${{ failure() }}
         uses: DFE-Digital/github-actions/send-to-teams-channel@master

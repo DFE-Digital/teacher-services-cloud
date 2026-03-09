@@ -88,16 +88,6 @@ jobs:
           echo "Cluster destruction operation completed!"
         shell: bash
 
-      - name: Notify Slack channel on job failure
-        if: ${{ failure() }}
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_USERNAME: CI Deployment
-          SLACK_TITLE: "Development cluster destruction operation failed!"
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
-          SLACK_COLOR: failure
-          SLACK_FOOTER: Sent from destroy-dev-clusters job in destroy-dev-clusters workflow
-
       - name: Notify teams channel on job failure
         if: ${{ failure() }}
         uses: DFE-Digital/github-actions/send-to-teams-channel@master
