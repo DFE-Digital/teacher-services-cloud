@@ -7,8 +7,9 @@ spec:
   parentRefs:
     - name: development-gateway-api
       namespace: gateway-api
+      sectionName: websecure
   hostnames:
-    - "www.cluster3.development.teacherservices.cloud"
+    - "www.gatewayapicluster3.development.teacherservices.cloud"
   rules:
     - matches:
         - path:

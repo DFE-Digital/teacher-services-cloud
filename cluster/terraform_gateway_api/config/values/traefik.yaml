@@ -1,0 +1,16 @@
+providers:
+  kubernetesGateway:
+    # -- Enable Traefik Gateway provider for Gateway API
+    enabled: true
+
+gateway:
+  # -- When providers.kubernetesGateway.enabled, deploy a default gateway
+  enabled: false
+
+ports:
+  web:
+    expose:
+      default: false
+  websecure:
+    port: 8443
+    exposedPort: 443

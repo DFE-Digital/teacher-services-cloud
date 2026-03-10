@@ -206,8 +206,8 @@ airbyte-destroy: airbyte-init
 
 ### api-gateway TERRAFORM
 
-terraform-api-gateway-init: cluster-composed-variables set-azure-account
-	terraform -chdir=cluster/terraform_api_gateway init -reconfigure -upgrade \
+terraform-gateway-api-init: cluster-composed-variables set-azure-account
+	terraform -chdir=cluster/terraform_gateway_api init -reconfigure -upgrade \
 		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
 		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
 		-backend-config=key=${ENVIRONMENT}_api-gateway.tfstate
@@ -217,11 +217,11 @@ terraform-api-gateway-init: cluster-composed-variables set-azure-account
 	$(eval export TF_VAR_resource_prefix=${RESOURCE_PREFIX})
 	$(eval export TF_VAR_config=${CONFIG})
 
-terraform-api-gateway-plan: terraform-api-gateway-init
-	terraform -chdir=cluster/terraform_api_gateway plan -var-file config/${CONFIG}.tfvars.json
+terraform-gateway-api-plan: terraform-gateway-api-init
+	terraform -chdir=cluster/terraform_gateway_api plan -var-file config/${CONFIG}.tfvars.json
 
-terraform-api-gateway-apply: terraform-api-gateway-init
-	terraform -chdir=cluster/terraform_api_gateway apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
+terraform-gateway-api-apply: terraform-gateway-api-init
+	terraform -chdir=cluster/terraform_gateway_api apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
-terraform-api-gateway-destroy: terraform-api-gateway-init
-	terraform -chdir=cluster/terraform_api_gateway destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
+terraform-gateway-api-destroy: terraform-gateway-api-init
+	terraform -chdir=cluster/terraform_gateway_api destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}

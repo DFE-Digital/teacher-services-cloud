@@ -18,6 +18,8 @@ terraform {
       source  = "EppO/environment"
       version = "1.3.5"
     }
+
+
     kubectl = {
       source  = "gavinbunney/kubectl"
       version = "~> 1.14"
@@ -52,6 +54,7 @@ provider "kubernetes" {
     command     = "kubelogin"
     args        = local.kubelogin_args
   }
+  
 }
 
 provider "helm" {

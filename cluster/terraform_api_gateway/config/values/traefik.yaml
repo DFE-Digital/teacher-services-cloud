@@ -1,6 +1,0 @@
-providers:
-  kubernetesGateway:
-    enabled: true
-
-gateway:
-  enabled: false

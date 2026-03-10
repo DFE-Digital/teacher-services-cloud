@@ -25,6 +25,10 @@ terraform {
       source  = "StatusCakeDev/statuscake"
       version = "2.2.2"
     }
+    kubectl = {
+      source  = "gavinbunney/kubectl"
+      version = "~> 1.14"
+    }
   }
 
   backend "azurerm" {
@@ -61,6 +65,10 @@ provider "kubernetes" {
     command     = "kubelogin"
     args        = local.kubelogin_args
   }
+}
+
+provider "kubectl" {
+  load_config_file = true
 }
 
 provider "kubernetes" {
