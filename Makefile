@@ -92,10 +92,10 @@ terraform-kubernetes-destroy: terraform-kubernetes-init
 check-cluster-exists:
 	terraform -chdir=cluster/terraform_aks_cluster output -json | jq -e '.cluster_id' > /dev/null
 
-terraform-init: terraform-aks-cluster-init terraform-api-gateway-init terraform-kubernetes-init
-terraform-plan: terraform-init terraform-aks-cluster-plan check-cluster-exists terraform-api-gateway-plan terraform-kubernetes-plan
-terraform-apply: terraform-init terraform-aks-cluster-apply terraform-api-gateway-apply terraform-kubernetes-apply
-terraform-destroy: terraform-init terraform-kubernetes-destroy terraform-api-gateway-destroy terraform-aks-cluster-destroy
+terraform-init: terraform-aks-cluster-init terraform-gateway-api-init terraform-kubernetes-init
+terraform-plan: terraform-init terraform-aks-cluster-plan check-cluster-exists terraform-gateway-api-plan terraform-kubernetes-plan
+terraform-apply: terraform-init terraform-aks-cluster-apply terraform-gateway-api-apply terraform-kubernetes-apply
+terraform-destroy: terraform-init terraform-kubernetes-destroy terraform-gateway-api-destroy terraform-aks-cluster-destroy
 
 set-what-if:
 	$(eval WHAT_IF=--what-if)
