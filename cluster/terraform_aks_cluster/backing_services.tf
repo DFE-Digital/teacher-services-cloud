@@ -6,6 +6,8 @@ resource "azurerm_subnet" "backing-service-subnets" {
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = [each.value.cidr_range]
 
+  private_endpoint_network_policies = "Enabled"
+
   dynamic "delegation" {
     for_each = lookup(each.value, "delegation", {}) != {} ? [1] : []
 

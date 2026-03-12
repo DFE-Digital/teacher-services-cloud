@@ -34,10 +34,6 @@ resource "azurerm_monitor_diagnostic_setting" "aks_system_logs" {
   enabled_log {
     category = "cloud-controller-manager"
   }
-  metric {
-    category = "AllMetrics"
-    enabled  = false
-  }
 }
 
 # Using a data collection rule to change the Container Insights data collection settings

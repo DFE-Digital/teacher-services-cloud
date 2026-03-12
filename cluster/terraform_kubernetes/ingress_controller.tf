@@ -258,6 +258,8 @@ resource "azurerm_public_ip" "ingress-public-ip" {
   allocation_method   = "Static"
   sku                 = "Standard"
 
+  timeouts {}
+
   lifecycle { ignore_changes = [tags] }
 }
 
