@@ -27,10 +27,9 @@ resource "azurerm_federated_identity_credential" "github_actions_wif" {
     for creds in local.ga_wif_credentials : "${creds.r}-${creds.e}" => creds
   }
 
-  name                = each.key
-  resource_group_name = var.resource_group_name
-  parent_id           = azurerm_user_assigned_identity.ga_wif[each.value.g].id
-  audience            = ["api://AzureADTokenExchange"]
-  issuer              = "https://token.actions.githubusercontent.com"
-  subject             = "repo:DFE-Digital/${each.value.r}:environment:${each.value.e}"
+  name      = each.key
+  parent_id = azurerm_user_assigned_identity.ga_wif[each.value.g].id
+  audience  = ["api://AzureADTokenExchange"]
+  issuer    = "https://token.actions.githubusercontent.com"
+  subject   = "repo:DFE-Digital/${each.value.r}:environment:${each.value.e}"
 }

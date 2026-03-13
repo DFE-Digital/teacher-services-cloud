@@ -13,6 +13,8 @@ resource "azurerm_subnet" "aks-subnet" {
   virtual_network_name = azurerm_virtual_network.vnet.name
   # by default AKS uses 10.0.0.0/16 for its internal service CIDR range, this cannot overlap with the external subnet so we use 10.1.0.0/16
   address_prefixes = ["10.1.0.0/16"]
+
+  private_endpoint_network_policies = "Enabled"
 }
 
 resource "azurerm_subnet" "aks-subnet-clone" {
@@ -21,4 +23,6 @@ resource "azurerm_subnet" "aks-subnet-clone" {
   resource_group_name  = data.azurerm_resource_group.cluster.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.3.0.0/16"]
+
+  private_endpoint_network_policies = "Enabled"
 }

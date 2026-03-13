@@ -49,7 +49,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.6.4
+          terraform_version: 1.14.5
           terraform_wrapper: false
 
       - name: Set ARM environment variables
@@ -87,16 +87,6 @@ jobs:
           echo ""
           echo "Cluster destruction operation completed!"
         shell: bash
-
-      - name: Notify Slack channel on job failure
-        if: ${{ failure() }}
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_USERNAME: CI Deployment
-          SLACK_TITLE: "Development cluster destruction operation failed!"
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_ALERTS }}
-          SLACK_COLOR: failure
-          SLACK_FOOTER: Sent from destroy-dev-clusters job in destroy-dev-clusters workflow
 
       - name: Notify teams channel on job failure
         if: ${{ failure() }}

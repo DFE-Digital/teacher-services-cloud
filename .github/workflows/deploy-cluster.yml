@@ -32,7 +32,7 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         terraform_root_folder: cluster/terraform_kubernetes
-        terraform_modules_tag: main
+        terraform_modules_tag: main-azurerm-v4
         terraform_modules_dir: aks
 
     - name: Validate custom_domains/terraform/infrastructure
@@ -40,7 +40,7 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         terraform_root_folder: custom_domains/terraform/infrastructure
-        terraform_modules_tag: testing
+        terraform_modules_tag: testing-azurerm-v4
         terraform_modules_dir: domains
 
     - name: Validate templates/new_service/terraform/application
@@ -48,7 +48,7 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         terraform_root_folder: templates/new_service/terraform/application
-        terraform_modules_tag: main
+        terraform_modules_tag: main-azurerm-v4
         terraform_modules_dir: aks
 
     - name: Validate templates/new_service/terraform/domains/infrastructure
@@ -56,7 +56,7 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         terraform_root_folder: templates/new_service/terraform/domains/infrastructure
-        terraform_modules_tag: testing
+        terraform_modules_tag: testing-azurerm-v4
         terraform_modules_dir: domains
 
     - name: Validate templates/new_service/terraform/domains/environment_domains
@@ -64,19 +64,8 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         terraform_root_folder: templates/new_service/terraform/domains/environment_domains
-        terraform_modules_tag: testing
+        terraform_modules_tag: testing-azurerm-v4
         terraform_modules_dir: domains
-
-    - name: Send Slack notification on failure
-      if: ${{ failure() && github.ref == 'refs/heads/main' }}
-      uses: rtCamp/action-slack-notify@master
-      env:
-        SLACK_COLOR: '#ef5343'
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        SLACK_TITLE: A Cluster update failure has occurred
-        SLACK_MESSAGE: |
-          The terraform validation during cluster update has failed
-          Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
 
     - name: Notify teams channel on job failure
       if: ${{ failure() && github.ref == 'refs/heads/main' }}
@@ -122,17 +111,6 @@ jobs:
         azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
         environment: ${{ vars.ITTMS_ENVIRONMENT }}
 
-    - name: Send Slack notification on failure
-      if: failure()
-      uses: rtCamp/action-slack-notify@master
-      env:
-        SLACK_COLOR: '#ef5343'
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        SLACK_TITLE: A Cluster update failure has occurred
-        SLACK_MESSAGE: |
-          The cluster deployment to ${{ matrix.environment }} has failed
-          Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
-
     - name: Notify teams channel on job failure
       if: ${{ failure() }}
       uses: DFE-Digital/github-actions/send-to-teams-channel@master
@@ -142,6 +120,17 @@ jobs:
         service: Teacher Services Cloud
         message: |
           The cluster deployment to ${{ matrix.environment }} has failed
+
+    - name: Notify teams channel on workflow success
+      uses: DFE-Digital/github-actions/send-to-teams-channel@master
+      with:
+        teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        title: Deploy Cluster
+        service: Teacher Services Cloud
+        status: good
+        minimal: true
+        message: |
+          A cluster deployment to ${{ matrix.environment }} has completed successfully
 
   update-domains:
     name: Update DNS domains
@@ -163,7 +152,7 @@ jobs:
 
     - uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: 1.6.4
+        terraform_version: 1.14.5
         terraform_wrapper: false
 
     - name: Set ARM environment variables
@@ -180,17 +169,6 @@ jobs:
       env:
         ENVIRONMENT: dummy # "make development" requires the ENVIRONMENT var but it is not used for domains
 
-    - name: Send Slack notification on failure
-      if: failure()
-      uses: rtCamp/action-slack-notify@master
-      env:
-        SLACK_COLOR: '#ef5343'
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        SLACK_TITLE: A Cluster update failure has occurred
-        SLACK_MESSAGE: |
-          The domain update to ${{ matrix.environment }} has failed
-          Workflow Failed: <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|View details>
-
     - name: Notify teams channel on job failure
       if: ${{ failure() }}
       uses: DFE-Digital/github-actions/send-to-teams-channel@master
@@ -200,13 +178,3 @@ jobs:
         service: Teacher Services Cloud
         message: |
           The domain update to ${{ matrix.environment }} has failed
-
-    - name: Notify teams channel on workflow success
-      uses: DFE-Digital/github-actions/send-to-teams-channel@master
-      with:
-        teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
-        title: Deploy Cluster
-        service: Teacher Services Cloud
-        status: good
-        message: |
-          A cluster update has completed successfully

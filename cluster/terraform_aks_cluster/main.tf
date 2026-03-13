@@ -17,11 +17,13 @@ resource "azurerm_kubernetes_cluster" "main" {
   oidc_issuer_enabled       = true
   workload_identity_enabled = true
 
+  image_cleaner_interval_hours = 48
+  node_os_upgrade_channel      = "None"
+
   dynamic "azure_active_directory_role_based_access_control" {
     for_each = var.enable_azure_RBAC ? [1] : []
 
     content {
-      managed                = true
       azure_rbac_enabled     = true
       admin_group_object_ids = [var.admin_group_id]
     }
@@ -78,7 +80,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
   name                  = each.key
   kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
   vm_size               = try(each.value.vm_size, "Standard_D2_v2")
-  enable_auto_scaling   = true
+  auto_scaling_enabled  = true
   min_count             = each.value.min_count
   max_count             = each.value.max_count
   orchestrator_version  = each.value.orchestrator_version
@@ -111,11 +113,13 @@ resource "azurerm_kubernetes_cluster" "clone" {
   oidc_issuer_enabled       = true
   workload_identity_enabled = true
 
+  image_cleaner_interval_hours = 48
+  node_os_upgrade_channel      = "None"
+
   dynamic "azure_active_directory_role_based_access_control" {
     for_each = var.enable_azure_RBAC_clone ? [1] : []
 
     content {
-      managed                = true
       azure_rbac_enabled     = true
       admin_group_object_ids = [var.admin_group_id]
     }
@@ -154,7 +158,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools_clone" {
   name                  = "${each.key}clone"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.clone[0].id
   vm_size               = try(each.value.vm_size, "Standard_D2_v2")
-  enable_auto_scaling   = true
+  auto_scaling_enabled  = true
   min_count             = each.value.min_count
   max_count             = each.value.max_count
   orchestrator_version  = each.value.orchestrator_version
@@ -169,6 +173,8 @@ resource "azurerm_public_ip" "egress-public-ip" {
   resource_group_name = data.azurerm_resource_group.cluster.name
   allocation_method   = "Static"
   sku                 = "Standard"
+
+  timeouts {}
 
   lifecycle { ignore_changes = [tags] }
 }

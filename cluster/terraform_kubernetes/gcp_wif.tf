@@ -41,10 +41,9 @@ resource "kubernetes_service_account" "gcp_wif_clone" {
 resource "azurerm_federated_identity_credential" "gcp_wif" {
   for_each = toset(var.gcp_wif_namespaces)
 
-  name                = "${var.environment}-${each.key}"
-  resource_group_name = var.resource_group_name
-  parent_id           = azurerm_user_assigned_identity.gcp_wif[each.key].id
-  audience            = ["api://AzureADTokenExchange"]
-  issuer              = data.azurerm_kubernetes_cluster.main.oidc_issuer_url
-  subject             = "system:serviceaccount:${each.key}:${kubernetes_service_account.gcp_wif[each.key].metadata[0].name}"
+  name      = "${var.environment}-${each.key}"
+  parent_id = azurerm_user_assigned_identity.gcp_wif[each.key].id
+  audience  = ["api://AzureADTokenExchange"]
+  issuer    = data.azurerm_kubernetes_cluster.main.oidc_issuer_url
+  subject   = "system:serviceaccount:${each.key}:${kubernetes_service_account.gcp_wif[each.key].metadata[0].name}"
 }
