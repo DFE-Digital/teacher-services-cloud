@@ -1,0 +1,10 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: ${rate_limit_name}
+  namespace: ${route_namespace}
+spec:
+  rateLimit:
+    average: ${rate_limit_average}
+    period: ${jsonencode(rate_limit_period)}
+    burst: ${rate_limit_burst}
