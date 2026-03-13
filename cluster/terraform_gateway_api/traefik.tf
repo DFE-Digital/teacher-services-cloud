@@ -39,10 +39,30 @@ resource "helm_release" "traefik" {
     value = azurerm_public_ip.traefik-public-ip.ip_address
   }
 
-set {
-  name  = "service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-resource-group"
-  value = azurerm_public_ip.traefik-public-ip.resource_group_name
-}
+  set {
+    name  = "service.annotations.beta\\.kubernetes\\.io/azure-load-balancer-health-probe-request-path"
+    value = "/healthz"
+    type  = "string"
+  }
+  # Resource group of the ingress public IP
+  # The cluster managed identity must have Network Contributor role on the resource group
+  set {
+    name  = "service.annotations.beta\\.kubernetes\\.io/azure-load-balancer-resource-group"
+    value = data.azurerm_resource_group.resource_group_traefik.name
+    type  = "string"
+  }
+  # Ingress IP
+  set {
+    name  = "service.annotations.beta\\.kubernetes\\.io/azure-load-balancer-ipv4"
+    value = azurerm_public_ip.traefik-public-ip.ip_address
+    type  = "string"
+  }
+
+  set {
+    name  = "resources.limits.memory"
+    value = var.ingress_nginx_memory
+    type  = "string"
+  }
 
   }
 

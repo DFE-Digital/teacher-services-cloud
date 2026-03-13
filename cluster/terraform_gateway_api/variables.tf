@@ -23,6 +23,12 @@ variable "gateway_api_version" {
   default     = "v1.4.0"
 }
 
+variable "ingress_nginx_memory" {
+  description = "memory limit for nginx pods"
+  type        = string
+  default     = "512Mi"
+}
+
 data "environment_variables" "github_actions" {
   filter = "GITHUB_ACTIONS"
 }

@@ -9,7 +9,7 @@ spec:
       namespace: gateway-api
       sectionName: websecure
   hostnames:
-    - "www.gatewayapicluster3.development.teacherservices.cloud"
+    - "welcomeapp-gatewayapi.cluster3.development.teacherservices.cloud"
   rules:
     - matches:
         - path:

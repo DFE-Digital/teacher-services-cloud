@@ -9,6 +9,7 @@ spec:
     - name: websecure
       protocol: HTTPS
       port: 8443
+      hostname: "*.cluster3.development.teacherservices.cloud"
       tls:
         mode: Terminate
         certificateRefs:
