@@ -60,7 +60,7 @@ receivers:
 %{ for receiver, webhook in teams_receivers ~}
 - name: ${ receiver }
   msteamsv2_configs:
-- webhook_url: ${ webhook }
+  - webhook_url: ${ webhook }
     send_resolved: true
     # title: '{{ template "msteams.alert.title" . }}'
     # text: '{{ template "msteams.alert.text" . }}'
