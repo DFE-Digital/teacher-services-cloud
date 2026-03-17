@@ -1,0 +1,32 @@
+{{ define "msteams.devops.text" }}
+      {{range .Alerts}}{{.Annotations.DESCRIPTION}}
+      {{end}}
+{{ end }}
+
+# {{ define "msteams.alert.titlelink" }}
+# <{{ .ExternalURL }}/#/alerts?alertname={{ .CommonLabels.alertname }}&severity={{ .CommonLabels.severity }}&app={{ .CommonLabels.app }} | {{ with index .Alerts 0 }}{{ .Annotations.summary }}{{ end }}>
+# {{ end }}
+
+
+## Not used as it passes ** as text not as Bold
+## and all the alerts are put on one line
+## can use once that is fixed
+
+{{ define "msteams.alert.text" }}
+  {{ range .Alerts }}
+      **Description:** {{ .Annotations.description }}
+
+      **Summary:** {{ .Annotations.summary }}
+
+      {{ if .Labels.app }} **App:** {{ .Labels.app }} {{ end }}
+
+      **Cluster:** {{ .Labels.cluster }}
+  {{ end }}
+{{ end }}
+
+{{ define "msteams.alert.title" }}
+  {{ with index .Alerts 0 }}
+    {{ if eq .Status "firing" }}🔴 Firing - {{ else }}🟢 Resolved - {{ end }}
+    {{ .Labels.alertname }}
+  {{ end }}
+{{ end }}
