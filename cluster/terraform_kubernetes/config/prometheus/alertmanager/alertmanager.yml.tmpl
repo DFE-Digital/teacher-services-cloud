@@ -28,6 +28,15 @@ route:
     match:
       receiver: '${ receiver }'
 %{ endfor ~}
+%{ for receiver, webhook in teams_receivers ~}
+  - receiver: ${ receiver }
+    match:
+      receiver: ${ receiver }
+    group_by: ['alertname', 'severity']
+    group_wait: 30s
+    group_interval: 5m
+    repeat_interval: 6h
+%{ endfor ~}
 
 templates:
    - /etc/alertmanager-templates/*.tmpl
@@ -47,4 +56,23 @@ receivers:
     send_resolved: true
     text: '{{ template "slack.alert.text" . }}'
     title: '{{ template "slack.alert.titlelink" . }}'
+%{ endfor ~}
+%{ for receiver, webhook in teams_receivers ~}
+- name: ${ receiver }
+  msteamsv2_configs:
+- webhook_url: ${ webhook }
+    send_resolved: true
+    # title: '{{ template "msteams.alert.title" . }}'
+    # text: '{{ template "msteams.alert.text" . }}'
+    title: |
+      {{ if eq .Status "firing" }}🔴 Firing - {{ else }}🟢 Resolved - {{ end }}
+      {{ .CommonLabels.alertname }}
+    text: |
+      **Description:** {{ .CommonAnnotations.description }}
+
+      **Summary:** {{ .CommonAnnotations.summary }}
+
+      {{ if .CommonLabels.app }} **App:** {{ .CommonLabels.app }} {{ end }}
+
+      **Cluster:** {{ .CommonLabels.cluster }}
 %{ endfor ~}
