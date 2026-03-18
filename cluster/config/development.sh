@@ -2,4 +2,4 @@ CONFIG=development
 CONFIG_SHORT=dv
 AZ_SUBSCRIPTION=s189-teacher-services-cloud-development
 RESOURCE_PREFIX=s189d01
-TERRAFORM_MODULES_TAG=main-azurerm-v4
+TERRAFORM_MODULES_TAG=main
