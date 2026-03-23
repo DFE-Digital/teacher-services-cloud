@@ -94,7 +94,6 @@ kubectl get pods
 - [Shipping application logs to Logit.io](/documentation/logit-io.md)
 - [Low priority app](documentation/lowpriority-app.md)
 - [Monitoring](documentation/monitoring.md)
-- [Slack webhook integration](documentation/slack-webhook-integration.md)
 - [Azure GCP Workload Identity Federation](documentation/azure-gcp-workload-identity-federation.md)
 - [Platform FAQ](documentation/platform-faq.md)
-- [Slack webhook integration](documentation/slack-webhook-integration.md)
+- [Teams webhook integration](documentation/teams-webhook-integration.md)

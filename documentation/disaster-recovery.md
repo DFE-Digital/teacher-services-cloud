@@ -23,7 +23,7 @@ The objectives are:
 - Restore data from nightly backup stored in Azure (option 2)
 
 ### Start the incident process (if not already in progress)
-Follow the [incident playbook](https://tech-docs.teacherservices.cloud/operating-a-service/incident-playbook.html) and contact the relevant stakeholders as described in [create-an-incident-slack-channel-and-inform-the-stakeholders-comms-lead](https://tech-docs.teacherservices.cloud/operating-a-service/incident-playbook.html#4-create-an-incident-slack-channel-and-inform-the-stakeholders-comms-lead).
+Follow the [incident playbook](https://tech-docs.teacherservices.cloud/operating-a-service/incident-playbook.html) and contact the relevant stakeholders as described in [open-an-incident-thread-in-teams-any-incident-lead](https://tech-docs.teacherservices.cloud/operating-a-service/incident-playbook.html#3-open-an-incident-thread-in-teams-any-incident-lead).
 
 ### Freeze pipeline
 
@@ -113,7 +113,7 @@ e.g. [update namespace and deployment names as required]
 Note: You can [enable maintenance mode](#enable-maintenance-mode) first, however it is still recommended to scale down the web and worker apps to prevent any side effects from occuring.
 
 ### Start the incident process (if not already in progress)
-Follow the [incident playbook](https://tech-docs.teacherservices.cloud/operating-a-service/incident-playbook.html) and contact the relevant stakeholders as described in [create-an-incident-slack-channel-and-inform-the-stakeholders-comms-lead](https://tech-docs.teacherservices.cloud/operating-a-service/incident-playbook.html#4-create-an-incident-slack-channel-and-inform-the-stakeholders-comms-lead).
+Follow the [incident playbook](https://tech-docs.teacherservices.cloud/operating-a-service/incident-playbook.html) and contact the relevant stakeholders as described in [open-an-incident-thread-in-teams-any-incident-lead](https://tech-docs.teacherservices.cloud/operating-a-service/incident-playbook.html#3-open-an-incident-thread-in-teams-any-incident-lead).
 
 ### Freeze pipeline
 Alert developers that no one should merge to main.

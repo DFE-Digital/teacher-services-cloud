@@ -268,15 +268,9 @@ variable "reloader_app_mem" {
   default     = "512Mi"
 }
 
-variable "alertmanager_slack_receiver_list" {
-  type        = list(any)
-  description = "List of alertmanager Slack receivers. Each entry must have a corresponding webhook in the keyvault."
-  default     = []
-}
-
 variable "alertmanager_teams_receiver_list" {
   type        = list(any)
-  description = "List of alertmanager Slack receivers. Each entry must have a corresponding webhook in the keyvault."
+  description = "List of alertmanager Teams receivers. Each entry must have a corresponding webhook in the keyvault."
   default     = []
 }
 
@@ -353,16 +347,10 @@ locals {
     var.environment     # cluster1, cluster2, etc
   )
 
-  # Alert manager
-  alertmanager_slack_receiver_map = {
-    for r in var.alertmanager_slack_receiver_list : r => data.azurerm_key_vault_secret.slack_webhooks[replace(r, "_", "-")].value
-  }
-
   alertmanager_teams_receiver_map = {
     for r in var.alertmanager_teams_receiver_list : r => data.azurerm_key_vault_secret.teams_webhooks[replace(r, "_", "-")].value
   }
 
-  slack_secret_names = [for s in data.azurerm_key_vault_secrets.main.names : s if startswith(s, "SLACK-WEBHOOK")]
   teams_secret_names = [for s in data.azurerm_key_vault_secrets.main.names : s if startswith(s, "TEAMS-WEBHOOK")]
 
   app_alert_rules_variables = {
@@ -373,7 +361,7 @@ locals {
       max_cpu         = try(settings.max_cpu, 0.8)
       max_mem         = try(settings.max_mem, 0.8)
       max_crash_count = try(settings.max_crash_count, 1)
-      receiver        = try(settings.receiver, "SLACK_WEBHOOK_GENERIC")
+      receiver        = try(settings.receiver, "TEAMS_WEBHOOK_INFRA")
       }
     ]
   }
@@ -388,15 +376,12 @@ locals {
 
   alertmanager_config_content = templatefile(
     "${path.module}/config/prometheus/alertmanager/alertmanager.yml.tmpl", {
-      slack_url       = data.azurerm_key_vault_secret.slack_webhooks["SLACK-WEBHOOK-GENERIC"].value
       teams_url       = data.azurerm_key_vault_secret.teams_webhooks["TEAMS-WEBHOOK-INFRA"].value
-      slack_receivers = local.alertmanager_slack_receiver_map
       teams_receivers = local.alertmanager_teams_receiver_map
     }
   )
 
   template_files = {
-    "slack.tmpl"   = "${path.module}/config/prometheus/alertmanager/alertmanager-slack.yaml"
     "msteams.tmpl" = "${path.module}/config/prometheus/alertmanager/alertmanager-msteams.yaml"
   }
 
