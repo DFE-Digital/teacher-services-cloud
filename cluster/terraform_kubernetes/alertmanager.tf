@@ -1,9 +1,3 @@
-data "azurerm_key_vault_secret" "slack_webhooks" {
-  for_each     = toset(local.slack_secret_names)
-  name         = each.key
-  key_vault_id = data.azurerm_key_vault.key_vault.id
-}
-
 data "azurerm_key_vault_secret" "teams_webhooks" {
   for_each     = toset(local.teams_secret_names)
   name         = each.key
