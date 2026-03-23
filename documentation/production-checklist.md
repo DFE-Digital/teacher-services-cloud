@@ -81,26 +81,26 @@ Set `azure_enable_monitoring` to true in the domains/infrastructure module to en
 
 ### Pods
 Pods CPU, memory, restarts... are monitored using prometheus. To enable it follow:
-- Create a webhook slack app in the [Teacher services cloud Slack app](slack-webhook-integration.md) or reuse one if it has the desired channel
-- If using a new webhook, create a secret in the Teacher services cloud keyvault (*s189t01-tsc-ts-kv* or *s189p01-tsc-pd-kv*). It must be named *SLACK-WEBHOOK-XXX* where XXX is a service like ATT or an area like CPD.
-- If using a new webhook, add the secret name to [alertmanager_slack_receiver_list](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config)
+- Create a teams webhook or reuse one if it has the desired channel
+- If using a new webhook, create a secret in the Teacher services cloud keyvault (*s189t01-tsc-ts-kv* or *s189p01-tsc-pd-kv*). It must be named *TEAMS-WEBHOOK-XXX* where XXX is a service like ATT or an area like CPD.
+- If using a new webhook, add the secret name to [alertmanager_teamms_receiver_list](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config)
 - Enable alerting on *each* deployment you want to monitor by adding to [alertable_apps](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config/), each entry is: `"namespace/deployment": { "receiver": "RECEIVER"}`, such as:
   ```json
   "bat-production/itt-mentor-services-sandbox": {
-      "receiver": "SLACK_WEBHOOK_ITTMS"
+      "receiver": "TEAMS_WEBHOOK_ITTMS"
     },
   ```
-  If the receiver is not specified, SLACK_WEBHOOK_GENERIC will be used to alert the infra channel.
+  If the receiver is not specified, TEAMS_WEBHOOK_INFRA will be used to alert the infra channel.
 
 ### Custom prometheus monitoring
 If any of the deployments serve custom prometheus metrics on a /metrics endpoint, then you can enable scraping for that deployment
 - [Enable prometheus scraping](https://github.com/DFE-Digital/terraform-modules/blob/main/aks/application/tfdocs.md#input_enable_prometheus_monitoring) on *each* deployment you want to monitor
 
 ### Workflows
-Get notified of workflow failures on a Slack channel.
-- Create a webhook slack app in the [Teacher services cloud Slack app](slack-webhook-integration.md) or reuse one if it has the desired channel
-- Use it in the existing Github actions with `${{ secrets.SLACK_WEBHOOK }}`
-- Add your own messages using the [rtCamp/action-slack-notify](https://github.com/rtCamp/action-slack-notify) action
+Get notified of workflow failures on a Teams channel.
+- Create a teams webhook or reuse one if it has the desired channel
+- Use it in the existing Github actions with `${{ secrets.TEAMS_WEBHOOK_URL }}`
+- Add your own messages using the [DFE-Digital/github-actions/send-to-teams-channel](https://github.com/DFE-Digital/github-actions/tree/master/send-to-teams-channel) action
 
 ## Custom domain
 The default web application domain in production is `teacherservices.cloud`, and the application domain is `<application_name>.teacherservices.cloud`. It should not be used by end users. Rather we normally create a subdomain of either `education.gov.uk` or `service.gov.uk`. Here is the process:

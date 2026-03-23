@@ -140,7 +140,7 @@ Grafana could be accessed via the respective URLs based on the environment of in
 * Test | https://grafana.test.teacherservices.cloud
 * Production | https://grafana.teacherservices.cloud/
 
-The default access to the grafana interface is view only, which does not require authentication. In order to be able to make changes for example adding more dashboards and editing existing dashboards, requests will have to be made in the #teacher-services-infra slack channel to obtain admin credentials.
+Access to grafana is via your CIP cloud account (in most cases this would be a digitalauth account).
 
 ### Exporting a Grafana Dashboard as json
 Grafana allows you to export your dashboard as a JSON file, which can be version controlled and shared with others. This could be achieved by following these steps:

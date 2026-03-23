@@ -35,7 +35,7 @@ Copy the [template DR testing document](https://educationgovuk.sharepoint.com/:w
 Participants must have access to Github and the repositories.
 
 Schedule virtual meeting for the test to take place
-- teams or slack
+- teams
 - invite the relevant stakeholders
 
 Regularly provide updates on the service Slack channel to keep product owners abreast of developments.
