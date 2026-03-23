@@ -2,6 +2,17 @@ global:
  resolve_timeout: 1m
 
 route:
+  # The default route, this will be used if the matcher(s) of any of the child routes are not satisfied
+  receiver: 'teams-notifications'
+  group_interval: 5m
+  repeat_interval: 6h
+  group_by: ['alertname']
+  routes:
+  - receiver: 'teams-notifications'
+    group_interval: 5m
+    repeat_interval: 6h
+    match:
+      receiver: 'teams-notifications'
 %{ for receiver, webhook in teams_receivers ~}
   - receiver: ${ receiver }
     match:
@@ -16,6 +27,22 @@ templates:
    - /etc/alertmanager-templates/*.tmpl
 
 receivers:
+- name: teams-notifications
+%{ if teams_url != "" ~}
+  msteamsv2_configs:
+  - webhook_url: '${teams_url}'
+    title: |
+      {{ if eq .Status "firing" }}🔴 Firing - {{ else }}🟢 Resolved - {{ end }}
+      {{ .CommonLabels.alertname }}
+    text: |
+      **Description:** {{ .CommonAnnotations.description }}
+
+      **Summary:** {{ .CommonAnnotations.summary }}
+
+      {{ if .CommonLabels.app }} **App:** {{ .CommonLabels.app }} {{ end }}
+
+      **Cluster:** {{ .CommonLabels.cluster }}
+%{ endif ~}
 %{ for receiver, webhook in teams_receivers ~}
 - name: ${ receiver }
   msteamsv2_configs:
