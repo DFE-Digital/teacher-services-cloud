@@ -55,21 +55,3 @@ resource "kubernetes_secret_v1" "kube_cert_secret_clone" {
   data = kubernetes_secret_v1.kube_cert_secret.data
   type = kubernetes_secret_v1.kube_cert_secret.type
 }
-
-
-#####################################
-
-resource "kubernetes_secret_v1" "gateway-api-cert-secret" {
-  metadata {
-    name      = "gateway-api-cert-secret"
-    namespace = "gateway-api"
-  }
-
-  data = {
-    "tls.crt" = local.reversed_full_cert
-    "tls.key" = data.azurerm_key_vault_certificate_data.cert.key
-  }
-
-  type = "kubernetes.io/tls"
-
-}
