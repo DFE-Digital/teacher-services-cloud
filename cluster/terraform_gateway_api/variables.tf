@@ -32,3 +32,10 @@ variable "ingress_nginx_memory" {
 data "environment_variables" "github_actions" {
   filter = "GITHUB_ACTIONS"
 }
+
+variable "cluster_kv" { type = string }
+
+variable "ingress_cert_name" {
+  type    = string
+  default = null
+}

@@ -28,35 +28,42 @@ resource "helm_release" "traefik" {
     file("${path.module}/config/values/traefik.yaml")
   ]
 
-  # Force the Service to claim your pre-created static public IP
+
+
+##########
+
   set {
-    name  = "service.type"
+    name  = "service.spec.type"
     value = "LoadBalancer"
   }
 
   set {
-    name  = "service.spec.loadBalancerIP"
-    value = azurerm_public_ip.traefik-public-ip.ip_address
+    name  = "service.spec.externalTrafficPolicy"
+    value = "Local"
   }
 
   set {
-    name  = "service.annotations.beta\\.kubernetes\\.io/azure-load-balancer-health-probe-request-path"
-    value = "/healthz"
+    name  = "service.annotations.service\\.beta\\.kubernetes\\.io/azure-pip-name"
+    value = azurerm_public_ip.traefik-public-ip.name
     type  = "string"
   }
+
   # Resource group of the ingress public IP
   # The cluster managed identity must have Network Contributor role on the resource group
   set {
-    name  = "service.annotations.beta\\.kubernetes\\.io/azure-load-balancer-resource-group"
+    name  = "service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-resource-group"
     value = data.azurerm_resource_group.resource_group_traefik.name
     type  = "string"
   }
-  # Ingress IP
+
   set {
-    name  = "service.annotations.beta\\.kubernetes\\.io/azure-load-balancer-ipv4"
-    value = azurerm_public_ip.traefik-public-ip.ip_address
+    name  = "service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-health-probe-request-path"
+    value = "/healthz"
     type  = "string"
   }
+
+#####################
+
 
   set {
     name  = "resources.limits.memory"
