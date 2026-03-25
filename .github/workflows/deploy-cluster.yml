@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'airbyte/**'
+      - 'documentation/**'
+      - 'scripts/**'
+      - 'templates/**'
   pull_request:
     branches:
       - main
@@ -13,6 +18,11 @@ on:
       - reopened
       - opened
       - converted_to_draft
+    paths-ignore:
+      - 'airbyte/**'
+      - 'documentation/**'
+      - 'scripts/**'
+      - 'templates/**'
 
 jobs:
   validate-terraform:
