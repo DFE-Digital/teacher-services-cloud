@@ -3,10 +3,10 @@
 Onboarding is pretty straightforward and quick..
 ```mermaid
 flowchart TD;
-    Start["Start"] --> Slack["Say Hi in DfE Slack channel #teacher-services-infra"];
-    Slack --> GetCoding["Start generating the code using our template"];
-    Slack --> FillForm["Read this page.. /documentation/onboard-form-template.md <br> and make sure you have all the info"];
-    FillForm --> OnboardCall["Arrange a quick intro call via DfE Slack channel #teacher-services-infra <br> to get things explained and meet the team"];
+    Start["Start"] --> Introduction["Say Hi in Schools Digital Infrastructure channel SD Infra"];
+    Introduction --> GetCoding["Start generating the code using our template"];
+    Introduction --> FillForm["Read this page.. /documentation/onboard-form-template.md <br> and make sure you have all the info"];
+    FillForm --> OnboardCall["Arrange a quick intro call via the Teams SD Infra channel <br> to get things explained and meet the team"];
     OnboardCall --> SetUpCall["We will help you request access, and set you up to self serve"];
     SetUpCall --> SetUpComplete["Secure access to platform complete"];
     SetUpComplete --> ProdReady["Complete the steps in /documentation/production-checklist"]

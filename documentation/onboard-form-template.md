@@ -14,9 +14,9 @@
     - James Beagle - BYOD
     - Clinton Morris - DfE laptop
 - GDS assessed? Yes or No
-- Slack channels? e.g
-    - Product: #itt-mentor-services
-    - Tech: #itt-mentor-services-devs
+- Team channels? include link e.g
+    - Product: Teaching Record -  Team
+    - Tech: Teaching Record - Developers
 - Timeline? When is each environment needed? What are the planned project phases?
 - Github repos / Docker registry type: Open (public) by default, or indicate any requirement to make them private
 - Namespaces e.g. bat-qa (test cluster), bat-staging (test cluster), bat-production (production cluster)
