@@ -87,13 +87,18 @@ locals {
     redis-snet = {
       cidr_range = "10.2.64.0/18",
       delegation = {}
+    },
+      private-storage-snet = {
+      cidr_range = "10.2.128.0/18",
+      delegation = {}
     }
   }
   custom_dns_zone_name_suffixes = [
     "internal.postgres.database.azure.com"
   ]
   privatelink_dns_zone_names = [
-    "privatelink.redis.cache.windows.net"
+    "privatelink.redis.cache.windows.net",
+    "privatelink.blob.core.windows.net"
   ]
   uk_south_availability_zones = ["1", "2", "3"]
   monitor_action_group_name   = "${var.resource_prefix}-tsc"
