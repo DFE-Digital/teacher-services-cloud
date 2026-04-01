@@ -88,6 +88,11 @@ Run:
 - Validate: `make <environment config> validate-arm-resources`. Example: `make development validate-arm-resources`
 - Deploy: `make <environment config> deploy-arm-resources`. Example: `make development deploy-arm-resources`
 
+### Monitoring
+Create nonprod and prod monitoring resource group and action-group (upper nonprod (e.g. test/qa) and prod environments)
+- Validate: `make <environment config> validate-monitoring-resources ACTION_GROUP_EMAIL=[refer to onboarding questionnaire]`
+- Deploy: `make <environment config> deploy-monitoring-resources ACTION_GROUP_EMAIL=[refer to onboarding questionnaire]`
+
 ### Enable developers access
 Amend the AD group of the area:
 - Add the namespaces and resource groups to [the AD groups spreadsheet](https://educationgovuk.sharepoint.com/:x:/r/sites/teacher-services-infrastructure/Shared%20Documents/Azure/Teacher%20services%20AD%20groups.xlsx?d=wd9dfa57ba7a64515af86effd063d450a&csf=1&web=1&e=6MdA98). For instance if the service is in BAT, edit the BAT groups (delivery team and production PIM).
