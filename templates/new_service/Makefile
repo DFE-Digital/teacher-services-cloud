@@ -87,6 +87,22 @@ deploy-arm-resources: arm-deployment ## Validate ARM resource deployment. Usage:
 
 validate-arm-resources: set-what-if arm-deployment ## Validate ARM resource deployment. Usage: make domains validate-arm-resources
 
+arm-mon-deployment: composed-variables set-azure-account
+	$(if $(ACTION_GROUP_EMAIL), , $(error Please specify a notification email for the action group))
+
+	az deployment sub create --name "monitoringdeploy-tsc-$(shell date +%Y%m%d%H%M%S)" \
+        -l "${REGION}" \
+		--template-uri "https://raw.githubusercontent.com/DFE-Digital/tra-shared-services/${ARM_TEMPLATE_TAG}/azure/monitoringdeploy.json" \
+		--parameters "monitoringResourceGroupName=${AZURE_RESOURCE_PREFIX}-${SERVICE_SHORT}-mn-rg" 'tags=${RG_TAGS}' \
+        "monitoringResourceGroupLocation=${REGION}" \
+        "actionGroupName=${AZURE_RESOURCE_PREFIX}-${SERVICE_NAME}" \
+		"alertEmailAddress=$(ACTION_GROUP_EMAIL)" \
+		${WHAT_IF}
+
+deploy-monitoring-resources: arm-mon-deployment ## Validate ARM monitoring resource deployment. Usage: make env deploy-monitoring-resources
+
+validate-monitoring-resources: set-what-if arm-mon-deployment ## Validate ARM monitoring resource deployment. Usage: make env validate-monitoring-resources
+
 domains-infra-init: domains composed-variables set-azure-account
 	rm -rf terraform/domains/infrastructure/vendor/modules/domains
 	git clone --depth=1 --single-branch --branch ${TERRAFORM_MODULES_TAG} https://github.com/DFE-Digital/terraform-modules.git terraform/domains/infrastructure/vendor/modules/domains
