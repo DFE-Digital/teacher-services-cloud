@@ -88,7 +88,7 @@ locals {
       cidr_range = "10.2.64.0/18",
       delegation = {}
     },
-      private-storage-snet = {
+    private-storage-snet = {
       cidr_range = "10.2.128.0/18",
       delegation = {}
     }
