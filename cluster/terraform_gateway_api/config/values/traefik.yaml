@@ -1,0 +1,88 @@
+#https://github.com/traefik/traefik-helm-chart/blob/v39.0.4/traefik/values.yaml
+
+providers:
+  kubernetesGateway:
+    # -- Enable Traefik Gateway provider for Gateway API
+    enabled: true
+
+gateway:
+  # -- When providers.kubernetesGateway.enabled, deploy a default gateway
+  enabled: false
+
+ports:
+  web:
+    expose:
+      default: false
+  websecure:
+    port: 8443
+    exposedPort: 443
+
+#  set {
+#    name  = "controller.config.use-forwarded-headers"
+#    value = "true"
+#    type  = "string"
+#  }
+#  set {
+#    name  = "controller.config.compute-full-forwarded-for"
+#    value = "true"
+#    type  = "string"
+#  }
+
+  web:
+    forwardedHeaders:
+      trustedIPs:
+
+
+securityContext:
+  priviliged: false
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [ALL]
+    add:
+      - NET_BIND_SERVICE
+  readOnlyRootFilesystem: true
+
+podSecurityContext:
+  runAsUser: 65532
+  runAsGroup: 65532
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+deployment:
+  replicas: 1
+  podAnnotations:
+    prometheus.io/port: "15014"
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    logit.io/send: "true"
+    fluentbit.io/exclude: "true"
+
+nodeSelector:
+  teacherservices.cloud/node_pool: "applications"
+
+logs:
+  access:
+    enabled: true
+    format: json
+
+    # -- Set [timezone](https://doc.traefik.io/traefik/observability/access-logs/#time-zones)
+    timezone: ""
+
+    filters:  # @schema additionalProperties: false
+      # -- Set statusCodes, to limit the access logs to requests with a status codes in the specified range
+      statuscodes: "400-599"
+
+service:
+  spec:
+    externalTrafficPolicy: Local
+
+resources:
+  limits:
+    cpu: 500m
+
+#Name of the Kubernetes Secret served for connections without a SNI, or without a matching domain. If no default certificate is provided, Traefik will use the generated one
+tlsStore:
+  spec:
+    defaultCertificate:
+      secretName: gateway-api-cert-secret

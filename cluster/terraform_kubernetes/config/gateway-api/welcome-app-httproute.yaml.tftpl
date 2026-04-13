@@ -1,0 +1,26 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: ${route_name}
+  namespace: ${route_namespace}
+spec:
+  parentRefs:
+    - name: ${gateway_name}
+      namespace: ${gateway_namespace}
+      sectionName: ${gateway_section_name}
+  hostnames:
+    - ${jsonencode(hostname)}
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: ${rate_limit_name}
+      backendRefs:
+        - name: ${backend_name}
+          port: ${backend_port}

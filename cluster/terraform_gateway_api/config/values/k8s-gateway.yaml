@@ -1,0 +1,20 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: development-gateway-api
+  namespace: gateway-api
+spec:
+  gatewayClassName: traefik
+  listeners:
+    - name: websecure
+      protocol: HTTPS
+      port: 8443
+      hostname: "*.cluster3.development.teacherservices.cloud"
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - kind: Secret
+            name: gateway-api-cert-secret
+      allowedRoutes:
+        namespaces:
+          from: All
