@@ -11,12 +11,64 @@ DOMAINS_RESOURCE_GROUP_NAME="s189p01-${SERVICE_SHORT}-dom-rg"
 FRONT_DOOR_NAME="s189p01-${SERVICE_SHORT}-dom-fd"
 
 echo Copying files to ./my_service ...
-cp -r templates/new_service templates/my_service 
+cp -r templates/new_service templates/my_service
+
+
+
+#CONFIGURE ENVIRONMENT CONFIG FILES DYNAMICALLY
+rm -fr templates/my_service/global_config/*
+rm -fr templates/my_service/terraform/application/config/*
+
+ENVIRONMENTS_MANDATORY="development review production"
+
+for envt in $ENVIRONMENTS_MANDATORY $ENVIRONMENTS; do
+  if source "./templates/new_service_config/global_config/${envt}.env"; then
+    # runs ONLY if source succeeded
+    source ./templates/new_service_config/global_config/${envt}.env
+
+#GLOBAL CONFIG FILE
+cat <<EOF > templates/my_service/global_config/$envt.sh
+CONFIG=$envt
+ENVIRONMENT=$ENVIRONMENT
+CONFIG_SHORT=$CONFIG_SHORT
+AZURE_SUBSCRIPTION=$AZURE_SUBSCRIPTION
+AZURE_RESOURCE_PREFIX=$AZURE_RESOURCE_PREFIX
+KV_PURGE_PROTECTION=false
+TERRAFORM_MODULES_TAG=$TERRAFORM_MODULES_TAG
+ENABLE_KV_DIAGNOSTICS=$ENABLE_KV_DIAGNOSTICS
+EOF
+
+#TERRAFORM CONFIG2
+cat <<EOF > templates/my_service/terraform/application/config/$envt.yml
+---
+EXAMPLE_KEY: example value 1
+EOF
+
+    #TERRAFORM CONFIG FILE1
+    cp templates/new_service_config/terraform_env_vars/${envt}.tfvars.json templates/my_service/terraform/application/config
+
+  else
+    echo "undefined environment: $envt"
+    exit 1
+  fi
+done
+
+
+#DOMAINS GLOBAL CONFIG
+cat <<EOF > templates/my_service/global_config/domains.sh
+{
+      AZURE_SUBSCRIPTION=s189-teacher-services-cloud-production
+      AZURE_RESOURCE_PREFIX=s189p01
+      CONFIG_SHORT=dom
+      DISABLE_KEYVAULTS=true
+      TERRAFORM_MODULES_TAG=stable
+}
+EOF
 
 echo Rendering template...
 # Find all text files
 # For each file, replace tokens using perl
-echo `pwd`
+
 find ./templates/my_service -type f \
   ! -name '*.png' ! -name '*.woff' ! -name '*.woff2' ! -name '*.ico' \
   -exec perl -pi \
@@ -30,83 +82,32 @@ find ./templates/my_service -type f \
     -e "s/#FRONT_DOOR_NAME#/${FRONT_DOOR_NAME}/g;" \
     {} \;
 
-echo Files are ready in ./my_service
-
-
-
-#CONFIGURE ENVIRONMENT CONFIG FILES DYNAMICALLY
-for envt in $ENVIRONMENTS; do
-  echo "Environment: $envt"
-
-if [[ "$envt" == "sandbox" || "$envt" == "production" ]]; then
-  CLUSTER="production"
-  AZURE_SUBSCRIPTION=s189-teacher-services-cloud-production
-  AZURE_RESOURCE_PREFIX=s189p01
-  CONFIG_SHORT=pd
-  ENABLE_KV_DIAGNOSTICS=true
-  TERRAFORM_MODULES_TAG=stable
-elif [[ "$envt" != "development" ]]; then  #qa, review
-  CLUSTER="test"
-  AZURE_SUBSCRIPTION=s189-teacher-services-cloud-test
-  AZURE_RESOURCE_PREFIX=s189t01
-  CONFIG_SHORT=$(echo $envt | cut -c1,2)
-  KV_PURGE_PROTECTION=false
-  TERRAFORM_MODULES_TAG=main
-  ENABLE_KV_DIAGNOSTICS=false
-elif  [[ "$envt" == "development" ]]; then
-  CLUSTER="development"
-  AZURE_SUBSCRIPTION=s189-teacher-services-cloud-development
-  AZURE_RESOURCE_PREFIX=s189t01
-  CONFIG_SHORT=dv
-  TERRAFORM_MODULES_TAG=testing
-  KV_PURGE_PROTECTION=false
-  ENABLE_KV_DIAGNOSTICS=false
-fi
-
-
-cat <<EOF > templates/my_service/terraform/application/config/$envt.tfvars.json
-{
-    "cluster": "$CLUSTER",
-    "namespace": "$NAMESPACE_PREFIX-$CLUSTER",
-    "deploy_azure_backing_services": false,
-    "enable_postgres_ssl" : false
-}
-EOF
-
-
-cat <<EOF > templates/my_service/terraform/application/config/$envt.yml
----
-EXAMPLE_KEY: example value 1
-EOF
-
-#GLOBAL CONFIG FILE
-cat <<EOF > templates/my_service/global_config/$envt.sh
-CONFIG=$envt
-CONFIG_SHORT=$CONFIG_SHORT
-AZURE_SUBSCRIPTION=$AZURE_SUBSCRIPTION
-AZURE_RESOURCE_PREFIX=$AZURE_RESOURCE_PREFIX
-KV_PURGE_PROTECTION=false
-TERRAFORM_MODULES_TAG=$TERRAFORM_MODULES_TAG
-ENABLE_KV_DIAGNOSTICS=$ENABLE_KV_DIAGNOSTICS
-EOF
-
-
-done
-
 
 #CONFIGURE POSTGRES
 if [ "${POSTGRES}" != "true" ]; then
   sed -i '1,15 s/^[^#]/# &/' templates/my_service/terraform/application/database.tf
 else
+  #ENABLE POSTGRES MODULE CALL
   sed -i '1,15 s/^# //' templates/my_service/terraform/application/database.tf
+  #ADD POSTGRES PROD VALUES
+  jq -s '.[0] * .[1]' templates/my_service/terraform/application/config/production.tfvars.json templates/new_service_config/postgres/production-postgres.json > /tmp/input.json && mv /tmp/input.json templates/my_service/terraform/application/config/production.tfvars.json
+  #ADD POSTGRES VARIABLES
+  cat templates/new_service_config/postgres/postgres-vars.tf >> templates/my_service/terraform/application/variables.tf
 fi
 
 #CONFIGURE REDIS
 if [ "${REDIS}" != "true" ]; then
+  #ENABLE REDIS MODULE CALL
   sed -i '18,32 s/^[^#]/# &/' templates/my_service/terraform/application/database.tf
 else
+  #ENABLE REDIS MODULE CALL
   sed -i '18,32 s/^# //' templates/my_service/terraform/application/database.tf
+  #ADD REDIS PROD VALUES
+  jq -s '.[0] * .[1]' templates/my_service/terraform/application/config/production.tfvars.json templates/new_service_config/redis/production-redis.json > /tmp/input.json && mv /tmp/input.json templates/my_service/terraform/application/config/production.tfvars.json
+  #ADD REDIS VARIABLES
+  cat templates/new_service_config/redis/redis-vars.tf >> templates/my_service/terraform/application/variables.tf
 fi
+
 
 #RAILS/DOTNET
 if [ "${RAILS_APPLICATION}" = "true" ]; then
@@ -116,3 +117,6 @@ else
 fi
 
 sed -n '13p' templates/my_service/terraform/application/application.tf
+
+
+echo Files are ready in ./my_service
