@@ -52,6 +52,9 @@ for_each = toset(var.airbyte_namespaces)
           app              = "airbyte-token"
           "azure.workload.identity/use" = "true"
         }
+        annotations = {
+          "fluentbit.io/exclude" = "true"
+        }
       }
 
       spec {

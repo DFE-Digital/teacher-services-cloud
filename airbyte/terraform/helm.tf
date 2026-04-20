@@ -57,6 +57,11 @@ resource "helm_release" "airbyte" {
     type  = "auto"
   }
   set {
+    name  = "global.jobs.kube.annotations.fluentbit\\.io/exclude"
+    value = "true"
+    type  = "auto"
+  }
+  set {
     name  = "global.jobs.kube.nodeSelector.teacherservices\\.cloud/node_pool"
     value = "applications"
     type  = "string"
@@ -213,6 +218,11 @@ resource "helm_release" "airbyte" {
     type  = "string"
   }
   set {
+    name  = "webapp.podAnnotations.fluentbit\\.io/exclude"
+    value = "true"
+    type  = "string"
+  }
+  set {
     name  = "server.resources.limits.cpu"
     value = "600m"
     type  = "string"
@@ -245,6 +255,11 @@ resource "helm_release" "airbyte" {
   set {
     name  = "server.image.tag"
     value = "airbyte-server-1.5.1"
+    type  = "string"
+  }
+  set {
+    name  = "server.podAnnotations.fluentbit\\.io/exclude"
+    value = "true"
     type  = "string"
   }
   set {
@@ -283,6 +298,11 @@ resource "helm_release" "airbyte" {
     type  = "string"
   }
   set {
+    name  = "worker.podAnnotations.fluentbit\\.io/exclude"
+    value = "true"
+    type  = "string"
+  }
+  set {
     name  = "workload-launcher.resources.limits.cpu"
     value = "600m"
     type  = "string"
@@ -315,6 +335,11 @@ resource "helm_release" "airbyte" {
   set {
     name  = "workload-launcher.image.tag"
     value = "airbyte-workload-launcher-1.5.1"
+    type  = "string"
+  }
+  set {
+    name  = "workload-launcher.podAnnotations.fluentbit\\.io/exclude"
+    value = "true"
     type  = "string"
   }
   set {
@@ -353,6 +378,11 @@ resource "helm_release" "airbyte" {
     type  = "string"
   }
   set {
+    name  = "temporal.podAnnotations.fluentbit\\.io/exclude"
+    value = "true"
+    type  = "string"
+  }
+  set {
     name  = "cron.resources.limits.cpu"
     value = "600m"
     type  = "string"
@@ -380,6 +410,11 @@ resource "helm_release" "airbyte" {
   set {
     name  = "cron.image.repository"
     value = "ghcr.io/dfe-digital/teacher-services-cloud"
+    type  = "string"
+  }
+  set {
+    name  = "cron.podAnnotations.fluentbit\\.io/exclude"
+    value = "true"
     type  = "string"
   }
   set {
@@ -423,6 +458,11 @@ resource "helm_release" "airbyte" {
     type  = "string"
   }
   set {
+    name  = "connector-builder-server.podAnnotations.fluentbit\\.io/exclude"
+    value = "true"
+    type  = "string"
+  }
+  set {
     name  = "workload-api-server.resources.limits.cpu"
     value = "600m"
     type  = "string"
@@ -458,6 +498,11 @@ resource "helm_release" "airbyte" {
     type  = "string"
   }
   set {
+    name  = "workload-api-server.podAnnotations.fluentbit\\.io/exclude"
+    value = "true"
+    type  = "string"
+  }
+  set {
     name  = "airbyte-bootloader.nodeSelector.teacherservices\\.cloud/node_pool"
     value = "applications"
     type  = "string"
@@ -470,6 +515,11 @@ resource "helm_release" "airbyte" {
   set {
     name  = "airbyte-bootloader.image.tag"
     value = "airbyte-bootloader-1.5.1"
+    type  = "string"
+  }
+    set {
+    name  = "airbyte-bootloader.podAnnotations.fluentbit\\.io/exclude"
+    value = "true"
     type  = "string"
   }
 }
