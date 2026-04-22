@@ -52,7 +52,7 @@ runs:
     shell: bash
     working-directory: ${{ inputs.terraform_root_folder }}
 
-  - uses: reviewdog/action-tflint@v1
+  - uses: reviewdog/action-tflint@54a5e5aed57dcfbb4662ec548de876df33d6288d # Pinned at v1.25.0
     with:
       github_token: ${{ inputs.github_token }}
       tflint_rulesets: azurerm
