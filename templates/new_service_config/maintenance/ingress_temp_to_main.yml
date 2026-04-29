@@ -1,16 +1,16 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: #SERVICE_NAME#-maintenance.teacherservices.cloud
+  name: #SERVICE_NAME#-temp.test.teacherservices.cloud
 spec:
   ingressClassName: nginx
   rules:
-  - host: #SERVICE_NAME#-maintenance.teacherservices.cloud
+  - host: #SERVICE_NAME#-temp.test.teacherservices.cloud
     http:
       paths:
       - pathType: ImplementationSpecific
         backend:
           service:
-            name: #SERVICE_NAME#-maintenance
+            name: #SERVICE_NAME#-#ENVIRONMENT#
             port:
               number: 80
