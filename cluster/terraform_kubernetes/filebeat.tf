@@ -87,14 +87,16 @@ resource "kubernetes_daemonset" "filebeat" {
     selector {
       match_labels = {
         app = "filebeat"
-      }
+      }     
     }
-
 
     template {
       metadata {
         labels = {
           app = "filebeat"
+        }
+        annotations = {
+          "fluentbit.io/exclude" = "true"
         }
       }
 
