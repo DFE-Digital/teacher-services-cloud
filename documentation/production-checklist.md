@@ -2,10 +2,6 @@
 
 For the service to be ready for end users, it must be reliable, performant and sustainable.
 
-## Multiple replicas
-By default the template deploys only 1 replica for each [kubernetes deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/). This is not sufficient for production as if the container is unavailable, there is no other replica to serve the requests. It may be unavailable because of high usage or simply because the cluster is moving the container to another node. This will happen when the cluster version is updated.
-
-Use at least 2 [replicas](https://github.com/DFE-Digital/terraform-modules/blob/04895b849cd5124e615b4e6b1850c0d918d4d081/aks/application/variables.tf#L32) or as many as required by [performance testing](#performance-testing).
 
 ## Database plan
 The template deploys a default plan for [postgres](https://github.com/DFE-Digital/terraform-modules/blob/83801213853ed1e4b4bdcb8d36773c8683ff010f/aks/postgres/variables.tf#L82) and [redis](https://github.com/DFE-Digital/terraform-modules/blob/83801213853ed1e4b4bdcb8d36773c8683ff010f/aks/redis/variables.tf#L63-L71).
@@ -15,11 +11,14 @@ It may be sufficient for the test environments, but it may not offer enough CPU,
 Note that for redis, all `azure_family`, `azure_sku_name` and `azure_capacity` must be changed jointly. Check [terraform postgres documentation](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server) for the allowed values.
 
 ## High availability
-Each Azure region provides multiple [availability zones](https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview). The kubernetes cluster is deployed across 3 zones so in case one is failing, the workload continues on the 2 others.
-
-The same should be applied to database clusters. For postgres, set `azure_enable_high_availability` to true. For redis, use a Premium plan.
-
-Note the cost is doubled for postgres, and [much higher](https://azure.microsoft.com/en-gb/pricing/details/cache/) for redis, so this should be used carefully.
+Default values defined in the new_service templates include HA for postgres and a Premium plan for redis - confirm these are in place.
+```
+"postgres_enable_high_availability": true
+```
+```
+  "redis_queue_sku_name": "Premium",
+  "redis_queue_family": "P"
+```
 
 ## Performance testing
 Simulate load from user traffic to determine the right number of instances and the database plan. This should cover the most typical user journeys. We recommend [K6](https://k6.io/) as it can be deployed to the cluster to minimise latency. Check the example in [teacher pay calculator](https://github.com/DFE-Digital/teacher-pay-calculator/tree/main/load_testing).
@@ -181,7 +180,9 @@ Note the postgres patches will always be applied first to environments where the
 The new service template uses the default "Teacher services cloud" value for the *Product* tag. This tag is used to identify the service in the Azure finance reporting. Each service must [register a new service offering and product](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/Create-a-service-offering.aspx) and replace "Teacher services cloud" with the right name so that Azure costs are allocated accordingly.
 
 ## Maintenance page
-Optional but recommended for user facing services. See [Maintenance page](maintenance-page.md) for more details.
+All environments specified in the [new_service_parameters.env](https://github.com/DFE-Digital/teacher-services-cloud/blob/d82096a62a61671c86fc991746510119261fd3b9/templates/new_service_parameters.env#L8) file when **make new_service** is run are automatically added to the maintenance page workflow as input variables for the environment variable.**
+In addition the maintenance page updated for each environment.
+See [Maintenance page](maintenance-page.md) for more details.
 
 ## Lock critical resources
 Add a lock to critical Azure resources to prevent against accidental deletion.

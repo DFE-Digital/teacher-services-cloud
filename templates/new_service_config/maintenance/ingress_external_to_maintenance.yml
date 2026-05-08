@@ -1,11 +1,11 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: #SERVICE_NAME#-production.teacherservices.cloud
+  name: #ENVIRONMENT#.#DNS_ZONE_NAME#
 spec:
   ingressClassName: nginx
   rules:
-  - host: #SERVICE_NAME#-production.teacherservices.cloud
+  - host: #ENVIRONMENT#.#DNS_ZONE_NAME#
     http:
       paths:
       - pathType: ImplementationSpecific
