@@ -96,6 +96,9 @@ resource "kubernetes_daemonset" "filebeat" {
         labels = {
           app = "filebeat"
         }
+        annotations = {
+          "fluentbit.io/exclude" = "true"
+        }
       }
 
       spec {
@@ -290,6 +293,9 @@ resource "kubernetes_daemonset" "filebeat_clone" {
       metadata {
         labels = {
           app = "filebeat"
+        }
+        annotations = {
+          "fluentbit.io/exclude" = "true"
         }
       }
 
