@@ -24,6 +24,12 @@ variable "ingress_cert_name" {
   default = null
 }
 variable "namespaces" { type = list(string) }
+
+variable "traefik-watch" {
+  type    = list(string)
+  default = []
+}
+
 variable "gcp_wif_namespaces" {
   description = "List of namespaces with Azure GCP Wokload Identity Federation enabled"
   type        = list(string)
@@ -61,6 +67,36 @@ variable "ingress_nginx_memory" {
   description = "memory limit for nginx pods"
   type        = string
   default     = "512Mi"
+}
+
+variable "ingress_nginx_replicaCount" {
+  description = "number of nginx pods"
+  type        = number
+  default     = 20
+}
+
+variable "traefik_ingress_version" {
+  description = "Version of the traefik ingress helm chart to use"
+  type        = string
+  default     = "v40.2.0"
+}
+
+variable "enable_traefik" {
+  description = "Enable or disable install of the traefik ingress"
+  type        = bool
+  default     = false
+}
+
+variable "add_traefik_ingress_ip" {
+  type        = bool
+  default     = false
+  description = "Allocate an ingress public IP for traefik"
+}
+
+variable "add_traefik_to_dns" {
+  type        = bool
+  default     = false
+  description = "Add the traefik_ip to the cluster dns"
 }
 
 variable "enable_lowpriority_app" {
@@ -396,4 +432,6 @@ locals {
 
   grafana_dasboards      = fileset("${path.module}/config/dashboards", "*.json")
   grafana_dashboards_map = { for d in local.grafana_dasboards : d => file("${path.module}/config/dashboards/${d}") }
+
+  traefik_ip = var.add_traefik_to_dns ? azurerm_public_ip.ingress-public-ip-traefik[0].ip_address : ""
 }

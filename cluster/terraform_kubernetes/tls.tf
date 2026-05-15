@@ -43,6 +43,22 @@ resource "kubernetes_secret_v1" "kube_cert_secret" {
   type = "kubernetes.io/tls"
 }
 
+resource "kubernetes_secret_v1" "kube_cert_secret_traefik" {
+  count = var.enable_traefik ? 1 : 0
+
+  metadata {
+    name      = "cert-secret-traefik"
+    namespace = "traefik"
+  }
+
+  data = {
+    "tls.crt" = local.reversed_full_cert
+    "tls.key" = data.azurerm_key_vault_certificate_data.cert.key
+  }
+
+  type = "kubernetes.io/tls"
+}
+
 resource "kubernetes_secret_v1" "kube_cert_secret_clone" {
   count    = var.clone_cluster ? 1 : 0
   provider = kubernetes.clone

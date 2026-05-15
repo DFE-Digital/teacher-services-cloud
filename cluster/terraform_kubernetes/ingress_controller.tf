@@ -74,7 +74,7 @@ resource "helm_release" "ingress-nginx" {
   }
   set {
     name  = "controller.replicaCount"
-    value = 20
+    value = var.ingress_nginx_replicaCount
     type  = "auto"
   }
   set {
