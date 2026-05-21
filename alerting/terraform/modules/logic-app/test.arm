@@ -1,0 +1,381 @@
+{
+    "apiVersion": "2019-05-01",
+    "id": "/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/resourceGroups/s189d01-tsc-mn-rg/providers/Microsoft.Logic/workflows/s189d01-tsc-logic-app-test01",
+    "name": "s189d01-tsc-logic-app-test01",
+    "type": "microsoft.logic/workflows",
+    "location": "uksouth",
+    "tags": {
+        "Environment": "Dev",
+        "Product": "Teacher services cloud",
+        "Service Offering": ""
+    },
+    "properties": {
+        "provisioningState": "Succeeded",
+        "createdTime": "2026-05-13T14:12:48.97Z",
+        "changedTime": "2026-05-13T14:55:52.068Z",
+        "state": "Enabled",
+        "version": "08584229227334201030",
+        "accessEndpoint": "https://prod-20.uksouth.logic.azure.com:443/workflows/c6f7ceabb7dd4c39b6d978a0a91af412",
+        "definition": {
+            "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+            "contentVersion": "1.0.0.0",
+            "parameters": {
+                "$connections": {
+                    "defaultValue": {},
+                    "type": "Object"
+                }
+            },
+            "triggers": {
+                "When_an_HTTP_request_is_received": {
+                    "type": "Request",
+                    "kind": "Http",
+                    "inputs": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "schemaId": {
+                                    "type": "string"
+                                },
+                                "data": {
+                                    "type": "object",
+                                    "properties": {
+                                        "essentials": {
+                                            "type": "object",
+                                            "properties": {
+                                                "alertId": {
+                                                    "type": "string"
+                                                },
+                                                "alertRule": {
+                                                    "type": "string"
+                                                },
+                                                "alertRuleId": {
+                                                    "type": "string"
+                                                },
+                                                "severity": {
+                                                    "type": "string"
+                                                },
+                                                "signalType": {
+                                                    "type": "string"
+                                                },
+                                                "monitorCondition": {
+                                                    "type": "string"
+                                                },
+                                                "monitoringService": {
+                                                    "type": "string"
+                                                },
+                                                "alertTargetIDs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "configurationItems": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "originAlertId": {
+                                                    "type": "string"
+                                                },
+                                                "firedDateTime": {
+                                                    "type": "string"
+                                                },
+                                                "resolvedDateTime": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                },
+                                                "essentialsVersion": {
+                                                    "type": "string"
+                                                },
+                                                "alertContextVersion": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "alertContext": {
+                                            "type": "object",
+                                            "properties": {
+                                                "properties": {},
+                                                "conditionType": {
+                                                    "type": "string"
+                                                },
+                                                "condition": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "windowSize": {
+                                                            "type": "string"
+                                                        },
+                                                        "allOf": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "metricName": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "metricNamespace": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "operator": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "threshold": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "timeAggregation": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "dimensions": {
+                                                                        "type": "array",
+                                                                        "items": {
+                                                                            "type": "object",
+                                                                            "properties": {
+                                                                                "name": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "value": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "required": [
+                                                                                "name",
+                                                                                "value"
+                                                                            ]
+                                                                        }
+                                                                    },
+                                                                    "metricValue": {
+                                                                        "type": "number"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "metricName",
+                                                                    "metricNamespace",
+                                                                    "operator",
+                                                                    "threshold",
+                                                                    "timeAggregation",
+                                                                    "dimensions",
+                                                                    "metricValue"
+                                                                ]
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "customProperties": {
+                                            "type": "object",
+                                            "properties": {
+                                                "Key1": {
+                                                    "type": "string"
+                                                },
+                                                "Key2": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "actions": {
+                "Post_message_in_a_chat_or_channel": {
+                    "runAfter": {},
+                    "type": "ApiConnection",
+                    "inputs": {
+                        "host": {
+                            "connection": {
+                                "name": "@parameters('$connections')['teams']['connectionId']"
+                            }
+                        },
+                        "method": "post",
+                        "body": {
+                            "recipient": {
+                                "groupId": "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1",
+                                "channelId": "19:7a37601cb9f34d448f185c240b73ebce@thread.tacv2"
+                            },
+                            "messageBody": "<p class=\"editor-paragraph\">Test Message from logic app</p>"
+                        },
+                        "path": "/beta/teams/conversation/message/poster/Flow bot/location/@{encodeURIComponent('Channel')}"
+                    }
+                }
+            }
+        },
+        "parameters": {
+            "$connections": {
+                "value": {
+                    "teams": {
+                        "id": "/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/providers/Microsoft.Web/locations/uksouth/managedApis/teams",
+                        "connectionId": "/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/resourceGroups/s189d01-tsc-mn-rg/providers/Microsoft.Web/connections/teams-1",
+                        "connectionName": "teams-1",
+                        "connectionProperties": {}
+                    }
+                }
+            }
+        },
+        "endpointsConfiguration": {
+            "workflow": {
+                "outgoingIpAddresses": [
+                    {
+                        "address": "20.108.102.123"
+                    },
+                    {
+                        "address": "20.90.204.188"
+                    },
+                    {
+                        "address": "20.90.223.4"
+                    },
+                    {
+                        "address": "20.26.15.70"
+                    },
+                    {
+                        "address": "20.26.13.151"
+                    },
+                    {
+                        "address": "4.159.24.241"
+                    },
+                    {
+                        "address": "4.250.55.134"
+                    },
+                    {
+                        "address": "4.159.24.255"
+                    },
+                    {
+                        "address": "4.250.55.217"
+                    },
+                    {
+                        "address": "172.165.88.82"
+                    },
+                    {
+                        "address": "4.250.82.111"
+                    },
+                    {
+                        "address": "4.158.106.101"
+                    },
+                    {
+                        "address": "4.158.105.106"
+                    },
+                    {
+                        "address": "4.250.51.127"
+                    },
+                    {
+                        "address": "4.250.49.230"
+                    },
+                    {
+                        "address": "4.159.26.128"
+                    },
+                    {
+                        "address": "172.166.86.30"
+                    },
+                    {
+                        "address": "4.159.26.151"
+                    },
+                    {
+                        "address": "4.159.26.77"
+                    },
+                    {
+                        "address": "4.159.59.140"
+                    },
+                    {
+                        "address": "4.159.59.13"
+                    },
+                    {
+                        "address": "85.210.65.206"
+                    },
+                    {
+                        "address": "85.210.120.102"
+                    },
+                    {
+                        "address": "4.159.57.40"
+                    },
+                    {
+                        "address": "85.210.66.97"
+                    },
+                    {
+                        "address": "20.117.192.192"
+                    }
+                ],
+                "accessEndpointIpAddresses": [
+                    {
+                        "address": "20.254.10.157"
+                    },
+                    {
+                        "address": "4.159.25.35"
+                    },
+                    {
+                        "address": "4.159.25.50"
+                    },
+                    {
+                        "address": "4.250.87.43"
+                    },
+                    {
+                        "address": "4.158.106.183"
+                    },
+                    {
+                        "address": "4.250.53.153"
+                    },
+                    {
+                        "address": "4.159.26.160"
+                    },
+                    {
+                        "address": "4.159.25.103"
+                    },
+                    {
+                        "address": "4.159.59.224"
+                    },
+                    {
+                        "address": "4.158.138.59"
+                    },
+                    {
+                        "address": "85.210.163.36"
+                    },
+                    {
+                        "address": "85.210.34.209"
+                    },
+                    {
+                        "address": "85.210.36.40"
+                    },
+                    {
+                        "address": "85.210.185.43"
+                    }
+                ]
+            },
+            "connector": {
+                "outgoingIpAddresses": [
+                    {
+                        "address": "51.140.74.150"
+                    },
+                    {
+                        "address": "51.140.80.51"
+                    },
+                    {
+                        "address": "51.140.61.124"
+                    },
+                    {
+                        "address": "51.105.77.96/27"
+                    },
+                    {
+                        "address": "51.140.148.0/28"
+                    },
+                    {
+                        "address": "20.90.129.0/27"
+                    },
+                    {
+                        "address": "20.90.129.32/28"
+                    },
+                    {
+                        "address": "20.90.125.211"
+                    },
+                    {
+                        "address": "20.90.124.134"
+                    }
+                ]
+            }
+        }
+    }
+}

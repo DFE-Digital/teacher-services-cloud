@@ -1,0 +1,319 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workflows_s189d01_tsc_logic_app_name": {
+            "defaultValue": "s189d01-tsc-logic-app",
+            "type": "String"
+        },
+        "connections_teams_1_externalid": {
+            "defaultValue": "/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/resourceGroups/s189d01-tsc-mn-rg/providers/Microsoft.Web/connections/teams-1",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_s189d01_tsc_logic_app_name')]",
+            "location": "uksouth",
+            "tags": {
+                "Environment": "Dev",
+                "Product": "Teacher services cloud",
+                "Service Offering": ""
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_a_HTTP_request_is_received": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "schemaId": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "essentials": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "alertId": {
+                                                            "type": "string"
+                                                        },
+                                                        "alertRule": {
+                                                            "type": "string"
+                                                        },
+                                                        "severity": {
+                                                            "type": "string"
+                                                        },
+                                                        "signalType": {
+                                                            "type": "string"
+                                                        },
+                                                        "monitorCondition": {
+                                                            "type": "string"
+                                                        },
+                                                        "monitoringService": {
+                                                            "type": "string"
+                                                        },
+                                                        "alertTargetIDs": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "configurationItems": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "originAlertId": {
+                                                            "type": "string"
+                                                        },
+                                                        "firedDateTime": {
+                                                            "type": "string"
+                                                        },
+                                                        "resolvedDateTime": {
+                                                            "type": "string"
+                                                        },
+                                                        "description": {
+                                                            "type": "string"
+                                                        },
+                                                        "essentialsVersion": {
+                                                            "type": "string"
+                                                        },
+                                                        "alertContextVersion": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "alertContext": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "properties": {},
+                                                        "conditionType": {
+                                                            "type": "string"
+                                                        },
+                                                        "condition": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "windowSize": {
+                                                                    "type": "string"
+                                                                },
+                                                                "allOf": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "metricName": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "metricNamespace": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "operator": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "threshold": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "timeAggregation": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "dimensions": {
+                                                                                "type": "array",
+                                                                                "items": {
+                                                                                    "type": "object",
+                                                                                    "properties": {
+                                                                                        "name": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "value": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
+                                                                                    "required": [
+                                                                                        "name",
+                                                                                        "value"
+                                                                                    ]
+                                                                                }
+                                                                            },
+                                                                            "metricValue": {
+                                                                                "type": "number"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "metricName",
+                                                                            "metricNamespace",
+                                                                            "operator",
+                                                                            "threshold",
+                                                                            "timeAggregation",
+                                                                            "dimensions",
+                                                                            "metricValue"
+                                                                        ]
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "customProperties": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "Key1": {
+                                                            "type": "string"
+                                                        },
+                                                        "Key2": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Post_alerts_to_Azure_monitor_alerts_dev_group_chat": {
+                            "runAfter": {},
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['teams-1']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "body": {
+                                    "recipient": "19:25933f28024b45049d5d0769bff3c1ab@thread.v2",
+                                    "messageBody": "<p class=\"editor-paragraph\">🚨 Azure Alert Triggered!<br><br>🔔 Alert Rule: @{triggerBody()?['data']?['essentials']?['alertRule']}<br>📛 Alert ID: @{triggerBody()?['data']?['essentials']?['alertId']}<br>⚠️ Severity: @{triggerBody()?['data']?['essentials']?['severity']}<br>📅 Fired At: @{triggerBody()?['data']?['essentials']?['firedDateTime']}<br>📈 Metric: @{triggerBody()?['data']?['alertContext']?['condition']?['allOf'][0]?['metricName']}<br>📊 Value: @{triggerBody()?['data']?['alertContext']?['condition']?['allOf'][0]?['metricValue']}<br><br>🔍 View Alert: @{triggerBody()?['data']?['essentials']?['investigationLink']}</p><br>"
+                                },
+                                "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('User')}/location/@{encodeURIComponent('Group chat')}"
+                            }
+                        },
+                        "For_each": {
+                            "foreach": "@triggerOutputs()?['body']?['data']?['alertContext']?['condition']?['allOf']",
+                            "actions": {
+                                "Switch": {
+                                    "cases": {
+                                        "Case": {
+                                            "case": "dev",
+                                            "actions": {
+                                                "Post_alerts_to_Azure_monitor_alerts_dev_channel": {
+                                                    "type": "ApiConnection",
+                                                    "inputs": {
+                                                        "host": {
+                                                            "connection": {
+                                                                "name": "@parameters('$connections')['teams-1']['connectionId']"
+                                                            }
+                                                        },
+                                                        "method": "post",
+                                                        "body": {
+                                                            "recipient": {
+                                                                "groupId": "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1",
+                                                                "channelId": "19:bd670aae942941e0b3f4bf9025bf4630@thread.tacv2"
+                                                            },
+                                                            "messageBody": "<p class=\"editor-paragraph\">🚨 Azure Alert Triggered!</p><p class=\"editor-paragraph\"><br><br>🔔 Alert Rule: @{triggerBody()?['data']?['essentials']?['alertRule']}<br>📛 Alert ID: @{triggerBody()?['data']?['essentials']?['alertId']}<br>⚠️ Severity: @{triggerBody()?['data']?['essentials']?['severity']}<br>📅 Fired At: @{triggerBody()?['data']?['essentials']?['firedDateTime']}<br>📈 Metric: @{triggerBody()?['data']?['alertContext']?['condition']?['allOf'][0]?['metricName']}<br>📊 Value: @{triggerBody()?['data']?['alertContext']?['condition']?['allOf'][0]?['metricValue']}<br><br>🔍 View Alert: @{triggerBody()?['data']?['essentials']?['investigationLink']}</p><br>",
+                                                            "subject": "Azure Alert"
+                                                        },
+                                                        "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('User')}/location/@{encodeURIComponent('Channel')}"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Case_2": {
+                                            "case": "dev1",
+                                            "actions": {
+                                                "Post_alerts_to_Azure_monitor_alerts_dev1_channel": {
+                                                    "type": "ApiConnection",
+                                                    "inputs": {
+                                                        "host": {
+                                                            "connection": {
+                                                                "name": "@parameters('$connections')['teams-1']['connectionId']"
+                                                            }
+                                                        },
+                                                        "method": "post",
+                                                        "body": {
+                                                            "recipient": {
+                                                                "groupId": "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1",
+                                                                "channelId": "19:bfd78c6eec2045eebf4ae2bc218c9712@thread.tacv2"
+                                                            },
+                                                            "messageBody": "<p class=\"editor-paragraph\">🚨 Azure Alert Triggered!<br><br>🔔 Alert Rule: @{triggerBody()?['data']?['essentials']?['alertRule']}<br>📛 Alert ID: @{triggerBody()?['data']?['essentials']?['alertId']}<br>⚠️ Severity: @{triggerBody()?['data']?['essentials']?['severity']}<br>📅 Fired At: @{triggerBody()?['data']?['essentials']?['firedDateTime']}<br>📈 Metric: @{triggerBody()?['data']?['alertContext']?['condition']?['allOf'][0]?['metricName']}<br>📊 Value: @{triggerBody()?['data']?['alertContext']?['condition']?['allOf'][0]?['metricValue']}<br><br>🔍 View Alert: @{triggerBody()?['data']?['essentials']?['investigationLink']}</p><br>",
+                                                            "subject": "Azure Alert"
+                                                        },
+                                                        "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('User')}/location/@{encodeURIComponent('Channel')}"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "Case_3": {
+                                            "case": "dev2",
+                                            "actions": {
+                                                "Post_alerts_to_Azure_monitor_alerts_dev2_channel": {
+                                                    "type": "ApiConnection",
+                                                    "inputs": {
+                                                        "host": {
+                                                            "connection": {
+                                                                "name": "@parameters('$connections')['teams-1']['connectionId']"
+                                                            }
+                                                        },
+                                                        "method": "post",
+                                                        "body": {
+                                                            "recipient": {
+                                                                "groupId": "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1",
+                                                                "channelId": "19:f02442f044434875b344b93c49895a2e@thread.tacv2"
+                                                            },
+                                                            "messageBody": "<p class=\"editor-paragraph\">🚨 Azure Alert Triggered!<br><br>🔔 Alert Rule: @{triggerBody()?['data']?['essentials']?['alertRule']}<br>📛 Alert ID: @{triggerBody()?['data']?['essentials']?['alertId']}<br>⚠️ Severity: @{triggerBody()?['data']?['essentials']?['severity']}<br>📅 Fired At: @{triggerBody()?['data']?['essentials']?['firedDateTime']}<br>📈 Metric: @{triggerBody()?['data']?['alertContext']?['condition']?['allOf'][0]?['metricName']}<br>📊 Value: @{triggerBody()?['data']?['alertContext']?['condition']?['allOf'][0]?['metricValue']}<br><br>🔍 View Alert: @{triggerBody()?['data']?['essentials']?['investigationLink']}</p><br>",
+                                                            "subject": "Azure Alert"
+                                                        },
+                                                        "path": "/beta/teams/conversation/message/poster/@{encodeURIComponent('User')}/location/@{encodeURIComponent('Channel')}"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "default": {
+                                        "actions": {}
+                                    },
+                                    "expression": "@triggerBody()?['data']?['customProperties']?['Key1']\r\n",
+                                    "type": "Switch"
+                                }
+                            },
+                            "runAfter": {},
+                            "type": "Foreach"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "teams-1": {
+                                "id": "/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/providers/Microsoft.Web/locations/uksouth/managedApis/teams",
+                                "connectionId": "[parameters('connections_teams_1_externalid')]",
+                                "connectionName": "teams-1",
+                                "connectionProperties": {}
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
