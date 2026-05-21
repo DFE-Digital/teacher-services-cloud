@@ -24,7 +24,7 @@ Note the cost is doubled for postgres, and [much higher](https://azure.microsoft
 ## Performance testing
 Simulate load from user traffic to determine the right number of instances and the database plan. This should cover the most typical user journeys. We recommend [K6](https://k6.io/) as it can be deployed to the cluster to minimise latency. Check the example in [teacher pay calculator](https://github.com/DFE-Digital/teacher-pay-calculator/tree/main/load_testing).
 
-If time is short or user traffic is expected to be low, make sure to monitor the application and database usage after launch, and everytime there is a new significant feature. And be ready to scale up.
+If time is short or user traffic is expected to be low, make sure to monitor the application and database usage after launch, and every time there is a new significant feature. And be ready to scale up.
 
 ## Postgres backups to Azure storage
 Azure postgres provides an [automatic backup](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-backup-restore) with a 7 days retention period. It can be restored from a point in time to a new database server.
@@ -67,7 +67,7 @@ Ask the infra team for help with these steps:
 ### Upptime
 We provide a [status page](https://teacher-services-status.education.gov.uk/) of all services in Teacher services. It uses [Github actions](https://github.com/DFE-Digital/teacher-services-upptime/actions) to ping websites running every 5 min (more or less) and produce a dashboard for external users.
 
-When a website is offline, it shows the error in the daashboard, sends an alert to the infra Slack channel and records an incident as a [Github issue](https://github.com/DFE-Digital/teacher-services-upptime/issues). The team can post comments to the issue to send incident updates.
+When a website is offline, it shows the error in the dashboard, sends an alert to the infra Slack channel and records an incident as a [Github issue](https://github.com/DFE-Digital/teacher-services-upptime/issues). The team can post comments to the issue to send incident updates.
 
 Request write access to the repository and edit the [upptimerc.yml](https://github.com/DFE-Digital/teacher-services-upptime/blob/master/.upptimerc.yml) without PR to add your production website.
 
@@ -83,7 +83,7 @@ Set `azure_enable_monitoring` to true in the domains/infrastructure module to en
 Pods CPU, memory, restarts... are monitored using prometheus. To enable it follow:
 - Create a teams webhook or reuse one if it has the desired channel
 - If using a new webhook, create a secret in the Teacher services cloud keyvault (*s189t01-tsc-ts-kv* or *s189p01-tsc-pd-kv*). It must be named *TEAMS-WEBHOOK-XXX* where XXX is a service like ATT or an area like CPD.
-- If using a new webhook, add the secret name to [alertmanager_teamms_receiver_list](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config)
+- If using a new webhook, add the secret name to [alertmanager_teams_receiver_list](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config)
 - Enable alerting on *each* deployment you want to monitor by adding to [alertable_apps](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config/), each entry is: `"namespace/deployment": { "receiver": "RECEIVER"}`, such as:
   ```json
   "bat-production/itt-mentor-services-sandbox": {
@@ -138,7 +138,7 @@ Rate limit rules can be added via
 - This creates a block rule that will limit any source IP that goes above var.rate_limit_max in a 5 minute period.
 
 2. set aks_allow to true
-- If the service recieves a high number of requests originating from other services in our AKS clusters, then setting aks_allow will allow all traffic from AKS. This is only required if a general rate_limit rule is in place.
+- If the service receives a high number of requests originating from other services in our AKS clusters, then setting aks_allow will allow all traffic from AKS. This is only required if a general rate_limit rule is in place.
 
 3. set block_ip to true.
 - creates a block rule that will limit all traffic from a particular source IP. It is created disabled with a dummy IP address. It can then be updated manually if the need to quickly block an IP occurs.

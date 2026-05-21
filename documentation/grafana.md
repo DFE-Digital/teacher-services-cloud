@@ -59,7 +59,7 @@ Grafana is deployed via Terraform in `cluster/terraform_kubernetes/grafana.tf`. 
 - Ingress for external access
 
 ## Environment Variables
-Grafana's behavior is configured through environment variables in the deployment:
+Grafana's behaviour is configured through environment variables in the deployment:
 
 - **Authentication Configuration**:
   - `GF_AUTH_AZUREAD_ENABLED`: Enables Azure AD authentication

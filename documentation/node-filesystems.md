@@ -63,7 +63,7 @@ K8s/AKS recommendation is to not delete anything manually, but let garbage colle
 
 These commands may be useful if there is a need to identify which containers/images are using the most diskspace.
 ```
-# requires connecting to a priviliged container.
+# requires connecting to a privileged container.
 kubectl debug node/${nodename} -it --image=mcr.microsoft.com/cbl-mariner/busybox:2.0
 chroot /host
 
