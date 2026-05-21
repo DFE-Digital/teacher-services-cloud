@@ -58,13 +58,11 @@ variable "second_egress_ip" {
 variable "dockerhub_username" {
   type      = string
   sensitive = true
-  default   = "bob"
 }
 
 variable "dockerhub_pat" {
   type      = string
   sensitive = true
-  default   = "bob"
 }
 
 variable "cluster_kv" { type = string }
