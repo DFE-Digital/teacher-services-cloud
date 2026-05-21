@@ -14,3 +14,8 @@ import {
   to = module.logic_app.azurerm_logic_app_action_custom.res-4
   id = "/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/resourceGroups/s189d01-tsc-mn-rg/providers/Microsoft.Logic/workflows/s189d01-tsc-logic-app-test01/actions/SetSeverityCardStyle"
 }
+
+import {
+  to = module.logic_app.azurerm_api_management_api_operation_policy.policy
+  id = "/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/resourceGroups/s189d01-tsc-mn-rg/providers/Microsoft.ApiManagement/service/s189d01-tsc-apim-alerts-secure/apis/s189d01-tsc-alerts-api/operations/post-alert"
+}

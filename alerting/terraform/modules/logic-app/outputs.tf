@@ -12,3 +12,7 @@ output "logic_app_name" {
 output "resource_group_name" {
   value = var.resource_group_name
 }
+
+output "identity_id" {
+  value = azurerm_user_assigned_identity.action_group.id
+}

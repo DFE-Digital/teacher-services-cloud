@@ -43,35 +43,6 @@ resource "azurerm_monitor_metric_alert" "test" {
   }
 }
 
-/*
-resource "azurerm_monitor_action_group" "test" {
-  name                = "s189d01-tsc-webook-test"
-  resource_group_name = local.resource_group_name
-  short_name          = "webhooktst"
-
-  lifecycle {
-    ignore_changes = [
-      tags
-    ]
-  }
-
-  logic_app_receiver {
-    name                    = "logicappaction"
-    resource_id             = module.logic_app.logic_app_id
-    callback_url            = "https://logicapptriggerurl/..."
-    use_common_alert_schema = true
-  }
-*/
-/*
-
-  webhook_receiver {
-    name                    = "callmyapiaswell"
-    service_uri             = "http://example.com/alert"
-    use_common_alert_schema = true
-  }
-  */
-//}
-
 # azurerm_monitor_action_group does not currently support identities, using AzAPI for now
 resource "azapi_resource" "action_group_test" {
   body = {
@@ -106,8 +77,8 @@ resource "azapi_resource" "action_group_test" {
 
   type = "Microsoft.Insights/actiongroups@2024-10-01-preview"
   identity {
-    identity_ids = []
-    type         = "SystemAssigned"
+    identity_ids = [module.logic_app.identity_id]
+    type         = "UserAssigned"
   }
 
   lifecycle {
@@ -116,3 +87,32 @@ resource "azapi_resource" "action_group_test" {
     ]
   }
 }
+
+/*
+resource "azurerm_monitor_action_group" "test" {
+  name                = "s189d01-tsc-webook-test"
+  resource_group_name = local.resource_group_name
+  short_name          = "webhooktst"
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
+
+  logic_app_receiver {
+    name                    = "logicappaction"
+    resource_id             = module.logic_app.logic_app_id
+    callback_url            = "https://logicapptriggerurl/..."
+    use_common_alert_schema = true
+  }
+*/
+/*
+
+  webhook_receiver {
+    name                    = "callmyapiaswell"
+    service_uri             = "http://example.com/alert"
+    use_common_alert_schema = true
+  }
+  */
+//}

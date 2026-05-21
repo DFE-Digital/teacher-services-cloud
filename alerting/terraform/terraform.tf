@@ -13,9 +13,6 @@ terraform {
 
   backend "azurerm" {
     container_name = "tsc-tfstate"
-    #storage_account_name = "s189d01tsctfstatedv"
-    #resource_group_name = "s189d01-tsc-dv-rg"
-    #key                  = "development_alerting.tfstate"
   }
 }
 

@@ -18,3 +18,9 @@ variable "resource_group_name" {
   type        = string
   description = "Name of the resource group"
 }
+
+variable "publisher_email" {
+  type        = string
+  description = "APIM publisher email"
+  default = "robert.gwenter@education.gov.uk"
+}
