@@ -5,9 +5,9 @@ This document covers the major version upgrade procedure for Azure Postgres Flex
 ## Overall Procedure
 
 This process uses the Azure PostgreSQL [in place major version upgrade feature](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-major-version-upgrade). This feature will
-- run pre checks to check for any upgrade incompatabilities.
-- create sanpshots to automatically recover if there is an issue during the upgrade
-- allows skipping verions and going directly to a higher version e.g. 14 -> 16
+- run pre checks to check for any upgrade incompatibilities.
+- create snapshots to automatically recover if there is an issue during the upgrade
+- allows skipping versions and going directly to a higher version e.g. 14 -> 16
 
 Note that this is an offline process and the service will be unavailable while the upgrade takes place. Azure advise that while most upgrades complete in under 15 minutes, the actual duration depends on the size and complexity of the database. Initial testing has seen upgrades take 15-20 minutes, but larger database will take longer. Upgrading a similar sized non-production database will give an indication of the production upgrade time.
 

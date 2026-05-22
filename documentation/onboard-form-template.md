@@ -7,7 +7,7 @@
     - Note the total length any "subdomain.domain" (e.g. staging.getintoteaching.education.gov.uk) cannot exceed 64 characters
 - Service short name? e.g. ctp
 - Repository? e.g. https://github.com/DFE-Digital/itt-mentor-services
-- Environments? e.g. develoment, staging, production
+- Environments? e.g. development, staging, production
 - Review apps? Yes or No
 - Cost centre/Activity code ? e.g. 10167/101304
 - List of developers who will need access to Azure? Do they use a DfE laptop or BYOD? e.g
