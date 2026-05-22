@@ -215,6 +215,7 @@ alerting-init: cluster-composed-variables set-azure-account
 	$(eval export TF_VAR_resource_group_name=${RESOURCE_GROUP_NAME})
 	$(eval export TF_VAR_resource_prefix=${RESOURCE_PREFIX})
 	$(eval export TF_VAR_config=${CONFIG})
+	$(eval export TF_VAR_subscription_id=${AZ_SUBSCRIPTION})
 
 alerting-plan: alerting-init
 	terraform -chdir=alerting/terraform plan -var-file config/${CONFIG}.tfvars.json

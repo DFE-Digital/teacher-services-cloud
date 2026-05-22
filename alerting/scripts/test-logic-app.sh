@@ -1,18 +1,20 @@
-read -p "enter callback URL to test: " callbackurl
+#read -p "enter callback URL to test: " callbackurl
+
 
 curl -sS -X POST -H "Content-Type: application/json" --data-binary @- "$callbackurl" <<'JSON'
 {
 "schemaId": "azureMonitorCommonAlertSchema",
 "data": {
     "essentials": {
-    "alertId": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/providers/Microsoft.AlertsManagement/alerts/eeeeeeee-4444-5555-6666-ffffffffffff",
+    "alertId": "/subscriptions/3c033a0c-7a1c-4653-93cb-0f2a9f57a391/providers/Microsoft.AlertsManagement/alerts/fb0dee86-ff6a-681f-36d3-529da39ff000",
+
     "alertRule": "test-availabilityTest-test-applicationInsights",
-    "severity": "Sev4",
+    "severity": "Sev1",
     "signalType": "Metric",
     "monitorCondition": "Fired",
     "monitoringService": "Platform",
     "alertTargetIDs": [
-        "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourcegroups/test-RG/providers/microsoft.insights/components/test-applicationInsights"
+        "/subscriptions/3c033a0c-7a1c-4653-93cb-0f2a9f57a391/resourcegroups/s189p01-tsc-aks-nodes-production-rg/providers/microsoft.compute/virtualmachinescalesets/aks-apps1-29533562-vmss/virtualmachines/212"
     ],
     "configurationItems": [
         "test-applicationInsights"

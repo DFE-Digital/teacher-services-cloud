@@ -1,4 +1,5 @@
 data "azuread_client_config" "current" {}
+data "azurerm_client_config" "current" {}
 
 data "azurerm_resource_group" "this" {
   name = var.resource_group_name
@@ -10,6 +11,7 @@ module "logic_app" {
   logic_app_type      = "Consumption"
   environment         = "development"
   resource_group_name = var.resource_group_name
+  subscription_id     = var.subscription_id
 }
 
 resource "azurerm_monitor_metric_alert" "test" {
@@ -76,10 +78,6 @@ resource "azapi_resource" "action_group_test" {
   schema_validation_enabled = true
 
   type = "Microsoft.Insights/actiongroups@2024-10-01-preview"
-  identity {
-    identity_ids = [module.logic_app.identity_id]
-    type         = "UserAssigned"
-  }
 
   lifecycle {
     ignore_changes = [

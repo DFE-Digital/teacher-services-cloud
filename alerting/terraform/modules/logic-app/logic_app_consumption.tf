@@ -10,25 +10,19 @@ resource "azurerm_logic_app_workflow" "consumption" {
   resource_group_name = data.azurerm_resource_group.this.name
 
   parameters = {
-    #"$connections" = "{\"teams\":{\"connectionId\":\"/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/resourceGroups/s189d01-tsc-mn-rg/providers/Microsoft.Web/connections/teams-1\",\"connectionName\":\"teams-1\",\"connectionProperties\":{},\"id\":\"/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/providers/Microsoft.Web/locations/uksouth/managedApis/teams\"},\"teams-1\":{\"connectionId\":\"/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/resourceGroups/s189d01-tsc-mn-rg/providers/Microsoft.Web/connections/teams-1\",\"connectionName\":\"teams-1\",\"connectionProperties\":{},\"id\":\"/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/providers/Microsoft.Web/locations/uksouth/managedApis/teams\"}}"
     "$connections" = jsonencode({
-      "teams" : {
-        "connectionId" : "/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/resourceGroups/s189d01-tsc-mn-rg/providers/Microsoft.Web/connections/teams-1"
-        "connectionName" : "teams-1"
+      "teams-api" : {
+        "connectionId" : "${azurerm_api_connection.teams-api.id}"
+        "connectionName" : "${azurerm_api_connection.teams-api.name}"
         "connectionProperties" : {},
-        "id" : "/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/providers/Microsoft.Web/locations/uksouth/managedApis/teams"
-      },
-      "teams-1" : {
-        "connectionId" : "/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/resourceGroups/s189d01-tsc-mn-rg/providers/Microsoft.Web/connections/teams-1",
-        "connectionName" : "teams-1",
-        "connectionProperties" : {},
-        "id" : "/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/providers/Microsoft.Web/locations/uksouth/managedApis/teams"
+        "id" : "${azurerm_api_connection.teams-api.managed_api_id}"
       }
     })
   }
 
   workflow_parameters = {
     "$connections" = "{\"defaultValue\":{},\"type\":\"Object\"}"
+    tenantId       = "{\"defaultValue\":\"#@platform.education.gov.uk\",\"type\":\"String\"}"
   }
 
   workflow_schema  = "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#"
@@ -62,6 +56,23 @@ resource "azurerm_logic_app_workflow" "consumption" {
 
   lifecycle {
     ignore_changes = [
+      tags
+    ]
+  }
+}
+
+
+resource "azurerm_api_connection" "teams-api" {
+  display_name        = "Robert.GWENTER@EDUCATION.GOV.UK"
+  managed_api_id      = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/providers/Microsoft.Web/locations/uksouth/managedApis/teams"
+  name                = "s189d01-tsc-mn-teams-rdg"
+  parameter_values    = {}
+  resource_group_name = "s189d01-tsc-mn-rg"
+
+  lifecycle {
+    # NOTE: since the connectionString is a secure value it's not returned from the API
+    ignore_changes = [
+      "parameter_values",
       tags
     ]
   }

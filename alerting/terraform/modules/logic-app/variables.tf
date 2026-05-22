@@ -24,3 +24,8 @@ variable "publisher_email" {
   description = "APIM publisher email"
   default = "robert.gwenter@education.gov.uk"
 }
+
+variable "subscription_id" {
+  type        = string
+  description = "Primary Subscription Id"
+}
