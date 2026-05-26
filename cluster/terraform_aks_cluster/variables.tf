@@ -98,7 +98,8 @@ locals {
   ]
   privatelink_dns_zone_names = [
     "privatelink.redis.cache.windows.net",
-    "privatelink.blob.core.windows.net"
+    "privatelink.blob.core.windows.net",
+    "redis.azure.net"
   ]
   uk_south_availability_zones = ["1", "2", "3"]
   monitor_action_group_name   = "${var.resource_prefix}-tsc"
