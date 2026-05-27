@@ -2,7 +2,7 @@
 
 From time to time it may be required to rebuild the whole AKS cluster, for instance enabling RBAC or implementing a network policy. The cluster was designed for stateless applications so we can move them to another cluster while we rebuild the main one. The process was automated in part so testing can be done at each step.
 
-We first build a new cluster with the same configuration. It is in the same virtual network but in a new subnet. The same namsepaces and ingress controller are deployed. The same TLS certificate is served.
+We first build a new cluster with the same configuration. It is in the same virtual network but in a new subnet. The same namespaces and ingress controller are deployed. The same TLS certificate is served.
 
 Then we use scripts to export the resources from each namespace from one cluster, then import into the other one. The traffic is moved to the new cluster by modifying the DNS domain. This allows stopping or rebuilding the first cluster. Once it is ready, the process is reversed.
 
@@ -11,7 +11,7 @@ Then we use scripts to export the resources from each namespace from one cluster
     - [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
     - [jq](https://stedolan.github.io/jq/)
     - [kubectl krew](https://krew.sigs.k8s.io/docs/user-guide/setup/install/) and [kubectl-neat](https://github.com/itaysk/kubectl-neat)
-- Inform the dev teams to stop making changes. This process should be done outsdide of business hours.
+- Inform the dev teams to stop making changes. This process should be done outside of business hours.
 - Raise the required PIM requests
 - Determine the *applications domain* of this cluster. e.g.:
     - production: `*.teacherservices.cloud`
@@ -29,7 +29,7 @@ Add or update the variables and apply:
 - Run: `make <config> terraform-apply`
 
 ## Export resources from main cluster
-This will export deployments, servies, configmaps, secrets, ingresses to json files in the local `<config>` directory.
+This will export deployments, services, configmaps, secrets, ingresses to json files in the local `<config>` directory.
 - Run: `make <config> export-aks-resources` e.g. `make production export-aks-resources`
 - This should create a new directory `<environment>_export` (e.g. `production_export`) containing a json file for each namespace
 
@@ -62,7 +62,7 @@ Since the applications domain points to the main cluster, you won't be able to t
 - Update your local branch to ignore the app domain record change that was made earlier, otherwise it will reset to the main cluster IP
     - `cluster/terraform_kubernetes/config/dns.tf`:
         - Add `lifecycle { ignore_changes = [records] }` to the cluster_a_record
-- Run terraform-plan to check the changes and make sure only the main cluter is updated. Most of the cloned configuration is referenced from the main cluster, so if the value changes on the main cluster, it would also impact the cloned cluster and force a rebuild, which would disrupt users. If it's the case, hardcode the original value temporarily for the cloned cluster. For instance, if you want to change the default node pool vm_size from "Standard_D2_v2", change the cloned cluster from:
+- Run terraform-plan to check the changes and make sure only the main cluster is updated. Most of the cloned configuration is referenced from the main cluster, so if the value changes on the main cluster, it would also impact the cloned cluster and force a rebuild, which would disrupt users. If it's the case, hardcode the original value temporarily for the cloned cluster. For instance, if you want to change the default node pool vm_size from "Standard_D2_v2", change the cloned cluster from:
 
     ```
     vm_size = azurerm_kubernetes_cluster.main.default_node_pool[0].vm_size

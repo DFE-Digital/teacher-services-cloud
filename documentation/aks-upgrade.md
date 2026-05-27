@@ -155,5 +155,5 @@ az aks nodepool get-upgrades --resource-group <ResourceGroup> --cluster-name <Cl
    2. max-surge too low: slow/stuck upgrade: aks would have trouble migrating workloads from old nodes to new: errors could be similar to “waiting for pods to evict”, pods stuck in pending state etc
    3. drainTimeoutInMinutes too low: upgrade would fail completely if insufficient time is allowed for each node to drain properly e.g. pdb condition not met
    4. drainTimeoutInMinutes too high: upgrade takes ages as any workloads with allowed too much time to drain
-   5. nodeSoakDurationInMinutes too low: potentially any issues that will affect all nodes dont get spotted early in the upgrade as it continues upgrading further nodes before early nodes "settle" - no opportunity to spot errors early and act - high "blast radius"
+   5. nodeSoakDurationInMinutes too low: potentially any issues that will affect all nodes don't get spotted early in the upgrade as it continues upgrading further nodes before early nodes "settle" - no opportunity to spot errors early and act - high "blast radius"
    6. nodeSoakDurationInMinutes too high: upgrade takes too long - time wasted in between each node upgrade - low "blast radius"

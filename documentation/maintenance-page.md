@@ -68,7 +68,7 @@ If the maintenance page message needs to be updated at any time during an incide
 A user with write access to the repository must generate a token.
 
 - Access [Personal access tokens (classic)](https://github.com/settings/tokens)
-- Selecte `Generate new token (classic)`
+- Select `Generate new token (classic)`
 - Give it a name (e.g. "Upload docker image")
 - Select `write:packages`
 - Click `Generate token`

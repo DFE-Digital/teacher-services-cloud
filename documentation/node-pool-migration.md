@@ -25,7 +25,7 @@ there are 3 settings:-
 
 | Setting Name                  | Purpose                    | Factors Determining Tuning |
 |-------------------------------|----------------------------|----------------------------|
-| max_surge                     | Extra nodes during upgrade to assist with wokload migration| 1) Node pool size<br>  2) subnet IP headroom<br> 3) PDB strictness<br> 4) autoscaler<br> 5) capacity headroom |
+| max_surge                     | Extra nodes during upgrade to assist with workload migration| 1) Node pool size<br>  2) subnet IP headroom<br> 3) PDB strictness<br> 4) autoscaler<br> 5) capacity headroom |
 | drain_timeout_in_minutes      | Max time to complete node drain | 1) Max termination grace<br> 2) pod startup time<br> 3) PDB strictness<br> 4) replicas<br> 5) scheduling/image pull speed |
 | node_soak_duration_in_minutes | Pause between node upgrades | 1) Pod/daemonset startup time<br> 2) ingress stabilisation<br> 3) workload criticality<br> 4) pool size<br> risk appetite |
 

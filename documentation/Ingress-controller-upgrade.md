@@ -17,7 +17,7 @@
 ## Upgrade
 
 - To start the upgrade open the file `test.tfvars.json` located at `cluster/terraform_kubernetes/config`
-- This is an oportunity to test changes in test cluster before rolling out to higher environment like prod
+- This is an opportunity to test changes in test cluster before rolling out to higher environment like prod
 - Set the value of the variable i.e. `"ingress_nginx_version": "4.8.3"`
 - Run terraform apply
 
@@ -37,4 +37,4 @@ make test terraform-apply CONFIRM_TEST=yes
         ```
 - After successful upgrades for each environment, check metrics are still displaying and working well in Grafana dashboards: https://grafana.cluster<x\>.development.teacherservices.cloud, https://grafana.platform-test.teacherservices.cloud, https://grafana.test.teacherservices.cloud, https://grafana.teacherservices.cloud
 - Follow the same process for production and raise a PR for each environment.
-- Wait at least 24 hours before applying upgrade to production (if any downtime was obversed during deployment(s) to lower environment(s), notify the application teams before production upgrade).
+- Wait at least 24 hours before applying upgrade to production (if any downtime was observed during deployment(s) to lower environment(s), notify the application teams before production upgrade).
