@@ -1,8 +1,12 @@
 resource "helm_release" "ingress-nginx" {
+  count = var.enable_nginx ? 1 : 0
+
   name       = "ingress-nginx"
   repository = "https://kubernetes.github.io/ingress-nginx"
   chart      = "ingress-nginx"
   version    = var.ingress_nginx_version
+
+  reuse_values = var.enable_traefik ? true : false
 
   # The first part of the name with simple dots is the keys path in the values.yml file e.g. controller.service.annotations
   # The last part is the final key e.g. service\\.beta\\.kubernetes\\.io/azure-load-balancer-health-probe-request-path
@@ -18,13 +22,13 @@ resource "helm_release" "ingress-nginx" {
   # The cluster managed identity must have Network Contributor role on the resource group
   set {
     name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-resource-group"
-    value = azurerm_public_ip.ingress-public-ip.resource_group_name
+    value = azurerm_public_ip.ingress-public-ip[0].resource_group_name
     type  = "string"
   }
   # Ingress IP
   set {
     name  = "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-ipv4"
-    value = azurerm_public_ip.ingress-public-ip.ip_address
+    value = azurerm_public_ip.ingress-public-ip[0].ip_address
     type  = "string"
   }
   # Route requests from the load balancer to the ingress pods on the same node instead of adding one more hop to the node with most pods.
@@ -142,12 +146,24 @@ resource "helm_release" "ingress-nginx" {
     type  = "string"
   }
 
+  # Set resource-policy annotation to keep
+  dynamic "set" {
+    for_each = var.enable_traefik ? [1] : []
+
+    content {
+      name  = "controller.ingressClassResource.annotations.helm\\.sh/resource-policy"
+      value = "keep"
+      type  = "string"
+    }
+  }
+
   # Set ingress class name so it can be retrieved as an attribute to force dependencies
   set {
     name  = "controller.ingressClassResource.name"
     value = "nginx"
     type  = "string"
   }
+
   # Block access to /metrics endpoint
   dynamic "set" {
     for_each = var.block_metrics_endpoint ? [1] : []
@@ -216,15 +232,15 @@ resource "helm_release" "ingress-nginx-clone" {
   count    = var.clone_cluster ? 1 : 0
   provider = helm.clone
 
-  name       = helm_release.ingress-nginx.name
-  repository = helm_release.ingress-nginx.repository
-  chart      = helm_release.ingress-nginx.chart
-  version    = helm_release.ingress-nginx.version
+  name       = helm_release.ingress-nginx[0].name
+  repository = helm_release.ingress-nginx[0].repository
+  chart      = helm_release.ingress-nginx[0].chart
+  version    = helm_release.ingress-nginx[0].version
 
   dynamic "set" {
     # Exclude the load balancer IP to force clone to use dynamic Public IP for load balancer ingress
     for_each = [
-      for s in helm_release.ingress-nginx.set : s
+      for s in helm_release.ingress-nginx[0].set : s
       if s.name != "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-ipv4"
       && s.name != "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-resource-group"
     ]
@@ -252,6 +268,8 @@ resource "helm_release" "ingress-nginx-clone" {
 }
 
 resource "azurerm_public_ip" "ingress-public-ip" {
+  count = var.add_nginx_ingress_ip ? 1 : 0
+
   name                = "${var.resource_prefix}-tsc-aks-nodes-${var.environment}-ingress-pip"
   location            = data.azurerm_resource_group.resource_group.location
   resource_group_name = data.azurerm_resource_group.resource_group.name

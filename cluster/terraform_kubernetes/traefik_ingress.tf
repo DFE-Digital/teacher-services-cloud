@@ -47,3 +47,19 @@ resource "azurerm_public_ip" "ingress-public-ip-traefik" {
 
   lifecycle { ignore_changes = [tags] }
 }
+
+resource "kubernetes_ingress_class" "nginx" {
+  count = var.create_nginx_ingressclass ? 1 : 0
+
+  metadata {
+    name = "nginx"
+    labels = {
+      "app.kubernetes.io/name" = "ingress-nginx"
+    }
+  }
+
+  spec {
+    controller = "k8s.io/ingress-nginx"
+  }
+
+}

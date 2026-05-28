@@ -75,6 +75,30 @@ variable "ingress_nginx_replicaCount" {
   default     = 20
 }
 
+variable "enable_nginx" {
+  description = "Enable or disable install of the nginx ingress"
+  type        = bool
+  default     = true
+}
+
+variable "create_nginx_ingressclass" {
+  description = "Enable or disable install of the nginx ingressclass"
+  type        = bool
+  default     = false
+}
+
+variable "add_nginx_ingress_ip" {
+  type        = bool
+  default     = true
+  description = "Allocate an ingress public IP for nginx"
+}
+
+variable "add_nginx_to_dns" {
+  type        = bool
+  default     = true
+  description = "Add the nginx_ip to the cluster dns"
+}
+
 variable "traefik_ingress_version" {
   description = "Version of the traefik ingress helm chart to use"
   type        = string
@@ -425,7 +449,7 @@ locals {
 
   # Get value from helm_release attribute to force dependency
   # and make sure the ingress controller is created before the ingresses
-  ingress_class_name = jsondecode(helm_release.ingress-nginx.metadata[0].values)["controller"]["ingressClassResource"]["name"]
+  ingress_class_name = var.enable_nginx ? jsondecode(helm_release.ingress-nginx[0].metadata[0].values)["controller"]["ingressClassResource"]["name"] : "nginx"
 
   default_welcome_app_hostname = "www.${module.cluster_data.ingress_domain}"
   welcome_app_hostnames        = concat(var.welcome_app_hostnames, [local.default_welcome_app_hostname])
@@ -434,4 +458,8 @@ locals {
   grafana_dashboards_map = { for d in local.grafana_dasboards : d => file("${path.module}/config/dashboards/${d}") }
 
   traefik_ip = var.add_traefik_to_dns ? azurerm_public_ip.ingress-public-ip-traefik[0].ip_address : ""
+  nginx_ip   = var.add_nginx_to_dns ? azurerm_public_ip.ingress-public-ip[0].ip_address : ""
+  #nginx_ip   = var.enable_nginx ? data.kubernetes_service.default.status[0].load_balancer[0].ingress[0].ip : ""
+
+  dns_ip = var.add_traefik_to_dns ? (var.add_nginx_to_dns ? toset([local.nginx_ip, local.traefik_ip]) : toset([local.traefik_ip])) : toset([local.nginx_ip])
 }
