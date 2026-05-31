@@ -28,22 +28,22 @@ Most services use the same code to deploy to AKS. It has been made into a templa
 It is used both to dramatically reduce the time required to onboard a new service, and be a point of reference to align standards across repositories.
 
 ### Check new_service template parameter files
-Check the new_service template parameter files against the [completed onboard questionnaire](https://github.com/DFE-Digital/teacher-services-cloud/blob/2638-update-new-service-script/documentation/onboard-form-template.md)
+Check the new_service template parameter files against the [completed onboard questionnaire](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/documentation/onboard-form-template.md)
 
-- Populate the [environment parameters file](https://github.com/DFE-Digital/teacher-services-cloud/blob/2638-update-new-service-script/templates/new_service_parameters.env) with the new project specific values.
+- Populate the [environment parameters file](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service_parameters.env) with the new project specific values.
 
-Note for ENVIRONMENTS parameter there is no need to include **development review or production**; these are mandatory environments and will be created automatically.
+Note for ENVIRONMENTS parameter there is no need to include **review or production**; these are mandatory environments and will be created automatically.
 ```
 ENVIRONMENTS="sandbox staging qa"
 ```
 Note:
 
-- Check the [terraform environment parameters file](https://github.com/DFE-Digital/teacher-services-cloud/tree/2638-update-new-service-script/templates/new_service_config/terraform_env_vars) with the new project specific values
+- Check the [terraform environment parameters file](https://github.com/DFE-Digital/teacher-services-cloud/tree/main/templates/new_service_config/terraform_env_vars) with the new project specific values
 
 ### Generate code
 
 - Run the `make new_service` command.
-This will create a new directory called my_service 
+This will create a new directory called new_service
 
 
 This can be built iteratively since the script will stop and show if a variable is missing. Example:

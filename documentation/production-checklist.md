@@ -177,7 +177,11 @@ Azure applies patches and minor updates to postgres and redis. Since this may ca
 Note the postgres patches will always be applied first to environments where the maintenance window is not set.
 
 ## Service offering
-The new service template uses the default "Teacher services cloud" value for the *Product* tag. This tag is used to identify the service in the Azure finance reporting. Each service must [register a new service offering and product](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/Create-a-service-offering.aspx) and replace "Teacher services cloud" with the right name so that Azure costs are allocated accordingly.
+The new service template uses the default "Teacher services cloud" value for the *Product* tag. This tag is used to identify the service in the Azure finance reporting. Each service must [register a new service offering and product](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/Create-a-service-offering.aspx) and replace "Teacher services cloud" with the right name so that Azure costs are allocated accordingly. Note;
+- spelling and case for the tag values must match exactly what is created for both.
+- the Service Offering Service Now request should be created by the service team, but we should offer assistance
+- the devops team should raise the Product code Service Now request. If the service team are unsure of the activity/cost code we can check with the finance team
+- it's easier if Service Offering name = Product name, but this isn't a hard requirement
 
 ## Maintenance page
 All environments specified in the [new_service_parameters.env](https://github.com/DFE-Digital/teacher-services-cloud/blob/d82096a62a61671c86fc991746510119261fd3b9/templates/new_service_parameters.env#L8) file when **make new_service** is run are automatically added to the maintenance page workflow as input variables for the environment variable.**

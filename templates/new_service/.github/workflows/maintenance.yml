@@ -7,7 +7,6 @@ on:
         required: true
         type: choice
         options:
-        - development
         - production
       mode:
         required: true

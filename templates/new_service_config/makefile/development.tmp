@@ -1,0 +1,3 @@
+.PHONY: development
+development: test-cluster
+    $(eval include global_config/development.sh)
