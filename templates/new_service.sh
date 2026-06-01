@@ -15,8 +15,9 @@ rm -rf new_service
 cp -r templates/new_service .
 
 #CONFIGURE ENVIRONMENT CONFIG FILES DYNAMICALLY
-#mkdir -p new_service/global_config
-#mkdir -p new_service/terraform/application/config
+mkdir -p new_service/global_config
+mkdir -p new_service/terraform/application/config
+mkdir -p new_service/terraform/domains/environment_domains/config
 # mkdir -p new_service/maintenance_page/manifests
 # mkdir -p new_service/.github/workflows
 # mkdir -p new_service/terraform/application
