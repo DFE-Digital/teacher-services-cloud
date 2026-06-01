@@ -9,4 +9,7 @@ module "domains" {
   environment         = each.value.environment_short
   host_name           = each.value.origin_hostname
   cached_paths        = try(each.value.cached_paths, [])
+  allow_aks           = try(var.allow_aks, false)
+  block_ip            = try(var.block_ip, false)
+  rate_limit_max      = try(var.rate_limit_max, false)
 }

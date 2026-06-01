@@ -1,0 +1,3 @@
+.PHONY: sandbox
+sandbox: production-cluster
+    $(eval include global_config/sandbox.sh)
