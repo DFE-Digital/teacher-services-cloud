@@ -1,6 +1,9 @@
 name: Fix Airbyte LSN
 
 on:
+  push:
+    branches:
+      - feature/fix-airbyte-lsn
   workflow_dispatch:
     inputs:
       environment:
@@ -34,12 +37,14 @@ env:
 
 jobs:
   fix-lsn:
-    name: Fix Airbyte LSN state on ${{ inputs.environment }}
+    name: Fix Airbyte LSN state
     runs-on: ubuntu-latest
     environment:
-      name: ${{ inputs.environment }}
+      name: qa
     env:
-      DEPLOY_ENV: ${{ inputs.environment }}
+      DEPLOY_ENV: ${{ github.event_name == 'push' && 'qa' || inputs.environment }}
+      DRY_RUN: ${{ github.event_name == 'push' && 'true' || inputs.dry-run }}
+      CONNECTION_ID: ${{ github.event_name == 'push' && 'dry-run-test' || inputs.connection-id }}
 
     steps:
     - name: Checkout
@@ -47,12 +52,9 @@ jobs:
 
     - name: Set environment variables
       run: |
-        source global_config/${DEPLOY_ENV}.sh
         tf_vars_file=${TF_VARS_PATH}/${DEPLOY_ENV}.tfvars.json
+        echo "CLUSTER=$(jq -r '.cluster' ${tf_vars_file})" >> $GITHUB_ENV
         echo "NAMESPACE=$(jq -r '.namespace' ${tf_vars_file})" >> $GITHUB_ENV
-
-    - name: Get cluster credentials
-      run: make ci ${{ inputs.environment }} get-cluster-credentials
 
     - name: Fix Airbyte LSN state
       uses: DFE-Digital/github-actions/fix-airbyte-lsn@feature/airbyte-replication
@@ -62,5 +64,6 @@ jobs:
         azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         airbyte-app-name: ${{ env.SERVICE_NAME }}-${{ env.DEPLOY_ENV }}-worker
         namespace: ${{ env.NAMESPACE }}
-        connection-id: ${{ inputs.connection-id }}
-        dry-run: ${{ inputs.dry-run }}
+        cluster: ${{ env.CLUSTER }}
+        connection-id: ${{ env.CONNECTION_ID }}
+        dry-run: ${{ env.DRY_RUN }}
