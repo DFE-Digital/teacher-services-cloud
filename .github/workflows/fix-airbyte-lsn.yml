@@ -40,7 +40,7 @@ jobs:
     name: Fix Airbyte LSN state
     runs-on: ubuntu-latest
     environment:
-      name: qa
+      name: test
     env:
       DEPLOY_ENV: ${{ github.event_name == 'push' && 'qa' || inputs.environment }}
       DRY_RUN: ${{ github.event_name == 'push' && 'true' || inputs.dry-run }}
