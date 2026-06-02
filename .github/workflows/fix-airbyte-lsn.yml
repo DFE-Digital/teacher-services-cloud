@@ -1,0 +1,66 @@
+name: Fix Airbyte LSN
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to fix
+        required: true
+        default: qa
+        type: choice
+        options:
+          - qa
+          - staging
+          - production
+      connection-id:
+        description: Airbyte connection UUID to reset state for
+        required: true
+      dry-run:
+        description: Dry run — inspect state only, do not delete
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+permissions:
+  id-token: write
+
+env:
+  SERVICE_NAME: register
+  SERVICE_SHORT: rtt
+  TF_VARS_PATH: terraform/aks/workspace-variables
+
+jobs:
+  fix-lsn:
+    name: Fix Airbyte LSN state on ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+    env:
+      DEPLOY_ENV: ${{ inputs.environment }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Set environment variables
+      run: |
+        source global_config/${DEPLOY_ENV}.sh
+        tf_vars_file=${TF_VARS_PATH}/${DEPLOY_ENV}.tfvars.json
+        echo "NAMESPACE=$(jq -r '.namespace' ${tf_vars_file})" >> $GITHUB_ENV
+
+    - name: Get cluster credentials
+      run: make ci ${{ inputs.environment }} get-cluster-credentials
+
+    - name: Fix Airbyte LSN state
+      uses: DFE-Digital/github-actions/fix-airbyte-lsn@feature/airbyte-replication
+      with:
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        airbyte-app-name: ${{ env.SERVICE_NAME }}-${{ env.DEPLOY_ENV }}-worker
+        namespace: ${{ env.NAMESPACE }}
+        connection-id: ${{ inputs.connection-id }}
+        dry-run: ${{ inputs.dry-run }}
