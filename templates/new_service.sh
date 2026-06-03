@@ -62,7 +62,7 @@ if [ ${envt} != "review" ]; then
       -e "s/#ENVIRONMENT#/${ENVIRONMENT}/g;" \
       {} \;
 
-  if [[ "$envt" = "sandbox" || "$envt" = "production" ]]; then
+  if [[ "$envt" = "preproduction" || "$envt" = "production" ]]; then
     find ./new_service/maintenance_page/manifests/${envt} -type f \
       -exec perl -pi \
         -e "s/\.test//g;" \
