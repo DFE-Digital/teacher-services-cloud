@@ -1,3 +1,0 @@
-.PHONY: staging
-staging: test-cluster
-    $(eval include global_config/staging.sh)
