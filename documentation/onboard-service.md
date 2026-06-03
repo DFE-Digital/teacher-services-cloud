@@ -34,7 +34,7 @@ Check the new_service template parameter files against the [completed onboard qu
 
 Note for ENVIRONMENTS parameter there is no need to include **review or production**; these are mandatory environments and will be created automatically.
 ```
-ENVIRONMENTS="sandbox staging qa"
+ENVIRONMENTS="development test preproduction"
 ```
 Note:
 
