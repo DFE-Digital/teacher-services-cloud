@@ -16,7 +16,9 @@ flowchart TD;
 
 ## Before you start
 
-- Your application needs to be dockerized. The build workflow will make it available at ghcr.io/dfe-digital/your-service-name.
+- Your application needs to be dockerized. The build workflow will make it available at ghcr.io/dfe-digital/your-service-name. You should make use of the relevant template application as the foundation for your new service:
+  - [Rails](https://github.com/DFE-Digital/rails-template)
+  - [.Net](https://github.com/DFE-Digital/CSharp-.NET-Template)
 - If you are getting started on a local machine and you have an Apple
 Silicon laptop, note that you will need to build your container with the
 `--platform=linux/amd64` flag.
