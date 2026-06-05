@@ -1,3 +1,3 @@
 .PHONY: preproduction
 preproduction: production-cluster
-    $(eval include global_config/preproduction.sh)
+	$(eval include global_config/preproduction.sh)
