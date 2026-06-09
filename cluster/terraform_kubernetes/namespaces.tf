@@ -1,7 +1,11 @@
 resource "kubernetes_namespace" "default_list" {
+
   for_each = toset(var.namespaces)
   metadata {
     name = each.key
+    labels = {
+      traefik-watch = contains(var.traefik-watch, each.key) ? true : null
+    }
   }
 }
 

@@ -34,6 +34,8 @@ module "web_application" {
   kubernetes_config_map_name = module.application_configuration.kubernetes_config_map_name
   kubernetes_secret_name     = module.application_configuration.kubernetes_secret_name
 
+  probe_path = var.probe_path
+
   docker_image = var.docker_image
   enable_logit = true
 

@@ -12,7 +12,6 @@ postgis/postgis:14-3.2 postgis-14-3.2
 postgis/postgis:14-3.3 postgis-14-3.3
 postgis/postgis:14-3.4 postgis-14-3.4
 postgis/postgis:14-3.5 postgis-14-3.5
-postgis/postgis:14-3.6 postgis-14-3.6
 stakater/reloader:v1.4.8 reloader-1.4.8
 prom/alertmanager:v0.28.1 alertmanager-v0.28.1
 quay.io/thanos/thanos:v0.36.1 thanos-v0.36.1
@@ -23,4 +22,5 @@ grafana/grafana:11.6.5  grafana-11.6.5
 registry.k8s.io/ingress-nginx/controller:v1.13.4 nginx-controller-v1.13.4
 registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0 kube-state-metrics-v2.15.0
 registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.17.0 kube-state-metrics-v2.17.0
+registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.18.0 kube-state-metrics-v2.18.0
 quay.io/thanos/thanos:v0.39.2 thanos-v0.39.2

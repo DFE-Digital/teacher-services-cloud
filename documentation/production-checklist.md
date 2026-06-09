@@ -2,10 +2,6 @@
 
 For the service to be ready for end users, it must be reliable, performant and sustainable.
 
-## Multiple replicas
-By default the template deploys only 1 replica for each [kubernetes deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/). This is not sufficient for production as if the container is unavailable, there is no other replica to serve the requests. It may be unavailable because of high usage or simply because the cluster is moving the container to another node. This will happen when the cluster version is updated.
-
-Use at least 2 [replicas](https://github.com/DFE-Digital/terraform-modules/blob/04895b849cd5124e615b4e6b1850c0d918d4d081/aks/application/variables.tf#L32) or as many as required by [performance testing](#performance-testing).
 
 ## Database plan
 The template deploys a default plan for [postgres](https://github.com/DFE-Digital/terraform-modules/blob/83801213853ed1e4b4bdcb8d36773c8683ff010f/aks/postgres/variables.tf#L82) and [redis](https://github.com/DFE-Digital/terraform-modules/blob/83801213853ed1e4b4bdcb8d36773c8683ff010f/aks/redis/variables.tf#L63-L71).
@@ -15,16 +11,19 @@ It may be sufficient for the test environments, but it may not offer enough CPU,
 Note that for redis, all `azure_family`, `azure_sku_name` and `azure_capacity` must be changed jointly. Check [terraform postgres documentation](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server) for the allowed values.
 
 ## High availability
-Each Azure region provides multiple [availability zones](https://learn.microsoft.com/en-us/azure/reliability/availability-zones-overview). The kubernetes cluster is deployed across 3 zones so in case one is failing, the workload continues on the 2 others.
-
-The same should be applied to database clusters. For postgres, set `azure_enable_high_availability` to true. For redis, use a Premium plan.
-
-Note the cost is doubled for postgres, and [much higher](https://azure.microsoft.com/en-gb/pricing/details/cache/) for redis, so this should be used carefully.
+Default values defined in the new_service templates include HA for postgres and a Premium plan for redis - confirm these are in place.
+```
+"postgres_enable_high_availability": true
+```
+```
+  "redis_queue_sku_name": "Premium",
+  "redis_queue_family": "P"
+```
 
 ## Performance testing
 Simulate load from user traffic to determine the right number of instances and the database plan. This should cover the most typical user journeys. We recommend [K6](https://k6.io/) as it can be deployed to the cluster to minimise latency. Check the example in [teacher pay calculator](https://github.com/DFE-Digital/teacher-pay-calculator/tree/main/load_testing).
 
-If time is short or user traffic is expected to be low, make sure to monitor the application and database usage after launch, and everytime there is a new significant feature. And be ready to scale up.
+If time is short or user traffic is expected to be low, make sure to monitor the application and database usage after launch, and every time there is a new significant feature. And be ready to scale up.
 
 ## Postgres backups to Azure storage
 Azure postgres provides an [automatic backup](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-backup-restore) with a 7 days retention period. It can be restored from a point in time to a new database server.
@@ -67,7 +66,7 @@ Ask the infra team for help with these steps:
 ### Upptime
 We provide a [status page](https://teacher-services-status.education.gov.uk/) of all services in Teacher services. It uses [Github actions](https://github.com/DFE-Digital/teacher-services-upptime/actions) to ping websites running every 5 min (more or less) and produce a dashboard for external users.
 
-When a website is offline, it shows the error in the daashboard, sends an alert to the infra Slack channel and records an incident as a [Github issue](https://github.com/DFE-Digital/teacher-services-upptime/issues). The team can post comments to the issue to send incident updates.
+When a website is offline, it shows the error in the dashboard, sends an alert to the infra Slack channel and records an incident as a [Github issue](https://github.com/DFE-Digital/teacher-services-upptime/issues). The team can post comments to the issue to send incident updates.
 
 Request write access to the repository and edit the [upptimerc.yml](https://github.com/DFE-Digital/teacher-services-upptime/blob/master/.upptimerc.yml) without PR to add your production website.
 
@@ -83,7 +82,7 @@ Set `azure_enable_monitoring` to true in the domains/infrastructure module to en
 Pods CPU, memory, restarts... are monitored using prometheus. To enable it follow:
 - Create a teams webhook or reuse one if it has the desired channel
 - If using a new webhook, create a secret in the Teacher services cloud keyvault (*s189t01-tsc-ts-kv* or *s189p01-tsc-pd-kv*). It must be named *TEAMS-WEBHOOK-XXX* where XXX is a service like ATT or an area like CPD.
-- If using a new webhook, add the secret name to [alertmanager_teamms_receiver_list](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config)
+- If using a new webhook, add the secret name to [alertmanager_teams_receiver_list](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config)
 - Enable alerting on *each* deployment you want to monitor by adding to [alertable_apps](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/cluster/terraform_kubernetes/config/), each entry is: `"namespace/deployment": { "receiver": "RECEIVER"}`, such as:
   ```json
   "bat-production/itt-mentor-services-sandbox": {
@@ -138,7 +137,7 @@ Rate limit rules can be added via
 - This creates a block rule that will limit any source IP that goes above var.rate_limit_max in a 5 minute period.
 
 2. set aks_allow to true
-- If the service recieves a high number of requests originating from other services in our AKS clusters, then setting aks_allow will allow all traffic from AKS. This is only required if a general rate_limit rule is in place.
+- If the service receives a high number of requests originating from other services in our AKS clusters, then setting aks_allow will allow all traffic from AKS. This is only required if a general rate_limit rule is in place.
 
 3. set block_ip to true.
 - creates a block rule that will limit all traffic from a particular source IP. It is created disabled with a dummy IP address. It can then be updated manually if the need to quickly block an IP occurs.
@@ -178,10 +177,16 @@ Azure applies patches and minor updates to postgres and redis. Since this may ca
 Note the postgres patches will always be applied first to environments where the maintenance window is not set.
 
 ## Service offering
-The new service template uses the default "Teacher services cloud" value for the *Product* tag. This tag is used to identify the service in the Azure finance reporting. Each service must [register a new service offering and product](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/Create-a-service-offering.aspx) and replace "Teacher services cloud" with the right name so that Azure costs are allocated accordingly.
+The new service template uses the default "Teacher services cloud" value for the *Product* tag. This tag is used to identify the service in the Azure finance reporting. Each service must [register a new service offering and product](https://educationgovuk.sharepoint.com/sites/teacher-services-infrastructure/SitePages/Create-a-service-offering.aspx) and replace "Teacher services cloud" with the right name so that Azure costs are allocated accordingly. Note;
+- spelling and case for the tag values must match exactly what is created for both.
+- the Service Offering Service Now request should be created by the service team, but we should offer assistance
+- the devops team should raise the Product code Service Now request. If the service team are unsure of the activity/cost code we can check with the finance team
+- it's easier if Service Offering name = Product name, but this isn't a hard requirement
 
 ## Maintenance page
-Optional but recommended for user facing services. See [Maintenance page](maintenance-page.md) for more details.
+All environments specified in the [new_service_parameters.env](https://github.com/DFE-Digital/teacher-services-cloud/blob/d82096a62a61671c86fc991746510119261fd3b9/templates/new_service_parameters.env#L8) file when **make new_service** is run are automatically added to the maintenance page workflow as input variables for the environment variable.**
+In addition the maintenance page updated for each environment.
+See [Maintenance page](maintenance-page.md) for more details.
 
 ## Lock critical resources
 Add a lock to critical Azure resources to prevent against accidental deletion.

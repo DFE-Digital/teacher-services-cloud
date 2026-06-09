@@ -105,7 +105,7 @@ This is currently set to "info" for all 3 thanos components, but can be amended 
 
 Grafana provides a visual interface for monitoring logs and metric.
 It can be configured to different datasources including prometheus and thanos (as it is, in this case).
-Grafana dashboard can be configured as required to provide different forms of visualisation - inluding charts, graphs etc
+Grafana dashboard can be configured as required to provide different forms of visualisation - including charts, graphs etc
 
 The default grafana version is hardcoded in the kubernetes variable.tf. It can be overridden for a cluster by adding grafana_version to the env.tfvars.json file.
 
@@ -182,7 +182,7 @@ Configuration is managed through Terraform variables:
 
 ### High Port Usage
 
-AKS uses an azure load balancer for inbound and outbound connections and this can lead to port exhaustion if a node does alot of network requests.
+AKS uses an azure load balancer for inbound and outbound connections and this can lead to port exhaustion if a node does a lot of network requests.
 
 If port usage goes over a threshold we alert on this as a warning so we can take pre-emptive action.
 
@@ -192,6 +192,6 @@ If connections start failing because of port exhaustion we alert on this as an e
 
 ### Troubleshooting Port Exhaustion
 
-Unfortunately we can't alert which kubernetes service is using aa high number of ports so this is a troublshooting exercise following:
+Unfortunately we can't alert which kubernetes service is using aa high number of ports so this is a troubleshooting exercise following:
 
 [Troubleshoot SNAT port exhaustion on Azure Kubernetes Service nodes](https://learn.microsoft.com/en-us/troubleshoot/azure/azure-kubernetes/connectivity/snat-port-exhaustion?tabs=for-a-linux-pod)

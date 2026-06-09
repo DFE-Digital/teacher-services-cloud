@@ -1,5 +1,5 @@
 ARM_TEMPLATE_TAG=1.1.10
-RG_TAGS={"Product" : "Teacher services cloud"}
+RG_TAGS={"Product" : "Teacher services cloud", "Service Offering" : "Teacher services cloud"}
 REGION=UK South
 SERVICE_NAME=#SERVICE_NAME#
 SERVICE_SHORT=#SERVICE_SHORT#
@@ -7,10 +7,6 @@ DOCKER_REPOSITORY=#DOCKER_REPOSITORY#
 
 help:
 	@grep -E '^[a-zA-Z\._\-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
-
-.PHONY: development
-development: test-cluster
-	$(eval include global_config/development.sh)
 
 .PHONY: review
 review: test-cluster

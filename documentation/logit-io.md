@@ -67,7 +67,7 @@ We also ask all the applications deployed to the cluster to [log using json outp
 
 The logstash pipeline is stored here and must be kept up-to-date on all the stacks. It decodes the ingress controller logs so we can observe the HTTP traffic details.
 
-[Standard ECS fields](https://www.elastic.co/guide/en/ecs/current/ecs-field-reference.html) are used as much as possible. This allows a single point of reference, correlation between different event types and reuse of queries and dashbords.
+[Standard ECS fields](https://www.elastic.co/guide/en/ecs/current/ecs-field-reference.html) are used as much as possible. This allows a single point of reference, correlation between different event types and reuse of queries and dashboards.
 
 ```ruby
 filter {

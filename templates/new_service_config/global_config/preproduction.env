@@ -1,0 +1,9 @@
+CONFIG=preproduction
+ENVIRONMENT=preproduction
+CLUSTER=production
+AZURE_SUBSCRIPTION=s189-teacher-services-cloud-production
+AZURE_RESOURCE_PREFIX=s189p01
+CONFIG_SHORT=pp
+KV_PURGE_PROTECTION=false
+TERRAFORM_MODULES_TAG=testing
+ENABLE_KV_DIAGNOSTICS=false

@@ -100,6 +100,7 @@ locals {
     "privatelink.redis.cache.windows.net",
     "privatelink.blob.core.windows.net",
     "redis.azure.net"
+    "privatelink.queue.core.windows.net"
   ]
   uk_south_availability_zones = ["1", "2", "3"]
   monitor_action_group_name   = "${var.resource_prefix}-tsc"

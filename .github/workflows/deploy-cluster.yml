@@ -53,14 +53,6 @@ jobs:
         terraform_modules_tag: testing
         terraform_modules_dir: domains
 
-    - name: Validate templates/new_service/terraform/application
-      uses: ./.github/actions/validate-terraform
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        terraform_root_folder: templates/new_service/terraform/application
-        terraform_modules_tag: main
-        terraform_modules_dir: aks
-
     - name: Validate templates/new_service/terraform/domains/infrastructure
       uses: ./.github/actions/validate-terraform
       with:

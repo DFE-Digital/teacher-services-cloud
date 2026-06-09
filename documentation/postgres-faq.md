@@ -47,11 +47,11 @@ $ make development terraform-plan
 ## Monitor performance
 When [monitoring](https://github.com/DFE-Digital/terraform-modules/blob/6278cbb72bfcf614e6f1572f5f5380a3543f5924/aks/postgres/variables.tf#L115) is enabled, metrics and logs are available in the *Monitoring* section of the pogres server portal page.
 
-Active queries are listed in the `pg_stat_activity` table and it should be cheked first. Use [konduit](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/scripts/konduit.sh) to connect.
+Active queries are listed in the `pg_stat_activity` table and it should be checked first. Use [konduit](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/scripts/konduit.sh) to connect.
 
 Azure offers more tools for helping analysing the database performance. They can be useful in case of slowness or high resource usage.
 
-Take note of the customisations and remove them when they're not needed anymore. Also, if you run terraform, it may discard all the manual changes.
+Take note of the customisations and remove them when they're not needed any more. Also, if you run terraform, it may discard all the manual changes.
 
 ### Enable server parameters
 - [metrics.collector_database_activity](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-monitoring#enabling-enhanced-metrics): capture enhanced metrics related to Activity, Database, Logical replication, Replication, Saturation, Traffic

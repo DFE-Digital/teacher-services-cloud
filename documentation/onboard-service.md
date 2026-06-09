@@ -16,7 +16,9 @@ flowchart TD;
 
 ## Before you start
 
-- Your application needs to be dockerized. The build workflow will make it available at ghcr.io/dfe-digital/your-service-name.
+- Your application needs to be dockerized. The build workflow will make it available at ghcr.io/dfe-digital/your-service-name. You should make use of the relevant template application as the foundation for your new service:
+  - [Rails](https://github.com/DFE-Digital/rails-template)
+  - [.Net](https://github.com/DFE-Digital/CSharp-.NET-Template)
 - If you are getting started on a local machine and you have an Apple
 Silicon laptop, note that you will need to build your container with the
 `--platform=linux/amd64` flag.
@@ -27,12 +29,24 @@ Silicon laptop, note that you will need to build your container with the
 Most services use the same code to deploy to AKS. It has been made into a template that will evolve over time to capture all the best practices from working in multiple services.
 It is used both to dramatically reduce the time required to onboard a new service, and be a point of reference to align standards across repositories.
 
-### Generate code
-Run the `make new_service` command with the required environment variables. Example:
+### Check new_service template parameter files
+Check the new_service template parameter files against the [completed onboard questionnaire](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/documentation/onboard-form-template.md)
 
+- Populate the [environment parameters file](https://github.com/DFE-Digital/teacher-services-cloud/blob/main/templates/new_service_parameters.env) with the new project specific values.
+
+Note for ENVIRONMENTS parameter there is no need to include **review or production**; these are mandatory environments and will be created automatically.
 ```
-make new_service SERVICE_NAME=calculate-teacher-pay SERVICE_SHORT=ctp SERVICE_PRETTY="Calculate teacher pay" DOCKER_REPOSITORY=ghcr.io/dfe-digital/teacher-pay-calculator NAMESPACE_PREFIX=srtl DNS_ZONE_NAME=calculate-teacher-pay.education.gov.uk
+ENVIRONMENTS="development test preproduction"
 ```
+Note:
+
+- Check the [terraform environment parameters file](https://github.com/DFE-Digital/teacher-services-cloud/tree/main/templates/new_service_config/terraform_env_vars) with the new project specific values
+
+### Generate code
+
+- Run the `make new_service` command.
+This will create a new directory called new_service
+
 
 This can be built iteratively since the script will stop and show if a variable is missing. Example:
 
@@ -53,20 +67,6 @@ cp -r teacher-services-cloud/new_service/. teacher-pay-calculator
 Note that for an existing repository, this may clobber your `.gitignore`, `.tool-versions` and `Makefile`. Only add what is missing and check `git diff` to make sure you're not
 losing information.
 
-### Tailor the code
-The code covers most common use cases, but it may be necessary to amend it. Examples:
-- By default the code deploys a postgres database, but the service may not need it
-- The only environment configurations are development and production. The service may need more or use different names.
-- The web application uses `/healthcheck` as health probe. It can be changed to another path or disabled by passing `null`. If you don't have a
-healthcheck endpoint and don't configure or disable this, deployments will time out (See [FAQ](#faq)).
-
-### Github actions workflow templates
-Several workflow templates will be created in the .github/workflows directory.
-These should be moved to the service repo .github/workflows directory and should be used as templates for post build tasks
-- postgres database backups and restores (as part of DR)
-- maintenance page enable/disable
-- build and deploy
-- build without cache
 
 ## Prepare new environment
 These steps must be done by the infra team.
