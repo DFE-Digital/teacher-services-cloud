@@ -1,0 +1,181 @@
+#https://github.com/traefik/traefik-helm-chart/blob/master/traefik/values.yaml
+
+providers:
+  kubernetesIngressNGINX:
+    enabled: true
+    # -- Ingress Class Controller value this controller satisfies
+    controllerClass: "k8s.io/ingress-nginx"
+    # -- Name of the ingress class this controller satisfies
+    ingressClass: "nginx"
+    # -- Define if Ingress Controller should watch for Ingress Class by Name together with Controller Class
+    ingressClassByName: false
+    # -- Define if Ingress Controller should also watch for Ingresses without an IngressClass or the annotation specified
+    watchIngressWithoutClass: false
+    # -- Single namespace the controller watches for updates to Kubernetes objects. Mutually exclusive with watchNamespaceSelector.
+    # watchNamespace: "development"
+    # -- Select namespaces the controller watches for updates to Kubernetes objects. Mutually exclusive with watchNamespace.
+    # comment out when ready for all namespaces in traefik
+    #watchNamespaceSelector: "traefik-watch=true"
+    publishService:
+      # -- Service fronting the Ingress controller. Takes the form 'namespace/name'
+      enabled: false
+    proxyBodySize: 52428800
+    proxyBufferSize: 24576
+    upstreamKeepaliveTimeout: 120
+
+  # kubernetesIngress:
+  #   enabled: false # this is default true and maybe it's required?
+  kubernetesCRD:
+    enabled: true # this is default true and maybe it's required?
+    allowCrossNamespace: true
+
+global:
+  checkNewVersion: false      # set to false to disable
+  sendAnonymousUsage: false   # set to true to enable
+
+ports:
+  web:
+    ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
+    expose:
+      default: false
+  websecure:
+    ## -- Enable this entrypoint as a default entrypoint. When a service doesn't explicitly set an entrypoint it will only use this entrypoint.
+    # asDefault: true
+    port: 8443 # this is default
+    exposedPort: 443 # this is default
+    http:
+      middlewares:
+        - "traefik-blockmetrics@kubernetescrd"
+        # - "traefik-test-ratelimit@kubernetescrd"
+
+extraObjects:
+  - apiVersion: traefik.io/v1alpha1
+    kind: Middleware
+    metadata:
+      name: "blockmetrics"
+    spec:
+      replacePathRegex:
+        regex: "/metrics$"
+        replacement: "/nometrics"
+  # - apiVersion: traefik.io/v1alpha1
+  #   kind: Middleware
+  #   metadata:
+  #     name: "test-ratelimit"
+  #   spec:
+  #     rateLimit:
+  #       average: 500
+  #       period: 300s
+  #       burst: 1000
+
+deployment:
+  replicas: 10
+  # -- Additional pod annotations (e.g. for mesh injection or prometheus scraping)
+  # It supports templating. One can set it with values like traefik/name: '{{ template "traefik.name" . }}'
+  podAnnotations:
+    # prometheus.io/port: "15014" #why this port?
+    # prometheus.io/scrape: "true"
+    # prometheus.io/path: "/metrics"
+    logit.io/send: "true"
+    fluentbit.io/exclude: "true"
+
+  # readinessPath: "/ping"
+  # livenessPath: "/ping"
+  # healthchecksPort: Default: ports.traefik.port
+
+nodeSelector:
+  teacherservices.cloud/node_pool: "applications"
+
+topologySpreadConstraints:
+- maxSkew: 1
+  topologyKey: kubernetes.io/hostname
+  whenUnsatisfiable: ScheduleAnyway
+  labelSelector:
+    matchLabels:
+      app.kubernetes.io/name: traefik
+
+logs:
+  general:
+    format: json
+    level: INFO
+  access:
+    enabled: true
+    format: json # default: "common"
+    fields:
+      general:
+        names:
+          ClientAddr: drop
+          ClientUsername: drop
+          ClientPort: drop
+          GzipRatio: drop
+          RequestAddr: drop
+          OriginContentSize: drop
+          RequestCount: drop
+          RequestHost: drop
+          RequestPort: drop
+          StartLocal: drop
+          ServiceURL: drop
+          ServiceAddr: drop
+
+service:
+  spec:
+    externalTrafficPolicy: Local # is this in values.yaml?
+
+# -- [Resources](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/) for `traefik` container.
+resources:
+  limits:
+    cpu: "1"
+    memory: "1Gi"
+  requests:
+    cpu: "100m"
+    memory: "250Mi"
+
+#Name of the Kubernetes Secret served for connections without a SNI, or without a matching domain. If no default certificate is provided, Traefik will use the generated one
+# -- TLS Store are created as [TLSStore CRDs](https://doc.traefik.io/traefik/reference/routing-configuration/kubernetes/crd/tls/tlsstore/).
+# This is useful if you want to set a default certificate. See EXAMPLE.md for details.
+
+tlsStore:
+  default:
+    certificates:
+    - secretName: cert-secret-traefik
+    defaultCertificate:
+      secretName: cert-secret-traefik
+
+volumes:
+- mountPath: /certs
+  name: cert-secret-traefik
+  type: secret
+
+rbac:  # @schema additionalProperties: false
+  # -- Whether Role Based Access Control objects like roles and rolebindings should be created
+  enabled: true # default true
+
+# -- The service account the pods will use to interact with the Kubernetes API
+#serviceAccount:  # @schema additionalProperties: false
+  # If set, an existing service account is used
+  # If not set, a service account is created automatically using the fullname template
+  #name: ""
+
+additionalArguments: [ "--log.level=INFO" ]
+#  - "--providers.kubernetesingress.ingressclass=traefik-internal"
+#  - "--log.level=DEBUG" normally INFO
+
+ingressRoute:
+  dashboard:
+    # -- Create an IngressRoute for the dashboard
+    enabled: true
+  healthcheck:
+    # -- Create an IngressRoute for the healthcheck probe
+    enabled: false
+
+podDisruptionBudget:  # @schema additionalProperties: false
+  enabled: true # default false
+  #maxUnavailable:  0 # default unset
+  minAvailable:    "50%" # default unset
+
+# default settings below
+updateStrategy:  # @schema additionalProperties: false
+  # -- Customize updateStrategy of Deployment or DaemonSet
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: "50%"  # @schema type:[integer, string, null]
+    maxSurge: 1        # @schema type:[integer, string, null]

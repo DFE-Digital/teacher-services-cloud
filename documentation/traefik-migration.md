@@ -23,13 +23,13 @@ All default to false, and will be updated per environment as they are migrated
 
 - add_traefik_ingress_ip, which adds a PIP for traefik
 - enable_traefik, which deploys the traefik ingress and associated resources
-- add_traefik_to_dns, which adds the ip to the cluster dns
+- add_traefik_to_dns, which adds the ip to the cluster dns (for dev only)
 
 There are also 4 new nginx variables.
 - add_nginx_ingress_ip (default true), which adds a PIP for nginx
 - enable_nginx (default true), which deploys the nginx ingress and associated resources
 - create_nginx_ingressclass (default false), will create a ngnx ingressclass for new clusters that only use traefik
-- add_nginx_to_dns (default true) which adds the ip to the cluster dns
+- add_nginx_to_dns (default true) which adds the ip to the cluster dns (for dev only)
 
 ## Overall Procedure
 
@@ -44,7 +44,10 @@ Start by copying the cluster/terraform_kubernetes/config/traefik/develpment.valu
 2. set enable_traefik to true and redeploy
 - use a single namespace initially, set watchNamespace: "traefik"
 
-3. set add_traefik_to_dns to true and redploy
+3. Update DNS
+    - for development, set add_traefik_to_dns to true and redploy
+    - for other clusters, update the A record in custom_domains/terraform/infrastructure/production.tfvars.json
+    - this will need to be temporarily removed from cicd as the code doesn't work with two addresses
 
 4. enable for extra namespaces
 - advise service teams this change will take place
@@ -119,7 +122,8 @@ As mentioned previously consider if switching traefik to the nginx IP and removi
 Steps
 
 1. Remove nginx IP from DNS
-    -set add_nginx_to_dns to false
+    -set add_nginx_to_dns to false (for dev)
+    -for other clusters, remove the A record in custom_domains/terraform/infrastructure/production.tfvars.json
     -It will still be connected to lb while the cache propogates
     -wait a day or two before continuing to the next step
 
