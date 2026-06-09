@@ -107,13 +107,11 @@ unset OPTIONS_BLOCK
 
 #DOMAINS GLOBAL CONFIG
 cat <<EOF > new_service/global_config/domains.sh
-{
-      AZURE_SUBSCRIPTION=s189-teacher-services-cloud-production
-      AZURE_RESOURCE_PREFIX=s189p01
-      CONFIG_SHORT=dom
-      DISABLE_KEYVAULTS=true
-      TERRAFORM_MODULES_TAG=stable
-}
+AZURE_SUBSCRIPTION=s189-teacher-services-cloud-production
+AZURE_RESOURCE_PREFIX=s189p01
+CONFIG_SHORT=dom
+DISABLE_KEYVAULTS=true
+TERRAFORM_MODULES_TAG=stable
 EOF
 
 echo Rendering template...
