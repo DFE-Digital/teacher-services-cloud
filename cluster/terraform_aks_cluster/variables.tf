@@ -99,6 +99,7 @@ locals {
   privatelink_dns_zone_names = [
     "privatelink.redis.cache.windows.net",
     "privatelink.blob.core.windows.net",
+    "redis.azure.net"
     "privatelink.queue.core.windows.net"
   ]
   uk_south_availability_zones = ["1", "2", "3"]
