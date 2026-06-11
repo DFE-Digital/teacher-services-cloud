@@ -1,5 +1,3 @@
-#read -p "enter callback URL to test: " callbackurl
-
 
 curl -sS -X POST -H "Content-Type: application/json" --data-binary @- "$callbackurl" <<'JSON'
 {
