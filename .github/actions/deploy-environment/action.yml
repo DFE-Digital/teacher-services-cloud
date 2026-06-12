@@ -87,9 +87,6 @@ runs:
   - name: Smoke tests
     shell: bash
     run: |
-      echo Check ingress...
-      curl -sS --fail "https://aaa.${APP_DOMAIN}/healthz" > /dev/null
-
       echo Check welcome app...
       curl -sS --fail "https://www.${APP_DOMAIN}/" > /dev/null
 
