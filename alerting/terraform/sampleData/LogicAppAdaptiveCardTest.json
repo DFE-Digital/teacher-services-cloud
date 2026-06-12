@@ -1,0 +1,479 @@
+{
+    "definition": {
+        "metadata": {
+            "notes": {}
+        },
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "contentVersion": "1.0.0.0",
+        "triggers": {
+            "When_an_HTTP_request_is_received": {
+                "type": "Request",
+                "kind": "Http",
+                "inputs": {
+                    "schema": {
+                        "properties": {
+                            "data": {
+                                "properties": {
+                                    "alertContext": {
+                                        "properties": {
+                                            "condition": {
+                                                "properties": {
+                                                    "allOf": {
+                                                        "items": {
+                                                            "properties": {
+                                                                "dimensions": {
+                                                                    "type": "array"
+                                                                },
+                                                                "metricName": {
+                                                                    "type": "string"
+                                                                },
+                                                                "metricNamespace": {},
+                                                                "metricValue": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "operator": {
+                                                                    "type": "string"
+                                                                },
+                                                                "threshold": {
+                                                                    "type": "string"
+                                                                },
+                                                                "timeAggregation": {
+                                                                    "type": "string"
+                                                                },
+                                                                "webTestName": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "metricName",
+                                                                "metricNamespace",
+                                                                "operator",
+                                                                "threshold",
+                                                                "timeAggregation",
+                                                                "dimensions",
+                                                                "metricValue",
+                                                                "webTestName"
+                                                            ],
+                                                            "type": "object"
+                                                        },
+                                                        "type": "array"
+                                                    },
+                                                    "windowEndTime": {
+                                                        "type": "string"
+                                                    },
+                                                    "windowSize": {
+                                                        "type": "string"
+                                                    },
+                                                    "windowStartTime": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "conditionType": {
+                                                "type": "string"
+                                            },
+                                            "properties": {}
+                                        },
+                                        "type": "object"
+                                    },
+                                    "customProperties": {
+                                        "properties": {
+                                            "environment": {
+                                                "type": "string"
+                                            },
+                                            "target_channels": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "essentials": {
+                                        "properties": {
+                                            "alertContextVersion": {
+                                                "type": "string"
+                                            },
+                                            "alertId": {
+                                                "type": "string"
+                                            },
+                                            "alertRule": {
+                                                "type": "string"
+                                            },
+                                            "alertTargetIDs": {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            },
+                                            "configurationItems": {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            },
+                                            "description": {
+                                                "type": "string"
+                                            },
+                                            "essentialsVersion": {
+                                                "type": "string"
+                                            },
+                                            "firedDateTime": {
+                                                "type": "string"
+                                            },
+                                            "monitorCondition": {
+                                                "type": "string"
+                                            },
+                                            "monitoringService": {
+                                                "type": "string"
+                                            },
+                                            "originAlertId": {
+                                                "type": "string"
+                                            },
+                                            "severity": {
+                                                "type": "string"
+                                            },
+                                            "signalType": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "schemaId": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "conditions": []
+            }
+        },
+        "actions": {
+            "For_each": {
+                "type": "Foreach",
+                "foreach": "@variables('target_channels')",
+                "actions": {
+                    "PostToChannel": {
+                        "type": "Switch",
+                        "expression": "@items('For_each')",
+                        "default": {
+                            "actions": {
+                                "Post_card_in_a_chat_or_channel-copy": {
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['teams']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "body": {
+                                            "recipient": {
+                                                "groupId": "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1",
+                                                "channelId": "19:7a37601cb9f34d448f185c240b73ebce@thread.tacv2"
+                                            },
+                                            "messageBody": "@string(variables('AdaptiveCard'))"
+                                        },
+                                        "path": "/v1.0/teams/conversation/adaptivecard/poster/Flow bot/location/@{encodeURIComponent('Channel')}"
+                                    },
+                                    "runAfter": {
+                                        "Set_variable": [
+                                            "SUCCEEDED"
+                                        ]
+                                    }
+                                },
+                                "Set_variable": {
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "cardStyle",
+                                        "value": "warning"
+                                    }
+                                }
+                            }
+                        },
+                        "cases": {
+                            "TSC": {
+                                "actions": {
+                                    "Post_card_in_a_chat_or_channel": {
+                                        "type": "ApiConnection",
+                                        "inputs": {
+                                            "host": {
+                                                "connection": {
+                                                    "name": "@parameters('$connections')['teams']['connectionId']"
+                                                }
+                                            },
+                                            "method": "post",
+                                            "body": {
+                                                "recipient": {
+                                                    "groupId": "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1",
+                                                    "channelId": "19:7a37601cb9f34d448f185c240b73ebce@thread.tacv2"
+                                                },
+                                                "messageBody": "@string(variables('AdaptiveCard'))"
+                                            },
+                                            "path": "/v1.0/teams/conversation/adaptivecard/poster/Flow bot/location/@{encodeURIComponent('Channel')}"
+                                        }
+                                    }
+                                },
+                                "case": "tsc"
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "SetAdaptiveCard": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "Initialize_Variables": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "target_channels",
+                            "type": "array",
+                            "value": "@split(string(triggerBody()?['data']?['customProperties']?['target_channels']),',')"
+                        },
+                        {
+                            "name": "environment",
+                            "type": "string",
+                            "value": "@{triggerBody()?['data']?['customProperties']?['environment']}"
+                        },
+                        {
+                            "name": "alertRule",
+                            "type": "string",
+                            "value": "@{triggerBody()?['data']?['essentials']?['alertRule']}"
+                        },
+                        {
+                            "name": "severity",
+                            "type": "string",
+                            "value": "@{triggerBody()?['data']?['essentials']?['severity']}"
+                        },
+                        {
+                            "name": "monitorCondition",
+                            "type": "string",
+                            "value": "@{triggerBody()?['data']?['essentials']?['monitorCondition']}"
+                        },
+                        {
+                            "name": "alertTargetIDs",
+                            "type": "array",
+                            "value": "@triggerBody()?['data']?['essentials']?['alertTargetIDs']"
+                        },
+                        {
+                            "name": "cardStyle",
+                            "type": "string",
+                            "value": "Default"
+                        },
+                        {
+                            "name": "monitoringService",
+                            "type": "string",
+                            "value": "@{triggerBody()?['data']?['essentials']?['monitoringService']}"
+                        },
+                        {
+                            "name": "alertId",
+                            "type": "string",
+                            "value": "@{triggerBody()?['data']?['essentials']?['alertId']}"
+                        },
+                        {
+                            "name": "data",
+                            "type": "object",
+                            "value": "@triggerBody()"
+                        }
+                    ]
+                },
+                "runAfter": {}
+            },
+            "SetAdaptiveCard": {
+                "type": "InitializeVariable",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "AdaptiveCard",
+                            "type": "object",
+                            "value": {
+                                "$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
+                                "body": [
+                                    {
+                                        "bleed": true,
+                                        "items": [
+                                            {
+                                                "columns": [
+                                                    {
+                                                        "items": [
+                                                            {
+                                                                "color": "@{variables('cardStyle')}",
+                                                                "horizontalAlignment": "Left",
+                                                                "size": "Large",
+                                                                "text": "MyTitle",
+                                                                "type": "TextBlock"
+                                                            }
+                                                        ],
+                                                        "type": "Column",
+                                                        "width": "stretch"
+                                                    },
+                                                    {
+                                                        "items": [
+                                                            {
+                                                                "color": "@{variables('cardStyle')}",
+                                                                "horizontalAlignment": "Right",
+                                                                "size": "Large",
+                                                                "spacing": "Large",
+                                                                "text": "MyService",
+                                                                "type": "TextBlock"
+                                                            }
+                                                        ],
+                                                        "type": "Column",
+                                                        "width": "stretch"
+                                                    }
+                                                ],
+                                                "type": "ColumnSet"
+                                            },
+                                            {
+                                                "inlines": [
+                                                    {
+                                                        "text": "@{variables('alertRule')}",
+                                                        "type": "TextRun"
+                                                    }
+                                                ],
+                                                "separator": true,
+                                                "type": "RichTextBlock"
+                                            }
+                                        ],
+                                        "spacing": "None",
+                                        "style": "@{variables('cardStyle')}",
+                                        "type": "Container"
+                                    }
+                                ],
+                                "type": "AdaptiveCard",
+                                "version": "1.5"
+                            }
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "SetCardStyle": [
+                        "SUCCEEDED"
+                    ]
+                }
+            },
+            "SetCardStyle": {
+                "type": "If",
+                "expression": {
+                    "and": [
+                        {
+                            "equals": [
+                                "@variables('monitorCondition')",
+                                "Resolved"
+                            ]
+                        }
+                    ]
+                },
+                "actions": {
+                    "SetCardStyleGood": {
+                        "type": "SetVariable",
+                        "inputs": {
+                            "name": "cardStyle",
+                            "value": "Good"
+                        }
+                    }
+                },
+                "else": {
+                    "actions": {
+                        "SetSeverityCardStyle": {
+                            "type": "Switch",
+                            "expression": "@variables('severity')",
+                            "default": {
+                                "actions": {
+                                    "SetStyleWarning3": {
+                                        "type": "SetVariable",
+                                        "inputs": {
+                                            "name": "cardStyle",
+                                            "value": "Warning"
+                                        }
+                                    }
+                                }
+                            },
+                            "cases": {
+                                "Sev1": {
+                                    "actions": {
+                                        "SetStyleAttention": {
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "cardStyle",
+                                                "value": "Attention"
+                                            }
+                                        }
+                                    },
+                                    "case": "Sev1"
+                                },
+                                "Sev2": {
+                                    "actions": {
+                                        "SetStyleAttention2": {
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "cardStyle",
+                                                "value": "Attention"
+                                            }
+                                        }
+                                    },
+                                    "case": "Sev2"
+                                },
+                                "Sev3": {
+                                    "actions": {
+                                        "SetStyleWarning": {
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "cardStyle",
+                                                "value": "Warning"
+                                            }
+                                        }
+                                    },
+                                    "case": "Sev3"
+                                },
+                                "Sev4": {
+                                    "actions": {
+                                        "SetStyleWarning2": {
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "cardStyle",
+                                                "value": "Warning"
+                                            }
+                                        }
+                                    },
+                                    "case": "Sev4"
+                                }
+                            }
+                        }
+                    }
+                },
+                "runAfter": {
+                    "Initialize_Variables": [
+                        "Succeeded"
+                    ]
+                }
+            }
+        },
+        "parameters": {
+            "$connections": {
+                "type": "Object",
+                "defaultValue": {}
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "type": "Object",
+            "value": {
+                "teams": {
+                    "id": "/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/providers/Microsoft.Web/locations/uksouth/managedApis/teams",
+                    "connectionId": "/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/resourceGroups/s189d01-tsc-mn-rg/providers/Microsoft.Web/connections/teams-1",
+                    "connectionName": "teams-1",
+                    "connectionProperties": {}
+                }
+            }
+        }
+    }
+}

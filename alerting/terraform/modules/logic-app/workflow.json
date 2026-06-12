@@ -1,0 +1,61 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-05-01/workflowdefinition.json#",
+  "triggers": {
+    "manual": {
+      "type": "Request",
+      "kind": "Http",
+      "inputs": {}
+    }
+  },
+  "actions": {
+    "Get_Secret": {
+      "type": "ApiConnection",
+      "inputs": {
+        "method": "get",
+        "path": "/secrets/apim-shared-secret",
+        "host": {
+          "connection": {
+            "name": "@parameters('$connections')['keyvault']['connectionId']"
+          }
+        }
+      }
+    },
+    "Validate_Secret": {
+      "type": "If",
+      "expression": {
+        "equals": [
+          "@triggerOutputs()['headers']['x-apim-secret']",
+          "@body('Get_Secret')?['value']"
+        ]
+      },
+      "actions": {
+        "Post_to_Teams": {
+          "type": "ApiConnection",
+          "inputs": {
+            "method": "post",
+            "body": {
+              "text": "🚨 Alert received from Azure Monitor"
+            },
+            "host": {
+              "connection": {
+                "name": "@parameters('$connections')['teams']['connectionId']"
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "actions": {
+          "Reject_Request": {
+            "type": "Terminate",
+            "inputs": {
+              "status": "Failed",
+              "code": "401",
+              "message": "Unauthorized"
+            }
+          }
+        }
+      }
+    }
+  }
+}

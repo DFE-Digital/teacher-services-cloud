@@ -203,3 +203,25 @@ airbyte-apply: airbyte-init
 
 airbyte-destroy: airbyte-init
 	terraform -chdir=airbyte/terraform destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
+
+alerting-init: cluster-composed-variables set-azure-account
+
+	terraform -chdir=alerting/terraform init -reconfigure -upgrade \
+		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
+		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
+		-backend-config=key=${ENVIRONMENT}_alerting.tfstate
+
+	$(eval export TF_VAR_environment=${ENVIRONMENT})
+	$(eval export TF_VAR_resource_group_name=${RESOURCE_GROUP_NAME})
+	$(eval export TF_VAR_resource_prefix=${RESOURCE_PREFIX})
+	$(eval export TF_VAR_config=${CONFIG})
+	$(eval export TF_VAR_subscription_id=${AZ_SUBSCRIPTION})
+
+alerting-plan: alerting-init
+	terraform -chdir=alerting/terraform plan -var-file config/${CONFIG}.tfvars.json
+
+alerting-apply: alerting-init
+	terraform -chdir=alerting/terraform apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
+
+alerting-destroy: alerting-init
+	terraform -chdir=alerting/terraform destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}

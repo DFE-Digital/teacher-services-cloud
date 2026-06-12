@@ -107,4 +107,5 @@ locals {
   monitoring_resource_group   = "${var.resource_prefix}-tsc-mn-rg"
   required_available_nodes    = 2
   node_threshold              = var.node_pools["apps1"].max_count + var.default_node_pool.node_count - local.required_available_nodes
+  alert_target_channels       = ["tsc"]
 }
