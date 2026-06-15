@@ -71,6 +71,17 @@ losing information.
 ## Prepare new environment
 These steps must be done by the infra team.
 
+### Prepare the Kubernetes cluster
+
+Configure the centrally managed aspects of the AKS setup for each environment:
+  - [test - `cluster\terraform_kubernetes\config\test.tfvars.json`](cluster\terraform_kubernetes\config\test.tfvars.json)
+  - [production - `cluster\terraform_kubernetes\config\production.tfvars.json`](cluster\terraform_kubernetes\config\production.tfvars.json)
+
+Some items will already be set, other will need to be added:
+  - `namespaces` - add AKS namespaces
+  - `ga_wif_managed_id` - after identity setup (tbc), add the project and its environments
+  - `statuscake_alerts` - where required, add statuscake alerts and [production-checklist](production-checklist#statuscake)
+
 ### Login to Azure
 Raise a [PIM request](https://technical-guidance.education.gov.uk/infrastructure/hosting/azure-cip/#privileged-identity-management-pim-requests) to either:
 - `s189-teacher-services-cloud-test` for non production environments
