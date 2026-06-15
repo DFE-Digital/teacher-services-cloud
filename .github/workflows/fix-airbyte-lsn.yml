@@ -1,0 +1,60 @@
+name: Fix Airbyte LSN
+
+on:
+  workflow_dispatch:
+    inputs:
+      namespace:
+        description: Kubernetes namespace
+        required: true
+        default: bat-qa
+        type: choice
+        options:
+          - bat-qa
+          - bat-staging
+          - tra-development
+          - tra-test
+          - tra-production
+      cluster:
+        description: Cluster name
+        required: true
+        default: test
+        type: choice
+        options:
+          - test
+          - production
+      connection-id:
+        description: Airbyte connection UUID to reset state for
+        required: true
+      dry-run:
+        description: Dry run — inspect state only, do not delete
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+permissions:
+  id-token: write
+
+jobs:
+  fix-lsn:
+    name: Fix Airbyte LSN state
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.cluster }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Fix Airbyte LSN state
+      uses: DFE-Digital/github-actions/fix-airbyte-lsn@master
+      with:
+        azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        namespace: ${{ inputs.namespace }}
+        cluster: ${{ inputs.cluster }}
+        connection-id: ${{ inputs.connection-id }}
+        dry-run: ${{ inputs.dry-run }}
