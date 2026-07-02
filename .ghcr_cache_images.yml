@@ -23,4 +23,5 @@ registry.k8s.io/ingress-nginx/controller:v1.13.4 nginx-controller-v1.13.4
 registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.15.0 kube-state-metrics-v2.15.0
 registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.17.0 kube-state-metrics-v2.17.0
 registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.18.0 kube-state-metrics-v2.18.0
+registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.19.1 kube-state-metrics-v2.19.1
 quay.io/thanos/thanos:v0.39.2 thanos-v0.39.2
