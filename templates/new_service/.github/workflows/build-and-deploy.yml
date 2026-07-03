@@ -218,6 +218,6 @@ jobs:
 #        azure-tenant-id:  ${{ secrets.AZURE_TENANT_ID   }}
 #        azure-subscription-id:  ${{ secrets.AZURE_SUBSCRIPTION_ID   }}
 #        environment: ${{ matrix.domain_environment }}
-#        healthcheck: healthcheck
+#        healthcheck: ${{ env.HEALTHCHECK_CMD }}
 #        teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
 #        service: ${{ vars.TEAMS_MSG_SERVICE_NAME }}
