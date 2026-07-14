@@ -84,22 +84,38 @@ done
 export OPTIONS_BLOCK="$options_block"
 
 awk '
-/^        options:[[:space:]]*$/ {
-  print
-  printf "%s", ENVIRON["OPTIONS_BLOCK"]
-  skip=1
-  next
+# Enter the environment input section
+/^[[:space:]]*environment:[[:space:]]*$/ {
+    in_environment=1
 }
 
-skip && /^        - / {
-  next
+# Leave the environment input section when mode is reached
+in_environment && /^[[:space:]]*mode:[[:space:]]*$/ {
+    in_environment=0
 }
 
+# Replace only the options block belonging to environment
+in_environment && /^[[:space:]]*options:[[:space:]]*$/ {
+    print
+    printf "%s", ENVIRON["OPTIONS_BLOCK"]
+    skip=1
+    next
+}
+
+# While skipping, discard existing list items
+skip && /^[[:space:]]*-[[:space:]]/ {
+    next
+}
+
+# First non-list line after the options block
 skip {
-  skip=0
+    skip=0
 }
 
-{ print }
+# Print all remaining lines
+{
+    print
+}
 ' templates/new_service/.github/workflows/maintenance.yml > tmp.yml \
   && mv tmp.yml new_service/.github/workflows/maintenance.yml
 
