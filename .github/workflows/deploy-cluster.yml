@@ -9,6 +9,7 @@ on:
       - 'documentation/**'
       - 'scripts/**'
       - 'templates/**'
+      - 'alerting/**'
   pull_request:
     branches:
       - main
@@ -23,6 +24,7 @@ on:
       - 'documentation/**'
       - 'scripts/**'
       - 'templates/**'
+      - 'alerting/**'
 
 jobs:
   validate-terraform:

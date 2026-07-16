@@ -23,3 +23,7 @@ custom_domains/terraform/infrastructure/vendor/
 
 # Ignore Jetbrains IDE settings
 .idea
+
+# Ignore csv and json files generated in Alerting scripts
+alerting/scripts/*.csv
+alerting/scripts/*.json

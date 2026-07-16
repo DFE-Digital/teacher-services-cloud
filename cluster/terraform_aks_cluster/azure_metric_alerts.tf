@@ -27,6 +27,10 @@ resource "azurerm_monitor_metric_alert" "node_availability" {
 
   action {
     action_group_id = data.azurerm_monitor_action_group.main.id
+    webhook_properties = {
+      target_channels = local.alert_target_channels
+      environment     = var.environment
+    }
   }
 
   lifecycle { ignore_changes = [tags] }
@@ -54,6 +58,10 @@ resource "azurerm_monitor_metric_alert" "port_exhaustion" {
 
   action {
     action_group_id = data.azurerm_monitor_action_group.main.id
+    webhook_properties = {
+      target_channels = local.alert_target_channels
+      environment     = var.environment
+    }
   }
 
   lifecycle { ignore_changes = [tags] }
@@ -84,6 +92,10 @@ resource "azurerm_monitor_metric_alert" "high_port_usage" {
 
   action {
     action_group_id = data.azurerm_monitor_action_group.main.id
+    webhook_properties = {
+      target_channels = local.alert_target_channels
+      environment     = var.environment
+    }
   }
 
   lifecycle { ignore_changes = [tags] }

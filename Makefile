@@ -203,3 +203,61 @@ airbyte-apply: airbyte-init
 
 airbyte-destroy: airbyte-init
 	terraform -chdir=airbyte/terraform destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
+
+alerting-la-init: cluster-composed-variables set-azure-account
+
+	terraform -chdir=alerting/terraform_logic_app init -reconfigure -upgrade \
+		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
+		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
+		-backend-config=key=${ENVIRONMENT}_alerting_la.tfstate
+
+	$(eval export TF_VAR_environment=${ENVIRONMENT})
+	$(eval export TF_VAR_resource_prefix=${RESOURCE_PREFIX})
+	$(eval export TF_VAR_config=${CONFIG})
+	$(eval export TF_VAR_config=${CONFIG_SHORT})
+	$(eval export TF_VAR_subscription_id=${AZ_SUBSCRIPTION})
+	$(eval RESOURCE_GROUP_NAME=${RESOURCE_PREFIX}-tsc-${CONFIG_SHORT}-rg)
+	$(eval export TF_VAR_resource_group_name=${RESOURCE_GROUP_NAME})
+	$(eval export TF_VAR_alerting_resource_group_name=${RESOURCE_PREFIX}-tsc-mn-rg)
+
+alerting-la-plan: alerting-la-init
+	terraform -chdir=alerting/terraform_logic_app plan -var-file config/${CONFIG}.tfvars.json
+
+alerting-la-apply: alerting-la-init
+	terraform -chdir=alerting/terraform_logic_app apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
+
+alerting-la-destroy: alerting-la-init
+	terraform -chdir=alerting/terraform_logic_app destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
+
+alerting-ag-init: cluster-composed-variables set-azure-account
+
+	terraform -chdir=alerting/terraform_action_groups init -reconfigure -upgrade \
+		-backend-config=resource_group_name=${RESOURCE_GROUP_NAME} \
+		-backend-config=storage_account_name=${STORAGE_ACCOUNT_NAME} \
+		-backend-config=key=${ENVIRONMENT}_alerting_ag.tfstate
+
+	$(eval export TF_VAR_environment=${ENVIRONMENT})
+	$(eval export TF_VAR_resource_prefix=${RESOURCE_PREFIX})
+	$(eval export TF_VAR_config=${CONFIG})
+	$(eval export TF_VAR_config=${CONFIG_SHORT})
+	$(eval export TF_VAR_subscription_id=${AZ_SUBSCRIPTION})
+	$(eval RESOURCE_GROUP_NAME=${RESOURCE_PREFIX}-tsc-${CONFIG_SHORT}-rg)
+	$(eval export TF_VAR_resource_group_name=${RESOURCE_GROUP_NAME})
+	$(eval export TF_VAR_alerting_resource_group_name=${RESOURCE_PREFIX}-tsc-mn-rg)
+
+alerting-ag-plan: alerting-ag-init
+	terraform -chdir=alerting/terraform_action_groups plan -var-file config/${CONFIG}.tfvars.json
+
+alerting-ag-apply: alerting-ag-init
+	terraform -chdir=alerting/terraform_action_groups apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
+
+alerting-ag-destroy: alerting-ag-init
+	terraform -chdir=alerting/terraform_action_groups destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
+
+alerting-init: alerting-la-init alerting-ag-init
+
+alerting-plan: alerting-la-plan alerting-ag-plan
+
+alerting-apply: alerting-la-apply alerting-ag-apply
+
+alerting-destroy: alerting-ag-destroy alerting-la-destroy
