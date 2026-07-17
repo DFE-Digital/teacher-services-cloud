@@ -1,6 +1,16 @@
 name: Deploy Alerting
 
 on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - development
+          - test
+
   push:
     branches:
       - main
@@ -60,7 +70,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        environment: [test]
+        environment: [development, test]
     permissions:
       id-token: write # Required for OIDC authentication to Azure
 
@@ -69,9 +79,9 @@ jobs:
 
     - uses: Azure/login@v3
       with:
-        client-id: ${{ inputs.azure-client-id }}
-        tenant-id: ${{ inputs.azure-tenant-id }}
-        subscription-id: ${{ inputs.azure-subscription-id }}
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - uses: hashicorp/setup-terraform@v3
       with:
@@ -80,8 +90,9 @@ jobs:
 
     - id: terraform
       run: |
-        make ci ${{ inputs.environment_name }} alerting-apply
-        cd alerting/terraform
+        make ci ${{ matrix.environment }} alerting-apply
+
+        cd alerting/terraform_logic_app
         TFOUTPUTS=$(terraform output --json)
         OUTPUTS=($(jq -r <<< "$TFOUTPUTS" | jq -r 'keys | @sh' | tr -d \'))
         for o in "${OUTPUTS[@]}"
@@ -98,7 +109,7 @@ jobs:
         title: Deploy Alerting
         service: Teacher Services Cloud
         message: |
-          The cluster deployment to ${{ matrix.environment }} has failed
+          The alerting  deployment to ${{ matrix.environment }} has failed
 
     - name: Notify teams channel on workflow success
       uses: DFE-Digital/github-actions/send-to-teams-channel@master
@@ -109,4 +120,62 @@ jobs:
         status: good
         minimal: true
         message: |
-          A cluster deployment to ${{ matrix.environment }} has completed successfully
+          An alerting deployment to ${{ matrix.environment }} has completed successfully
+
+  manual_deploy:
+    name: Manual Deploy Alerting
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    environment:
+      name: ${{ inputs.environment }}
+    needs: [validate-terraform]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Required for OIDC authentication to Azure
+
+    steps:
+    - uses: actions/checkout@v6
+
+    - uses: Azure/login@v3
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.terraform_version }}
+        terraform_wrapper: false
+
+    - id: terraform
+      run: |
+        make ci ${{ inputs.environment }} alerting-apply
+
+        cd alerting/terraform_logic_app
+        TFOUTPUTS=$(terraform output --json)
+        OUTPUTS=($(jq -r <<< "$TFOUTPUTS" | jq -r 'keys | @sh' | tr -d \'))
+        for o in "${OUTPUTS[@]}"
+        do
+          echo ${o}=$(jq -r .${o}.value <<< "$TFOUTPUTS") >> $GITHUB_ENV
+        done
+      shell: bash
+
+    - name: Notify teams channel on job failure
+      if: ${{ failure() }}
+      uses: DFE-Digital/github-actions/send-to-teams-channel@master
+      with:
+        teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        title: Deploy Alerting
+        service: Teacher Services Cloud
+        message: |
+          The alerting deployment to ${{ inputs.environment }} has failed
+
+    - name: Notify teams channel on workflow success
+      uses: DFE-Digital/github-actions/send-to-teams-channel@master
+      with:
+        teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        title: Deploy Alerting
+        service: Teacher Services Cloud
+        status: good
+        minimal: true
+        message: |
+          An alerting deployment to ${{ inputs.environment }} has completed successfully
