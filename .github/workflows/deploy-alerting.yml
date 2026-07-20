@@ -61,7 +61,7 @@ jobs:
 
   deploy:
     name: Deploy Alerting
-    if: github.ref == 'refs/heads/main'
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
     concurrency: deploy_${{ matrix.environment }}
     environment:
       name: ${{ matrix.environment }}
@@ -85,12 +85,12 @@ jobs:
 
     - uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: ${{ env.terraform_version }}
+        terraform_version: 1.14.5
         terraform_wrapper: false
 
     - id: terraform
       run: |
-        make ci ${{ matrix.environment }} alerting-apply
+        make ci ${{ matrix.environment }} alerting-apply ENVIRONMENT=${{ matrix.environment }}
 
         cd alerting/terraform_logic_app
         TFOUTPUTS=$(terraform output --json)
@@ -143,12 +143,12 @@ jobs:
 
     - uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: ${{ env.terraform_version }}
+        terraform_version: 1.14.5
         terraform_wrapper: false
 
     - id: terraform
       run: |
-        make ci ${{ inputs.environment }} alerting-apply
+        make ci ${{ inputs.environment }} alerting-apply ENVIRONMENT=${{ inputs.environment }}
 
         cd alerting/terraform_logic_app
         TFOUTPUTS=$(terraform output --json)
