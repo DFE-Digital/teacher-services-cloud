@@ -1,12 +1,25 @@
 locals {
-  core_name      = "teams-alerts"
-  logic_app_name = "${var.resource_prefix}-tsc-${local.core_name}-${var.environment}"
+  core_name              = "teams-alerts"
+  logic_app_name         = "${var.resource_prefix}-tsc-${local.core_name}-${var.environment}"
+  logic_app_trigger_name = "When_an_HTTP_request_is_received"
 }
 
+data "azurerm_resource_group" "this" {
+  name = var.alerting_resource_group_name
+}
 
 data "azurerm_logic_app_workflow" "consumption" {
   name                = local.logic_app_name
   resource_group_name = var.alerting_resource_group_name
+}
+
+data "azapi_resource_action" "callback_url" {
+  resource_id = "${data.azurerm_logic_app_workflow.consumption.id}/triggers/When_an_HTTP_request_is_received"
+  type        = "Microsoft.Logic/workflows/triggers@2019-05-01"
+  action      = "listCallbackUrl"
+  method      = "POST"
+
+  response_export_values = ["value"]
 }
 
 /*
@@ -45,6 +58,14 @@ As we're only updating existing action groups we do a lookup here to get the IDs
 We could pass IDs through from the parent module, and that'd make sense but we need to get the resource details so we can lookup
 logicAppReceivers and avoid adding duplicates so it doesn't benefit us to pass through IDs.
 */
+
+data "azurerm_resource_group" "action_group" {
+  for_each = var.action_groups_to_hookup
+
+  name = each.value.resource_group_name
+}
+
+
 data "azurerm_monitor_action_group" "action_group" {
   for_each = var.action_groups_to_hookup
 
@@ -60,13 +81,13 @@ Using the local it'll preserve the existing receiver's name and only add a new r
 
 locals {
   new_receiver = {
-    callbackUrl          = "https://logicapptriggerurl/..."
+    callbackUrl          = data.azapi_resource_action.callback_url.output.value
     name                 = "tsc-teams-alerting-${var.environment}"
     resourceId           = data.azurerm_logic_app_workflow.consumption.id
     useCommonAlertSchema = true
   }
 
-
+  #AzureRM Version
   action_groups_needing_update = {
     for id, ag in data.azurerm_monitor_action_group.action_group :
     id => ag
