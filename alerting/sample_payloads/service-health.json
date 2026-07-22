@@ -1,0 +1,79 @@
+{
+    "headers": {
+    },
+    "body": {
+        "schemaId": "azureMonitorCommonAlertSchema",
+        "data": {
+            "essentials": {
+                "alertId": "/subscriptions/11111111-1111-1111-1111-111111111111/providers/Microsoft.AlertsManagement/alerts/12312312312312312312312312312312312",
+                "alertRule": "s189t01-service-health-alert",
+                "severity": "Sev4",
+                "signalType": "Activity Log",
+                "monitorCondition": "Fired",
+                "monitoringService": "ServiceHealth",
+                "alertTargetIDs": [
+                    "/subscriptions/11111111-1111-1111-1111-111111111111"
+                ],
+                "configurationItems": [
+                    "11111111-1111-1111-1111-111111111111"
+                ],
+                "originAlertId": "0e0e7f31-f04c-a0fc-6515-8340b733845b",
+                "firedDateTime": "2026-07-20T17:22:08.3116263Z",
+                "description": "Active: Active - Azure Managed Redis metric reporting issue",
+                "essentialsVersion": "1.0",
+                "alertContextVersion": "1.0"
+            },
+            "alertContext": {
+                "authorization": null,
+                "channels": 1,
+                "claims": null,
+                "caller": null,
+                "correlationId": "9a1e652e-5839-4aac-9d5c-c109e605641b",
+                "eventSource": 2,
+                "eventTimestamp": "2026-07-20T17:22:06.2421976+00:00",
+                "httpRequest": null,
+                "eventDataId": "9a1e652e-5839-4aac-9d5c-c109e605641b",
+                "level": 3,
+                "operationName": "Microsoft.ServiceHealth/incident/action",
+                "operationId": "9a1e652e-5839-4aac-9d5c-c109e605641b",
+                "properties": {
+                    "title": "Active - Azure Managed Redis metric reporting issue",
+                    "service": "Redis Cache",
+                    "region": "Australia Central",
+                    "communication": "<p><strong>Impact Statement:</strong> Starting at 14:00 UTC on 20 May 2026, you have been identified as a customer using Azure Managed Redis who may experience incorrect or higher-than-expected or inaccurate Server Load metrics displayed in the monitoring dashboards. On smaller SKUs (2-vCPU nodes), customers may experience brief latency spikes during these intervals.</p>\n<p>&nbsp;</p>\n<p><strong>Workaround:</strong></p>\n<ul><li>As an alternative to Server Load, use the <strong>CPU metric (percentProcessorTime)</strong>. This metric is less sensitive to the reporting issue because it uses an improved calculation that filters out short-lived CPU spikes and provides a more accurate representation of sustained CPU utilization. While the CPU metric is also affected by this reporting issue, the impact is significantly lower compared to Server Load.</li><li>When viewing the <strong>Server Load or CPU metric</strong> in the Azure portal, use the <strong>Average </strong>aggregation instead of Max to obtain a more representative view of resource utilization.</li><li>Until this issue is resolved, any scaling decisions should be based on the <strong>CPU metric (percentProcessorTime)</strong> rather than the Server Load metric.</li><li>If you are experiencing latency impact on a smaller SKU, temporary mitigations are available on request, please contact Azure Support referencing this advisory.</li></ul>\n<p>&nbsp;</p>\n<p><strong>Current Status: </strong></p>\n<p>We are rolling out a fleet-wide short-term mitigation that staggers the internal processes responsible for the periodic, short-lived CPU spikes, which in turn reduces the Server Load spikes previously observed. This mitigation has now been applied to more than 98% of the fleet, with only a small number of caches remaining. We expect the fleet-wide mitigation to be fully completed by 21 July 2026.</p>\n<p>Once applied, this mitigation significantly reduces the periodic spikes. Please note that, depending on the cache SKU, customers may still observe some reduced Server Load/CPU spikes that no longer reach 100%; this is expected behavior for the current mitigation. The cache remains healthy with no sustained CPU pressure, errors, or resource exhaustion.</p>\n<p>A permanent fix that will eliminate these spikes completely is scheduled to be deployed during our maintenance cycle in August 2026.</p>\n<p>The next update will be provided on 22 July 2026, or as events warrant.</p>",
+                    "incidentType": "Incident",
+                    "trackingId": "LPVR-00Z",
+                    "impactStartTime": "2026-05-29T00:06:22.55Z",
+                    "impactedServices": "[{\"ImpactedRegions\":[{\"RegionName\":\"Australia Central\",\"RegionId\":\"australiacentral\"},{\"RegionName\":\"Australia Central 2\",\"RegionId\":\"australiacentral2\"},{\"RegionName\":\"Australia East\",\"RegionId\":\"australiaeast\"},{\"RegionName\":\"Australia Southeast\",\"RegionId\":\"australiasoutheast\"},{\"RegionName\":\"Austria East\",\"RegionId\":\"austriaeast\"},{\"RegionName\":\"Belgium Central\",\"RegionId\":\"belgiumcentral\"},{\"RegionName\":\"Brazil South\",\"RegionId\":\"brazilsouth\"},{\"RegionName\":\"Brazil Southeast\",\"RegionId\":\"brazilsoutheast\"},{\"RegionName\":\"Canada Central\",\"RegionId\":\"canadacentral\"},{\"RegionName\":\"Canada East\",\"RegionId\":\"canadaeast\"},{\"RegionName\":\"Central India\",\"RegionId\":\"centralindia\"},{\"RegionName\":\"Central US\",\"RegionId\":\"centralus\"},{\"RegionName\":\"Central US EUAP\",\"RegionId\":\"centraluseuap\"},{\"RegionName\":\"Chile Central\",\"RegionId\":\"chilecentral\"},{\"RegionName\":\"Denmark East\",\"RegionId\":\"denmarkeast\"},{\"RegionName\":\"East Asia\",\"RegionId\":\"eastasia\"},{\"RegionName\":\"East US\",\"RegionId\":\"eastus\"},{\"RegionName\":\"East US 2\",\"RegionId\":\"eastus2\"},{\"RegionName\":\"East US 2 EUAP\",\"RegionId\":\"eastus2euap\"},{\"RegionName\":\"France Central\",\"RegionId\":\"francecentral\"},{\"RegionName\":\"France South\",\"RegionId\":\"francesouth\"},{\"RegionName\":\"Germany North\",\"RegionId\":\"germanynorth\"},{\"RegionName\":\"Germany West Central\",\"RegionId\":\"germanywestcentral\"},{\"RegionName\":\"India South Central\",\"RegionId\":\"indiasouthcentral\"},{\"RegionName\":\"Indonesia Central\",\"RegionId\":\"indonesiacentral\"},{\"RegionName\":\"Israel Central\",\"RegionId\":\"israelcentral\"},{\"RegionName\":\"Israel Northwest\",\"RegionId\":\"israelnorthwest\"},{\"RegionName\":\"Italy North\",\"RegionId\":\"italynorth\"},{\"RegionName\":\"Japan East\",\"RegionId\":\"japaneast\"},{\"RegionName\":\"Japan West\",\"RegionId\":\"japanwest\"},{\"RegionName\":\"Jio India Central\",\"RegionId\":\"jioindiacentral\"},{\"RegionName\":\"Jio India West\",\"RegionId\":\"jioindiawest\"},{\"RegionName\":\"Korea Central\",\"RegionId\":\"koreacentral\"},{\"RegionName\":\"Korea South\",\"RegionId\":\"koreasouth\"},{\"RegionName\":\"Malaysia South\",\"RegionId\":\"malaysiasouth\"},{\"RegionName\":\"Malaysia West\",\"RegionId\":\"malaysiawest\"},{\"RegionName\":\"Mexico Central\",\"RegionId\":\"mexicocentral\"},{\"RegionName\":\"New Zealand North\",\"RegionId\":\"newzealandnorth\"},{\"RegionName\":\"North Central US\",\"RegionId\":\"northcentralus\"},{\"RegionName\":\"North Europe\",\"RegionId\":\"northeurope\"},{\"RegionName\":\"Norway East\",\"RegionId\":\"norwayeast\"},{\"RegionName\":\"Norway West\",\"RegionId\":\"norwaywest\"},{\"RegionName\":\"Poland Central\",\"RegionId\":\"polandcentral\"},{\"RegionName\":\"Qatar Central\",\"RegionId\":\"qatarcentral\"},{\"RegionName\":\"South Africa North\",\"RegionId\":\"southafricanorth\"},{\"RegionName\":\"South Africa West\",\"RegionId\":\"southafricawest\"},{\"RegionName\":\"South Central US\",\"RegionId\":\"southcentralus\"},{\"RegionName\":\"South India\",\"RegionId\":\"southindia\"},{\"RegionName\":\"Southeast Asia\",\"RegionId\":\"southeastasia\"},{\"RegionName\":\"Spain Central\",\"RegionId\":\"spaincentral\"},{\"RegionName\":\"Sweden Central\",\"RegionId\":\"swedencentral\"},{\"RegionName\":\"Sweden South\",\"RegionId\":\"swedensouth\"},{\"RegionName\":\"Switzerland North\",\"RegionId\":\"switzerlandnorth\"},{\"RegionName\":\"Switzerland West\",\"RegionId\":\"switzerlandwest\"},{\"RegionName\":\"Taiwan North\",\"RegionId\":\"taiwannorth\"},{\"RegionName\":\"UAE Central\",\"RegionId\":\"uaecentral\"},{\"RegionName\":\"UAE North\",\"RegionId\":\"uaenorth\"},{\"RegionName\":\"UK South\",\"RegionId\":\"uksouth\"},{\"RegionName\":\"UK West\",\"RegionId\":\"ukwest\"},{\"RegionName\":\"West Central US\",\"RegionId\":\"westcentralus\"},{\"RegionName\":\"West Europe\",\"RegionId\":\"westeurope\"},{\"RegionName\":\"West India\",\"RegionId\":\"westindia\"},{\"RegionName\":\"West US\",\"RegionId\":\"westus\"},{\"RegionName\":\"West US 2\",\"RegionId\":\"westus2\"},{\"RegionName\":\"West US 3\",\"RegionId\":\"westus3\"}],\"ServiceName\":\"Redis Cache\",\"ServiceId\":\"rediscache\",\"ServiceGuid\":\"24fbd5a2-aa9a-4055-8c05-388790f655d0\"}]",
+                    "impactedServicesTableRows": "<tr>\r\n<td align='center' style='padding: 5px 10px; border-right:1px solid black; border-bottom:1px solid black'>Redis Cache</td>\r\n<td align='center' style='padding: 5px 10px; border-bottom:1px solid black'>Australia Central<br>Australia Central 2<br>Australia East<br>Australia Southeast<br>Austria East<br>Belgium Central<br>Brazil South<br>Brazil Southeast<br>Canada Central<br>Canada East<br>Central India<br>Central US<br>Central US EUAP<br>Chile Central<br>Denmark East<br>East Asia<br>East US<br>East US 2<br>East US 2 EUAP<br>France Central<br>France South<br>Germany North<br>Germany West Central<br>India South Central<br>Indonesia Central<br>Israel Central<br>Israel Northwest<br>Italy North<br>Japan East<br>Japan West<br>Jio India Central<br>Jio India West<br>Korea Central<br>Korea South<br>Malaysia South<br>Malaysia West<br>Mexico Central<br>New Zealand North<br>North Central US<br>North Europe<br>Norway East<br>Norway West<br>Poland Central<br>Qatar Central<br>South Africa North<br>South Africa West<br>South Central US<br>South India<br>Southeast Asia<br>Spain Central<br>Sweden Central<br>Sweden South<br>Switzerland North<br>Switzerland West<br>Taiwan North<br>UAE Central<br>UAE North<br>UK South<br>UK West<br>West Central US<br>West Europe<br>West India<br>West US<br>West US 2<br>West US 3<br></td>\r\n</tr>\r\n",
+                    "defaultLanguageTitle": "Active - Azure Managed Redis metric reporting issue",
+                    "defaultLanguageContent": "<p><strong>Impact Statement:</strong> Starting at 14:00 UTC on 20 May 2026, you have been identified as a customer using Azure Managed Redis who may experience incorrect or higher-than-expected or inaccurate Server Load metrics displayed in the monitoring dashboards. On smaller SKUs (2-vCPU nodes), customers may experience brief latency spikes during these intervals.</p>\n<p>&nbsp;</p>\n<p><strong>Workaround:</strong></p>\n<ul><li>As an alternative to Server Load, use the <strong>CPU metric (percentProcessorTime)</strong>. This metric is less sensitive to the reporting issue because it uses an improved calculation that filters out short-lived CPU spikes and provides a more accurate representation of sustained CPU utilization. While the CPU metric is also affected by this reporting issue, the impact is significantly lower compared to Server Load.</li><li>When viewing the <strong>Server Load or CPU metric</strong> in the Azure portal, use the <strong>Average </strong>aggregation instead of Max to obtain a more representative view of resource utilization.</li><li>Until this issue is resolved, any scaling decisions should be based on the <strong>CPU metric (percentProcessorTime)</strong> rather than the Server Load metric.</li><li>If you are experiencing latency impact on a smaller SKU, temporary mitigations are available on request, please contact Azure Support referencing this advisory.</li></ul>\n<p>&nbsp;</p>\n<p><strong>Current Status: </strong></p>\n<p>We are rolling out a fleet-wide short-term mitigation that staggers the internal processes responsible for the periodic, short-lived CPU spikes, which in turn reduces the Server Load spikes previously observed. This mitigation has now been applied to more than 98% of the fleet, with only a small number of caches remaining. We expect the fleet-wide mitigation to be fully completed by 21 July 2026.</p>\n<p>Once applied, this mitigation significantly reduces the periodic spikes. Please note that, depending on the cache SKU, customers may still observe some reduced Server Load/CPU spikes that no longer reach 100%; this is expected behavior for the current mitigation. The cache remains healthy with no sustained CPU pressure, errors, or resource exhaustion.</p>\n<p>A permanent fix that will eliminate these spikes completely is scheduled to be deployed during our maintenance cycle in August 2026.</p>\n<p>The next update will be provided on 22 July 2026, or as events warrant.</p>",
+                    "stage": "Active",
+                    "communicationId": "11000322564177",
+                    "maintenanceId": "",
+                    "maintenanceType": "",
+                    "isHIR": "false",
+                    "IsSynthetic": "False",
+                    "impactType": "SubscriptionList",
+                    "emailTemplateId": "tem_jCfXGkcx9fMD8p4hq6XVdGv9",
+                    "emailTemplateFullVersion": "ver_YmZvWy6k7MwmcYj3KYg8MloA",
+                    "emailTemplateLocale": "en-US",
+                    "smsText": "Active:Active - Azure Managed Redis metric reporting issue",
+                    "communicationRouteType": "Normal",
+                    "version": "0.1.1",
+                    "argQuery": "",
+                    "eventTags": "[]",
+                    "cloudName": "Public",
+                    "sensitive": "false"
+                },
+                "status": "Active",
+                "subStatus": null,
+                "tenantId": null,
+                "submissionTimestamp": "2026-07-20T17:22:08.3116263+00:00",
+                "ResourceType": null,
+                "ScopeId": "11111111-1111-1111-1111-111111111111"
+            },
+            "customProperties": {}
+        }
+    }
+}

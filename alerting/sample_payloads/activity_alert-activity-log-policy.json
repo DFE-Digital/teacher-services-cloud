@@ -1,0 +1,53 @@
+{
+  "headers": {},
+  "body": {
+    "schemaId": "azureMonitorCommonAlertSchema",
+    "data": {
+      "essentials": {
+        "alertId": "/subscriptions/<subscription ID>/providers/Microsoft.AlertsManagement/alerts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e",
+        "alertRule": "WCUS-R2-Gen2",
+        "severity": "Sev3",
+        "signalType": "Metric",
+        "monitorCondition": "Resolved",
+        "monitoringService": "Platform",
+        "alertTargetIDs": [
+          "/subscriptions/<subscription ID>/resourcegroups/pipelinealertrg/providers/microsoft.compute/virtualmachines/wcus-r2-gen2"
+        ],
+        "configurationItems": [
+          "wcus-r2-gen2"
+        ],
+        "originAlertId": "3f2d4487-b0fc-4125-8bd5-7ad17384221e_PipeLineAlertRG_microsoft.insights_metricAlerts_WCUS-R2-Gen2_-117781227",
+        "firedDateTime": "2019-03-22T13:58:24.3713213Z",
+        "resolvedDateTime": "2019-03-22T14:03:16.2246313Z",
+        "description": "activity_alert-activity-log-policy",
+        "essentialsVersion": "1.0",
+        "alertContextVersion": "1.0"
+      },
+      "alertContext": {
+        "authorization": {
+          "action": "Microsoft.Resources/checkPolicyCompliance/read",
+          "scope": "/subscriptions/<GUID>"
+        },
+        "channels": "Operation",
+        "claims": "{\"aud\":\"https://management.azure.com/\",\"iss\":\"https://sts.windows.net/<GUID>/\",\"iat\":\"1566711059\",\"nbf\":\"1566711059\",\"exp\":\"1566740159\",\"aio\":\"42FgYOhynHNw0scy3T/bL71+xLyqEwA=\",\"appid\":\"<GUID>\",\"appidacr\":\"2\",\"http://schemas.microsoft.com/identity/claims/identityprovider\":\"https://sts.windows.net/<GUID>/\",\"http://schemas.microsoft.com/identity/claims/objectidentifier\":\"<GUID>\",\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier\":\"<GUID>\",\"http://schemas.microsoft.com/identity/claims/tenantid\":\"<GUID>\",\"uti\":\"Miy1GzoAG0Scu_l3m1aIAA\",\"ver\":\"1.0\"}",
+        "caller": "<GUID>",
+        "correlationId": "<GUID>",
+        "eventSource": "Policy",
+        "eventTimestamp": "2019-08-25T11:11:34.2269098+00:00",
+        "eventDataId": "<GUID>",
+        "level": "Warning",
+        "operationName": "Microsoft.Authorization/policies/audit/action",
+        "operationId": "<GUID>",
+        "properties": {
+          "isComplianceCheck": "True",
+          "resourceLocation": "eastus2",
+          "ancestors": "<GUID>",
+          "policies": "[{\"policyDefinitionId\":\"/providers/Microsoft.Authorization/policyDefinitions/<GUID>/\",\"policySetDefinitionId\":\"/providers/Microsoft.Authorization/policySetDefinitions/<GUID>/\",\"policyDefinitionReferenceId\":\"vulnerabilityAssessmentMonitoring\",\"policySetDefinitionName\":\"<GUID>\",\"policyDefinitionName\":\"<GUID>\",\"policyDefinitionEffect\":\"AuditIfNotExists\",\"policyAssignmentId\":\"/subscriptions/<GUID>/providers/Microsoft.Authorization/policyAssignments/SecurityCenterBuiltIn/\",\"policyAssignmentName\":\"SecurityCenterBuiltIn\",\"policyAssignmentScope\":\"/subscriptions/<GUID>\",\"policyAssignmentSku\":{\"name\":\"A1\",\"tier\":\"Standard\"},\"policyAssignmentParameters\":{}}]"
+        },
+        "status": "Succeeded",
+        "subStatus": "",
+        "submissionTimestamp": "2019-08-25T11:12:46.1557298+00:00"
+      }
+    }
+  }
+}

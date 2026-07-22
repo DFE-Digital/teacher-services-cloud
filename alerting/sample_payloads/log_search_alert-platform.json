@@ -1,0 +1,96 @@
+{
+  "headers": {},
+  "body": {
+    "schemaId": "azureMonitorCommonAlertSchema",
+    "data": {
+      "essentials": {
+        "alertId": "/subscriptions/<subscription ID>/providers/Microsoft.AlertsManagement/alerts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e",
+        "alertRule": "WCUS-R2-Gen2",
+        "severity": "Sev3",
+        "signalType": "Metric",
+        "monitorCondition": "Resolved",
+        "monitoringService": "Platform",
+        "alertTargetIDs": [
+          "/subscriptions/<subscription ID>/resourcegroups/pipelinealertrg/providers/microsoft.compute/virtualmachines/wcus-r2-gen2"
+        ],
+        "configurationItems": [
+          "wcus-r2-gen2"
+        ],
+        "originAlertId": "3f2d4487-b0fc-4125-8bd5-7ad17384221e_PipeLineAlertRG_microsoft.insights_metricAlerts_WCUS-R2-Gen2_-117781227",
+        "firedDateTime": "2019-03-22T13:58:24.3713213Z",
+        "resolvedDateTime": "2019-03-22T14:03:16.2246313Z",
+        "description": "log_search_alert-platform",
+        "essentialsVersion": "1.0",
+        "alertContextVersion": "1.0"
+      },
+      "alertContext": {
+        "SearchQuery": "Perf | where ObjectName == \"Processor\" and CounterName == \"% Processor Time\" | summarize AggregatedValue = avg(CounterValue) by bin(TimeGenerated, 5m), Computer",
+        "SearchIntervalStartTimeUtc": "3/22/2019 1:36:31 PM",
+        "SearchIntervalEndtimeUtc": "3/22/2019 1:51:31 PM",
+        "ResultCount": 2,
+        "LinkToSearchResults": "https://portal.azure.com/#Analyticsblade/search/index?_timeInterval.intervalEnd=2018-03-26T09%3a10%3a40.0000000Z&_timeInterval.intervalDuration=3600&q=Usage",
+        "LinkToFilteredSearchResultsUI": "https://portal.azure.com/#Analyticsblade/search/index?_timeInterval.intervalEnd=2018-03-26T09%3a10%3a40.0000000Z&_timeInterval.intervalDuration=3600&q=Usage",
+        "LinkToSearchResultsAPI": "https://api.loganalytics.io/v1/workspaces/workspaceID/query?query=Heartbeat&timespan=2020-05-07T18%3a11%3a51.0000000Z%2f2020-05-07T18%3a16%3a51.0000000Z",
+        "LinkToFilteredSearchResultsAPI": "https://api.loganalytics.io/v1/workspaces/workspaceID/query?query=Heartbeat&timespan=2020-05-07T18%3a11%3a51.0000000Z%2f2020-05-07T18%3a16%3a51.0000000Z",
+        "SeverityDescription": "Warning",
+        "WorkspaceId": "a0a0a0a0-bbbb-cccc-dddd-e1e1e1e1e1e1",
+        "SearchIntervalDurationMin": "15",
+        "AffectedConfigurationItems": [
+          "INC-Gen2Alert"
+        ],
+        "SearchIntervalInMinutes": "15",
+        "Threshold": 10000,
+        "Operator": "Less Than",
+        "Dimensions": [
+          {
+            "name": "Computer",
+            "value": "INC-Gen2Alert"
+          }
+        ],
+        "SearchResults": {
+          "tables": [
+            {
+              "name": "PrimaryResult",
+              "columns": [
+                {
+                  "name": "$table",
+                  "type": "string"
+                },
+                {
+                  "name": "Computer",
+                  "type": "string"
+                },
+                {
+                  "name": "TimeGenerated",
+                  "type": "datetime"
+                }
+              ],
+              "rows": [
+                [
+                  "Fabrikam",
+                  "33446677a",
+                  "2018-02-02T15:03:12.18Z"
+                ],
+                [
+                  "Contoso",
+                  "33445566b",
+                  "2018-02-02T15:16:53.932Z"
+                ]
+              ]
+            }
+          ],
+          "dataSources": [
+            {
+              "resourceId": "/subscriptions/bbbb1b1b-cc2c-dd3d-ee4e-ffffff5f5f5f/resourcegroups/test/providers/microsoft.operationalinsights/workspaces/test",
+              "tables": [
+                "Heartbeat"
+              ]
+            }
+          ]
+        },
+        "IncludedSearchResults": "True",
+        "AlertType": "Metric measurement"
+      }
+    }
+  }
+}
