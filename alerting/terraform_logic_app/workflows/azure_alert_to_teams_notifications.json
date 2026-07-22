@@ -1,672 +1,854 @@
 {
-"metadata": {
-            "notes": {}
-        },
-        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-        "contentVersion": "1.0.0.0",
-        "triggers": {
-            "When_an_HTTP_request_is_received": {
-                "type": "Request",
-                "kind": "Http",
-                "inputs": {
-                    "schema": {
-                        "properties": {
-                            "data": {
-                                "properties": {
-                                    "alertContext": {
-                                        "properties": {
-                                            "condition": {
-                                                "properties": {
-                                                    "allOf": {
-                                                        "items": {
-                                                            "properties": {
-                                                                "dimensions": {
-                                                                    "type": "array"
-                                                                },
-                                                                "metricName": {
-                                                                    "type": "string"
-                                                                },
-                                                                "metricNamespace": {},
-                                                                "metricValue": {
-                                                                    "type": "integer"
-                                                                },
-                                                                "operator": {
-                                                                    "type": "string"
-                                                                },
-                                                                "threshold": {
-                                                                    "type": "string"
-                                                                },
-                                                                "timeAggregation": {
-                                                                    "type": "string"
-                                                                },
-                                                                "webTestName": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "required": [
-                                                                "metricName",
-                                                                "metricNamespace",
-                                                                "operator",
-                                                                "threshold",
-                                                                "timeAggregation",
-                                                                "dimensions",
-                                                                "metricValue",
-                                                                "webTestName"
-                                                            ],
-                                                            "type": "object"
-                                                        },
-                                                        "type": "array"
-                                                    },
-                                                    "windowEndTime": {
-                                                        "type": "string"
-                                                    },
-                                                    "windowSize": {
-                                                        "type": "string"
-                                                    },
-                                                    "windowStartTime": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            },
-                                            "conditionType": {
-                                                "type": "string"
-                                            },
-                                            "properties": {}
-                                        },
-                                        "type": "object"
-                                    },
-                                    "customProperties": {
-                                        "properties": {
-                                            "environment": {
-                                                "type": "string"
-                                            },
-                                            "target_channels": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "type": "object"
-                                    },
-                                    "essentials": {
-                                        "properties": {
-                                            "alertContextVersion": {
-                                                "type": "string"
-                                            },
-                                            "alertId": {
-                                                "type": "string"
-                                            },
-                                            "alertRule": {
-                                                "type": "string"
-                                            },
-                                            "alertTargetIDs": {
-                                                "items": {
-                                                    "type": "string"
-                                                },
-                                                "type": "array"
-                                            },
-                                            "configurationItems": {
-                                                "items": {
-                                                    "type": "string"
-                                                },
-                                                "type": "array"
-                                            },
-                                            "description": {
-                                                "type": "string"
-                                            },
-                                            "essentialsVersion": {
-                                                "type": "string"
-                                            },
-                                            "firedDateTime": {
-                                                "type": "string"
-                                            },
-                                            "monitorCondition": {
-                                                "type": "string"
-                                            },
-                                            "monitoringService": {
-                                                "type": "string"
-                                            },
-                                            "originAlertId": {
-                                                "type": "string"
-                                            },
-                                            "severity": {
-                                                "type": "string"
-                                            },
-                                            "signalType": {
-                                                "type": "string"
-                                            }
-                                        },
-                                        "type": "object"
-                                    }
-                                },
-                                "type": "object"
-                            },
-                            "schemaId": {
-                                "type": "string"
-                            }
-                        },
-                        "type": "object"
-                    }
-                },
-                "conditions": []
-            }
-        },
-        "actions": {
-            "ChannelFound": {
-                "actions": {
-                    "SetChannelGroupId": {
-                        "runAfter": {
-                            "SetChannelId": [
-                                "Succeeded"
-                            ]
-                        },
-                        "type": "SetVariable",
-                        "inputs": {
-                            "name": "TeamsGroupID",
-                            "value": "@first(body('FindShortCode'))?['channelGroupId']"
-                        }
-                    },
-                    "SetChannelId": {
-                        "type": "SetVariable",
-                        "inputs": {
-                            "name": "TeamsChannelId",
-                            "value": "@first(body('FindShortCode'))?['channelId']"
-                        }
-                    }
-                },
-                "runAfter": {
-                    "FindShortCode": [
-                        "Succeeded"
-                    ]
-                },
-                "else": {
-                    "actions": {
-                        "SetDefaultChannelGroupId": {
-                            "runAfter": {
-                                "SetDefaultChannelId": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "SetVariable",
-                            "inputs": {
-                                "name": "TeamsGroupID",
-                                "value": "@parameters('defaultChannelGroupId')"
-                            }
-                        },
-                        "SetDefaultChannelId": {
-                            "runAfter": {
-                                "SetDescriptionAddition": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "SetVariable",
-                            "inputs": {
-                                "name": "TeamsChannelId",
-                                "value": "@parameters('defaultChannelId')"
-                            }
-                        },
-                        "SetDescriptionAddition": {
-                            "type": "SetVariable",
-                            "inputs": {
-                                "name": "description_additions",
-                                "value": "@concat('\n','(Note, this alert is targeted at ',variables('target_short_code'),')')"
-                            }
-                        }
-                    }
-                },
-                "expression": {
-                    "and": [
-                        {
-                            "equals": [
-                                "@length(body('FindShortCode'))",
-                                1
-                            ]
-                        }
-                    ]
-                },
-                "type": "If"
-            },
-            "FindShortCode": {
-                "runAfter": {
-                    "ParseIdMapping": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "Query",
-                "inputs": {
-                    "from": "@body('ParseIdMapping')?['mapping']",
-                    "where": "@equals(item()?['shortCode'], variables('target_short_code'))"
-                }
-            },
-            "Initialize_Variables": {
-                "runAfter": {},
-                "type": "InitializeVariable",
-                "inputs": {
-                    "variables": [
-                        {
-                            "name": "target_short_code",
-                            "type": "string",
-                            "value": "@{string(triggerBody()?['data']?['customProperties']?['target_channels'])}"
-                        },
-                        {
-                            "name": "environment",
-                            "type": "string",
-                            "value": "@{triggerBody()?['data']?['customProperties']?['environment']}"
-                        },
-                        {
-                            "name": "alertRule",
-                            "type": "string",
-                            "value": "@{triggerBody()?['data']?['essentials']?['alertRule']}"
-                        },
-                        {
-                            "name": "severity",
-                            "type": "string",
-                            "value": "@{triggerBody()?['data']?['essentials']?['severity']}"
-                        },
-                        {
-                            "name": "monitorCondition",
-                            "type": "string",
-                            "value": "@{triggerBody()?['data']?['essentials']?['monitorCondition']}"
-                        },
-                        {
-                            "name": "alertTargetIDs",
-                            "type": "array",
-                            "value": "@triggerBody()?['data']?['essentials']?['alertTargetIDs']"
-                        },
-                        {
-                            "name": "cardStyle",
-                            "type": "string",
-                            "value": "Default"
-                        },
-                        {
-                            "name": "monitoringService",
-                            "type": "string",
-                            "value": "@{triggerBody()?['data']?['essentials']?['monitoringService']}"
-                        },
-                        {
-                            "name": "alertId",
-                            "type": "string",
-                            "value": "@{triggerBody()?['data']?['essentials']?['alertId']}"
-                        },
-                        {
-                            "name": "Description",
-                            "type": "string",
-                            "value": "@{triggerBody()?['data']?['essentials']?['description']}"
-                        },
-                        {
-                            "name": "resourceGroup",
-                            "type": "string",
-                            "value": "@{split(first(triggerBody()?['data']?['essentials']?['alertTargetIDs']),'/')[4]}"
-                        },
-                        {
-                            "name": "multipleTargets",
-                            "type": "boolean",
-                            "value": false
-                        },
-                        {
-                            "name": "targetId",
-                            "type": "string",
-                            "value": "@{first(triggerBody()?['data']?['essentials']?['alertTargetIDs'])}"
-                        },
-                        {
-                            "name": "resourceName",
-                            "type": "string",
-                            "value": "@{split(first(triggerBody()?['data']?['essentials']?['alertTargetIDs']),'/')[8]}"
-                        },
-                        {
-                            "name": "alertEventUrl",
-                            "type": "string",
-                            "value": "@{concat(    'https://portal.azure.com/#blade/Microsoft_Azure_Monitoring/AlertDetailsTemplateBlade/alertId/',  encodeUriComponent(triggerBody()['data']['essentials']['alertId']))}"
-                        },
-                        {
-                            "name": "resourceUrl",
-                            "type": "string",
-                            "value": "@{concat('https://portal.azure.com/',parameters('tenantId'),'/resource/',first(triggerBody()?['data']?['essentials']?['alertTargetIDs']))}"
-                        },
-                        {
-                            "name": "resourceType",
-                            "type": "string",
-                            "value": "@{concat(split(first(triggerBody()?['data']?['essentials']?['alertTargetIDs']),'/')[6],'/',split(first(triggerBody()?['data']?['essentials']?['alertTargetIDs']),'/')[7])}"
-                        },
-                        {
-                            "name": "description_additions",
-                            "type": "string"
-                        },
-                        {
-                            "name": "TeamsChannelId",
-                            "type": "string",
-                            "value": "19:7a37601cb9f34d448f185c240b73ebce@thread.tacv2"
-                        },
-                        {
-                            "name": "TeamsGroupID",
-                            "type": "string",
-                            "value": "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1"
-                        }
-                    ]
-                }
-            },
-            "ParseIdMapping": {
-                "runAfter": {
-                    "Initialize_Variables": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "ParseJson",
-                "inputs": {
-                    "content": "@parameters('ShortCodeToId')",
-                    "schema": {
-                        "mapping": [
-                            {
-                                "channelDisplayName": "ptt",
-                                "channelGroupId": "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1",
-                                "channelId": "19:7a37601cb9f34d448f185c240b73ebce@thread.tacv2",
-                                "shortCode": "ptt"
-                            },
-                            {
-                                "channelDisplayName": "att",
-                                "channelGroupId": "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1",
-                                "channelId": "19:7a37601cb9f34d448f185c240b73ebce@thread.tacv2",
-                                "shortCode": "att"
-                            },
-                            {
-                                "channelGroupId": "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1",
-                                "channelId": "19:7a37601cb9f34d448f185c240b73ebce@thread.tacv2",
-                                "displayName": "Webhook test channel",
-                                "shortCode": "tsc"
-                            }
-                        ]
-                    }
-                }
-            },
-            "Post_card_in_a_chat_or_channel": {
-                "runAfter": {
-                    "SetAdaptiveCard": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "ApiConnection",
-                "inputs": {
-                    "host": {
-                        "connection": {
-                            "name": "@parameters('$connections')['teams']['connectionId']"
-                        }
-                    },
-                    "method": "post",
-                    "body": {
-                        "recipient": {
-                            "groupId": "@variables('TeamsGroupID')",
-                            "channelId": "@variables('TeamsChannelId')"
-                        },
-                        "messageBody": "@string(variables('AdaptiveCard'))"
-                    },
-                    "path": "/v1.0/teams/conversation/adaptivecard/poster/Flow bot/location/@{encodeURIComponent('Channel')}"
-                }
-            },
-            "SetAdaptiveCard": {
-                "runAfter": {
-                    "SetCardStyle": [
-                        "Succeeded"
-                    ]
-                },
-                "type": "InitializeVariable",
-                "inputs": {
-                    "variables": [
-                        {
-                            "name": "AdaptiveCard",
+    "metadata": {
+        "notes": {}
+    },
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "triggers": {
+        "When_an_HTTP_request_is_received": {
+            "type": "Request",
+            "kind": "Http",
+            "inputs": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "headers": {
                             "type": "object",
-                            "value": {
-                                "$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
-                                "actions": [
-                                    {
-                                        "title": "View Alert",
-                                        "type": "Action.OpenUrl",
-                                        "url": "@{variables('alertEventUrl')}"
-                                    },
-                                    {
-                                        "title": "View Resource",
-                                        "type": "Action.OpenUrl",
-                                        "url": "@{variables('resourceUrl')}"
-                                    }
-                                ],
-                                "body": [
-                                    {
-                                        "bleed": true,
-                                        "items": [
-                                            {
-                                                "columns": [
-                                                    {
-                                                        "items": [
-                                                            {
-                                                                "size": "Large",
-                                                                "text": "@{variables('alertRule')}",
-                                                                "type": "TextBlock",
-                                                                "weight": "Bolder",
-                                                                "wrap": true
-                                                            }
-                                                        ],
-                                                        "type": "Column",
-                                                        "width": "stretch"
-                                                    },
-                                                    {
-                                                        "items": [
-                                                            {
-                                                                "color": "@{variables('cardStyle')}",
-                                                                "horizontalAlignment": "Right",
-                                                                "size": "Large",
-                                                                "text": "@{variables('monitorCondition')}",
-                                                                "type": "TextBlock",
-                                                                "weight": "Bolder"
-                                                            }
-                                                        ],
-                                                        "type": "Column",
-                                                        "width": "auto"
-                                                    }
-                                                ],
-                                                "type": "ColumnSet"
-                                            },
-                                            {
-                                                "inlines": [
-                                                    {
-                                                        "text": "Severity: ",
-                                                        "type": "TextRun",
-                                                        "weight": "Bolder"
-                                                    },
-                                                    {
-                                                        "text": "@{variables('severity')}",
-                                                        "type": "TextRun"
-                                                    }
-                                                ],
-                                                "separator": true,
-                                                "type": "RichTextBlock"
-                                            }
-                                        ],
-                                        "spacing": "None",
-                                        "style": "@{variables('cardStyle')}",
-                                        "type": "Container"
-                                    },
-                                    {
-                                        "items": [
-                                            {
-                                                "facts": [
-                                                    {
-                                                        "title": "Alert Name",
-                                                        "value": "@{variables('alertRule')}"
-                                                    },
-                                                    {
-                                                        "title": "Severity",
-                                                        "value": "@{variables('severity')}"
-                                                    },
-                                                    {
-                                                        "title": "Monitor Condition",
-                                                        "value": "@{variables('monitorCondition')}"
-                                                    },
-                                                    {
-                                                        "title": "Afected Resource",
-                                                        "value": "@{variables('targetId')}"
-                                                    },
-                                                    {
-                                                        "title": "Resource Group",
-                                                        "value": "@{variables('resourceGroup')}"
-                                                    },
-                                                    {
-                                                        "title": "Resource Type",
-                                                        "value": "@{variables('resourceType')}"
-                                                    },
-                                                    {
-                                                        "title": "Description",
-                                                        "value": "@{variables('Description')}@{variables('description_additions')}"
-                                                    }
-                                                ],
-                                                "type": "FactSet"
-                                            }
-                                        ],
-                                        "type": "Container"
-                                    }
-                                ],
-                                "type": "AdaptiveCard",
-                                "version": "1.5"
+                            "properties": {
+                                "Expect": {
+                                    "type": "string"
+                                },
+                                "Host": {
+                                    "type": "string"
+                                },
+                                "Max-Forwards": {
+                                    "type": "string"
+                                },
+                                "User-Agent": {
+                                    "type": "string"
+                                },
+                                "X-CorrelationContext": {
+                                    "type": "string"
+                                },
+                                "X-ARR-LOG-ID": {
+                                    "type": "string"
+                                },
+                                "CLIENT-IP": {
+                                    "type": "string"
+                                },
+                                "DISGUISED-HOST": {
+                                    "type": "string"
+                                },
+                                "X-SITE-DEPLOYMENT-ID": {
+                                    "type": "string"
+                                },
+                                "WAS-DEFAULT-HOSTNAME": {
+                                    "type": "string"
+                                },
+                                "X-Forwarded-Proto": {
+                                    "type": "string"
+                                },
+                                "X-AppService-Proto": {
+                                    "type": "string"
+                                },
+                                "X-ARR-SSL": {
+                                    "type": "string"
+                                },
+                                "X-Forwarded-TlsVersion": {
+                                    "type": "string"
+                                },
+                                "X-Forwarded-For": {
+                                    "type": "string"
+                                },
+                                "X-Original-URL": {
+                                    "type": "string"
+                                },
+                                "X-WAWS-Unencoded-URL": {
+                                    "type": "string"
+                                },
+                                "X-Azure-JA4-Fingerprint": {
+                                    "type": "string"
+                                },
+                                "Content-Length": {
+                                    "type": "string"
+                                },
+                                "Content-Type": {
+                                    "type": "string"
+                                }
                             }
-                        }
-                    ]
-                }
-            },
-            "SetCardStyle": {
-                "actions": {
-                    "SetCardStyleGood": {
-                        "type": "SetVariable",
-                        "inputs": {
-                            "name": "cardStyle",
-                            "value": "Good"
-                        }
-                    }
-                },
-                "runAfter": {
-                    "ChannelFound": [
-                        "Succeeded"
-                    ]
-                },
-                "else": {
-                    "actions": {
-                        "SetSeverityCardStyle": {
-                            "cases": {
-                                "Sev1": {
-                                    "case": "Sev1",
-                                    "actions": {
-                                        "SetStyleAttention": {
-                                            "type": "SetVariable",
-                                            "inputs": {
-                                                "name": "cardStyle",
-                                                "value": "Attention"
-                                            }
-                                        }
-                                    }
+                        },
+                        "body": {
+                            "type": "object",
+                            "properties": {
+                                "schemaId": {
+                                    "type": "string"
                                 },
-                                "Sev2": {
-                                    "case": "Sev2",
-                                    "actions": {
-                                        "SetStyleAttention2": {
-                                            "type": "SetVariable",
-                                            "inputs": {
-                                                "name": "cardStyle",
-                                                "value": "Attention"
+                                "data": {
+                                    "type": "object",
+                                    "properties": {
+                                        "essentials": {
+                                            "type": "object",
+                                            "properties": {
+                                                "alertId": {
+                                                    "type": "string"
+                                                },
+                                                "alertRule": {
+                                                    "type": "string"
+                                                },
+                                                "severity": {
+                                                    "type": "string"
+                                                },
+                                                "signalType": {
+                                                    "type": "string"
+                                                },
+                                                "monitorCondition": {
+                                                    "type": "string"
+                                                },
+                                                "monitoringService": {
+                                                    "type": "string"
+                                                },
+                                                "alertTargetIDs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "configurationItems": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "originAlertId": {
+                                                    "type": "string"
+                                                },
+                                                "firedDateTime": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                },
+                                                "essentialsVersion": {
+                                                    "type": "string"
+                                                },
+                                                "alertContextVersion": {
+                                                    "type": "string"
+                                                }
                                             }
-                                        }
-                                    }
-                                },
-                                "Sev3": {
-                                    "case": "Sev3",
-                                    "actions": {
-                                        "SetStyleWarning": {
-                                            "type": "SetVariable",
-                                            "inputs": {
-                                                "name": "cardStyle",
-                                                "value": "Warning"
+                                        },
+                                        "alertContext": {
+                                            "type": "object",
+                                            "properties": {
+                                                "properties": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "customKey1": {
+                                                            "type": "string"
+                                                        },
+                                                        "customKey2": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "conditionType": {
+                                                    "type": "string"
+                                                },
+                                                "condition": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "windowSize": {
+                                                            "type": "string"
+                                                        },
+                                                        "allOf": {
+                                                            "type": "array",
+                                                            "items": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "alertSensitivity": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "failingPeriods": {
+                                                                        "type": "object",
+                                                                        "properties": {
+                                                                            "numberOfEvaluationPeriods": {
+                                                                                "type": "integer"
+                                                                            },
+                                                                            "minFailingPeriodsToAlert": {
+                                                                                "type": "integer"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "ignoreDataBefore": {},
+                                                                    "metricName": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "metricNamespace": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "operator": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "threshold": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "timeAggregation": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "dimensions": {
+                                                                        "type": "array"
+                                                                    },
+                                                                    "metricValue": {
+                                                                        "type": "number"
+                                                                    },
+                                                                    "webTestName": {}
+                                                                },
+                                                                "required": [
+                                                                    "alertSensitivity",
+                                                                    "failingPeriods",
+                                                                    "ignoreDataBefore",
+                                                                    "metricName",
+                                                                    "metricNamespace",
+                                                                    "operator",
+                                                                    "threshold",
+                                                                    "timeAggregation",
+                                                                    "dimensions",
+                                                                    "metricValue",
+                                                                    "webTestName"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "windowStartTime": {
+                                                            "type": "string"
+                                                        },
+                                                        "windowEndTime": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
                                             }
-                                        }
-                                    }
-                                },
-                                "Sev4": {
-                                    "case": "Sev4",
-                                    "actions": {
-                                        "SetStyleWarning2": {
-                                            "type": "SetVariable",
-                                            "inputs": {
-                                                "name": "cardStyle",
-                                                "value": "Warning"
+                                        },
+                                        "customProperties": {
+                                            "type": "object",
+                                            "properties": {
+                                                "target_channels": {
+                                                    "type": "string"
+                                                },
+                                                "environment": {
+                                                    "type": "string"
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            },
-                            "default": {
+                            }
+                        }
+                    }
+                }
+            },
+            "conditions": []
+        }
+    },
+    "actions": {
+        "Initialize_Variables": {
+            "type": "InitializeVariable",
+            "inputs": {
+                "variables": [
+                    {
+                        "name": "target_short_code",
+                        "type": "string",
+                        "value": "notset"
+                    },
+                    {
+                        "name": "environment",
+                        "type": "string",
+                        "value": "@{triggerBody()?['body']?['data']?['customProperties']?['environment']}"
+                    },
+                    {
+                        "name": "alertRule",
+                        "type": "string",
+                        "value": "@{triggerBody()?['body']?['data']?['essentials']?['alertRule']}"
+                    },
+                    {
+                        "name": "severity",
+                        "type": "string",
+                        "value": "@{triggerBody()?['body']?['data']?['essentials']?['severity']}"
+                    },
+                    {
+                        "name": "monitorCondition",
+                        "type": "string",
+                        "value": "@{triggerBody()?['body']?['data']?['essentials']?['monitorCondition']}"
+                    },
+                    {
+                        "name": "cardStyle",
+                        "type": "string",
+                        "value": "Default"
+                    },
+                    {
+                        "name": "monitoringService",
+                        "type": "string",
+                        "value": "@{triggerBody()?['body']?['data']?['essentials']?['monitoringService']}"
+                    },
+                    {
+                        "name": "alertId",
+                        "type": "string",
+                        "value": "@{triggerBody()?['body']?['data']?['essentials']?['alertId']}"
+                    },
+                    {
+                        "name": "Description",
+                        "type": "string",
+                        "value": "@{triggerBody()?['body']?['data']?['essentials']?['description']}"
+                    },
+                    {
+                        "name": "resourceGroup",
+                        "type": "string",
+                        "value": "notset"
+                    },
+                    {
+                        "name": "multipleTargets",
+                        "type": "boolean",
+                        "value": false
+                    },
+                    {
+                        "name": "targetId",
+                        "type": "string",
+                        "value": "notset"
+                    },
+                    {
+                        "name": "resourceName",
+                        "type": "string",
+                        "value": "notset"
+                    },
+                    {
+                        "name": "alertEventUrl",
+                        "type": "string",
+                        "value": "notset"
+                    },
+                    {
+                        "name": "resourceUrl",
+                        "type": "string",
+                        "value": "notset"
+                    },
+                    {
+                        "name": "resourceType",
+                        "type": "string",
+                        "value": "notset"
+                    },
+                    {
+                        "name": "description_additions",
+                        "type": "string"
+                    },
+                    {
+                        "name": "TeamsChannelId",
+                        "type": "string",
+                        "value": "@{parameters('defaultChannelId')}"
+                    },
+                    {
+                        "name": "TeamsGroupID",
+                        "type": "string",
+                        "value": "@{parameters('defaultChannelGroupId')}"
+                    },
+                    {
+                        "name": "alertTargetIDs",
+                        "type": "array",
+                        "value": "@triggerBody()?['body']?['data']?['essentials']?['alertTargetIDs']"
+                    }
+                ]
+            },
+            "runAfter": {}
+        },
+        "ParseIdMapping": {
+            "type": "ParseJson",
+            "inputs": {
+                "content": "@parameters('ShortCodeToId')",
+                "schema": {
+                    "mapping": [
+                        {
+                            "channelDisplayName": "ptt",
+                            "channelGroupId": "a0000000000000",
+                            "channelId": "a0000000000000",
+                            "shortCode": "ptt"
+                        },
+                        {
+                            "channelDisplayName": "att",
+                            "channelGroupId": "a0000000000000",
+                            "channelId": "a0000000000000",
+                            "shortCode": "att"
+                        }
+                    ]
+                }
+            },
+            "runAfter": {
+                "Scope_-_try": [
+                    "Succeeded",
+                    "FAILED"
+                ]
+            }
+        },
+        "FindShortCode": {
+            "type": "Query",
+            "inputs": {
+                "from": "@body('ParseIdMapping')?['mapping']",
+                "where": "@equals(item()?['shortCode'], variables('target_short_code'))"
+            },
+            "runAfter": {
+                "ParseIdMapping": [
+                    "Succeeded"
+                ]
+            }
+        },
+        "ChannelFound": {
+            "type": "If",
+            "expression": {
+                "and": [
+                    {
+                        "equals": [
+                            "@length(body('FindShortCode'))",
+                            1
+                        ]
+                    }
+                ]
+            },
+            "actions": {
+                "SetChannelGroupId": {
+                    "type": "SetVariable",
+                    "inputs": {
+                        "name": "TeamsGroupID",
+                        "value": "@first(body('FindShortCode'))?['channelGroupId']"
+                    },
+                    "runAfter": {
+                        "SetChannelId": [
+                            "Succeeded"
+                        ]
+                    }
+                },
+                "SetChannelId": {
+                    "type": "SetVariable",
+                    "inputs": {
+                        "name": "TeamsChannelId",
+                        "value": "@first(body('FindShortCode'))?['channelId']"
+                    }
+                }
+            },
+            "else": {
+                "actions": {
+                    "SetDefaultChannelGroupId": {
+                        "type": "SetVariable",
+                        "inputs": {
+                            "name": "TeamsGroupID",
+                            "value": "@parameters('defaultChannelGroupId')"
+                        },
+                        "runAfter": {
+                            "SetDefaultChannelId": [
+                                "Succeeded"
+                            ]
+                        }
+                    },
+                    "SetDefaultChannelId": {
+                        "type": "SetVariable",
+                        "inputs": {
+                            "name": "TeamsChannelId",
+                            "value": "@parameters('defaultChannelId')"
+                        },
+                        "runAfter": {
+                            "SetDescriptionAddition": [
+                                "Succeeded"
+                            ]
+                        }
+                    },
+                    "SetDescriptionAddition": {
+                        "type": "SetVariable",
+                        "inputs": {
+                            "name": "description_additions",
+                            "value": "@concat('\n','(Note, this alert is targeted at ',variables('target_short_code'),')')"
+                        }
+                    }
+                }
+            },
+            "runAfter": {
+                "FindShortCode": [
+                    "Succeeded"
+                ]
+            }
+        },
+        "SetCardStyle": {
+            "type": "If",
+            "expression": {
+                "and": [
+                    {
+                        "equals": [
+                            "@variables('monitorCondition')",
+                            "Resolved"
+                        ]
+                    }
+                ]
+            },
+            "actions": {
+                "SetCardStyleGood": {
+                    "type": "SetVariable",
+                    "inputs": {
+                        "name": "cardStyle",
+                        "value": "Good"
+                    }
+                }
+            },
+            "else": {
+                "actions": {
+                    "SetSeverityCardStyle": {
+                        "type": "Switch",
+                        "expression": "@variables('severity')",
+                        "default": {
+                            "actions": {
+                                "SetStyleWarning3": {
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "cardStyle",
+                                        "value": "Warning"
+                                    }
+                                }
+                            }
+                        },
+                        "cases": {
+                            "Sev1": {
                                 "actions": {
-                                    "SetStyleWarning3": {
+                                    "SetStyleAttention": {
+                                        "type": "SetVariable",
+                                        "inputs": {
+                                            "name": "cardStyle",
+                                            "value": "Attention"
+                                        }
+                                    }
+                                },
+                                "case": "Sev1"
+                            },
+                            "Sev2": {
+                                "actions": {
+                                    "SetStyleAttention2": {
+                                        "type": "SetVariable",
+                                        "inputs": {
+                                            "name": "cardStyle",
+                                            "value": "Attention"
+                                        }
+                                    }
+                                },
+                                "case": "Sev2"
+                            },
+                            "Sev3": {
+                                "actions": {
+                                    "SetStyleWarning": {
                                         "type": "SetVariable",
                                         "inputs": {
                                             "name": "cardStyle",
                                             "value": "Warning"
                                         }
                                     }
-                                }
+                                },
+                                "case": "Sev3"
                             },
-                            "expression": "@variables('severity')",
-                            "type": "Switch"
+                            "Sev4": {
+                                "actions": {
+                                    "SetStyleWarning2": {
+                                        "type": "SetVariable",
+                                        "inputs": {
+                                            "name": "cardStyle",
+                                            "value": "Warning"
+                                        }
+                                    }
+                                },
+                                "case": "Sev4"
+                            }
                         }
                     }
-                },
-                "expression": {
-                    "and": [
-                        {
-                            "equals": [
-                                "@variables('monitorCondition')",
-                                "Resolved"
-                            ]
-                        }
-                    ]
-                },
-                "type": "If"
+                }
+            },
+            "runAfter": {
+                "ChannelFound": [
+                    "Succeeded"
+                ]
             }
         },
-        "parameters": {
-            "ShortCodeToId": {
-                "defaultValue": {
-                    "mapping": [
-                        {
-                            "channelDisplayName": "ptt",
-                            "channelGroupId": "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1",
-                            "channelId": "19:7a37601cb9f34d448f185c240b73ebce@thread.tacv2",
-                            "shortCode": "ptt"
-                        },
-                        {
-                            "channelDisplayName": "att",
-                            "channelGroupId": "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1",
-                            "channelId": "19:7a37601cb9f34d448f185c240b73ebce@thread.tacv2",
-                            "shortCode": "att"
-                        },
-                        {
-                            "channelGroupId": "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1",
-                            "channelId": "19:7a37601cb9f34d448f185c240b73ebce@thread.tacv2",
-                            "displayName": "Webhook test channel",
-                            "shortCode": "tsc"
+        "SetAdaptiveCard": {
+            "type": "InitializeVariable",
+            "inputs": {
+                "variables": [
+                    {
+                        "name": "AdaptiveCard",
+                        "type": "object",
+                        "value": {
+                            "$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
+                            "actions": [
+                                {
+                                    "title": "View Alert",
+                                    "type": "Action.OpenUrl",
+                                    "url": "@{variables('alertEventUrl')}"
+                                },
+                                {
+                                    "title": "View Resource",
+                                    "type": "Action.OpenUrl",
+                                    "url": "@{variables('resourceUrl')}"
+                                }
+                            ],
+                            "body": [
+                                {
+                                    "bleed": true,
+                                    "items": [
+                                        {
+                                            "columns": [
+                                                {
+                                                    "items": [
+                                                        {
+                                                            "size": "Large",
+                                                            "text": "@{variables('alertRule')}",
+                                                            "type": "TextBlock",
+                                                            "weight": "Bolder",
+                                                            "wrap": true
+                                                        }
+                                                    ],
+                                                    "type": "Column",
+                                                    "width": "stretch"
+                                                },
+                                                {
+                                                    "items": [
+                                                        {
+                                                            "color": "@{variables('cardStyle')}",
+                                                            "horizontalAlignment": "Right",
+                                                            "size": "Large",
+                                                            "text": "@{variables('monitorCondition')}",
+                                                            "type": "TextBlock",
+                                                            "weight": "Bolder"
+                                                        }
+                                                    ],
+                                                    "type": "Column",
+                                                    "width": "auto"
+                                                }
+                                            ],
+                                            "type": "ColumnSet"
+                                        },
+                                        {
+                                            "inlines": [
+                                                {
+                                                    "text": "Severity: ",
+                                                    "type": "TextRun",
+                                                    "weight": "Bolder"
+                                                },
+                                                {
+                                                    "text": "@{variables('severity')}",
+                                                    "type": "TextRun"
+                                                }
+                                            ],
+                                            "separator": true,
+                                            "type": "RichTextBlock"
+                                        }
+                                    ],
+                                    "spacing": "None",
+                                    "style": "@{variables('cardStyle')}",
+                                    "type": "Container"
+                                },
+                                {
+                                    "items": [
+                                        {
+                                            "facts": [
+                                                {
+                                                    "title": "Alert Name",
+                                                    "value": "@{variables('alertRule')}"
+                                                },
+                                                {
+                                                    "title": "Severity",
+                                                    "value": "@{variables('severity')}"
+                                                },
+                                                {
+                                                    "title": "Monitor Condition",
+                                                    "value": "@{variables('monitorCondition')}"
+                                                },
+                                                {
+                                                    "title": "Afected Resource",
+                                                    "value": "@{variables('targetId')}"
+                                                },
+                                                {
+                                                    "title": "Resource Group",
+                                                    "value": "@{variables('resourceGroup')}"
+                                                },
+                                                {
+                                                    "title": "Resource Type",
+                                                    "value": "@{variables('resourceType')}"
+                                                },
+                                                {
+                                                    "title": "Description",
+                                                    "value": "@{variables('Description')}@{variables('description_additions')}"
+                                                }
+                                            ],
+                                            "type": "FactSet"
+                                        }
+                                    ],
+                                    "type": "Container"
+                                }
+                            ],
+                            "type": "AdaptiveCard",
+                            "version": "1.5"
                         }
-                    ]
+                    }
+                ]
+            },
+            "runAfter": {
+                "SetCardStyle": [
+                    "Succeeded"
+                ]
+            }
+        },
+        "Post_card_in_a_chat_or_channel": {
+            "type": "ApiConnection",
+            "inputs": {
+                "host": {
+                    "connection": {
+                        "name": "@parameters('$connections')['teams']['connectionId']"
+                    }
                 },
-                "type": "Object"
+                "method": "post",
+                "body": {
+                    "recipient": {
+                        "groupId": "@variables('TeamsGroupID')",
+                        "channelId": "@variables('TeamsChannelId')"
+                    },
+                    "messageBody": "@string(variables('AdaptiveCard'))"
+                },
+                "path": "/v1.0/teams/conversation/adaptivecard/poster/Flow bot/location/@{encodeURIComponent('Channel')}"
             },
-            "defaultChannelGroupId": {
-                "defaultValue": "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1",
-                "type": "String"
+            "runAfter": {
+                "SetAdaptiveCard": [
+                    "Succeeded"
+                ]
+            }
+        },
+        "Scope_-_try": {
+            "type": "Scope",
+            "actions": {
+                "Set_variable_-_alertEventUrl": {
+                    "type": "SetVariable",
+                    "inputs": {
+                        "name": "alertEventUrl",
+                        "value": "@concat(    'https://portal.azure.com/#blade/Microsoft_Azure_Monitoring/AlertDetailsTemplateBlade/alertId/',  encodeUriComponent(variables('alertId')))"
+                    },
+                    "runAfter": {
+                        "Set_variable_-_resourceType": [
+                            "Succeeded"
+                        ]
+                    }
+                },
+                "Set_variable_-_resourceType": {
+                    "type": "SetVariable",
+                    "inputs": {
+                        "name": "resourceType",
+                        "value": "@if(\n  and(\n    not(empty(variables('alertTargetIDs'))),\n    not(empty(first(variables('alertTargetIDs')))),\n    greater(length(split(first(variables('alertTargetIDs')), '/')), 8)\n  ),\n  concat(split(first(variables('alertTargetIDs')),'/')[6],'/',split(first(variables('alertTargetIDs')),'/')[7]),\n  'Unknown'\n)"
+                    },
+                    "runAfter": {
+                        "Set_variable_-_resourceUrl": [
+                            "Succeeded"
+                        ]
+                    }
+                },
+                "Set_variable_-_resourceUrl": {
+                    "type": "SetVariable",
+                    "inputs": {
+                        "name": "resourceUrl",
+                        "value": "@concat('https://portal.azure.com/',parameters('tenantId'),'/resource/',first(variables('alertTargetIDs')))"
+                    },
+                    "runAfter": {
+                        "Set_variable_-_resourceName": [
+                            "Succeeded"
+                        ]
+                    }
+                },
+                "Set_variable_-_resourceName": {
+                    "type": "SetVariable",
+                    "inputs": {
+                        "name": "resourceName",
+                        "value": "@if(\n  and(\n    not(empty(variables('alertTargetIDs'))),\n    not(empty(first(variables('alertTargetIDs')))),\n    greater(length(split(first(variables('alertTargetIDs')), '/')), 8)\n  ),\n  split(first(variables('alertTargetIDs')), '/')[8],\n  coalesce(first(variables('alertTargetIDs')), 'Unknown')\n)"
+                    },
+                    "runAfter": {
+                        "Set_variable_-_targetId": [
+                            "Succeeded"
+                        ]
+                    }
+                },
+                "Set_variable_-_targetId": {
+                    "type": "SetVariable",
+                    "inputs": {
+                        "name": "targetId",
+                        "value": "@first(variables('alertTargetIDs'))"
+                    },
+                    "runAfter": {
+                        "Set_variable_-_resourceGroup": [
+                            "Succeeded"
+                        ]
+                    }
+                },
+                "Set_variable_-_resourceGroup": {
+                    "type": "SetVariable",
+                    "inputs": {
+                        "name": "resourceGroup",
+                        "value": "@if(\n  and(\n    not(empty(variables('alertTargetIDs'))),\n    not(empty(first(variables('alertTargetIDs')))),\n    greater(length(split(first(variables('alertTargetIDs')), '/')), 4)\n  ),\n  split(first(variables('alertTargetIDs')), '/')[4],\n  coalesce(first(variables('alertTargetIDs')), 'notset')\n)\n"
+                    },
+                    "runAfter": {
+                        "Set_variable_-_target_short_code": [
+                            "Succeeded"
+                        ]
+                    }
+                },
+                "Set_variable_-_target_short_code": {
+                    "type": "SetVariable",
+                    "inputs": {
+                        "name": "target_short_code",
+                        "value": "@string(triggerBody()?['data']?['customProperties']?['target_channels'])"
+                    }
+                }
             },
-            "defaultChannelId": {
-                "defaultValue": "19:7a37601cb9f34d448f185c240b73ebce@thread.tacv2",
-                "type": "String"
-            },
-            "tenantId": {
-                "defaultValue": "#@platform.education.gov.uk",
-                "type": "String"
-            },
-            "$connections": {
-                "type": "Object",
-                "defaultValue": {}
+            "runAfter": {
+                "Initialize_Variables": [
+                    "Succeeded"
+                ]
             }
         }
+    },
+    "parameters": {
+        "ShortCodeToId": {
+            "defaultValue": {
+                "mapping": [
+                    {
+                        "channelDisplayName": "ptt",
+                        "channelGroupId": "111111111111",
+                        "channelId": "111111111111",
+                        "shortCode": "ptt"
+                    },
+                    {
+                        "channelDisplayName": "att",
+                        "channelGroupId": "111111111111",
+                        "channelId": "111111111111",
+                        "shortCode": "att"
+                    },
+                    {
+                        "channelGroupId": "111111111111",
+                        "channelId": "111111111111",
+                        "displayName": "Webhook test channel",
+                        "shortCode": "tsc"
+                    }
+                ]
+            },
+            "type": "Object"
+        },
+        "defaultChannelGroupId": {
+            "defaultValue": "111111111111",
+            "type": "String"
+        },
+        "defaultChannelId": {
+            "defaultValue": "111111111111",
+            "type": "String"
+        },
+        "tenantId": {
+            "defaultValue": "#@platform.education.gov.uk",
+            "type": "String"
+        },
+        "$connections": {
+            "type": "Object",
+            "defaultValue": {}
+        }
     }
+}
