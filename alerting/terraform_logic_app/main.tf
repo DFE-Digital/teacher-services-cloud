@@ -3,8 +3,13 @@ data "azurerm_key_vault" "key_vault" {
   resource_group_name = var.resource_group_name
 }
 
-data "azurerm_key_vault_secret" "short_code_to_channel" {
-  name         = "SHORT-CODE-TO-TEAMS-CHANNEL"
+data "azurerm_key_vault_secrets" "this" {
+  key_vault_id = data.azurerm_key_vault.key_vault.id
+}
+
+data "azurerm_key_vault_secret" "this" {
+  for_each     = toset(data.azurerm_key_vault_secrets.this.names)
+  name         = each.key
   key_vault_id = data.azurerm_key_vault.key_vault.id
 }
 
@@ -34,9 +39,9 @@ resource "azapi_resource" "consumption" {
 
       parameters = {
         tenantId              = { value = "#@platform.education.gov.uk" }
-        ShortCodeToId         = { value = { mapping = jsondecode(data.azurerm_key_vault_secret.short_code_to_channel.value) } }
-        defaultChannelGroupId = { value = "88f2c5be-5902-4ffa-a7f6-e327b30b0ab1" }
-        defaultChannelId      = { value = "19:7a37601cb9f34d448f185c240b73ebce@thread.tacv2" }
+        ShortCodeToId         = { value = { mapping = jsondecode(data.azurerm_key_vault_secret.this["SHORT-CODE-TO-TEAMS-CHANNEL"].value) } }
+        defaultChannelGroupId = { value = data.azurerm_key_vault_secret.this["AZ-ALERTS-DEFAULT-TEAMS-CHANNEL-GROUPID"].value }
+        defaultChannelId      = { value = data.azurerm_key_vault_secret.this["AZ-ALERTS-DEFAULT-TEAMS-CHANNEL-ID"].value }
         "$connections" = {
           value = {
             teams = {

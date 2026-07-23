@@ -1,0 +1,52 @@
+{
+    "headers": {},
+    "body": {
+        "schemaId": "azureMonitorCommonAlertSchema",
+        "data": {
+            "essentials": {
+                "alertId": "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/providers/Microsoft.AlertsManagement/alerts/eeeeeeee-4444-5555-6666-ffffffffffff",
+                "alertRule": "test-availabilityTest-test-applicationInsights",
+                "severity": "Sev1",
+                "signalType": "Metric",
+                "monitorCondition": "Fired",
+                "monitoringService": "Platform",
+                "alertTargetIDs": [
+                    "/subscriptions/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e/resourcegroups/test-RG/providers/microsoft.insights/components/test-applicationInsights"
+                ],
+                "configurationItems": [
+                    "test-applicationInsights"
+                ],
+                "originAlertId": "aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e_test-RG_microsoft.insights_metricalerts_test-availabilityTest-test-applicationInsights_1234567890",
+                "firedDateTime": "2025-04-15T17:42:34.824Z",
+                "description": "Alertruledescription",
+                "essentialsVersion": "1.0",
+                "alertContextVersion": "1.0"
+            },
+            "alertContext": {
+                "properties": null,
+                "conditionType": "WebtestLocationAvailabilityCriteria",
+                "condition": {
+                    "windowSize": "PT5M",
+                    "allOf": [
+                        {
+                            "metricName": "FailedLocation",
+                            "metricNamespace": null,
+                            "operator": "GreaterThan",
+                            "threshold": "2",
+                            "timeAggregation": "Sum",
+                            "dimensions": [],
+                            "metricValue": 5.0,
+                            "webTestName": "test-availabilityTest-test-applicationInsights"
+                        }
+                    ],
+                    "windowStartTime": "2025-04-15T17:42:34.824Z",
+                    "windowEndTime": "2025-04-15T17:42:34.824Z"
+                }
+            },
+            "customProperties": {
+                "target_channels": "tsc",
+                "environment": "dev"
+            }
+        }
+    }
+}

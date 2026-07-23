@@ -1,0 +1,50 @@
+{
+  "headers": {},
+  "body": {
+    "schemaId": "azureMonitorCommonAlertSchema",
+    "data": {
+      "essentials": {
+        "alertId": "/subscriptions/<subscription ID>/providers/Microsoft.AlertsManagement/alerts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e",
+        "alertRule": "WCUS-R2-Gen2",
+        "severity": "Sev3",
+        "signalType": "Metric",
+        "monitorCondition": "Resolved",
+        "monitoringService": "Platform",
+        "alertTargetIDs": [
+          "/subscriptions/<subscription ID>/resourcegroups/pipelinealertrg/providers/microsoft.compute/virtualmachines/wcus-r2-gen2"
+        ],
+        "configurationItems": [
+          "wcus-r2-gen2"
+        ],
+        "originAlertId": "3f2d4487-b0fc-4125-8bd5-7ad17384221e_PipeLineAlertRG_microsoft.insights_metricAlerts_WCUS-R2-Gen2_-117781227",
+        "firedDateTime": "2019-03-22T13:58:24.3713213Z",
+        "resolvedDateTime": "2019-03-22T14:03:16.2246313Z",
+        "description": "activity_alert-activity-log-autoscale",
+        "essentialsVersion": "1.0",
+        "alertContextVersion": "1.0"
+      },
+      "alertContext": {
+        "channels": "Admin, Operation",
+        "claims": "{\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/spn\":\"Microsoft.Insights/autoscaleSettings\"}",
+        "caller": "Microsoft.Insights/autoscaleSettings",
+        "correlationId": "<GUID>",
+        "eventSource": "Autoscale",
+        "eventTimestamp": "2019-08-21T16:17:47.1551167+00:00",
+        "eventDataId": "<GUID>",
+        "level": "Informational",
+        "operationName": "Microsoft.Insights/AutoscaleSettings/Scaleup/Action",
+        "operationId": "<GUID>",
+        "properties": {
+          "description": "The autoscale engine attempting to scale resource '/subscriptions/d<GUID>/resourceGroups/testRG/providers/Microsoft.Compute/virtualMachineScaleSets/testVMSS' from 9 instances count to 10 instances count.",
+          "resourceName": "/subscriptions/<GUID>/resourceGroups/voiceassistancedemo/providers/Microsoft.Compute/virtualMachineScaleSets/alexademo",
+          "oldInstancesCount": "9",
+          "newInstancesCount": "10",
+          "activeAutoscaleProfile": "{\r\n  \"Name\": \"Auto created scale condition\",\r\n  \"Capacity\": {\r\n    \"Minimum\": \"1\",\r\n    \"Maximum\": \"10\",\r\n    \"Default\": \"1\"\r\n  },\r\n  \"Rules\": [\r\n    {\r\n      \"MetricTrigger\": {\r\n        \"Name\": \"Percentage CPU\",\r\n        \"Namespace\": \"microsoft.compute/virtualmachinescalesets\",\r\n        \"Resource\": \"/subscriptions/<GUID>/resourceGroups/testRG/providers/Microsoft.Compute/virtualMachineScaleSets/testVMSS\",\r\n        \"ResourceLocation\": \"eastus\",\r\n        \"TimeGrain\": \"PT1M\",\r\n        \"Statistic\": \"Average\",\r\n        \"TimeWindow\": \"PT5M\",\r\n        \"TimeAggregation\": \"Average\",\r\n        \"Operator\": \"GreaterThan\",\r\n        \"Threshold\": 0.0,\r\n        \"Source\": \"/subscriptions/<GUID>/resourceGroups/testRG/providers/Microsoft.Compute/virtualMachineScaleSets/testVMSS\",\r\n        \"MetricType\": \"MDM\",\r\n        \"Dimensions\": [],\r\n        \"DividePerInstance\": false\r\n      },\r\n      \"ScaleAction\": {\r\n        \"Direction\": \"Increase\",\r\n        \"Type\": \"ChangeCount\",\r\n        \"Value\": \"1\",\r\n        \"Cooldown\": \"PT1M\"\r\n      }\r\n    }\r\n  ]\r\n}",
+          "lastScaleActionTime": "Wed, 21 Aug 2019 16:17:47 GMT"
+        },
+        "status": "Succeeded",
+        "submissionTimestamp": "2019-08-21T16:17:47.2410185+00:00"
+      }
+    }
+  }
+}
