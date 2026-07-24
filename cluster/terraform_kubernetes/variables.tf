@@ -128,6 +128,26 @@ variable "enable_lowpriority_app" {
   default = false
 }
 
+variable "enable_splunk_logging" {
+  type = bool
+  default = false
+  description = "Enables logstash and filebeat for shipping logs to Splunk"
+}
+
+variable "logstash_version" {
+  type    = string
+  default = "8.19.9"
+}
+
+variable "logstash_image" {
+  type    = string
+  default = "logstash"
+}
+
+variable "logstash_replica_count" {
+  type    = number
+  default = 1
+}
 variable "grafana_app_cpu" {
   type    = string
   default = "500m"
@@ -400,6 +420,11 @@ locals {
 
   filebeats_template_variable_map = {
     BEATS_URL = data.azurerm_key_vault_secret.beats_url.value
+  }
+
+  logstash_template_variable_map = {
+    SPLUNK_EVENTS_URL = data.azurerm_key_vault_secret.splunk_events_url.value
+    SPLUNK_EVENTS_TOKEN = data.azurerm_key_vault_secret.splunk_events_token.value
   }
 
   cluster_sa_name = (var.environment == var.config ?

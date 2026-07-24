@@ -1,0 +1,17 @@
+input {
+  beats {
+    port => 5044
+  }
+}
+
+filter {
+}
+
+output {
+  http  {
+    content_type => "application/json"
+    http_method => "post"
+    url => "${SPLUNK_EVENTS_URL}"
+    headers => ["Authorization", "Splunk ${SPLUNK_EVENTS_TOKEN}"]
+  }
+}

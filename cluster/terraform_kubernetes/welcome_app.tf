@@ -18,6 +18,7 @@ resource "kubernetes_deployment" "welcome_app" {
         annotations = {
           "logit.io/send"        = "true"
           "fluentbit.io/exclude" = "true"
+          "splunk/send"          = "true"
         }
       }
       spec {
