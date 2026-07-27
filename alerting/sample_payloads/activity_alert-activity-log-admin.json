@@ -1,0 +1,47 @@
+{
+  "headers": {},
+  "body": {
+    "schemaId": "azureMonitorCommonAlertSchema",
+    "data": {
+      "essentials": {
+        "alertId": "/subscriptions/<subscription ID>/providers/Microsoft.AlertsManagement/alerts/aaaa0a0a-bb1b-cc2c-dd3d-eeeeee4e4e4e",
+        "alertRule": "WCUS-R2-Gen2",
+        "severity": "Sev3",
+        "signalType": "Metric",
+        "monitorCondition": "Resolved",
+        "monitoringService": "Platform",
+        "alertTargetIDs": [
+          "/subscriptions/<subscription ID>/resourcegroups/pipelinealertrg/providers/microsoft.compute/virtualmachines/wcus-r2-gen2"
+        ],
+        "configurationItems": [
+          "wcus-r2-gen2"
+        ],
+        "originAlertId": "3f2d4487-b0fc-4125-8bd5-7ad17384221e_PipeLineAlertRG_microsoft.insights_metricAlerts_WCUS-R2-Gen2_-117781227",
+        "firedDateTime": "2019-03-22T13:58:24.3713213Z",
+        "resolvedDateTime": "2019-03-22T14:03:16.2246313Z",
+        "description": "activity_alert-activity-log-admin",
+        "essentialsVersion": "1.0",
+        "alertContextVersion": "1.0"
+      },
+      "alertContext": {
+        "authorization": {
+          "action": "Microsoft.Compute/virtualMachines/restart/action",
+          "scope": "/subscriptions/<subscription ID>/resourceGroups/PipeLineAlertRG/providers/Microsoft.Compute/virtualMachines/WCUS-R2-ActLog"
+        },
+        "channels": "Operation",
+        "claims": "{\"aud\":\"https://management.core.windows.net/\",\"iss\":\"https://sts.windows.net/aaaabbbb-0000-cccc-1111-dddd2222eeee/\",\"iat\":\"1553260826\",\"nbf\":\"1553260826\",\"exp\":\"1553264726\",\"aio\":\"42JgYNjdt+rr+3j/dx68v018XhuFAwA=\",\"appid\":\"11112222-bbbb-3333-cccc-4444dddd5555\",\"appidacr\":\"2\",\"http://schemas.microsoft.com/identity/claims/identityprovider\":\"https://sts.windows.net/aaaabbbb-0000-cccc-1111-dddd2222eeee/\",\"http://schemas.microsoft.com/identity/claims/objectidentifier\":\"22223333-cccc-4444-dddd-5555eeee6666\",\"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier\":\"22223333-cccc-4444-dddd-5555eeee6666\",\"http://schemas.microsoft.com/identity/claims/tenantid\":\"aaaabbbb-0000-cccc-1111-dddd2222eeee\",\"uti\":\"v5wYC9t9ekuA2rkZSVZbAA\",\"ver\":\"1.0\"}",
+        "caller": "22223333-cccc-4444-dddd-5555eeee6666",
+        "correlationId": "aaaa0000-bb11-2222-33cc-444444dddddd",
+        "eventSource": "Administrative",
+        "eventTimestamp": "2019-03-22T13:56:31.2917159+00:00",
+        "eventDataId": "bbbbcccc-1111-dddd-2222-eeee3333ffff",
+        "level": "Informational",
+        "operationName": "Microsoft.Compute/virtualMachines/restart/action",
+        "operationId": "aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb",
+        "status": "Succeeded",
+        "subStatus": "",
+        "submissionTimestamp": "2019-03-22T13:56:54.067593+00:00"
+      }
+    }
+  }
+}
