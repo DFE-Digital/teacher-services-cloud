@@ -79,6 +79,9 @@ Configure the centrally managed aspects of the AKS setup for each environment:
 
 Some items will already be set, other will need to be added:
   - `namespaces` - add AKS namespaces
+
+
+
   - `ga_wif_managed_id` - after identity setup (tbc), add the project and its environments
   - `statuscake_alerts` - where required, add statuscake alerts and [production-checklist](production-checklist#statuscake)
 
@@ -184,6 +187,19 @@ See [AKS AD groups](https://educationgovuk.sharepoint.com.mcas.ms/sites/teacher-
 
 ## Get ready for production
 Follow the [production checklist](production-checklist.md) to make sure the service is ready for end users
+
+## Environments and associated item naming
+
+| environment Name | Status (legacy or current name) | preferred Cluster to use |AKS Namespace to use | preferred Deploy order |
+| -- | -- | -- | -- | -- |
+| development | current | test |  \<service shortcode\>-development | 1 |
+| qa | current | test |  \<service shortcode\>-qa | 2 |
+| test | legacy | test | \<service shortcode\>-test | 3 |
+| staging | current | test  | \<service shortcode\>-staging | 4 |
+| preproduction | legacy | production |  \<service shortcode\>-production | 5 |
+| review | current | test |  \<service shortcode\>-review | 6 |
+| sandbox | current | production |  \<service shortcode\>-production | 7 |
+| production | current | production  | \<service shortcode\>-production | 8 |
 
 ## FAQ
 
