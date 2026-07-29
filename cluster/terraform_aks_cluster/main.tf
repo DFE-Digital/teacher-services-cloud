@@ -18,7 +18,16 @@ resource "azurerm_kubernetes_cluster" "main" {
   workload_identity_enabled = true
 
   image_cleaner_interval_hours = 48
-  node_os_upgrade_channel      = "None"
+  node_os_upgrade_channel      = var.node_upgrade_channel
+  maintenance_window_node_os {
+    frequency   = var.node_upgrade_maintenance_window.frequency
+    interval    = var.node_upgrade_maintenance_window.interval
+    duration    = var.node_upgrade_maintenance_window.duration
+    day_of_week = var.node_upgrade_maintenance_window.day_of_week
+    week_index  = var.node_upgrade_maintenance_window.week_index
+    start_time  = var.node_upgrade_maintenance_window.start_time
+    utc_offset  = var.node_upgrade_maintenance_window.utc_offset
+  }
 
   dynamic "azure_active_directory_role_based_access_control" {
     for_each = var.enable_azure_RBAC ? [1] : []
