@@ -55,6 +55,18 @@ variable "second_egress_ip" {
   description = "Allocate a second egress public IP for the cluster"
 }
 
+variable "node_upgrade_channel" {
+  type        = string
+  default     = "None"
+  description = "Upgrade channel for automatic node OS updates"
+}
+
+variable "node_upgrade_maintenance_window" {
+  type        = map
+  default     = {}
+  description = "Schedule for automatic node OS updates"
+}
+
 locals {
   backing_services_resource_group_name = "${var.resource_prefix}-tsc-${var.environment}-bs-rg"
   cluster_name = (
