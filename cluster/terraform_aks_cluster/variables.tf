@@ -62,7 +62,7 @@ variable "node_upgrade_channel" {
 }
 
 variable "node_upgrade_maintenance_window" {
-  type        = map
+  type        = map(any)
   default     = {}
   description = "Schedule for automatic node OS updates"
 }
