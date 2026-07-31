@@ -5,6 +5,10 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "4.61.0"
     }
+    azapi = {
+      source  = "Azure/azapi"
+      version = "~> 2.0"
+    }
   }
   backend "azurerm" {
     container_name = "tsc-tfstate"
@@ -15,3 +19,5 @@ provider "azurerm" {
   features {}
   resource_provider_registrations = "none"
 }
+
+provider "azapi" {}

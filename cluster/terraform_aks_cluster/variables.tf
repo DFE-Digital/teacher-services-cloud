@@ -55,6 +55,18 @@ variable "second_egress_ip" {
   description = "Allocate a second egress public IP for the cluster"
 }
 
+variable "dockerhub_username" {
+  type      = string
+  sensitive = true
+}
+
+variable "dockerhub_pat" {
+  type      = string
+  sensitive = true
+}
+
+variable "cluster_kv" { type = string }
+
 locals {
   backing_services_resource_group_name = "${var.resource_prefix}-tsc-${var.environment}-bs-rg"
   cluster_name = (
