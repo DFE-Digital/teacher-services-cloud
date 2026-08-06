@@ -9,6 +9,7 @@ filebeat.autodiscover:
               - type: container
                 paths:
                   - "/var/log/containers/*-${data.kubernetes.container.id}.log"
+                tail_files: true
         add_resource_metadata:
           node:
             enabled: false

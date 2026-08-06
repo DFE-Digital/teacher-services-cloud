@@ -47,9 +47,9 @@ resource "kubernetes_config_map" "logstash_pipeline" {
 }
 
 locals {
-  ls_config_map_data = file("${path.module}/config/logstash/logstash.yml.tmpl")
+  ls_config_map_data     = file("${path.module}/config/logstash/logstash.yml.tmpl")
   ls_pipeline_config_map = templatefile("${path.module}/config/logstash/pipeline.conf.tmpl", local.logstash_template_variable_map)
-#   ls_config_map_hash = sha1(local.ls_config_map_data)
+  #   ls_config_map_hash = sha1(local.ls_config_map_data)
 }
 
 resource "kubernetes_deployment" "logstash" {
@@ -84,19 +84,19 @@ resource "kubernetes_deployment" "logstash" {
           name  = "logstash"
           image = "${var.tsc_package_repo}:${var.logstash_image}-${var.logstash_version}"
           security_context {
-              run_as_user  = 1000
-              run_as_group = 1000
-              capabilities {
-                drop = ["ALL"]
-              }
-              allow_privilege_escalation = false
-              privileged                 = false
-              run_as_non_root            = true
-              read_only_root_filesystem  = false
-              seccomp_profile {
-                type = "RuntimeDefault"
-              }
-          }    
+            run_as_user  = 1000
+            run_as_group = 1000
+            capabilities {
+              drop = ["ALL"]
+            }
+            allow_privilege_escalation = false
+            privileged                 = false
+            run_as_non_root            = true
+            read_only_root_filesystem  = false
+            seccomp_profile {
+              type = "RuntimeDefault"
+            }
+          }
 
           resources {
             limits = {
@@ -213,8 +213,8 @@ resource "kubernetes_service" "logstash" {
 
     port {
       name        = "beats"
-      port        = 5044        # Service port
-      target_port = 5044        # Container port
+      port        = 5044 # Service port
+      target_port = 5044 # Container port
       protocol    = "TCP"
     }
 

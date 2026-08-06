@@ -129,8 +129,8 @@ variable "enable_lowpriority_app" {
 }
 
 variable "enable_splunk_logging" {
-  type = bool
-  default = false
+  type        = bool
+  default     = false
   description = "Enables logstash and filebeat for shipping logs to Splunk"
 }
 
@@ -423,7 +423,7 @@ locals {
   }
 
   logstash_template_variable_map = {
-    SPLUNK_EVENTS_URL = data.azurerm_key_vault_secret.splunk_events_url.value
+    SPLUNK_EVENTS_URL   = data.azurerm_key_vault_secret.splunk_events_url.value
     SPLUNK_EVENTS_TOKEN = data.azurerm_key_vault_secret.splunk_events_token.value
   }
 

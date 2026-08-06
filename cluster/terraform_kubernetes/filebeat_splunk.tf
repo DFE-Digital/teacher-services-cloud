@@ -14,7 +14,7 @@ resource "kubernetes_config_map" "filebeat_splunk" {
 
 locals {
   fb_splunk_config_map_data = file("${path.module}/config/filebeat/filebeat-splunk.yml.tmpl")
-#   ls_config_map_hash = sha1(local.ls_config_map_data)
+  #   ls_config_map_hash = sha1(local.ls_config_map_data)
 }
 
 resource "kubernetes_daemonset" "filebeat_splunk" {
