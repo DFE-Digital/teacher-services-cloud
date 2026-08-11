@@ -1,0 +1,47 @@
+name: Build DB Backup Image
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 12 * * 0"
+    #Will run once a week on Sunday afternoon
+
+permissions:
+  packages: write
+  contents: write
+  id-token: write
+  pull-requests: write
+
+env:
+  DOCKER_IMAGE: ghcr.io/dfe-digital/teacher-services-cloud-db-backup
+
+jobs:
+  build-no-cache:
+    outputs:
+      docker-image-tag: ${{ steps.build-image.outputs.tag }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Build DB Backup Image
+        id: build-db-backup-image
+        uses: DFE-Digital/github-actions/build-docker-image@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          dockerfile-path: images/postgres-backup/Dockerfile
+          context: images/postgres-backup
+          reuse-cache: true
+          snyk-token: ${{ secrets.SNYK_TOKEN }}
+          max-cache: false
+          docker-repository: ${{ env.DOCKER_IMAGE }}
+
+      - name: Notify teams channel on job failure
+        if: ${{ failure() }}
+        uses: DFE-Digital/github-actions/send-to-teams-channel@master
+        with:
+          teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          title: "Build failure"
+          service: ${{ vars.TEAMS_MSG_SERVICE_NAME }}
+          message: |
+            Rebuild docker cache failure
