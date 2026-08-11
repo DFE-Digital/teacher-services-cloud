@@ -25,6 +25,7 @@ on:
       - 'scripts/**'
       - 'templates/**'
       - 'alerting/**'
+      - 'images/**'
 
 jobs:
   validate-terraform:
