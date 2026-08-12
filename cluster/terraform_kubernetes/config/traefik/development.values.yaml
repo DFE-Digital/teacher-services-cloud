@@ -76,6 +76,7 @@ deployment:
     # prometheus.io/scrape: "true"
     # prometheus.io/path: "/metrics"
     logit.io/send: "true"
+    splunk/send: "true"
     fluentbit.io/exclude: "true"
 
   # readinessPath: "/ping"
