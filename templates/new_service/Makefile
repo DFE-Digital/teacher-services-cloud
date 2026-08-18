@@ -1,4 +1,4 @@
-ARM_TEMPLATE_TAG=1.1.10
+ARM_TEMPLATE_TAG=1.1.16
 RG_TAGS={"Product" : "Teacher services cloud", "Service Offering" : "Teacher services cloud"}
 REGION=UK South
 SERVICE_NAME=#SERVICE_NAME#
