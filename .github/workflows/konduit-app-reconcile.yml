@@ -3,7 +3,7 @@ name: Reconcile Konduit Deployments
 on:
   push:
     branches:
-      - 2788-konduit-housekeeping-test
+      - 2788-konduit-testing-rdg
 
   workflow_dispatch:
     inputs:
@@ -71,11 +71,12 @@ jobs:
           echo "$DEPLOYMENTS" | jq -c '.[]' | while read deployment; do
             name=$(echo "$deployment" | jq -r '.name')
             namespace=$(echo "$deployment" | jq -r '.namespace')
+            created=$(echo "$deployment" | jq -r '.created')
 
             if [[ "$name" == "konduit-app-27271" && "$namespace" == "sip-test" ]]; then
               echo "Deleting $name from $namespace"
-              kubectl delete deployment "$name" -n "$namespace"
+              # kubectl delete deployment "$name" -n "$namespace"
             else
-              echo "Skipping $name in $namespace"
+              echo "Skipping $name in $namespace created $created"
             fi
           done
