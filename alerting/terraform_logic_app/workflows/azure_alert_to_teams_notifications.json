@@ -10,239 +10,169 @@
             "kind": "Http",
             "inputs": {
                 "schema": {
-                    "type": "object",
                     "properties": {
-                        "headers": {
-                            "type": "object",
+                        "data": {
                             "properties": {
-                                "Expect": {
-                                    "type": "string"
-                                },
-                                "Host": {
-                                    "type": "string"
-                                },
-                                "Max-Forwards": {
-                                    "type": "string"
-                                },
-                                "User-Agent": {
-                                    "type": "string"
-                                },
-                                "X-CorrelationContext": {
-                                    "type": "string"
-                                },
-                                "X-ARR-LOG-ID": {
-                                    "type": "string"
-                                },
-                                "CLIENT-IP": {
-                                    "type": "string"
-                                },
-                                "DISGUISED-HOST": {
-                                    "type": "string"
-                                },
-                                "X-SITE-DEPLOYMENT-ID": {
-                                    "type": "string"
-                                },
-                                "WAS-DEFAULT-HOSTNAME": {
-                                    "type": "string"
-                                },
-                                "X-Forwarded-Proto": {
-                                    "type": "string"
-                                },
-                                "X-AppService-Proto": {
-                                    "type": "string"
-                                },
-                                "X-ARR-SSL": {
-                                    "type": "string"
-                                },
-                                "X-Forwarded-TlsVersion": {
-                                    "type": "string"
-                                },
-                                "X-Forwarded-For": {
-                                    "type": "string"
-                                },
-                                "X-Original-URL": {
-                                    "type": "string"
-                                },
-                                "X-WAWS-Unencoded-URL": {
-                                    "type": "string"
-                                },
-                                "X-Azure-JA4-Fingerprint": {
-                                    "type": "string"
-                                },
-                                "Content-Length": {
-                                    "type": "string"
-                                },
-                                "Content-Type": {
-                                    "type": "string"
-                                }
-                            }
-                        },
-                        "body": {
-                            "type": "object",
-                            "properties": {
-                                "schemaId": {
-                                    "type": "string"
-                                },
-                                "data": {
-                                    "type": "object",
+                                "alertContext": {
                                     "properties": {
-                                        "essentials": {
-                                            "type": "object",
+                                        "condition": {
                                             "properties": {
-                                                "alertId": {
-                                                    "type": "string"
-                                                },
-                                                "alertRule": {
-                                                    "type": "string"
-                                                },
-                                                "severity": {
-                                                    "type": "string"
-                                                },
-                                                "signalType": {
-                                                    "type": "string"
-                                                },
-                                                "monitorCondition": {
-                                                    "type": "string"
-                                                },
-                                                "monitoringService": {
-                                                    "type": "string"
-                                                },
-                                                "alertTargetIDs": {
-                                                    "type": "array",
+                                                "allOf": {
                                                     "items": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "configurationItems": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "type": "string"
-                                                    }
-                                                },
-                                                "originAlertId": {
-                                                    "type": "string"
-                                                },
-                                                "firedDateTime": {
-                                                    "type": "string"
-                                                },
-                                                "description": {
-                                                    "type": "string"
-                                                },
-                                                "essentialsVersion": {
-                                                    "type": "string"
-                                                },
-                                                "alertContextVersion": {
-                                                    "type": "string"
-                                                }
-                                            }
-                                        },
-                                        "alertContext": {
-                                            "type": "object",
-                                            "properties": {
-                                                "properties": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "customKey1": {
-                                                            "type": "string"
-                                                        },
-                                                        "customKey2": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                },
-                                                "conditionType": {
-                                                    "type": "string"
-                                                },
-                                                "condition": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "windowSize": {
-                                                            "type": "string"
-                                                        },
-                                                        "allOf": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "type": "object",
+                                                        "properties": {
+                                                            "alertSensitivity": {
+                                                                "type": "string"
+                                                            },
+                                                            "dimensions": {
+                                                                "type": "array"
+                                                            },
+                                                            "failingPeriods": {
                                                                 "properties": {
-                                                                    "alertSensitivity": {
-                                                                        "type": "string"
+                                                                    "minFailingPeriodsToAlert": {
+                                                                        "type": "integer"
                                                                     },
-                                                                    "failingPeriods": {
-                                                                        "type": "object",
-                                                                        "properties": {
-                                                                            "numberOfEvaluationPeriods": {
-                                                                                "type": "integer"
-                                                                            },
-                                                                            "minFailingPeriodsToAlert": {
-                                                                                "type": "integer"
-                                                                            }
-                                                                        }
-                                                                    },
-                                                                    "ignoreDataBefore": {},
-                                                                    "metricName": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "metricNamespace": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "operator": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "threshold": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "timeAggregation": {
-                                                                        "type": "string"
-                                                                    },
-                                                                    "dimensions": {
-                                                                        "type": "array"
-                                                                    },
-                                                                    "metricValue": {
-                                                                        "type": "number"
-                                                                    },
-                                                                    "webTestName": {}
+                                                                    "numberOfEvaluationPeriods": {
+                                                                        "type": "integer"
+                                                                    }
                                                                 },
-                                                                "required": [
-                                                                    "alertSensitivity",
-                                                                    "failingPeriods",
-                                                                    "ignoreDataBefore",
-                                                                    "metricName",
-                                                                    "metricNamespace",
-                                                                    "operator",
-                                                                    "threshold",
-                                                                    "timeAggregation",
-                                                                    "dimensions",
-                                                                    "metricValue",
-                                                                    "webTestName"
-                                                                ]
-                                                            }
+                                                                "type": "object"
+                                                            },
+                                                            "ignoreDataBefore": {},
+                                                            "metricName": {
+                                                                "type": "string"
+                                                            },
+                                                            "metricNamespace": {
+                                                                "type": "string"
+                                                            },
+                                                            "metricValue": {
+                                                                "type": "number"
+                                                            },
+                                                            "operator": {
+                                                                "type": "string"
+                                                            },
+                                                            "threshold": {
+                                                                "type": "string"
+                                                            },
+                                                            "timeAggregation": {
+                                                                "type": "string"
+                                                            },
+                                                            "webTestName": {}
                                                         },
-                                                        "windowStartTime": {
-                                                            "type": "string"
-                                                        },
-                                                        "windowEndTime": {
-                                                            "type": "string"
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        },
-                                        "customProperties": {
-                                            "type": "object",
-                                            "properties": {
-                                                "target_channels": {
+                                                        "required": [
+                                                            "alertSensitivity",
+                                                            "failingPeriods",
+                                                            "ignoreDataBefore",
+                                                            "metricName",
+                                                            "metricNamespace",
+                                                            "operator",
+                                                            "threshold",
+                                                            "timeAggregation",
+                                                            "dimensions",
+                                                            "metricValue",
+                                                            "webTestName"
+                                                        ],
+                                                        "type": "object"
+                                                    },
+                                                    "type": "array"
+                                                },
+                                                "windowEndTime": {
                                                     "type": "string"
                                                 },
-                                                "environment": {
+                                                "windowSize": {
+                                                    "type": "string"
+                                                },
+                                                "windowStartTime": {
                                                     "type": "string"
                                                 }
-                                            }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "conditionType": {
+                                            "type": "string"
+                                        },
+                                        "properties": {
+                                            "properties": {
+                                                "customKey1": {
+                                                    "type": "string"
+                                                },
+                                                "customKey2": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
                                         }
-                                    }
+                                    },
+                                    "type": "object"
+                                },
+                                "customProperties": {
+                                    "properties": {
+                                        "customKey1": {
+                                            "type": "string"
+                                        },
+                                        "customKey2": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "essentials": {
+                                    "properties": {
+                                        "alertContextVersion": {
+                                            "type": "string"
+                                        },
+                                        "alertId": {
+                                            "type": "string"
+                                        },
+                                        "alertRule": {
+                                            "type": "string"
+                                        },
+                                        "alertTargetIDs": {
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "configurationItems": {
+                                            "items": {
+                                                "type": "string"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "essentialsVersion": {
+                                            "type": "string"
+                                        },
+                                        "firedDateTime": {
+                                            "type": "string"
+                                        },
+                                        "monitorCondition": {
+                                            "type": "string"
+                                        },
+                                        "monitoringService": {
+                                            "type": "string"
+                                        },
+                                        "originAlertId": {
+                                            "type": "string"
+                                        },
+                                        "severity": {
+                                            "type": "string"
+                                        },
+                                        "signalType": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
-                            }
+                            },
+                            "type": "object"
+                        },
+                        "schemaId": {
+                            "type": "string"
                         }
-                    }
+                    },
+                    "type": "object"
                 }
             },
             "conditions": []
@@ -261,22 +191,22 @@
                     {
                         "name": "environment",
                         "type": "string",
-                        "value": "@{triggerBody()?['body']?['data']?['customProperties']?['environment']}"
+                        "value": "@{triggerBody()?['data']?['customProperties']?['environment']}"
                     },
                     {
                         "name": "alertRule",
                         "type": "string",
-                        "value": "@{triggerBody()?['body']?['data']?['essentials']?['alertRule']}"
+                        "value": "@{triggerBody()?['data']?['essentials']?['alertRule']}"
                     },
                     {
                         "name": "severity",
                         "type": "string",
-                        "value": "@{triggerBody()?['body']?['data']?['essentials']?['severity']}"
+                        "value": "@{triggerBody()?['data']?['essentials']?['severity']}"
                     },
                     {
                         "name": "monitorCondition",
                         "type": "string",
-                        "value": "@{triggerBody()?['body']?['data']?['essentials']?['monitorCondition']}"
+                        "value": "@{triggerBody()?['data']?['essentials']?['monitorCondition']}"
                     },
                     {
                         "name": "cardStyle",
@@ -286,17 +216,17 @@
                     {
                         "name": "monitoringService",
                         "type": "string",
-                        "value": "@{triggerBody()?['body']?['data']?['essentials']?['monitoringService']}"
+                        "value": "@{triggerBody()?['data']?['essentials']?['monitoringService']}"
                     },
                     {
                         "name": "alertId",
                         "type": "string",
-                        "value": "@{triggerBody()?['body']?['data']?['essentials']?['alertId']}"
+                        "value": "@{triggerBody()?['data']?['essentials']?['alertId']}"
                     },
                     {
                         "name": "Description",
                         "type": "string",
-                        "value": "@{triggerBody()?['body']?['data']?['essentials']?['description']}"
+                        "value": "@{triggerBody()?['data']?['essentials']?['description']}"
                     },
                     {
                         "name": "resourceGroup",

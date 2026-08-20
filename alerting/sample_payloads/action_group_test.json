@@ -15,8 +15,8 @@
                 "test-storageAccount"
             ],
             "originAlertId": "11111111-1111-1111-1111-111111111111_test-RG_microsoft.insights_metricAlerts_test-metricAlertRule_1234567890",
-            "firedDateTime": "2026-07-22T11:50:51.685Z",
-            "description": "metric_alert-dynamic",
+            "firedDateTime": "2026-08-19T14:31:11.117Z",
+            "description": "Alert rule description",
             "essentialsVersion": "1.0",
             "alertContextVersion": "1.0"
         },
@@ -46,8 +46,8 @@
                         "webTestName": null
                     }
                 ],
-                "windowStartTime": "2026-07-22T11:50:51.685Z",
-                "windowEndTime": "2026-07-22T11:50:51.685Z"
+                "windowStartTime": "2026-08-19T14:31:11.117Z",
+                "windowEndTime": "2026-08-19T14:31:11.117Z"
             }
         },
         "customProperties": {
