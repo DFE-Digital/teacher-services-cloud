@@ -19,6 +19,8 @@ variable "cip_tenant" { type = bool }
 variable "default_node_pool" { type = map(any) }
 variable "node_pools" { type = any }
 variable "kubernetes_version" { type = string }
+variable "sku_tier" { type = string}
+variable "clone_sku_tier" { type = string}
 variable "clone_cluster" {
   type    = bool
   default = false
