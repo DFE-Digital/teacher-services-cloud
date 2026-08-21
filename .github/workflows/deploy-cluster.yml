@@ -147,7 +147,8 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        environment: [development, production]
+        environment: [development]
+        #environment: [development, production]
     permissions:
       id-token: write # Required for OIDC authentication to Azure
 
