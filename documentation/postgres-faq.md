@@ -73,3 +73,35 @@ After 15-30min, these tools can now be used:
 - Help > Troubleshooting guides
 - Monitoring > Workbooks
 - The query store is available in the `azure_sys` database on the same server
+
+## Deploying multiple databases to a single PostgreSQL server
+
+The postgres terraform module has been updated to allow multiple databases to be deployed on a single PostgreSQL server:
+
+https://github.com/DFE-Digital/terraform-modules/tree/main/aks/postgres
+
+The variable must be added to the **variables.tf** file in the relevant repository before use, as follows:
+
+```
+variable "extra_databases" {
+  type        = list(string)
+  default     = []
+  nullable    = false
+  description = "Additional PostgreSQL databases to create on the same PostgreSQL server"
+}
+```
+
+Once done, update the associated **database.tf** file to include the variable and pass it to the module:
+
+```
+extra_databases       = var.extra_databases
+```
+
+Finally, specify the name(s) of any additional database(s) to create on the server within the **tfvar.json** file for your environment. For example:
+
+```
+"extra_databases": [
+    "reporting",
+    "audit"
+]
+```
