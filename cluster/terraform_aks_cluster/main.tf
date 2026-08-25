@@ -14,6 +14,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   node_resource_group       = local.node_resource_group_name
   dns_prefix                = local.dns_prefix
   kubernetes_version        = var.kubernetes_version
+  sku_tier                  = var.sku_tier
   oidc_issuer_enabled       = true
   workload_identity_enabled = true
 
@@ -122,6 +123,7 @@ resource "azurerm_kubernetes_cluster" "clone" {
   node_resource_group       = local.clone_node_resource_group_name
   dns_prefix                = "${azurerm_kubernetes_cluster.main.dns_prefix}-clone"
   kubernetes_version        = azurerm_kubernetes_cluster.main.kubernetes_version
+  sku_tier                  = var.clone_sku_tier
   oidc_issuer_enabled       = true
   workload_identity_enabled = true
 
