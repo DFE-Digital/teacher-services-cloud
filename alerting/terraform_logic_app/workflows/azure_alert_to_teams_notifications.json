@@ -280,7 +280,7 @@
                     {
                         "name": "alertTargetIDs",
                         "type": "array",
-                        "value": "@triggerBody()?['body']?['data']?['essentials']?['alertTargetIDs']"
+                        "value": "@triggerBody()?['data']?['essentials']?['alertTargetIDs']"
                     }
                 ]
             },
