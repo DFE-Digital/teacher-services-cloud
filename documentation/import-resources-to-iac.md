@@ -13,6 +13,7 @@ The resource_id_from_cloud_provider refers to the id assigned to the deployed re
 
 The simplest way to do this in an existing service is to include an additional command in the makefile, as this will allow it to use the same nested terraform-init process as other commands in the repo, such as in the below example:
 ```
+.PHONY: terraform-import: 
 terraform-import: terraform-init
 	terraform -chdir=terraform/application import -var-file "config/${CONFIG}.tfvars.json" $(RESOURCE) $(ID)
 ```
