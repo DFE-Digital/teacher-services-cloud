@@ -32,6 +32,10 @@ resource "helm_release" "traefik-ingress" {
     type  = "string"
   }
 
+  depends_on = [
+    kubernetes_secret_v1.kube_cert_secret_traefik
+  ]
+
 }
 
 resource "azurerm_public_ip" "ingress-public-ip-traefik" {
