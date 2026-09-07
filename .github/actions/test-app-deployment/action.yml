@@ -20,7 +20,7 @@ runs:
 
   steps:
   - name: Check out ITTMS repository
-    uses: actions/checkout@v4
+    uses: actions/checkout@v7
     with:
       repository: DFE-Digital/itt-mentor-services
       path: itt-mentor-services
@@ -39,7 +39,7 @@ runs:
       echo "COMMIT_ID=$COMMIT_ID" >> $GITHUB_ENV
 
   - name: Use Terraform ${{ env.TERRAFORM_VERSION }}
-    uses: hashicorp/setup-terraform@v3
+    uses: hashicorp/setup-terraform@v4
     with:
       terraform_version: ${{ env.TERRAFORM_VERSION }}
       terraform_wrapper: false
