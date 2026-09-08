@@ -37,4 +37,45 @@ EXCEPTIONS_FILE="shortcode_mapping_exceptions.csv"
 
 run `./servicelist-to-json.sh`
 
-This will produce a `actiongroups.json` file which is just the `short_code_to_channel` element, manually copy and paste this into the desired environment config file.
+This will produce a `shortcode_mapping.json` file which is the `short_code_to_channel` element, manually copy and paste this into the desired environments keyvault (check `cluster_kv` value in `alerting/terraform_logic_app/config/<env>.json`) as a new version for secret `SHORT-CODE-TO-TEAMS-CHANNEL`. Drop the enclosing `short_code_to_channel` json element, only adding the list element.
+eg
+```json
+[
+    {
+        "shortCode": "code1",
+        "channelId": "xxxxxxxx",
+        "channelGroupId": "yyyyyyy",
+        "displayName": "Service Name 1"
+    },
+    {
+        "shortCode": "code2",
+        "channelId": "xxxxxxxx",
+        "channelGroupId": "yyyyyyy",
+        "displayName": "Service Name 2"
+    }
+]
+```
+
+DO NOT USE: &darr;
+```json
+{
+    "short_code_to_channel":
+    [
+        {
+            "shortCode": "code1",
+            "channelId": "xxxxxxxx",
+            "channelGroupId": "yyyyyyy",
+            "displayName": "Service Name 1"
+        },
+        {
+            "shortCode": "code2",
+            "channelId": "xxxxxxxx",
+            "channelGroupId": "yyyyyyy",
+            "displayName": "Service Name 2"
+        }
+    ]
+}
+
+```
+ DO NOT USE: &uarr;
+
