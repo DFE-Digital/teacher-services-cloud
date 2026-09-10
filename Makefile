@@ -204,6 +204,7 @@ airbyte-apply: airbyte-init
 airbyte-destroy: airbyte-init
 	terraform -chdir=airbyte/terraform destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
+.PHONY: alerting-la-init
 alerting-la-init: cluster-composed-variables set-azure-account
 
 	terraform -chdir=alerting/terraform_logic_app init -reconfigure -upgrade \
@@ -220,15 +221,19 @@ alerting-la-init: cluster-composed-variables set-azure-account
 	$(eval export TF_VAR_resource_group_name=${RESOURCE_GROUP_NAME})
 	$(eval export TF_VAR_alerting_resource_group_name=${RESOURCE_PREFIX}-tsc-mn-rg)
 
+.PHONY: alerting-la-plan
 alerting-la-plan: alerting-la-init
 	terraform -chdir=alerting/terraform_logic_app plan -var-file config/${CONFIG}.tfvars.json
 
+.PHONY: alerting-la-apply
 alerting-la-apply: alerting-la-init
 	terraform -chdir=alerting/terraform_logic_app apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
+.PHONY: alerting-la-destroy
 alerting-la-destroy: alerting-la-init
 	terraform -chdir=alerting/terraform_logic_app destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
+.PHONY: alerting-ag-init
 alerting-ag-init: cluster-composed-variables set-azure-account
 
 	terraform -chdir=alerting/terraform_action_groups init -reconfigure -upgrade \
@@ -245,19 +250,26 @@ alerting-ag-init: cluster-composed-variables set-azure-account
 	$(eval export TF_VAR_resource_group_name=${RESOURCE_GROUP_NAME})
 	$(eval export TF_VAR_alerting_resource_group_name=${RESOURCE_PREFIX}-tsc-mn-rg)
 
+.PHONY: alerting-ag-plan
 alerting-ag-plan: alerting-ag-init
 	terraform -chdir=alerting/terraform_action_groups plan -var-file config/${CONFIG}.tfvars.json
 
+.PHONY: alerting-ag-apply
 alerting-ag-apply: alerting-ag-init
 	terraform -chdir=alerting/terraform_action_groups apply -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
+.PHONY:  alerting-ag-destroy
 alerting-ag-destroy: alerting-ag-init
 	terraform -chdir=alerting/terraform_action_groups destroy -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
+.PHONY:  alerting-init
 alerting-init: alerting-la-init alerting-ag-init
 
+.PHONY: alerting-plan
 alerting-plan: alerting-la-plan alerting-ag-plan
 
+.PHONY: alerting-apply
 alerting-apply: alerting-la-apply alerting-ag-apply
 
+.PHONY: alerting-destroy
 alerting-destroy: alerting-ag-destroy alerting-la-destroy

@@ -764,12 +764,24 @@
             },
             "type": "Object"
         },
+        "ShortCodeToIdVersion": {
+            "defaultValue": "na",
+            "type": "String"
+        },        
         "defaultChannelGroupId": {
-            "defaultValue": "111111111111",
+            "defaultValue": "na",
             "type": "String"
         },
         "defaultChannelId": {
-            "defaultValue": "111111111111",
+            "defaultValue": "na",
+            "type": "String"
+        },
+        "defaultChannelGroupIdVersion": {
+            "defaultValue": "na",
+            "type": "String"
+        },
+        "defaultChannelIdVersion": {
+            "defaultValue": "na",
             "type": "String"
         },
         "tenantId": {

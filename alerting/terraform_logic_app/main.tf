@@ -38,10 +38,13 @@ resource "azapi_resource" "consumption" {
       definition = jsondecode(file("${path.module}/workflows/azure_alert_to_teams_notifications.json"))
 
       parameters = {
-        tenantId              = { value = "#@platform.education.gov.uk" }
-        ShortCodeToId         = { value = { mapping = jsondecode(data.azurerm_key_vault_secret.this["SHORT-CODE-TO-TEAMS-CHANNEL"].value) } }
-        defaultChannelGroupId = { value = data.azurerm_key_vault_secret.this["AZ-ALERTS-DEFAULT-TEAMS-CHANNEL-GROUPID"].value }
-        defaultChannelId      = { value = data.azurerm_key_vault_secret.this["AZ-ALERTS-DEFAULT-TEAMS-CHANNEL-ID"].value }
+        tenantId                     = { value = "#@platform.education.gov.uk" }
+        ShortCodeToId                = { value = { mapping = jsondecode(data.azurerm_key_vault_secret.this["SHORT-CODE-TO-TEAMS-CHANNEL"].value) } }
+        ShortCodeToIdVersion         = { value = data.azurerm_key_vault_secret.this["SHORT-CODE-TO-TEAMS-CHANNEL"].version }
+        defaultChannelGroupId        = { value = data.azurerm_key_vault_secret.this["AZ-ALERTS-DEFAULT-TEAMS-CHANNEL-GROUPID"].value }
+        defaultChannelGroupIdVersion = { value = data.azurerm_key_vault_secret.this["AZ-ALERTS-DEFAULT-TEAMS-CHANNEL-GROUPID"].version }
+        defaultChannelId             = { value = data.azurerm_key_vault_secret.this["AZ-ALERTS-DEFAULT-TEAMS-CHANNEL-ID"].value }
+        defaultChannelIdVersion      = { value = data.azurerm_key_vault_secret.this["AZ-ALERTS-DEFAULT-TEAMS-CHANNEL-ID"].version }
         "$connections" = {
           value = {
             teams = {
