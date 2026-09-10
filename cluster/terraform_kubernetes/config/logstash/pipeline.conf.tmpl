@@ -5,6 +5,10 @@ input {
 }
 
 filter {
+  json {
+    source => "message"
+    target => "message_decoded"
+  }
 }
 
 output {
