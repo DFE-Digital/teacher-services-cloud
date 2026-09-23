@@ -1,0 +1,6 @@
+subscription_id = "00000000-0000-0000-0000-000000000000"
+location        = "uksouth"
+name_prefix     = "s189d01"
+
+container_image = "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.3-alpine3.20"
+container_port  = 8080
