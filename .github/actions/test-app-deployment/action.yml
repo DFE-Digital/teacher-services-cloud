@@ -24,6 +24,7 @@ runs:
     with:
       repository: DFE-Digital/itt-mentor-services
       path: itt-mentor-services
+      ref: 4c5c7e0d9a5cd74a0df7082434f0085c08a9f973 # temporarily use version pre-airbyte until GCP auth issue resolved
 
   - name: Set Environment variables
     id: set_env_var
