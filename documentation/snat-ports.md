@@ -17,9 +17,19 @@ Each IP address provides 64,000 ports. If all the ports are used for an IP addre
 In case of Azure VMs, running behind a load balancer, SNAT ports are divided amongst the nodes. The formula for calculating max number of ports per VM
 `Number of frontend IPs * 64K / Number of backend instances(including surge)`
 
+### Considerations for calculating outbound ports and IPs
+When calculating the number of outbound ports and IPs and setting the values, keep the following information in mind:
+- The number of outbound ports per node is fixed based on the value you set.
+- The value for outbound ports must be a multiple of 8.
+- Adding more IP's lets you increase the available ports on all the nodes and/or increase nodes.
+- You must account for nodes that might be added as part of upgrades, including the count of nodes specified via maxCount and maxSurge values.
+
+
 `NOTE: In case the number of VMs change then the quota of ports allocated need to changed according to the formula above.`
 
 Outbound connections will fail when port exhaustion occurs
+
+Reference: [Configure the allocated outbound ports](https://learn.microsoft.com/en-us/azure/aks/configure-load-balancer-standard?tabs=create-cluster-ip-based%2Ccreate-cluster-managed-outbound-ips%2Ccreate-cluster-custom-ips%2Ccreate-cluster-custom-ip-prefixes%2Ccreate-cluster-outbound-ports-ips%2Ccreate-cluster-idle-timeout#configure-the-allocated-outbound-ports)
 
 ## Monitoring
 
