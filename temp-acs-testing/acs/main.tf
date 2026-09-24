@@ -1,3 +1,8 @@
+import {
+  id = "/subscriptions/5c83eb53-a94f-4778-b258-1f33efe49655/resourceGroups/s189d01-tsc-tt-acs-rg/providers/Microsoft.App/managedEnvironments/s189d01-tsc-tt-acs-env"
+  to = azurerm_container_app_environment.main
+}
+
 resource "azurerm_resource_group" "main" {
   name     = "${local.name}-rg"
   location = var.location
