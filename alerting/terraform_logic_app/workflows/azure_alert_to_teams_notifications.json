@@ -343,7 +343,7 @@
                     "type": "SetVariable",
                     "inputs": {
                         "name": "TeamsGroupID",
-                        "value": "@first(body('FindShortCode'))?['channelGroupId']"
+                        "value": "@body('ParseFindShortCodeResult')?['channelGroupId']"
                     },
                     "runAfter": {
                         "SetChannelId": [
@@ -355,7 +355,35 @@
                     "type": "SetVariable",
                     "inputs": {
                         "name": "TeamsChannelId",
-                        "value": "@first(body('FindShortCode'))?['channelId']"
+                        "value": "@body('ParseFindShortCodeResult')?['channelId']"
+                    },
+                    "runAfter": {
+                        "ParseFindShortCodeResult": [
+                            "SUCCEEDED"
+                        ]
+                    }
+                },
+                "ParseFindShortCodeResult": {
+                    "type": "ParseJson",
+                    "inputs": {
+                        "content": "@first(body('FindShortCode'))",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "shortCode": {
+                                    "type": "string"
+                                },
+                                "channelId": {
+                                    "type": "string"
+                                },
+                                "channelGroupId": {
+                                    "type": "string"
+                                },
+                                "displayName": {
+                                    "type": "string"
+                                }
+                            }
+                        }
                     }
                 }
             },
