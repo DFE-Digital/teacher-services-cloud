@@ -104,4 +104,15 @@ locals {
     var.environment     # cluster1, cluster2, etc
   )
 
+  pg16 = [
+    "bat-qa",
+    "bat-staging",
+    "di-test",
+    "tra-development",
+    "tra-test",
+    "bat-production",
+    "di-production",
+    "tra-production"
+    ]
+
 }

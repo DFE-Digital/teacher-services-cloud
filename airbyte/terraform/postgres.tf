@@ -30,7 +30,7 @@ module "postgres" {
   azure_enable_monitoring     = "false"
   azure_enable_backup_storage = "false"
   azure_extensions            = ["btree_gin"]
-  server_version              = "16"
+  server_version              = ( contains( local.pg16, "${each.key}") ? 16 : 18 )
   azure_sku_name              = var.azure_sku_name
 
   azure_enable_high_availability = "false"
