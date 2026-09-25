@@ -368,7 +368,16 @@ variable "block_metrics_endpoint" {
 
 variable "ga_wif_managed_id" {
   default = {}
-  type    = map(map(list(string)))
+  type = map(map(object({
+    environments  = list(string)
+    immutable_wif = optional(bool, true)
+    repo_id       = optional(string)
+  })))
+}
+
+variable "org_owner_id" {
+  default = "30029772"
+  type    = string
 }
 
 locals {

@@ -10,11 +10,12 @@ locals {
   # Iterate over ga_wif_namespaces, repos and environments to create a list of maps
   ga_wif_credentials = flatten([
     for group, repos in var.ga_wif_managed_id : [
-      for repo, environments in repos : [
-        for environment in environments : {
+      for repo, config in repos : [
+        for environment in config.environments : {
           g = group
           r = repo
           e = environment
+          i = config.repo_id
         }
       ]
     ]
@@ -31,5 +32,5 @@ resource "azurerm_federated_identity_credential" "github_actions_wif" {
   parent_id = azurerm_user_assigned_identity.ga_wif[each.value.g].id
   audience  = ["api://AzureADTokenExchange"]
   issuer    = "https://token.actions.githubusercontent.com"
-  subject   = "repo:DFE-Digital/${each.value.r}:environment:${each.value.e}"
+  subject   = each.value.i == null ? "repo:DFE-Digital/${each.value.r}:environment:${each.value.e}" : "repo:DFE-Digital@${var.org_owner_id}/${each.value.r}@${each.value.i}:environment:${each.value.e}"
 }
