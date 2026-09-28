@@ -371,6 +371,22 @@ variable "ga_wif_managed_id" {
   type    = map(map(list(string)))
 }
 
+variable "ga_wif_immutable_repos" {
+  type        = map(any)
+  description = <<-EOT
+    Map of repos that are using immutable subject claims for WIF, with each repo mapped to its repo ID. Example:
+    {
+      repo_name_1 = {
+        repo_id = "123451"
+      }
+      repo_name_2 = {
+        repo_id = "123452"
+      }
+    }
+  EOT
+  default     = {}
+}
+
 locals {
   cluster_name = (
     var.cip_tenant ?
