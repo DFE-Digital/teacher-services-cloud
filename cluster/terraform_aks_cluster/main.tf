@@ -49,12 +49,13 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   default_node_pool {
-    name                 = "default"
-    node_count           = var.default_node_pool.node_count
-    vm_size              = "Standard_D2_v2"
-    vnet_subnet_id       = azurerm_subnet.aks-subnet.id
-    zones                = local.uk_south_availability_zones
-    orchestrator_version = var.default_node_pool.orchestrator_version
+    name                        = "default"
+    node_count                  = var.default_node_pool.node_count
+    vm_size                     = try(var.default_node_pool.vm_size, "Standard_D2_v2")
+    vnet_subnet_id              = azurerm_subnet.aks-subnet.id
+    zones                       = local.uk_south_availability_zones
+    orchestrator_version        = var.default_node_pool.orchestrator_version
+    temporary_name_for_rotation = "defaulttemp"
 
     upgrade_settings {
       max_surge                     = var.default_node_pool.max_surge
@@ -90,16 +91,17 @@ resource "azurerm_kubernetes_cluster" "main" {
 resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
   for_each = var.node_pools
 
-  name                  = each.key
-  kubernetes_cluster_id = azurerm_kubernetes_cluster.main.id
-  vm_size               = try(each.value.vm_size, "Standard_D2_v2")
-  auto_scaling_enabled  = true
-  min_count             = each.value.min_count
-  max_count             = each.value.max_count
-  orchestrator_version  = each.value.orchestrator_version
-  vnet_subnet_id        = azurerm_subnet.aks-subnet.id
-  zones                 = local.uk_south_availability_zones
-  node_labels           = try(each.value.node_labels, {})
+  name                        = each.key
+  kubernetes_cluster_id       = azurerm_kubernetes_cluster.main.id
+  vm_size                     = try(each.value.vm_size, "Standard_D2_v2")
+  auto_scaling_enabled        = true
+  min_count                   = each.value.min_count
+  max_count                   = each.value.max_count
+  orchestrator_version        = each.value.orchestrator_version
+  vnet_subnet_id              = azurerm_subnet.aks-subnet.id
+  zones                       = local.uk_south_availability_zones
+  node_labels                 = try(each.value.node_labels, {})
+  temporary_name_for_rotation = "${each.key}temp"
 
   upgrade_settings {
     max_surge                     = var.node_pools.apps1.max_surge
