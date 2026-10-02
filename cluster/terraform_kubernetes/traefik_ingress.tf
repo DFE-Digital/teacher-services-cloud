@@ -10,10 +10,10 @@ resource "helm_release" "traefik-ingress" {
     file("${path.module}/config/traefik/${var.config}.values.yaml")
   ]
 
-  set {
-    name  = "service.spec.externalTrafficPolicy"
-    value = "Local"
-  }
+  # set {
+  #   name  = "service.spec.externalTrafficPolicy"
+  #   value = "Local"
+  # }
   set {
     name  = "service.annotations.service\\.beta\\.kubernetes\\.io/azure-pip-name"
     value = azurerm_public_ip.ingress-public-ip-traefik[0].name
