@@ -7,7 +7,7 @@ Airbyte Connections (source and destination for each environment) can then be co
 We install a single airbyte deployment per namespace, and this will be shared by all services and environments in that namespace.
 A default workspace is created initially, but this is not used by services. Instead, we create a separate workspace for each service to maintain separation. A service will only access it's own workspace.
 
-Most of the airbyte resources are deployed using the airbye helm chart.
+Most of the airbyte resources are deployed using the Airbyte helm chart.
 We use an Azure storage account for logs, and an Azure postgresql server for airbyte data.
 A lifecycle policy deletes log data after 14 days, and for the database TEMPORAL_HISTORY_RETENTION_IN_DAYS is set to 7 days.
 
@@ -28,37 +28,36 @@ Dockerfile
 
 ## Operation
 
-### Prerequisites
+### Required Steps
 
-- Create secrets for AIRBYTE-PASS-${namespace} in the cluster keyvault
-- Add namespace to the airbyte_namespaces variable in the appropriate cluster json tfvars file e.g. airbyte/terraform/config/test.tfvars.json
-- run make as below
-- Note that the airbyte ui account will be set to the account you use on first login. So, immediately after initial build you should log in using the password secret and the infra email. To change it after initial login requires a complete rebuild, so make sure you use the correct initial email.
-- a single airbyte API application will be created. The client_id and client_secret are randomly created and kept in the kubernetes secret airbyte-auth-secrets. Either check the ui or decode with base64 for the true values which can then be used by the services to connect to the airbyte api (stored as key vault secrets)
-- a single workspace is created initially. To separate services and environments within the same namespace, we wouldn't give the default workspace to services. Instead create extra workspaces as required. Two scripts have been created to do this, list-workspaces.sh and create-workspaces.sh. You must export some local variables before running, see the scripts for details.
-
-### Airbyte Build
-
-#### Development environments: cluster1, cluster2...
-
+1. Create the secret AIRBYTE-PASS-${namespace} in the cluster keyvault (s189t01-tsc-ts-kv & s189p01-tsc-pd-kv). To follow the same standard, use at least 16 characters, all lowercase, three words with no separation.
+2. Add the namespace to the airbyte_namespaces variable in the appropriate cluster json tfvars file e.g. airbyte/terraform/config/test.tfvars.json or airbyte/terraform/config/production.tfvars.json.
+3. run make as below
 ```
-make development airbyte-{plan/apply} ENVIRONMENT=cluster{n}
+make test airbyte-apply CONFIRM_TEST=yes
 ```
+```
+make production airbyte-apply CONFIRM_PRODUCTION=yes
+```
+4. Note that the airbyte ui account will be set to the account you use on first login. So, immediately after initial build, log in to the Airbyte URL as defined in our Airbyte Loop document using the password secret you created in step 1.
+   1. The email is always the same. See our Loop Airbyte page for this vale.
+   2. The Organization name should be `Schools Digital UK`
+   3. Enable `Anonymize usage data collection`
+   4. If the receive `Invalid username or password`, taint the helm chart and redeploy.
+      1. Add `-replace='helm_release.airbyte[${namespace}]' to the airbyte-apply command in the make file so it looks something like this
+      ```
+      airbyte-apply: airbyte-init
+	  terraform -chdir=airbyte/terraform apply -replace='helm_release.airbyte["git-test"]' -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
-where n = 1-6
+      or for multiple
+      airbyte-apply: airbyte-init
+      terraform -chdir=airbyte/terraform apply -replace='helm_release.airbyte["git-production"]' -replace='helm_release.airbyte["srtl-production"]' -replace='helm_release.airbyte["tv-production"]' -var-file config/${CONFIG}.tfvars.json ${AUTO_APPROVE}
 
-e.g.
-```
-make development airbyte-plan ENVIRONMENT=cluster1
-```
+      ```
 
-#### Permanent environments: platform-test, test, production
+    To change it after initial login requires a complete rebuild, so make sure you use the correct initial email.
 
-```
-make <environment> airbyte-{plan/apply} CONFIRM...
-```
+5. A single airbyte API application will be created. The client_id and client_secret are randomly created and kept in the kubernetes secret airbyte-auth-secrets. Either check the ui or decode with base64 for the true values which can then be used by the services to connect to the airbyte api.
+   1. Go to the Airbyte UI -> Settings -> Applications
 
-e.g.
-```
-make test airbyte-plan CONFIRM_TEST=yes
-```
+A single workspace is created initially. To separate services and environments within the same namespace, separate connections are created within the single Airbyte workspace.
