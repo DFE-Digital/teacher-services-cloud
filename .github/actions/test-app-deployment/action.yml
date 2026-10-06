@@ -15,6 +15,9 @@ inputs:
     description: The application environment config
     required: true
 
+  permissions:
+    id-token: write
+
 runs:
   using: composite
 
@@ -24,7 +27,6 @@ runs:
     with:
       repository: DFE-Digital/itt-mentor-services
       path: itt-mentor-services
-      ref: f5ea406b630c6a781f718ae284b7592f8981d8a5 # temporarily use version pre-airbyte until GCP auth issue resolved
       
   - name: Set Environment variables
     id: set_env_var
@@ -50,6 +52,11 @@ runs:
       azure-client-id: ${{ inputs.azure-client-id }}
       azure-tenant-id: ${{ inputs.azure-tenant-id }}
       azure-subscription-id: ${{ inputs.azure-subscription-id }}
+
+  - uses: google-github-actions/auth@v2
+    with:
+      project_id: rugged-abacus-218110
+      workload_identity_provider: projects/712009772377/locations/global/workloadIdentityPools/teacher-services-cloud/providers/teacher-services-cloud
 
   - name: Deploy application to ${{ inputs.environment }}
     shell: bash
