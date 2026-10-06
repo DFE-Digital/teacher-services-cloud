@@ -10,6 +10,7 @@ on:
         options:
           - development
           - test
+          - production
 
   push:
     branches:
@@ -70,7 +71,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        environment: [development, test]
+        environment: [development, test, production]
     permissions:
       id-token: write # Required for OIDC authentication to Azure
 
