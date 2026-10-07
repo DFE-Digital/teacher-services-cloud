@@ -71,8 +71,9 @@ resource "azurerm_kubernetes_cluster" "main" {
   }
 
   network_profile {
-    network_plugin    = "kubenet"
-    load_balancer_sku = "standard"
+    network_plugin      = var.network_plugin
+    network_plugin_mode = var.network_plugin_mode
+    load_balancer_sku   = "standard"
 
     load_balancer_profile {
 

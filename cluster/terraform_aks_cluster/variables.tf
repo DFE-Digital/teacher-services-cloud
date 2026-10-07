@@ -75,6 +75,18 @@ variable "node_upgrade_maintenance_window" {
   description = "Schedule for automatic node OS updates"
 }
 
+variable "network_plugin" {
+  type        = string
+  default     = "kubenet"
+  description = "Network plugin to use for the cluster"
+}
+
+variable "network_plugin_mode" {
+  type        = string
+  default     = null
+  description = "Network plugin mode to use for the cluster"
+}
+
 locals {
   backing_services_resource_group_name = "${var.resource_prefix}-tsc-${var.environment}-bs-rg"
   cluster_name = (
