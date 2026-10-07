@@ -113,6 +113,10 @@ locals {
     "bat-production",
     "di-production",
     "tra-production"
-    ]
+  ]
 
+  airbyte_release_names = {
+    for ns in var.airbyte_namespaces :
+    ns => "${substr(split("-", ns)[0], 0, 6)}-${split("-", ns)[1]}"
+  }
 }
