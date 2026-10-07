@@ -64,7 +64,7 @@ jobs:
           echo "${{ env.ACTION_DESCRIPTION }}"
 
           # Define all possible clusters
-          CLUSTERS="cluster1 cluster2 cluster3 cluster4 cluster5 cluster6"
+          CLUSTERS="cluster1 cluster2 cluster3 cluster4 cluster5"
 
           # Process each cluster
           for CLUSTER in $CLUSTERS; do
@@ -113,7 +113,7 @@ jobs:
         run: |
           echo "## Cluster Destruction Summary"
           echo "- **Subscription**: ${{ env.DEV_SUBSCRIPTION }}"
-          echo "- **Clusters attempted**: cluster1, cluster2, cluster3, cluster4, cluster5, cluster6"
+          echo "- **Clusters attempted**: cluster1, cluster2, cluster3, cluster4, cluster5"
           echo "- **Status**: ${{ job.status }}"
 
           echo ""
