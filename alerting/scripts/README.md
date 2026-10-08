@@ -33,7 +33,7 @@ Save in the scripts folder naming the file `servicelist.csv`
 
 The script also removes duplicate mapping items when `shortCode`, `channelId` and `channelGroupId` all match. Items with the same `shortCode` but different channel values are excluded from the mapping and written to `shortcode_mapping_deduplication_exceptions.json` for manual resolution.
 
-This will produce a `shortcode_mapping.json` file which is the `short_code_to_channel` element, manually copy and paste this into the desired environments keyvault (check `cluster_kv` value in `alerting/terraform_logic_app/config/<env>.json`) as a new version for secret `SHORT-CODE-TO-TEAMS-CHANNEL`. Drop the enclosing `short_code_to_channel` json element, only adding the list element.
+This will produce a `shortcode_mapping.json` file containing the list of mapping objects. Copy the file contents as-is into the desired environments keyvault (check `cluster_kv` value in `alerting/terraform_logic_app/config/<env>.json`) as a new version for secret `SHORT-CODE-TO-TEAMS-CHANNEL`.
 
 The script uses these predefined values for input and output files.
 ```
@@ -63,11 +63,10 @@ eg
 ]
 ```
 
-DO NOT USE: &darr;
+Do not wrap the list in `short_code_to_channel`:
 ```json
 {
-    "short_code_to_channel":
-    [
+    "short_code_to_channel": [
         {
             "shortCode": "code1",
             "channelId": "xxxxxxxx",
@@ -84,6 +83,5 @@ DO NOT USE: &darr;
 }
 
 ```
- DO NOT USE: &uarr;
 
 
