@@ -13,7 +13,7 @@ urldecode() {
 }
 
 # Initialise output files
-echo '{"short_code_to_channel": [' > "$OUTPUT_JSON"
+echo '[' > "$OUTPUT_JSON"
 echo 'Name,Shortname,Alertchannel,Reason' > "$EXCEPTIONS_FILE"
 
 first=true
@@ -21,6 +21,10 @@ first=true
 # Skip header row
 while IFS=',' read -r name shortname alertchannel
 do
+    name=${name%$'\r'}
+    shortname=${shortname%$'\r'}
+    alertchannel=${alertchannel%$'\r'}
+
     # Remove surrounding quotes if present
     name=$(echo "$name" | sed 's/^"//;s/"$//')
     shortname=$(echo "$shortname" | sed 's/^"//;s/"$//')
@@ -76,26 +80,26 @@ do
 
 done < <(tail -n +2 "$INPUT_CSV")
 
-echo ']}' >> "$OUTPUT_JSON"
+echo ']' >> "$OUTPUT_JSON"
 
 tmp_output=$(mktemp)
 trap 'rm -f "$tmp_output"' EXIT
 
 if ! jq -e '
-    (.short_code_to_channel | type == "array") and
-    all(.short_code_to_channel[];
+    (type == "array") and
+    all(.[];
         (.shortCode | type == "string" and length > 0) and
         (.channelId | type == "string" and length > 0) and
         (.channelGroupId | type == "string" and length > 0))
 ' "$OUTPUT_JSON" >/dev/null; then
-    echo "Generated mapping contains an invalid short_code_to_channel item" >&2
+    echo "Generated mapping contains an invalid item" >&2
     exit 1
 fi
 
 jq '
     def routing: {shortCode, channelId, channelGroupId};
     def conflict_codes:
-        [.short_code_to_channel[]]
+        [.[]]
         | sort_by(.shortCode)
         | group_by(.shortCode)
         | map(select((map(routing) | unique | length) > 1) | .[0].shortCode);
@@ -109,17 +113,15 @@ jq '
 
     . as $mapping
     | ($mapping | conflict_codes) as $conflicts
-    | {
-        short_code_to_channel: ($mapping.short_code_to_channel
-            | map(select(.shortCode as $code | ($conflicts | index($code)) == null))
-            | deduplicate)
-    }
+    | $mapping
+    | map(select(.shortCode as $code | ($conflicts | index($code)) == null))
+    | deduplicate
 ' "$OUTPUT_JSON" > "$tmp_output"
 
 jq '
     def routing: {shortCode, channelId, channelGroupId};
 
-    [.short_code_to_channel[]]
+    [.[]]
     | sort_by(.shortCode)
     | group_by(.shortCode)
     | map(select((map(routing) | unique | length) > 1)
