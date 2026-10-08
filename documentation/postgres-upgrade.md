@@ -24,6 +24,31 @@ As of 02/08/2025 there are several terraform issues with Postgres upgrades.
     - Increase storage for any databases that don't have sufficient space available
 - check limitations and exclusions
     - see https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/concepts-major-version-upgrade#upgrade-considerations-and-limitations
+- Login to the PostgreSQL server and run the following query to confirm that both `grantor_has_owner_role` and `grantor_has_schema_usage` are both true on every row:
+
+```
+SELECT (regexp_matches(unnest(initprivs)::text, '.*/"{0,1}(.*?)"{0,1}'))[1] AS grantor,
+       relowner::regrole AS owner,
+       pg_has_role((regexp_matches(unnest(initprivs)::text, '.*/"{0,1}(.*?)"{0,1}'))[1], relowner, 'USAGE') AS grantor_has_owner_role,
+       has_schema_privilege((regexp_matches(unnest(initprivs)::text, '.*/"{0,1}(.*?)"{0,1}'))[1], relnamespace, 'USAGE') AS grantor_has_schema_usage
+FROM pg_init_privs
+JOIN pg_class c ON c.oid = pg_init_privs.objoid
+WHERE relname = 'spatial_ref_sys' AND relnamespace = 'public'::regnamespace
+  AND classoid = 'pg_class'::regclass AND privtype = 'e';
+```
+
+The result should be similar to:
+
+```
+ grantor |  owner  | grantor_has_owner_role | grantor_has_schema_usage 
+---------+---------+------------------------+--------------------------
+ azuresu | azuresu | t                      | t
+ azuresu | azuresu | t                      | t
+(2 rows)
+```
+
+If either is false, a support ticket must be raised with Microsoft. Please see `Known Issues`, below, for further information.
+
 - add commands to the Makefile
     - enable/disable server logs
     - scale up/down commands
@@ -149,3 +174,25 @@ If the server has already been made available to users, then rolling back will c
 
 2. Use the offline backup taken just before the upgrade
 - Run the Postgres restore workflow using the backup
+
+## Known Issues
+
+During the validation process of a few servers in the QA environments, we have come across the following error: 
+
+```
+MajorVersionUpgradeFailedPrecheck
+
+The major version upgrade failed precheck. The initial owner of the extension does not have access to role which currently owns the extension object table public.spatial_ref_sys in database tv_qa. Please resolve this by either providing the initial owner access to current user role which owns the extension object table public.spatial_ref_sys or recreate the extension.
+```
+
+This did not appear to be a strictly accurate reflection on the issue we were experiencing as the table owner and the PostGIS extension owner both came back as `azuresu`.
+
+A support case was therefore raised with Microsoft, from which it was determined that the user that undertook the original installation of the PostGIS extension and the table owner were the same, but that a previous upgrade had changed the owner of both to `azuresu`.
+
+Although the table was correctly set to the new user, there is metadata stored which is not immediately visible to us that continues to show the original owner of the PostGIS extension - this is what the pre-update validation checks query. As the old owner does not have permission to the current owner role, the upgrade fails in order to avoid a partial or failed conversion.
+
+Although we cannot update the metadata, we can discover what it provides to the validation check. The instructions to do this and the necessary query are above, in `Prerequisites`. Should the query return false in any of the rows, it is most likely that the upgrade will fail the validations checks. These checks can be run to check this is the case.
+
+A support ticket will then need to be raised with Microsoft to ask them to correct this to resolve the issue.
+
+**PLease note:** this bug was resolved in early 2025, so any servers deployed since then should not be affected.
