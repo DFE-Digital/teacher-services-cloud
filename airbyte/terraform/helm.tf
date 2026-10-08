@@ -1,11 +1,11 @@
 resource "helm_release" "airbyte" {
   for_each = toset(var.airbyte_namespaces)
 
-  name       = "airbyte-${each.key}"
+  name       = "airbyte-${local.airbyte_release_names[each.key]}"
   repository = "https://airbytehq.github.io/helm-charts"
   chart      = "airbyte"
   version    = var.airbyte_version
-  namespace  = "${each.key}"
+  namespace  = each.key
 
   depends_on = [
     kubernetes_secret.airbyte_db_secrets
@@ -517,7 +517,7 @@ resource "helm_release" "airbyte" {
     value = "airbyte-bootloader-1.5.1"
     type  = "string"
   }
-    set {
+  set {
     name  = "airbyte-bootloader.podAnnotations.fluentbit\\.io/exclude"
     value = "true"
     type  = "string"

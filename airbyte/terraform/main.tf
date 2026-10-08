@@ -47,7 +47,7 @@ resource "kubernetes_secret" "airbyte_secret" {
 
   metadata {
     name      = "airbyte-auth-secrets"
-    namespace = "${each.key}"
+    namespace = each.key
   }
 
   lifecycle {
@@ -63,12 +63,12 @@ resource "kubernetes_secret_v1_data" "airbyte_secret_data" {
   for_each = toset(var.airbyte_namespaces)
 
   metadata {
-    name = "airbyte-auth-secrets"
-    namespace = "${each.key}"
+    name      = "airbyte-auth-secrets"
+    namespace = each.key
   }
   data = {
-    instance-admin-password = data.azurerm_key_vault_secret.airbyte_pass["${each.key}"].value
-    instance-admin-client-id = random_password.client-id["${each.key}"].result
+    instance-admin-password      = data.azurerm_key_vault_secret.airbyte_pass["${each.key}"].value
+    instance-admin-client-id     = random_password.client-id["${each.key}"].result
     instance-admin-client-secret = random_password.client-secret["${each.key}"].result
   }
   force = true
@@ -80,11 +80,11 @@ resource "kubernetes_ingress_v1" "airbyte_ingress" {
   wait_for_load_balancer = true
   metadata {
     name      = "airbyte-${each.key}-ingress"
-    namespace = "${each.key}"
+    namespace = each.key
     annotations = {
-    #   "nginx.ingress.kubernetes.io/auth-type"   = "basic"
-    #   "nginx.ingress.kubernetes.io/auth-secret" = kubernetes_secret.airbyte_basic_auth.metadata[0].name
-    #   "nginx.ingress.kubernetes.io/auth-realm"  = "Authentication Required"
+      #   "nginx.ingress.kubernetes.io/auth-type"   = "basic"
+      #   "nginx.ingress.kubernetes.io/auth-secret" = kubernetes_secret.airbyte_basic_auth.metadata[0].name
+      #   "nginx.ingress.kubernetes.io/auth-realm"  = "Authentication Required"
       "nginx.ingress.kubernetes.io/ssl-redirect" = "false"
     }
   }
@@ -96,13 +96,13 @@ resource "kubernetes_ingress_v1" "airbyte_ingress" {
         path {
           backend {
             service {
-              name = "airbyte-${each.key}-airbyte-webapp-svc"
+              name = "airbyte-${local.airbyte_release_names[each.key]}-airbyte-webapp-svc"
               port {
                 number = 80
               }
             }
           }
-          path = "/"
+          path      = "/"
           path_type = "Prefix"
         }
       }
