@@ -1,0 +1,3 @@
+.PHONY: staging
+staging: production-cluster
+	$(eval include global_config/staging.sh)

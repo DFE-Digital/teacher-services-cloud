@@ -1,0 +1,3 @@
+.PHONY: production
+production: production-cluster
+	$(eval include global_config/production.sh)
