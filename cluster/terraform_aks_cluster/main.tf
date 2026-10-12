@@ -51,7 +51,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   default_node_pool {
     name                        = "default"
     node_count                  = var.default_node_pool.node_count
-    vm_size                     = try(var.default_node_pool.vm_size, "Standard_D2_v2")
+    vm_size                     = try(var.default_node_pool.vm_size, "Standard_D2_v5")
     vnet_subnet_id              = azurerm_subnet.aks-subnet.id
     zones                       = local.uk_south_availability_zones
     orchestrator_version        = var.default_node_pool.orchestrator_version
@@ -94,7 +94,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools" {
 
   name                        = each.key
   kubernetes_cluster_id       = azurerm_kubernetes_cluster.main.id
-  vm_size                     = try(each.value.vm_size, "Standard_D2_v2")
+  vm_size                     = try(each.value.vm_size, "Standard_D2_v5")
   auto_scaling_enabled        = true
   min_count                   = each.value.min_count
   max_count                   = each.value.max_count
@@ -174,7 +174,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "node_pools_clone" {
 
   name                  = "${each.key}clone"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.clone[0].id
-  vm_size               = try(each.value.vm_size, "Standard_D2_v2")
+  vm_size               = try(each.value.vm_size, "Standard_D2_v5")
   auto_scaling_enabled  = true
   min_count             = each.value.min_count
   max_count             = each.value.max_count
