@@ -3,7 +3,7 @@
 resource "azurerm_storage_account" "airbyte" {
   for_each = toset(var.airbyte_namespaces)
 
-  name                            = length(each.key) > 1 ? "${var.resource_prefix}${substr(replace(each.key, "-", ""), 0, 10)}absa" : replace(each.key, "-", "")
+  name                            = length(split("-", each.key)[0]) > 7 ? "${var.resource_prefix}${substr(split("-", each.key)[0], 0, 7)}${substr(split("-", each.key)[1], 0, 3)}absa" : "${var.resource_prefix}${substr(replace(each.key, "-", ""), 0, 10)}absa"
   location                        = "uksouth"
   resource_group_name             = var.resource_group_name
   account_tier                    = "Standard"
@@ -17,7 +17,7 @@ resource "azurerm_storage_container" "airbyte" {
   for_each = toset(var.airbyte_namespaces)
 
   name                  = "airbyte-bucket"
-  storage_account_id  = azurerm_storage_account.airbyte["${each.key}"].id
+  storage_account_id    = azurerm_storage_account.airbyte["${each.key}"].id
   container_access_type = "private"
 }
 
@@ -45,7 +45,7 @@ resource "kubernetes_secret" "airbyte_config_secrets" {
 
   metadata {
     name      = "airbyte-config-secrets"
-    namespace = "${each.key}"
+    namespace = each.key
   }
 
   data = {
