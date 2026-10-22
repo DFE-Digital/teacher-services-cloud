@@ -13,7 +13,7 @@ The resource_id_from_cloud_provider refers to the id assigned to the deployed re
 
 The simplest way to do this in an existing service is to include an additional command in the makefile, as this will allow it to use the same nested terraform-init process as other commands in the repo, such as in the below example:
 ```
-.PHONY: terraform-import: 
+.PHONY: terraform-import
 terraform-import: terraform-init
 	terraform -chdir=terraform/application import -var-file "config/${CONFIG}.tfvars.json" $(RESOURCE) $(ID)
 ```
@@ -24,7 +24,7 @@ This may not be identical for every repo due to some having varying file structu
 
 For example:
 ```
-make test terraform-import module.storage.azurerm_storage_container.containers["<container_name>"] "/subscriptions/<subscription_id>/resourceGroups/<resourc_group_name>/providers/Microsoft.Storage/storageAccounts/<storage_account_name>/blobServices/default/containers/<contianer_name>"
+make test terraform-import RESOURCE='module.storage.azurerm_storage_container.containers["<container_name>"]' ID="/subscriptions/<subscription_id>/resourceGroups/<resourc_group_name>/providers/Microsoft.Storage/storageAccounts/<storage_account_name>/blobServices/default/containers/<contianer_name>"
 ```
 
 It is possible that the code will need to be rewritten in some cases to allow a resource to be imported without introducing new changes. For example, the following PR was to import an additional storage account container into the test environment of sap-public, however, the list of containers was hardcoded in the tf file, meaning that once this was imported into test, future plans against other environments would create the same container despite it not being needed. In this case, the code was updated so the containers list was controlled using a variable at the environment level, meaning the test import had no effect on other environments. [GitHub PR](https://github.com/DFE-Digital/sap-public/pull/440)
