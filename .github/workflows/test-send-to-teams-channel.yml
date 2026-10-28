@@ -1,0 +1,53 @@
+name: Test Send to Teams Channel
+
+on:
+  push:
+    branches:
+      - 2913-test-teams-message
+
+jobs:
+  send-to-teams-channel:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Generate long message
+        shell: bash
+        run: |
+          {
+            echo "LONG_MESSAGE<<EOF"
+            for i in $(seq 200); do echo "line $i of some very noisy output"; done
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
+      - name: Short message, minimal (should not be truncated)
+        uses: DFE-Digital/github-actions/send-to-teams-channel@2913-update-send-to-teams-action
+        with:
+          teams-webhook-url: ${{ secrets.TEST_TEAMS_WEBHOOK_URL }}
+          title: "[TEST 2913] Short message"
+          service: Teacher Services Cloud
+          status: good
+          minimal: true
+          message: This is a short message and should arrive unchanged
+
+      - name: Long message, minimal (should be truncated)
+        uses: DFE-Digital/github-actions/send-to-teams-channel@2913-update-send-to-teams-action
+        with:
+          teams-webhook-url: ${{ secrets.TEST_TEAMS_WEBHOOK_URL }}
+          title: "[TEST 2913] Long message minimal"
+          service: Teacher Services Cloud
+          status: warning
+          minimal: true
+          message: ${{ env.LONG_MESSAGE }}
+
+      - name: Long message, full (should be truncated)
+        uses: DFE-Digital/github-actions/send-to-teams-channel@2913-update-send-to-teams-action
+        with:
+          teams-webhook-url: ${{ secrets.TEST_TEAMS_WEBHOOK_URL }}
+          title: "[TEST 2913] Long message full"
+          service: Teacher Services Cloud
+          status: warning
+          minimal: false
+          message: ${{ env.LONG_MESSAGE }}
