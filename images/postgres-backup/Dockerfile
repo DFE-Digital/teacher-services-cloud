@@ -14,7 +14,7 @@ RUN curl -sSL https://aka.ms/downloadazcopy-v10-linux | tar -xz && \
 FROM alpine:3.24.1
 
 RUN apk add --no-cache \
-    postgresql17-client \
+    postgresql18-client \
     bash \
     ca-certificates \
     gcompat
