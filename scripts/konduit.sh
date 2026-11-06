@@ -20,40 +20,43 @@ help() {
    echo
 
    echo "Syntax:"
-   echo "   konduit [-a|-c|-h|-q|-x|-i file-name|-p postgres-var|-r redis-var|-s server-name|-t timeout|-n namespace] app-name -- command [args]"
+   echo "   konduit [-a|-c|-h|-q|-x|-i file-name|-p postgres-var|-m sqlserver-var|-r redis-var|-e auth-mode|-s server-name|-t timeout|-n namespace] app-name -- command [args]"
    echo "      Connect to the default database for app-name"
    echo
-   echo "or konduit [-a|-c|-h|-q|-x|-i file-name|-p postgres-var|-r redis-var|-s server-name|-t timeout|-n namespace] -b db-name app-name -- command [args]"
+   echo "or konduit [-a|-c|-h|-q|-x|-i file-name|-p postgres-var|-m sqlserver-var|-r redis-var|-e auth-mode|-s server-name|-t timeout|-n namespace] -b db-name app-name -- command [args]"
    echo "      Connect to database 'db-name' using URL and credentials from app-name"
    echo
-   echo "or konduit [-a|-c|-h|-q|-x|-i file-name|-p postgres-var|-r redis-var|-t timeout|-n namespace] -u 'db-url' app-name -- command [args]"
-   echo "      Connect to database URL 'db-url' using app-name as tunnel"
+   echo "or konduit [-a|-c|-h|-q|-x|-i file-name|-p postgres-var|-m sqlserver-var|-r redis-var|-e auth-mode|-s server-name|-t timeout|-n namespace] -u 'connection-string' app-name -- command [args]"
+   echo "      Connect using the supplied database URL or SQL Server connection string"
    echo
-   echo "or konduit [-a|-c|-h|-q|-x|-i file-name|-r redis-var|-t timeout|-n namespace] -d keyvault-db-name -k key-vault app-name -- command [args]"
+   echo "or konduit [-a|-c|-h|-q|-x|-i file-name|-m sqlserver-var|-r redis-var|-e auth-mode|-t timeout|-n namespace] -d keyvault-db-name -k key-vault app-name -- command [args]"
    echo "      Connect to a specific database from app-name"
    echo "      Requires a secret containing the DB URL in the specified Azure KV,"
    echo "      with name {keyvault-db-name}-database-url"
    echo
    echo "options:"
    echo "   -a                Backend is an AKS service. Default is Azure backing service."
-   echo "   -c                Input file is compresses. Requires -i."
-   echo "   -b                Override database name if connecting to a db other than the app default."
+   echo "   -c                Input file is compressed. Requires -i."
+   echo "   -b db-name        Override database name if connecting to a db other than the app default."
    echo "                     In case of redis, it is the database index: 0, 1, 2..."
    echo "   -d keyvault-db-name        Database name in keyvault secret name, required for the -k option"
    echo "                     It can only contain alphanumerical characters and hyphens"
-   echo "   -i file-name      Input file for a restore. Only valid for command psql."
+   echo "   -e auth-mode      SQL Server authentication mode: sql or entra. Default: auto-detect from connection string."
+   echo "   -i file-name      Input file for SQL commands. Supports psql and sqlcmd; use -c for gzip-compressed files."
    echo "   -k key-vault      Key vault that holds the Azure secret containing the DB URL."
    echo "                     The secret {db-name}-database-url must exist in this vault,"
-   echo "                     and contain a full connection URL. See 'connection string' below."
+   echo "                     and contain a full connection URL or SQL Server connection string."
    echo "   -n namespace      Namespace where the app can be found. Required in case the user doesn't have cluster admin access."
    echo "   -p postgres-var   Variable for postgres [defaults to DATABASE_URL if not set]"
    echo "                     Only valid for commands psql, pg_dump or pg_restore"
+   echo "   -m sqlserver-var  Variable for SQL Server connection string [defaults to SQLSERVER_CONNECTION_STRING]"
+   echo "                     Only valid for command sqlcmd"
    echo "   -q                Quiet mode. Do not echo informational messages"
    echo "   -r redis-var      Variable for redis cache [defaults to REDIS_URL if not set]"
    echo "                     Only valid for command redis-cli"
    echo "   -s server-name    Override server name. Postgres only, used to access PTR server. Hostname without .postgres.database.azure.com suffix."
-   echo "   -t timeout        Timeout in seconds. Default is 28800 but 3600 for psql, pg_dump or pg_restore commands."
-   echo "   -u 'db-url'       Full connection URL if different from the URL in the app used for tunnelling. See 'connection string' below."
+   echo "   -t timeout        Timeout in seconds. Default is 28800 but 3600 for file-based SQL and backup commands."
+   echo "   -u 'connection-string' Full connection URL/string if different from the app value used for tunnelling."
    echo "                     It should be enclosed in quotes to avoid shell interpretation"
    echo "   -x                Runs konduit through a separate pod"
    echo "   -h                Print this help."
@@ -61,22 +64,32 @@ help() {
    echo "parameters:"
    echo "   app-name     app name to connect to."
    echo "   command      command to run."
-   echo "                  valid commands are psql, pg_dump, pg_restore or redis-cli"
+   echo "                  valid commands are psql, pg_dump, pg_restore, redis-cli or sqlcmd"
    echo "   args         args for the command"
    echo
-   echo "connection string:   The URL is in the format:"
+   echo "connection string formats:"
    echo "                     postgres://ADMIN_USER:URLENCODED(ADMIN_PASSWORD)@DB_HOSTNAME:5432/DB_NAME"
    echo "                     or rediss://:PASSWORD=@DB_HOSTNAME:6380/0"
    echo "                     The ADMIN_PASSWORD can be url encoded using terraform console"
    echo "                     using CMD: urlencode(ADMIN_PASSWORD)"
+   echo "                     SQL Server: Server=tcp:server.database.windows.net,1433;Database=db;User ID=user;Password=******"
+   echo
+   echo "SQL Server example:"
+   echo "   konduit -m SQLSERVER_CONNECTION_STRING my-app -- sqlcmd"
+   echo "   konduit -m SQLSERVER_CONNECTION_STRING -e entra my-app -- sqlcmd -Q 'SELECT TOP 10 * FROM dbo.TableName'"
 }
 
 init_setup() {
-   if [ "${RUNCMD}" != "psql" ] && [ "${RUNCMD}" != "pg_dump" ] && [ "${RUNCMD}" != "pg_restore" ] && [ "${RUNCMD}" != "redis-cli" ]; then
+   if [ "${RUNCMD}" != "psql" ] && [ "${RUNCMD}" != "pg_dump" ] && [ "${RUNCMD}" != "pg_restore" ] && [ "${RUNCMD}" != "redis-cli" ] && [ "${RUNCMD}" != "sqlcmd" ]; then
       echo
       echo "Error: invalid command ${RUNCMD}"
-      echo "Only valid options are psql, pg_dump, pg_restore or redis-cli"
+      echo "Only valid commands are psql, pg_dump, pg_restore, redis-cli or sqlcmd"
       help
+      exit 1
+   fi
+
+   if [ "${RUNCMD}" = "sqlcmd" ] && ! command -v sqlcmd >/dev/null 2>&1; then
+      echo "Error: sqlcmd is required for SQL Server connections. Install Microsoft's sqlcmd command-line tool."
       exit 1
    fi
 
@@ -86,7 +99,7 @@ init_setup() {
       # The timeout is reset for each command run.
       # The timeout can be overridden with the -t option.
       TMOUT=28800 # 8 hour timeout default for nc tunnel
-      if [ "${RUNCMD}" = "psql" ] && [ -n "${Inputfile:-}" ]; then
+      if { [ "${RUNCMD}" = "psql" ] || [ "${RUNCMD}" = "sqlcmd" ]; } && [ -n "${Inputfile:-}" ]; then
          # Default timeout for restore set to 1 hour. Increase if required.
          TMOUT=3600
       elif [ "${RUNCMD}" = "pg_dump" ] || [ "${RUNCMD}" = "pg_restore" ]; then
@@ -100,6 +113,10 @@ init_setup() {
    # If an input file is given, check it exists and is readable
    if [ -n "${Inputfile:-}" ] && [ ! -r "${Inputfile}" ]; then
       echo "Error: invalid input file"
+      exit 1
+   fi
+   if [ -n "${CompressedInput:-}" ] && [ -z "${Inputfile:-}" ]; then
+      echo "Error: -c requires an input file specified with -i"
       exit 1
    fi
 
@@ -122,6 +139,10 @@ init_setup() {
    # Set default Postgres var if not set
    if [ -z "${Postgres:-}" ]; then
       Postgres="DATABASE_URL"
+   fi
+
+   if [ -z "${SQLServer:-}" ]; then
+      SQLServer="SQLSERVER_CONNECTION_STRING"
    fi
 
    # Set default Quiet var if not set
@@ -349,6 +370,146 @@ set_db_redis() {
    fi
 }
 
+connection_string_value() {
+   local key="$1"
+   printf '%s\n' "${ORIG_URL}" | awk -v key="${key}" '
+      function check_token(token, separator, name, value) {
+         separator = index(token, "=")
+         if (separator == 0) {
+            return
+         }
+         name = substr(token, 1, separator - 1)
+         value = substr(token, separator + 1)
+         gsub(/^[ \t]+|[ \t]+$/, "", name)
+         gsub(/^[ \t]+|[ \t]+$/, "", value)
+         if (tolower(name) != tolower(key)) {
+            return
+         }
+         if (substr(value, 1, 1) == "{" && substr(value, length(value), 1) == "}") {
+            value = substr(value, 2, length(value) - 2)
+            gsub(/}}/, "}", value)
+         } else if ((substr(value, 1, 1) == "\"" && substr(value, length(value), 1) == "\"") ||
+                    (substr(value, 1, 1) == "\047" && substr(value, length(value), 1) == "\047")) {
+            value = substr(value, 2, length(value) - 2)
+         }
+         print value
+         found = 1
+      }
+      {
+         token = ""
+         in_braces = 0
+         quote = ""
+         for (i = 1; i <= length($0); i++) {
+            character = substr($0, i, 1)
+            if (in_braces) {
+               token = token character
+               if (character == "}") {
+                  if (substr($0, i + 1, 1) == "}") {
+                     token = token "}"
+                     i++
+                  } else {
+                     in_braces = 0
+                  }
+               }
+            } else if (quote != "") {
+               token = token character
+               if (character == quote) {
+                  if (substr($0, i + 1, 1) == quote) {
+                     token = token quote
+                     i++
+                  } else {
+                     quote = ""
+                  }
+               }
+            } else if (character == ";") {
+               check_token(token)
+               if (found) {
+                  exit
+               }
+               token = ""
+            } else {
+               token = token character
+               separator = index(token, "=")
+               if (separator > 0 && character == "{" && substr(token, separator + 1) ~ /^[ \t]*[{]$/) {
+                     in_braces = 1
+               } else if (separator > 0 && (character == "\"" || character == "\047") &&
+                          substr(token, separator + 1) ~ /^[ \t]*["\047]$/) {
+                     quote = character
+               }
+            }
+         }
+         check_token(token)
+      }'
+}
+
+set_db_sqlserver() {
+   PORT=1433
+   if [ -n "${DB_URL_ARG:-}" ]; then
+      ORIG_URL="${DB_URL_ARG}"
+   elif [ -z "${KV:-}" ]; then
+      if [ -z "${Jumppod:-}" ]; then
+         ORIG_URL=$(kubectl -n "${NAMESPACE}" exec -i "deployment/${INSTANCE}" -- printenv "${SQLServer}")
+      else
+         SECRET=$(kubectl -n "${NAMESPACE}" get "deployment/${OLDINST}" -o jsonpath='{.spec.template.spec.containers[0].envFrom[1].secretRef.name}')
+         ORIG_URL=$(kubectl -n "${NAMESPACE}" get "secret/${SECRET}" -o jsonpath="{.data.${SQLServer}}" | base64 --decode)
+      fi
+   else
+      ORIG_URL=$(az keyvault secret show --name "${KVDBName}-database-url" --vault-name "${KV}" | jq -r .value)
+   fi
+
+   DB_SERVER=$(connection_string_value "Server")
+   if [ -z "${DB_SERVER}" ]; then
+      DB_SERVER=$(connection_string_value "Data Source")
+   fi
+   DB_SERVER="${DB_SERVER#tcp:}"
+   DB_HOSTNAME="${DB_SERVER%%,*}"
+   if [[ "${DB_SERVER}" == *,* ]]; then
+      PORT="${DB_SERVER##*,}"
+   fi
+   DB_DATABASE=$(connection_string_value "Initial Catalog")
+   if [ -z "${DB_DATABASE}" ]; then
+      DB_DATABASE=$(connection_string_value "Database")
+   fi
+   DB_USER=$(connection_string_value "User ID")
+   if [ -z "${DB_USER}" ]; then
+      DB_USER=$(connection_string_value "UID")
+   fi
+   DB_PASSWORD=$(connection_string_value "Password")
+   if [ -z "${DB_PASSWORD}" ]; then
+      DB_PASSWORD=$(connection_string_value "Pwd")
+   fi
+
+   if [ -n "${DBName:-}" ]; then
+      DB_DATABASE="${DBName}"
+   fi
+
+   if [ -z "${ORIG_URL:-}" ] || [ -z "${DB_HOSTNAME:-}" ] || [ -z "${DB_DATABASE:-}" ]; then
+      echo "Error: SQL Server connection string must include Server and Database/Initial Catalog"
+      exit 1
+   fi
+   if ! [[ "${PORT}" =~ ^[0-9]+$ ]] || [ "${PORT}" -lt 1 ] || [ "${PORT}" -gt 65535 ]; then
+      echo "Error: invalid SQL Server port in connection string"
+      exit 1
+   fi
+
+   SQL_AUTH="${SQLAuth:-auto}"
+   if [ "${SQL_AUTH}" = "auto" ]; then
+      if [ -n "${DB_USER}" ] && [ -n "${DB_PASSWORD}" ]; then
+         SQL_AUTH="sql"
+      else
+         SQL_AUTH="entra"
+      fi
+   fi
+   if [ "${SQL_AUTH}" != "sql" ] && [ "${SQL_AUTH}" != "entra" ]; then
+      echo "Error: SQL Server authentication mode must be 'sql' or 'entra'"
+      exit 1
+   fi
+   if [ "${SQL_AUTH}" = "sql" ] && { [ -z "${DB_USER}" ] || [ -z "${DB_PASSWORD}" ]; }; then
+      echo "Error: SQL login authentication requires User ID and Password in the connection string"
+      exit 1
+   fi
+}
+
 open_tunnels() {
    # Open netcat tunnel between k8 deployment and postgres database
    # Timeout of 8 hours set for an interactive session
@@ -362,28 +523,60 @@ open_tunnels() {
 
 run_psql() {
    if [ -z "${Inputfile:-}" ]; then
-      psql -d "$DB_URL" --no-password "${OTHERARGS}"
+      psql -d "$DB_URL" --no-password "${OTHERARGS[@]}"
    elif [ -z "${CompressedInput:-}" ]; then
-      psql -d "$DB_URL" --no-password <"$Inputfile"
+      psql -d "$DB_URL" --no-password "${OTHERARGS[@]}" <"$Inputfile"
    else
-      gzip -d --to-stdout "${Inputfile}" | psql -d "$DB_URL" --no-password
+      gzip -d --to-stdout "${Inputfile}" | psql -d "$DB_URL" --no-password "${OTHERARGS[@]}"
    fi
 }
 
 run_pgdump() {
-   if [ -z "${OTHERARGS:-}" ]; then
+   if [ "${#OTHERARGS[@]}" -eq 0 ]; then
       echo "ERROR: Must supply arguments for pg_dump"
       exit 1
    fi
-   pg_dump -d "$DB_URL" --no-password ${OTHERARGS}
+   pg_dump -d "$DB_URL" --no-password "${OTHERARGS[@]}"
 }
 
 run_pg_restore() {
-   if [ -z "${OTHERARGS:-}" ]; then
+   if [ "${#OTHERARGS[@]}" -eq 0 ]; then
       echo "ERROR: Must supply arguments for pg_restore"
       exit 1
    fi
-   pg_restore -d "$DB_URL" --no-password ${OTHERARGS}
+   pg_restore -d "$DB_URL" --no-password "${OTHERARGS[@]}"
+}
+
+run_redis() {
+   local -a args=(-u "$DB_URL")
+   if [ -n "${TLS:-}" ]; then
+      args+=("$TLS")
+   fi
+   redis-cli "${args[@]}" "${OTHERARGS[@]}"
+}
+
+run_sqlcmd() {
+   local -a args=(-S "tcp:127.0.0.1,${LOCAL_PORT}" -d "${DB_DATABASE}" -N -F "${DB_HOSTNAME}" -b)
+   if [ "${SQL_AUTH}" = "entra" ]; then
+      args+=(-G)
+      if [ -n "${DB_USER}" ]; then
+         args+=(-U "${DB_USER}")
+      fi
+   else
+      args+=(-U "${DB_USER}")
+   fi
+
+   if [ -n "${Inputfile:-}" ]; then
+      if [ -n "${CompressedInput:-}" ]; then
+         gzip -d --to-stdout "${Inputfile}" | SQLCMDPASSWORD="${DB_PASSWORD:-}" sqlcmd "${args[@]}" "${OTHERARGS[@]}"
+      else
+         SQLCMDPASSWORD="${DB_PASSWORD:-}" sqlcmd "${args[@]}" "${OTHERARGS[@]}" -i "${Inputfile}"
+      fi
+   elif [ -n "${DB_PASSWORD:-}" ]; then
+      SQLCMDPASSWORD="${DB_PASSWORD}" sqlcmd "${args[@]}" "${OTHERARGS[@]}"
+   else
+      sqlcmd "${args[@]}" "${OTHERARGS[@]}"
+   fi
 }
 
 cleanup() {
@@ -400,13 +593,16 @@ cleanup() {
 }
 
 # Get the options
-while getopts "ahcxqd:i:k:r:n:p:s:t:u:b:" option; do
+while getopts "ahcxqd:i:k:r:n:p:s:t:u:b:e:m:" option; do
    case $option in
    a)
       AKS="True"
       ;;
    b)
       DBName=$OPTARG
+      ;;
+   e)
+      SQLAuth=$OPTARG
       ;;
    c)
       CompressedInput="True"
@@ -416,6 +612,9 @@ while getopts "ahcxqd:i:k:r:n:p:s:t:u:b:" option; do
       ;;
    k)
       KV=$OPTARG
+      ;;
+   m)
+      SQLServer=$OPTARG
       ;;
    i)
       Inputfile=$OPTARG
@@ -469,7 +668,7 @@ if [[ -z "$RUNCMD" ]]; then
    exit 1
 fi
 shift 3
-OTHERARGS=${*:-}
+OTHERARGS=("$@")
 
 ###
 ### Main
@@ -495,7 +694,11 @@ pg_restore)
    ;;
 redis-cli)
    set_db_redis
-   CMD="redis-cli -u $DB_URL $TLS ${OTHERARGS}"
+   CMD="run_redis"
+   ;;
+sqlcmd)
+   set_db_sqlserver
+   CMD="run_sqlcmd"
    ;;
 esac
 open_tunnels >/dev/null 2>&1
