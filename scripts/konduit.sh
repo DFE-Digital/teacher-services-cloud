@@ -51,6 +51,7 @@ help() {
    echo "                     Only valid for commands psql, pg_dump or pg_restore"
    echo "   -m sqlserver-var  Variable for SQL Server connection string [defaults to SQLSERVER_CONNECTION_STRING]"
    echo "                     Only valid for command sqlcmd"
+   echo "                     With -x, searches envFrom Secrets/ConfigMaps and reports available setting names if missing."
    echo "   -q                Quiet mode. Do not echo informational messages"
    echo "   -r redis-var      Variable for redis cache [defaults to REDIS_URL if not set]"
    echo "                     Only valid for command redis-cli"
@@ -73,6 +74,7 @@ help() {
    echo "                     The ADMIN_PASSWORD can be url encoded using terraform console"
    echo "                     using CMD: urlencode(ADMIN_PASSWORD)"
    echo "                     SQL Server: Server=tcp:server.database.windows.net,1433;Database=db;User ID=user;Password=******"
+   echo "                     SQL logins for Azure SQL are server-qualified automatically for tunnel routing."
    echo
    echo "SQL Server example:"
    echo "   konduit -m SQLSERVER_CONNECTION_STRING my-app -- sqlcmd"
@@ -442,6 +444,42 @@ connection_string_value() {
       }'
 }
 
+load_sqlserver_envfrom() {
+   local references reference resource name prefix data keys
+   local available_names=""
+   local found="False"
+   references=$(printf '%s' "${DEPLOYMENT_JSON}" | jq -c '.spec.template.spec.containers[0].envFrom[]?')
+   ORIG_URL=""
+   while IFS= read -r reference; do
+      [ -n "${reference}" ] || continue
+      if printf '%s' "${reference}" | jq -e '.secretRef' >/dev/null; then
+         resource="secret"
+         name=$(printf '%s' "${reference}" | jq -r '.secretRef.name')
+      else
+         resource="configmap"
+         name=$(printf '%s' "${reference}" | jq -r '.configMapRef.name')
+      fi
+      prefix=$(printf '%s' "${reference}" | jq -r '.prefix // ""')
+      data=$(kubectl -n "${NAMESPACE}" get "${resource}/${name}" -o json)
+      keys=$(printf '%s' "${data}" | jq -r --arg prefix "${prefix}" '(.data // {}) | keys[] | $prefix + .')
+      available_names="${available_names}${keys}"$'\n'
+      if printf '%s' "${data}" | jq -e --arg setting "${SQLServer}" --arg prefix "${prefix}" \
+         '(.data // {}) | keys | any(.[]; $prefix + . == $setting)' >/dev/null; then
+         ORIG_URL=$(printf '%s' "${data}" | jq -r --arg key "${SQLServer#"${prefix}"}" '.data[$key]')
+         if [ "${resource}" = "secret" ]; then
+            ORIG_URL=$(printf '%s' "${ORIG_URL}" | base64 --decode)
+         fi
+         found="True"
+      fi
+   done <<< "${references}"
+   if [ "${found}" != "True" ]; then
+      echo "Error: SQL Server setting '${SQLServer}' was not found in deployment '${OLDINST}'." >&2
+      echo "Use -m with the SQL connection-string environment-variable name. Available envFrom setting names:" >&2
+      printf '%s' "${available_names}" | sed '/^$/d' >&2
+      exit 1
+   fi
+}
+
 set_db_sqlserver() {
    PORT=1433
    if [ -n "${DB_URL_ARG:-}" ]; then
@@ -468,18 +506,17 @@ set_db_sqlserver() {
                echo "Error: multiple SQL Server connection settings found: ${SQL_CANDIDATE_NAMES}. Specify one with -m."
                exit 1
             else
-               SECRET=$(printf '%s' "${DEPLOYMENT_JSON}" | jq -r '.spec.template.spec.containers[0].envFrom[1].secretRef.name // empty')
-               if [ -n "${SECRET}" ]; then
-                  ORIG_URL=$(kubectl -n "${NAMESPACE}" get "secret/${SECRET}" -o "jsonpath={.data.${SQLServer}}" | base64 --decode)
-               else
-                  echo "Error: SQL Server setting '${SQLServer}' was not found in deployment '${OLDINST}'. Specify the correct environment-variable name with -m."
-                  exit 1
-               fi
+               load_sqlserver_envfrom
             fi
          fi
       fi
    else
       ORIG_URL=$(az keyvault secret show --name "${KVDBName}-database-url" --vault-name "${KV}" | jq -r .value)
+   fi
+
+   if [ -z "${ORIG_URL:-}" ] || [ "${ORIG_URL}" = "null" ]; then
+      echo "Error: SQL Server connection setting is empty. Check the setting selected with -m or the Key Vault secret." >&2
+      exit 1
    fi
 
    DB_SERVER=$(connection_string_value "Server")
@@ -508,8 +545,14 @@ set_db_sqlserver() {
       DB_DATABASE="${DBName}"
    fi
 
-   if [ -z "${ORIG_URL:-}" ] || [ -z "${DB_HOSTNAME:-}" ] || [ -z "${DB_DATABASE:-}" ]; then
-      echo "Error: SQL Server connection string must include Server and Database/Initial Catalog"
+   if [ -z "${DB_HOSTNAME:-}" ] || [ -z "${DB_DATABASE:-}" ]; then
+      echo "Error: SQL Server connection setting was loaded but is missing required fields:" >&2
+      if [ -z "${DB_HOSTNAME:-}" ]; then
+         echo "  Server or Data Source" >&2
+      fi
+      if [ -z "${DB_DATABASE:-}" ]; then
+         echo "  Database or Initial Catalog (or specify -b database-name)" >&2
+      fi
       exit 1
    fi
    if ! [[ "${PORT}" =~ ^[0-9]+$ ]] || [ "${PORT}" -lt 1 ] || [ "${PORT}" -gt 65535 ]; then
@@ -582,13 +625,18 @@ run_redis() {
 
 run_sqlcmd() {
    local -a args=(-S "tcp:127.0.0.1,${LOCAL_PORT}" -d "${DB_DATABASE}" -N -F "${DB_HOSTNAME}" -b)
+   local login="${DB_USER}"
    if [ "${SQL_AUTH}" = "entra" ]; then
       args+=(-G)
       if [ -n "${DB_USER}" ]; then
          args+=(-U "${DB_USER}")
       fi
    else
-      args+=(-U "${DB_USER}")
+      # Azure's gateway needs the logical server identity when connecting through localhost.
+      if [[ "${DB_HOSTNAME}" == *.database.windows.net && "${login}" != *@* ]]; then
+         login="${login}@${DB_HOSTNAME}"
+      fi
+      args+=(-U "${login}")
    fi
 
    if [ -n "${Inputfile:-}" ]; then
