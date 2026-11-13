@@ -123,6 +123,10 @@ locals {
     private-storage-snet = {
       cidr_range = "10.2.128.0/18",
       delegation = {}
+    },
+    sql-snet = {
+      cidr_range = "10.2.192.0/18",
+      delegation = {}
     }
   }
   custom_dns_zone_name_suffixes = [
@@ -132,7 +136,8 @@ locals {
     "privatelink.redis.cache.windows.net",
     "privatelink.blob.core.windows.net",
     "redis.azure.net",
-    "privatelink.queue.core.windows.net"
+    "privatelink.queue.core.windows.net",
+    "privatelink.database.windows.net"
   ]
   uk_south_availability_zones = ["1", "2", "3"]
   monitor_action_group_name   = "${var.resource_prefix}-tsc"
