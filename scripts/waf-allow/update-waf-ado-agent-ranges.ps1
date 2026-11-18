@@ -57,7 +57,7 @@ if ($null -ne $priorityOwner) {
     throw "Priority $($priorityOwner.Priority) is already used by custom rule '$($priorityOwner.Name)'."
 }
 
-$newRules = @(
+ $newRules = @(
     for ($offset = 0; $offset -lt $ranges.Count; $offset += 500) {
         $ruleNumber = [int]($offset / 500) + 1
         $matchValues = @($ranges | Select-Object -Skip $offset -First 500)
