@@ -219,6 +219,8 @@ resource "kubernetes_deployment" "thanos-store-gateway" {
             "--objstore.config-file=/config/thanos.yaml",
             "--index-cache-size=500MB",
             "--chunk-pool-size=500MB",
+            "--enable-auto-gomemlimit",
+            "--auto-gomemlimit.ratio=0.80",
           ]
 
           port {
