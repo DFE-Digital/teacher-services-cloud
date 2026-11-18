@@ -77,7 +77,6 @@ try {
     'storage', 'blob', 'list',
     '--account-name', $StorageAccount,
     '--container-name', $Container,
-    '--auth-mode', 'login',
     '--num-results', '*',
     '--only-show-errors',
     '--output', 'json'
