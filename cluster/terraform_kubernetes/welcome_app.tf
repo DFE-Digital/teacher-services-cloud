@@ -50,7 +50,7 @@ resource "kubernetes_deployment" "welcome_app" {
 
         container {
           name  = local.welcome_app_name
-          image = "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.27.5-alpine3.21"
+          image = "ghcr.io/dfe-digital/teacher-services-cloud:nginx-unprivileged-1.30.7-alpine3.24"
 
           security_context {
             run_as_user  = 1000
