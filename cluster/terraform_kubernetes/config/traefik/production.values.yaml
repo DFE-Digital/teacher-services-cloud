@@ -18,7 +18,7 @@ providers:
     #watchNamespaceSelector: "traefik-watch=true"
     publishService:
       # -- Service fronting the Ingress controller. Takes the form 'namespace/name'
-      enabled: false
+      enabled: true
     proxyBodySize: 52428800
     proxyBufferSize: 24576
     upstreamKeepaliveTimeout: 120
