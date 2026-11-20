@@ -591,11 +591,11 @@ open_tunnels() {
 
 run_psql() {
    if [ -z "${Inputfile:-}" ]; then
-      psql -d "$DB_URL" --no-password "${OTHERARGS[@]}"
+      psql -d "$DB_URL" --no-password ${OTHERARGS[@]+"${OTHERARGS[@]}"}
    elif [ -z "${CompressedInput:-}" ]; then
-      psql -d "$DB_URL" --no-password "${OTHERARGS[@]}" <"$Inputfile"
+      psql -d "$DB_URL" --no-password ${OTHERARGS[@]+"${OTHERARGS[@]}"} <"$Inputfile"
    else
-      gzip -d --to-stdout "${Inputfile}" | psql -d "$DB_URL" --no-password "${OTHERARGS[@]}"
+      gzip -d --to-stdout "${Inputfile}" | psql -d "$DB_URL" --no-password ${OTHERARGS[@]+"${OTHERARGS[@]}"}
    fi
 }
 
@@ -604,7 +604,7 @@ run_pgdump() {
       echo "ERROR: Must supply arguments for pg_dump"
       exit 1
    fi
-   pg_dump -d "$DB_URL" --no-password "${OTHERARGS[@]}"
+   pg_dump -d "$DB_URL" --no-password ${OTHERARGS[@]+"${OTHERARGS[@]}"}
 }
 
 run_pg_restore() {
@@ -612,7 +612,7 @@ run_pg_restore() {
       echo "ERROR: Must supply arguments for pg_restore"
       exit 1
    fi
-   pg_restore -d "$DB_URL" --no-password "${OTHERARGS[@]}"
+   pg_restore -d "$DB_URL" --no-password ${OTHERARGS[@]+"${OTHERARGS[@]}"}
 }
 
 run_redis() {
@@ -620,7 +620,7 @@ run_redis() {
    if [ -n "${TLS:-}" ]; then
       args+=("$TLS")
    fi
-   redis-cli "${args[@]}" "${OTHERARGS[@]}"
+   redis-cli "${args[@]}" ${OTHERARGS[@]+"${OTHERARGS[@]}"}
 }
 
 run_sqlcmd() {
@@ -641,14 +641,14 @@ run_sqlcmd() {
 
    if [ -n "${Inputfile:-}" ]; then
       if [ -n "${CompressedInput:-}" ]; then
-         gzip -d --to-stdout "${Inputfile}" | SQLCMDPASSWORD="${DB_PASSWORD:-}" sqlcmd "${args[@]}" "${OTHERARGS[@]}"
+         gzip -d --to-stdout "${Inputfile}" | SQLCMDPASSWORD="${DB_PASSWORD:-}" sqlcmd "${args[@]}" ${OTHERARGS[@]+"${OTHERARGS[@]}"}
       else
-         SQLCMDPASSWORD="${DB_PASSWORD:-}" sqlcmd "${args[@]}" "${OTHERARGS[@]}" -i "${Inputfile}"
+         SQLCMDPASSWORD="${DB_PASSWORD:-}" sqlcmd "${args[@]}" ${OTHERARGS[@]+"${OTHERARGS[@]}"} -i "${Inputfile}"
       fi
    elif [ -n "${DB_PASSWORD:-}" ]; then
-      SQLCMDPASSWORD="${DB_PASSWORD}" sqlcmd "${args[@]}" "${OTHERARGS[@]}"
+      SQLCMDPASSWORD="${DB_PASSWORD}" sqlcmd "${args[@]}" ${OTHERARGS[@]+"${OTHERARGS[@]}"}
    else
-      sqlcmd "${args[@]}" "${OTHERARGS[@]}"
+      sqlcmd "${args[@]}" ${OTHERARGS[@]+"${OTHERARGS[@]}"}
    fi
 }
 
