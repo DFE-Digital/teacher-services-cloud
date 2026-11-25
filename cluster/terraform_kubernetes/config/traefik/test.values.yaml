@@ -196,6 +196,7 @@ updateStrategy:  # @schema additionalProperties: false
     maxSurge: 1        # @schema type:[integer, string, null]
 
 experimental:
+  abortOnPluginFailure: true
   plugins:
     xrealip:
       moduleName: "github.com/jeppestaerk/traefik-xff-to-xrealip"
