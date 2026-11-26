@@ -1,24 +1,20 @@
 #!/bin/bash
 # Connect to a backend service via an app instance
 #
-
 # TODO
 #
 # - usually more than one redis service. Set default and how to override?
 # - test against azure redis service when available
 # - confirm before running if interactive, a flag to run without confirmation?
 #
-
 # Stop the script in case a command fails. Cleanup will still run
 # Fail when a variable is unexpectedly not set
 # If variable $VAR can be unset, use ${VAR:-} to provide a default "" value
 set -euo pipefail
-
 help() {
    echo
    echo "Script to connect to a k8 backing service via an app service"
    echo
-
    echo "Syntax:"
    echo "   konduit [-a|-c|-h|-q|-x|-i file-name|-p postgres-var|-m sqlserver-var|-r redis-var|-e auth-mode|-s server-name|-t timeout|-n namespace] app-name -- command [args]"
    echo "      Connect to the default database for app-name"
@@ -26,8 +22,8 @@ help() {
    echo "or konduit [-a|-c|-h|-q|-x|-i file-name|-p postgres-var|-m sqlserver-var|-r redis-var|-e auth-mode|-s server-name|-t timeout|-n namespace] -b db-name app-name -- command [args]"
    echo "      Connect to database 'db-name' using URL and credentials from app-name"
    echo
-   echo "or konduit [-a|-c|-h|-q|-x|-i file-name|-p postgres-var|-m sqlserver-var|-r redis-var|-e auth-mode|-s server-name|-t timeout|-n namespace] -u 'db-url' app-name -- command [args]"
-   echo "      Connect to database URL 'db-url' (or SQL Server connection string) using app-name as tunnel"
+   echo "or konduit [-a|-c|-h|-q|-x|-i file-name|-p postgres-var|-m sqlserver-var|-r redis-var|-e auth-mode|-s server-name|-t timeout|-n namespace] -u 'connection-string' app-name -- command [args]"
+   echo "      Connect using the supplied database URL or SQL Server connection string"
    echo
    echo "or konduit [-a|-c|-h|-q|-x|-i file-name|-m sqlserver-var|-r redis-var|-e auth-mode|-t timeout|-n namespace] -d keyvault-db-name -k key-vault app-name -- command [args]"
    echo "      Connect to a specific database from app-name"
@@ -36,13 +32,15 @@ help() {
    echo
    echo "options:"
    echo "   -a                Backend is an AKS service. Default is Azure backing service."
-   echo "   -c                Input file is compresses. Requires -i."
-   echo "   -b                Override database name if connecting to a db other than the app default."
+   echo "   -c                Input file is compressed. Requires -i."
+   echo "   -b db-name        Override database name if connecting to a db other than the app default."
    echo "                     In case of redis, it is the database index: 0, 1, 2..."
    echo "   -d keyvault-db-name        Database name in keyvault secret name, required for the -k option"
    echo "                     It can only contain alphanumerical characters and hyphens"
    echo "   -e auth-mode      SQL Server authentication mode: sql or entra. Default: auto-detect from connection string."
-   echo "   -i file-name      Input file for a restore. Only valid for commands psql and sqlcmd."
+   echo "   -i file-name      Input file for SQL commands. Supports psql and sqlcmd; use -c for gzip-compressed files."
+   echo "                     For psql, known Konduit banners in the leading blank/comment preamble are removed with a warning."
+   echo "                     SQL errors are not suppressed; use -q when exporting backups to avoid capturing banners."
    echo "   -k key-vault      Key vault that holds the Azure secret containing the DB URL."
    echo "                     The secret {db-name}-database-url must exist in this vault,"
    echo "                     and contain a full connection URL or SQL Server connection string."
@@ -56,8 +54,8 @@ help() {
    echo "   -r redis-var      Variable for redis cache [defaults to REDIS_URL if not set]"
    echo "                     Only valid for command redis-cli"
    echo "   -s server-name    Override server name. Postgres only, used to access PTR server. Hostname without .postgres.database.azure.com suffix."
-   echo "   -t timeout        Timeout in seconds. Default is 28800 but 3600 for psql, sqlcmd (with -i), pg_dump or pg_restore commands."
-   echo "   -u 'db-url'       Full connection URL or SQL Server connection string if different from the URL in the app used for tunnelling. See 'connection string' below."
+   echo "   -t timeout        Timeout in seconds. Default is 28800 but 3600 for file-based SQL and backup commands."
+   echo "   -u 'connection-string' Full connection URL/string if different from the app value used for tunnelling."
    echo "                     It should be enclosed in quotes to avoid shell interpretation"
    echo "   -x                Runs konduit through a separate pod"
    echo "   -h                Print this help."
@@ -80,7 +78,6 @@ help() {
    echo "   konduit -m SQLSERVER_CONNECTION_STRING my-app -- sqlcmd"
    echo "   konduit -m SQLSERVER_CONNECTION_STRING -e entra my-app -- sqlcmd -Q 'SELECT TOP 10 * FROM dbo.TableName'"
 }
-
 init_setup() {
    if [ "${RUNCMD}" != "psql" ] && [ "${RUNCMD}" != "pg_dump" ] && [ "${RUNCMD}" != "pg_restore" ] && [ "${RUNCMD}" != "redis-cli" ] && [ "${RUNCMD}" != "sqlcmd" ]; then
       echo
@@ -89,12 +86,10 @@ init_setup() {
       help
       exit 1
    fi
-
    if [ "${RUNCMD}" = "sqlcmd" ] && ! command -v sqlcmd >/dev/null 2>&1; then
       echo "Error: sqlcmd is required for SQL Server connections. Install Microsoft's sqlcmd command-line tool."
       exit 1
    fi
-
    if [ -z "${Timeout:-}" ]; then
       # Default timeout for psql/pg_dump/pg_restore set to 8 hours. Increase if required.
       # This is to allow for long running queries or backups.
@@ -111,13 +106,15 @@ init_setup() {
    else
      TMOUT="${Timeout}"
    fi
-
    # If an input file is given, check it exists and is readable
    if [ -n "${Inputfile:-}" ] && [ ! -r "${Inputfile}" ]; then
       echo "Error: invalid input file"
       exit 1
    fi
-
+   if [ -n "${CompressedInput:-}" ] && [ -z "${Inputfile:-}" ]; then
+      echo "Error: -c requires an input file specified with -i"
+      exit 1
+   fi
    # Settings dependant on AKS or Azure backing service
    if [ -z "${AKS:-}" ]; then
       # redis backing service requires TLS set for redis-cli
@@ -128,34 +125,27 @@ init_setup() {
       TLS=""
       REDIS_PORT=6379
    fi
-
    # Set default Redis var if not set
    if [ -z "${Redis:-}" ]; then
       Redis="REDIS_URL"
    fi
-
    # Set default Postgres var if not set
    if [ -z "${Postgres:-}" ]; then
       Postgres="DATABASE_URL"
    fi
-
    if [ -z "${SQLServer:-}" ]; then
       SQLServer="SQLSERVER_CONNECTION_STRING"
    fi
-
    # Set default Quiet var if not set
    if [ -z "${Quiet:-}" ]; then
       Quiet="False"
    fi
-
    # Get the deployment namespace
    if [[ -z "${NAMESPACE:-}" ]]; then
       NAMESPACE=$(kubectl get deployments -A | grep "${INSTANCE} " | awk '{print $1}')
    fi
-
    # Set service ports
    DB_PORT=5432
-
    # Set variables if using a separate deployment to access the database
    if [ -n "${Jumppod:-}" ]; then
       OLDINST=${INSTANCE}
@@ -251,7 +241,6 @@ EOF
       fi
    fi
 }
-
 check_instance() {
    # make sure it's LC
    INSTANCE=$(echo "${INSTANCE}" | tr '[:upper:]' '[:lower:]')
@@ -261,11 +250,9 @@ check_instance() {
       exit 1
    fi
 }
-
 is_port_in_use() {
    nc -z 127.0.0.1 $LOCAL_PORT 2>/dev/null
 }
-
 set_ports() {
    # Get a random DEST port for the k8 container
    # so there is minimal conflict between users
@@ -273,7 +260,6 @@ set_ports() {
    until [ $DEST_PORT -gt 1024 ]; do
       DEST_PORT=$RANDOM
    done
-
    # Get a random LOCAL port
    # so we can have more than one session if wanted
    LOCAL_PORT=$RANDOM
@@ -282,7 +268,6 @@ set_ports() {
       LOCAL_PORT=$RANDOM
    done
 }
-
 set_db_psql() {
    PORT=${DB_PORT}
    # Get DB settings
@@ -293,7 +278,6 @@ set_db_psql() {
    # Format for k8 pod
    #     postgres://ADMIN_USER:ADMIN_PASSWORD@someapp-postgres-review-99999:5432/someapp-postgres-review-99999
    #
-
    if [ -n "${DB_URL_ARG:-}" ]; then
       ORIG_URL="${DB_URL_ARG}"
    elif [ -z "${KV:-}" ]; then
@@ -308,24 +292,20 @@ set_db_psql() {
    fi
    DB_URL=$(echo "${ORIG_URL}" | sed "s|@.*/|@127.0.0.1:${LOCAL_PORT}/|g")
    DB_HOSTNAME=$(echo "${ORIG_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
-
    # Override the database name if requested
    if [ -n "${DBName:-}" ]; then
       # Replace the database name after the last /, and before ? if it's present
       DB_URL=$(echo "${DB_URL}" | sed "s|/[^/?]*\([?].*\)\?$|/${DBName}\1|")
    fi
-
    # Override the server name if requested
    if [ -n "${ServerName:-}" ]; then
       DB_HOSTNAME=${ServerName}.postgres.database.azure.com
    fi
-
    if [ -z "${ORIG_URL:-}" ] || [ -z "${DB_URL:-}" ] || [ -z "${DB_HOSTNAME:-}" ]; then
       echo "Error: invalid DB settings"
       exit 1
    fi
 }
-
 set_db_redis() {
    PORT=${REDIS_PORT}
    # Get DB settings
@@ -335,7 +315,6 @@ set_db_redis() {
    #     rediss://:somepassword=@s9999t99-att-env-redis-service.redis.cache.windows.net:6380/0
    # Format for k8 pod
    #     redis://someapp-redis-review-99999:6379/0
-
    if [ -n "${DB_URL_ARG:-}" ]; then
       ORIG_URL="${DB_URL_ARG}"
    elif [ -z "${KV:-}" ]; then
@@ -348,7 +327,6 @@ set_db_redis() {
    else
       ORIG_URL=$(az keyvault secret show --name "${KVDBName}"-database-url --vault-name "${KV}" | jq -r .value)
    fi
-
    if [ -z "${AKS:-}" ]; then
       DB_URL=$(echo "${ORIG_URL}" | sed "s|@.*/|@127.0.0.1:${LOCAL_PORT}/|g" | sed "s|rediss://|rediss://default|g")
       DB_HOSTNAME=$(echo "${ORIG_URL}" | awk -F"@" '{print $2}' | awk -F":" '{print $1}')
@@ -356,18 +334,15 @@ set_db_redis() {
       DB_URL=$(echo "$ORIG_URL" | sed "s|//.*|//127.0.0.1:${LOCAL_PORT}/|g")
       DB_HOSTNAME=$(echo "$ORIG_URL" | awk -F"/" '{print $3}' | awk -F":" '{print $1}')
    fi
-
    # Override the database name if requested
    if [ -n "${DBName:-}" ]; then
       DB_URL=$(echo "${DB_URL}" | sed "s|[^/]*$|${DBName}|g")
    fi
-
    if [ -z "${ORIG_URL:-}" ] || [ -z "${DB_URL:-}" ] || [ -z "${DB_HOSTNAME:-}" ]; then
       echo "Error: invalid DB settings"
       exit 1
    fi
 }
-
 connection_string_value() {
    local key="$1"
    printf '%s\n' "${ORIG_URL}" | awk -v key="${key}" '
@@ -439,7 +414,6 @@ connection_string_value() {
          check_token(token)
       }'
 }
-
 load_sqlserver_envfrom() {
    local references reference resource name prefix data keys
    local available_names=""
@@ -475,7 +449,6 @@ load_sqlserver_envfrom() {
       exit 1
    fi
 }
-
 set_db_sqlserver() {
    PORT=1433
    if [ -n "${DB_URL_ARG:-}" ]; then
@@ -509,12 +482,10 @@ set_db_sqlserver() {
    else
       ORIG_URL=$(az keyvault secret show --name "${KVDBName}-database-url" --vault-name "${KV}" | jq -r .value)
    fi
-
    if [ -z "${ORIG_URL:-}" ] || [ "${ORIG_URL}" = "null" ]; then
       echo "Error: SQL Server connection setting is empty. Check the setting selected with -m or the Key Vault secret." >&2
       exit 1
    fi
-
    DB_SERVER=$(connection_string_value "Server")
    if [ -z "${DB_SERVER}" ]; then
       DB_SERVER=$(connection_string_value "Data Source")
@@ -536,11 +507,9 @@ set_db_sqlserver() {
    if [ -z "${DB_PASSWORD}" ]; then
       DB_PASSWORD=$(connection_string_value "Pwd")
    fi
-
    if [ -n "${DBName:-}" ]; then
       DB_DATABASE="${DBName}"
    fi
-
    if [ -z "${DB_HOSTNAME:-}" ] || [ -z "${DB_DATABASE:-}" ]; then
       echo "Error: SQL Server connection setting was loaded but is missing required fields:" >&2
       if [ -z "${DB_HOSTNAME:-}" ]; then
@@ -555,7 +524,6 @@ set_db_sqlserver() {
       echo "Error: invalid SQL Server port in connection string"
       exit 1
    fi
-
    SQL_AUTH="${SQLAuth:-auto}"
    if [ "${SQL_AUTH}" = "auto" ]; then
       if [ -n "${DB_USER}" ] && [ -n "${DB_PASSWORD}" ]; then
@@ -573,44 +541,59 @@ set_db_sqlserver() {
       exit 1
    fi
 }
-
 open_tunnels() {
    # Open netcat tunnel between k8 deployment and postgres database
    # Timeout of 8 hours set for an interactive session
    # Testing for kubectl deployment with multiple replicas always hit the same pod (the first one?),
    # will have to revisit if it becomes an issue
    echo 'nc -v -lk -p '${DEST_PORT}' -w '${TMOUT}' -e /usr/bin/nc -w '${TMOUT} "${DB_HOSTNAME}" "${PORT}" | kubectl -n "${NAMESPACE}" exec -i deployment/"${INSTANCE}" -- sh &
-
    # Open local tunnel to k8 deployment
    kubectl port-forward -n "${NAMESPACE}" deployment/"${INSTANCE}" ${LOCAL_PORT}:${DEST_PORT} &
 }
-
+strip_psql_preamble() {
+   awk '
+      # Stop filtering at the first SQL statement or psql command to protect table data.
+      !started && /^Using app [a-z0-9][a-z0-9-]* to connect to database( for [a-z0-9][a-z0-9-]*)?$/ {
+         print "Warning: removed Konduit informational banner from SQL backup preamble" > "/dev/stderr"
+         next
+      }
+      {
+         if ($0 !~ /^[[:space:]]*(--|$)/) {
+            started = 1
+         }
+         print
+      }'
+}
 run_psql() {
    if [ -z "${Inputfile:-}" ]; then
-      psql -d "$DB_URL" --no-password "${OTHERARGS}"
+      psql -d "$DB_URL" --no-password ${OTHERARGS[@]+"${OTHERARGS[@]}"}
    elif [ -z "${CompressedInput:-}" ]; then
-      psql -d "$DB_URL" --no-password <"$Inputfile"
+      strip_psql_preamble <"$Inputfile" | psql -d "$DB_URL" --no-password ${OTHERARGS[@]+"${OTHERARGS[@]}"}
    else
-      gzip -d --to-stdout "${Inputfile}" | psql -d "$DB_URL" --no-password
+      gzip -d --to-stdout "${Inputfile}" | strip_psql_preamble | psql -d "$DB_URL" --no-password ${OTHERARGS[@]+"${OTHERARGS[@]}"}
    fi
 }
-
 run_pgdump() {
-   if [ -z "${OTHERARGS:-}" ]; then
+   if [ "${#OTHERARGS[@]}" -eq 0 ]; then
       echo "ERROR: Must supply arguments for pg_dump"
       exit 1
    fi
-   pg_dump -d "$DB_URL" --no-password ${OTHERARGS}
+   pg_dump -d "$DB_URL" --no-password ${OTHERARGS[@]+"${OTHERARGS[@]}"}
 }
-
 run_pg_restore() {
-   if [ -z "${OTHERARGS:-}" ]; then
+   if [ "${#OTHERARGS[@]}" -eq 0 ]; then
       echo "ERROR: Must supply arguments for pg_restore"
       exit 1
    fi
-   pg_restore -d "$DB_URL" --no-password ${OTHERARGS}
+   pg_restore -d "$DB_URL" --no-password ${OTHERARGS[@]+"${OTHERARGS[@]}"}
 }
-
+run_redis() {
+   local -a args=(-u "$DB_URL")
+   if [ -n "${TLS:-}" ]; then
+      args+=("$TLS")
+   fi
+   redis-cli "${args[@]}" ${OTHERARGS[@]+"${OTHERARGS[@]}"}
+}
 run_sqlcmd() {
    local -a args=(-S "tcp:127.0.0.1,${LOCAL_PORT}" -d "${DB_DATABASE}" -N -F "${DB_HOSTNAME}" -b)
    local login="${DB_USER}"
@@ -626,20 +609,18 @@ run_sqlcmd() {
       fi
       args+=(-U "${login}")
    fi
-
    if [ -n "${Inputfile:-}" ]; then
       if [ -n "${CompressedInput:-}" ]; then
-         gzip -d --to-stdout "${Inputfile}" | SQLCMDPASSWORD="${DB_PASSWORD:-}" sqlcmd "${args[@]}" ${SQLARGS[@]+"${SQLARGS[@]}"}
+         gzip -d --to-stdout "${Inputfile}" | SQLCMDPASSWORD="${DB_PASSWORD:-}" sqlcmd "${args[@]}" ${OTHERARGS[@]+"${OTHERARGS[@]}"}
       else
-         SQLCMDPASSWORD="${DB_PASSWORD:-}" sqlcmd "${args[@]}" ${SQLARGS[@]+"${SQLARGS[@]}"} -i "${Inputfile}"
+         SQLCMDPASSWORD="${DB_PASSWORD:-}" sqlcmd "${args[@]}" ${OTHERARGS[@]+"${OTHERARGS[@]}"} -i "${Inputfile}"
       fi
    elif [ -n "${DB_PASSWORD:-}" ]; then
-      SQLCMDPASSWORD="${DB_PASSWORD}" sqlcmd "${args[@]}" ${SQLARGS[@]+"${SQLARGS[@]}"}
+      SQLCMDPASSWORD="${DB_PASSWORD}" sqlcmd "${args[@]}" ${OTHERARGS[@]+"${OTHERARGS[@]}"}
    else
-      sqlcmd "${args[@]}" ${SQLARGS[@]+"${SQLARGS[@]}"}
+      sqlcmd "${args[@]}" ${OTHERARGS[@]+"${OTHERARGS[@]}"}
    fi
 }
-
 cleanup() {
    unset DB_URL DB_HOSTNAME ORIG_URL
    pkill -15 -f "kubectl port-forward.*${LOCAL_PORT}"
@@ -652,7 +633,6 @@ cleanup() {
    trap - EXIT
    exit
 }
-
 # Get the options
 while getopts "ahcxqd:i:k:r:n:p:s:t:u:b:e:m:" option; do
    case $option in
@@ -729,13 +709,10 @@ if [[ -z "$RUNCMD" ]]; then
    exit 1
 fi
 shift 3
-OTHERARGS=${*:-}
-SQLARGS=("$@")
-
+OTHERARGS=("$@")
 ###
 ### Main
 ###
-
 trap 'cleanup >/dev/null 2>&1 || true' EXIT SIGHUP SIGTERM
 init_setup
 check_instance
@@ -756,7 +733,7 @@ pg_restore)
    ;;
 redis-cli)
    set_db_redis
-   CMD="redis-cli -u $DB_URL $TLS ${OTHERARGS}"
+   CMD="run_redis"
    ;;
 sqlcmd)
    set_db_sqlserver
